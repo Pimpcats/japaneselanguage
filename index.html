@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Hanasou — Japanese speaking drill</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main id="app">
+      <header>
+        <h1>はなそう</h1>
+        <div id="progress">card <span id="card-num">–</span> of <span id="card-total">–</span></div>
+      </header>
+
+      <section id="card">
+        <div class="label">Say this in Japanese</div>
+        <div id="prompt-en">Loading…</div>
+
+        <div id="hint-row" hidden>
+          <button id="show-hint-btn" class="link">show hint</button>
+          <div id="hint" hidden></div>
+        </div>
+
+        <div id="reveal-area" hidden>
+          <div class="label">Model answer</div>
+          <div id="answer-kana"></div>
+          <div id="answer-romaji"></div>
+        </div>
+      </section>
+
+      <section id="controls">
+        <button id="play-en-btn" class="secondary" title="Hear the English prompt">🔈 prompt</button>
+        <button id="reveal-btn" class="primary">🎌 reveal &amp; hear</button>
+        <button id="replay-btn" class="secondary" hidden>🔁 play again</button>
+        <button id="slow-btn" class="secondary" hidden>🐢 slow</button>
+      </section>
+
+      <section id="grade" hidden>
+        <div class="label">How did that go?</div>
+        <div class="grade-row">
+          <button data-grade="0" class="grade nope">nope</button>
+          <button data-grade="1" class="grade kinda">kinda</button>
+          <button data-grade="2" class="grade got">got it</button>
+        </div>
+      </section>
+
+      <footer>
+        <button id="reset-btn" class="link" title="Clear progress for this session">reset session</button>
+        <span id="voice-warn" hidden>⚠ no Japanese voice detected — try Chrome or install a Japanese TTS voice</span>
+      </footer>
+    </main>
+
+    <script src="prompts.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
