@@ -7,6 +7,14 @@
 
   const STORAGE_KEY = "hanasou.v1";
 
+  const LEVELS = [
+    { n: 1, name: "Survival" },
+    { n: 2, name: "Daily" },
+    { n: 3, name: "Pimsleur 4-5" },
+    { n: 4, name: "Intermediate" },
+    { n: 5, name: "Conversational" },
+  ];
+
   const el = {
     promptEn: document.getElementById("prompt-en"),
     answerKana: document.getElementById("answer-kana"),
@@ -24,6 +32,7 @@
     cardTotal: document.getElementById("card-total"),
     resetBtn: document.getElementById("reset-btn"),
     voiceWarn: document.getElementById("voice-warn"),
+    levelRow: document.getElementById("level-row"),
   };
 
   // ---- Voice picking -------------------------------------------------------
@@ -72,11 +81,16 @@
   }
   const state = loadState();
   state.ease = state.ease || {}; // {id: {seen, mistakes, lastGrade}}
+  // Default: only Survival enabled so a beginner sees a focused deck.
+  state.levels = state.levels || { 1: true, 2: false, 3: false, 4: false, 5: false };
 
   // ---- Queue building ------------------------------------------------------
   // Bias toward cards the user has flubbed before; shuffle the rest.
   function buildQueue() {
-    const all = window.PROMPTS.slice();
+    const enabled = new Set(
+      Object.entries(state.levels).filter(([, on]) => on).map(([n]) => Number(n))
+    );
+    const all = window.PROMPTS.filter((p) => enabled.has(p.level));
     const weighted = all.map((p) => {
       const e = state.ease[p.id] || { seen: 0, mistakes: 0 };
       // Weight: brand-new and previously-missed cards bubble up.
@@ -94,6 +108,32 @@
   let cardIndex = 0;
 
   el.cardTotal.textContent = queue.length;
+
+  // ---- Level filter UI ------------------------------------------------------
+  function renderLevelPills() {
+    el.levelRow.innerHTML = "";
+    for (const { n, name } of LEVELS) {
+      const count = window.PROMPTS.filter((p) => p.level === n).length;
+      const btn = document.createElement("button");
+      btn.className = "level-pill" + (state.levels[n] ? " on" : "");
+      btn.innerHTML = `L${n}<span class="lv-name">${name}</span> · ${count}`;
+      btn.addEventListener("click", () => {
+        state.levels[n] = !state.levels[n];
+        if (!Object.values(state.levels).some(Boolean)) {
+          // Don't allow empty deck — flip this one back on.
+          state.levels[n] = true;
+        }
+        saveState(state);
+        renderLevelPills();
+        queue = buildQueue();
+        cardIndex = 0;
+        el.cardTotal.textContent = queue.length;
+        nextCard();
+      });
+      el.levelRow.appendChild(btn);
+    }
+  }
+  renderLevelPills();
 
   // ---- Render --------------------------------------------------------------
   function renderCard() {
