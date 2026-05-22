@@ -5,7 +5,7 @@
 (function () {
   "use strict";
 
-  const STORAGE_KEY = "hanasou.v1";
+  const STORAGE_KEY = "hanasou.v2";
 
   const LEVELS = [
     { n: 1, name: "Survival" },
@@ -81,8 +81,8 @@
   }
   const state = loadState();
   state.ease = state.ease || {}; // {id: {seen, mistakes, lastGrade}}
-  // Default: only Survival enabled so a beginner sees a focused deck.
-  state.levels = state.levels || { 1: true, 2: false, 3: false, 4: false, 5: false };
+  // Default: all levels enabled — user can deselect to narrow practice.
+  state.levels = state.levels || { 1: true, 2: true, 3: true, 4: true, 5: true };
 
   // ---- Queue building ------------------------------------------------------
   // Bias toward cards the user has flubbed before; shuffle the rest.
