@@ -145,6 +145,61 @@ button.level-pill .lv-name {
   font-style: italic;
 }
 
+.word-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  padding-top: 0.8rem;
+  border-top: 1px dashed var(--line);
+}
+
+.word-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+  border: 1px solid;
+  text-align: center;
+  min-width: 2.5rem;
+  line-height: 1.15;
+}
+
+.wc-jp {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.wc-en {
+  font-size: 0.65rem;
+  margin-top: 0.15rem;
+  opacity: 0.85;
+}
+
+/* Part-of-speech colors — light */
+.pos-n    { background: #dbeafe; border-color: #93c5fd; color: #1e3a8a; }
+.pos-v    { background: #fef3c7; border-color: #fbbf24; color: #78350f; }
+.pos-adj  { background: #ede9fe; border-color: #a78bfa; color: #4c1d95; }
+.pos-adv  { background: #d1fae5; border-color: #6ee7b7; color: #064e3b; }
+.pos-prt  { background: #f3f4f6; border-color: #d1d5db; color: #374151; }
+.pos-cop  { background: #f3f4f6; border-color: #d1d5db; color: #374151; }
+.pos-expr { background: #fee2e2; border-color: #fca5a5; color: #7f1d1d; }
+.pos-aux  { background: #fef9c3; border-color: #fde047; color: #713f12; }
+.pos-conj { background: #ccfbf1; border-color: #5eead4; color: #134e4a; }
+
+@media (prefers-color-scheme: dark) {
+  .pos-n    { background: #1e3a5f; border-color: #3b82f6; color: #bfdbfe; }
+  .pos-v    { background: #422006; border-color: #d97706; color: #fde68a; }
+  .pos-adj  { background: #2e1065; border-color: #7c3aed; color: #ddd6fe; }
+  .pos-adv  { background: #064e3b; border-color: #059669; color: #a7f3d0; }
+  .pos-prt  { background: #1f2937; border-color: #4b5563; color: #d1d5db; }
+  .pos-cop  { background: #1f2937; border-color: #4b5563; color: #d1d5db; }
+  .pos-expr { background: #450a0a; border-color: #dc2626; color: #fecaca; }
+  .pos-aux  { background: #3f2c06; border-color: #ca8a04; color: #fef08a; }
+  .pos-conj { background: #042f2e; border-color: #14b8a6; color: #99f6e4; }
+}
+
 #controls {
   display: flex;
   gap: 0.6rem;

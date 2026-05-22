@@ -33,6 +33,7 @@
     resetBtn: document.getElementById("reset-btn"),
     voiceWarn: document.getElementById("voice-warn"),
     levelRow: document.getElementById("level-row"),
+    wordBreakdown: document.getElementById("word-breakdown"),
   };
 
   // ---- Voice picking -------------------------------------------------------
@@ -150,6 +151,25 @@
     el.grade.hidden = true;
     el.revealBtn.disabled = false;
     el.cardNum.textContent = cardIndex + 1;
+    renderWordBreakdown(current);
+  }
+
+  function renderWordBreakdown(prompt) {
+    el.wordBreakdown.innerHTML = "";
+    if (!prompt.words || !prompt.words.length) return;
+    for (const w of prompt.words) {
+      const chip = document.createElement("div");
+      chip.className = `word-chip pos-${w.pos || "n"}`;
+      const jp = document.createElement("span");
+      jp.className = "wc-jp";
+      jp.textContent = w.jp;
+      const en = document.createElement("span");
+      en.className = "wc-en";
+      en.textContent = w.en;
+      chip.appendChild(jp);
+      chip.appendChild(en);
+      el.wordBreakdown.appendChild(chip);
+    }
   }
 
   function nextCard() {
