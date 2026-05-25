@@ -69,29 +69,78 @@ h1 {
   margin-bottom: 0.5rem;
 }
 
-.levels { display: flex; flex-direction: column; gap: 0.5rem; }
-.level-row {
+/* ---- Lesson intro ---- */
+#lesson-intro {
   display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.75rem;
 }
-button.level-pill {
-  padding: 0.45rem 0.8rem;
-  font-size: 0.85rem;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--card);
-  color: var(--muted);
+#lesson-title {
+  font-size: 1.5rem;
+  margin: 0;
+  line-height: 1.3;
 }
-button.level-pill.on {
+.lesson-grammar {
+  display: inline-block;
+  align-self: flex-start;
   background: var(--accent);
   color: #fff;
-  border-color: var(--accent);
-}
-button.level-pill .lv-name {
+  font-size: 0.85rem;
   font-weight: 600;
-  margin-left: 0.3rem;
-  opacity: 0.85;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+}
+.lesson-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.tap-hint {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-left: 0.4rem;
+}
+
+.vocab-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+button.vocab-row {
+  display: grid;
+  grid-template-columns: 6.5rem 7rem 1fr;
+  align-items: baseline;
+  gap: 0.5rem;
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid;
+  border-radius: 10px;
+  width: 100%;
+}
+.vocab-row .v-jp { font-size: 1.25rem; font-weight: 700; }
+.vocab-row .v-romaji { font-size: 0.85rem; opacity: 0.8; font-style: italic; }
+.vocab-row .v-en { font-size: 0.95rem; }
+
+#start-btn { margin-top: 0.75rem; }
+
+/* ---- Lesson complete ---- */
+#lesson-done {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 2rem 0;
+}
+#lesson-done h2 { margin: 0; font-size: 1.6rem; }
+.done-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-top: 1rem;
+  flex-wrap: wrap;
 }
 
 #card {

@@ -10,15 +10,24 @@
     <main id="app">
       <header>
         <h1>はなそう</h1>
-        <div id="progress">card <span id="card-num">–</span> of <span id="card-total">–</span></div>
+        <div id="progress" hidden>card <span id="card-num">–</span> of <span id="card-total">–</span></div>
       </header>
 
-      <section id="levels" class="levels">
-        <div class="label">Levels</div>
-        <div id="level-row" class="level-row"></div>
+      <!-- Lesson intro: vocab + grammar point shown before drilling -->
+      <section id="lesson-intro">
+        <div class="label">Lesson</div>
+        <h2 id="lesson-title"></h2>
+        <div id="lesson-grammar" class="lesson-grammar"></div>
+        <p id="lesson-note" class="lesson-note"></p>
+
+        <div class="label">Words in this lesson <span class="tap-hint">tap to hear</span></div>
+        <div id="vocab-list" class="vocab-list"></div>
+
+        <button id="start-btn" class="primary">Start practice →</button>
       </section>
 
-      <section id="card">
+      <!-- Drill -->
+      <section id="card" hidden>
         <div class="label">Say this in Japanese</div>
         <div id="prompt-en">Loading…</div>
 
@@ -35,7 +44,7 @@
         </div>
       </section>
 
-      <section id="controls">
+      <section id="controls" hidden>
         <button id="play-en-btn" class="secondary" title="Hear the English prompt">🔈 prompt</button>
         <button id="reveal-btn" class="primary">🎌 reveal &amp; hear</button>
         <button id="replay-btn" class="secondary" hidden>🔁 play again</button>
@@ -51,13 +60,22 @@
         </div>
       </section>
 
+      <!-- Lesson complete -->
+      <section id="lesson-done" hidden>
+        <h2>Lesson complete 🎉</h2>
+        <p class="lesson-note">You drilled every sentence in this lesson.</p>
+        <div class="done-actions">
+          <button id="review-vocab-btn" class="secondary">← back to words</button>
+          <button id="restart-btn" class="primary">practice again</button>
+        </div>
+      </section>
+
       <footer>
-        <button id="reset-btn" class="link" title="Clear progress for this session">reset session</button>
         <span id="voice-warn" hidden>⚠ no Japanese voice detected — try Chrome or install a Japanese TTS voice</span>
       </footer>
     </main>
 
-    <script src="prompts.js"></script>
+    <script src="lessons.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

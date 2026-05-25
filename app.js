@@ -1,39 +1,45 @@
-// Hanasou — Prompt & Respond drill.
-// Flow: show English -> user speaks Japanese aloud -> reveal model answer (TTS) -> self-grade.
-// Grading drives a tiny SRS-lite queue within the session, plus long-term ease in localStorage.
+// Hanasou — lesson-based speaking drill (sample: one lesson).
+// Flow: show lesson vocab + grammar point -> drill sentences that recombine
+// those words -> speak aloud -> reveal model answer (TTS + word breakdown) -> self-grade.
 
 (function () {
   "use strict";
 
-  const STORAGE_KEY = "hanasou.v2";
-
-  const LEVELS = [
-    { n: 1, name: "Survival" },
-    { n: 2, name: "Daily" },
-    { n: 3, name: "Pimsleur 4-5" },
-    { n: 4, name: "Intermediate" },
-    { n: 5, name: "Conversational" },
-  ];
+  const lesson = window.LESSONS && window.LESSONS[0];
 
   const el = {
+    progress: document.getElementById("progress"),
+    cardNum: document.getElementById("card-num"),
+    cardTotal: document.getElementById("card-total"),
+    // intro
+    lessonIntro: document.getElementById("lesson-intro"),
+    lessonTitle: document.getElementById("lesson-title"),
+    lessonGrammar: document.getElementById("lesson-grammar"),
+    lessonNote: document.getElementById("lesson-note"),
+    vocabList: document.getElementById("vocab-list"),
+    startBtn: document.getElementById("start-btn"),
+    // drill
+    card: document.getElementById("card"),
     promptEn: document.getElementById("prompt-en"),
     answerKana: document.getElementById("answer-kana"),
     answerRomaji: document.getElementById("answer-romaji"),
+    wordBreakdown: document.getElementById("word-breakdown"),
     revealArea: document.getElementById("reveal-area"),
     hintRow: document.getElementById("hint-row"),
     showHintBtn: document.getElementById("show-hint-btn"),
     hint: document.getElementById("hint"),
+    controls: document.getElementById("controls"),
     revealBtn: document.getElementById("reveal-btn"),
     replayBtn: document.getElementById("replay-btn"),
     slowBtn: document.getElementById("slow-btn"),
     playEnBtn: document.getElementById("play-en-btn"),
     grade: document.getElementById("grade"),
-    cardNum: document.getElementById("card-num"),
-    cardTotal: document.getElementById("card-total"),
-    resetBtn: document.getElementById("reset-btn"),
+    // done
+    lessonDone: document.getElementById("lesson-done"),
+    restartBtn: document.getElementById("restart-btn"),
+    reviewVocabBtn: document.getElementById("review-vocab-btn"),
+    // misc
     voiceWarn: document.getElementById("voice-warn"),
-    levelRow: document.getElementById("level-row"),
-    wordBreakdown: document.getElementById("word-breakdown"),
   };
 
   // ---- Voice picking -------------------------------------------------------
@@ -69,88 +75,72 @@
     speechSynthesis.speak(u);
   }
 
-  // ---- Persistence ---------------------------------------------------------
-  function loadState() {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    } catch {
-      return {};
+  // ---- Intro / vocab -------------------------------------------------------
+  function span(cls, text) {
+    const s = document.createElement("span");
+    s.className = cls;
+    s.textContent = text;
+    return s;
+  }
+
+  function renderIntro() {
+    el.lessonTitle.textContent = lesson.title;
+    el.lessonGrammar.textContent = lesson.grammar;
+    el.lessonNote.textContent = lesson.grammarNote || "";
+    el.vocabList.innerHTML = "";
+    for (const w of lesson.vocab) {
+      const row = document.createElement("button");
+      row.className = `vocab-row pos-${w.pos || "n"}`;
+      row.appendChild(span("v-jp", w.jp));
+      row.appendChild(span("v-romaji", w.romaji));
+      row.appendChild(span("v-en", w.en));
+      row.addEventListener("click", () => speak(w.jp, { lang: "ja-JP" }));
+      el.vocabList.appendChild(row);
     }
   }
-  function saveState(state) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
-  const state = loadState();
-  state.ease = state.ease || {}; // {id: {seen, mistakes, lastGrade}}
-  // Default: all levels enabled — user can deselect to narrow practice.
-  state.levels = state.levels || { 1: true, 2: true, 3: true, 4: true, 5: true };
 
-  // ---- Queue building ------------------------------------------------------
-  // Bias toward cards the user has flubbed before; shuffle the rest.
-  function buildQueue() {
-    const enabled = new Set(
-      Object.entries(state.levels).filter(([, on]) => on).map(([n]) => Number(n))
-    );
-    const all = window.PROMPTS.filter((p) => enabled.has(p.level));
-    const weighted = all.map((p) => {
-      const e = state.ease[p.id] || { seen: 0, mistakes: 0 };
-      // Weight: brand-new and previously-missed cards bubble up.
-      const noveltyBoost = e.seen === 0 ? 0.3 : 0;
-      const mistakeBoost = e.mistakes * 0.4;
-      const jitter = Math.random();
-      return { p, score: noveltyBoost + mistakeBoost + jitter };
-    });
-    weighted.sort((a, b) => b.score - a.score);
-    return weighted.map((w) => w.p);
+  function showIntro() {
+    el.lessonIntro.hidden = false;
+    el.card.hidden = true;
+    el.controls.hidden = true;
+    el.grade.hidden = true;
+    el.lessonDone.hidden = true;
+    el.progress.hidden = true;
+    speechSynthesis.cancel();
   }
 
-  let queue = buildQueue();
+  // ---- Drill ---------------------------------------------------------------
+  const total = lesson ? lesson.sentences.length : 0;
+  let queue = [];
   let current = null;
-  let cardIndex = 0;
+  let cleared = 0;
 
-  el.cardTotal.textContent = queue.length;
-
-  // ---- Level filter UI ------------------------------------------------------
-  function renderLevelPills() {
-    el.levelRow.innerHTML = "";
-    for (const { n, name } of LEVELS) {
-      const count = window.PROMPTS.filter((p) => p.level === n).length;
-      const btn = document.createElement("button");
-      btn.className = "level-pill" + (state.levels[n] ? " on" : "");
-      btn.innerHTML = `L${n}<span class="lv-name">${name}</span> · ${count}`;
-      btn.addEventListener("click", () => {
-        state.levels[n] = !state.levels[n];
-        if (!Object.values(state.levels).some(Boolean)) {
-          // Don't allow empty deck — flip this one back on.
-          state.levels[n] = true;
-        }
-        saveState(state);
-        renderLevelPills();
-        queue = buildQueue();
-        cardIndex = 0;
-        el.cardTotal.textContent = queue.length;
-        nextCard();
-      });
-      el.levelRow.appendChild(btn);
-    }
+  function startPractice() {
+    queue = lesson.sentences.slice();
+    cleared = 0;
+    el.lessonIntro.hidden = true;
+    el.lessonDone.hidden = true;
+    el.card.hidden = false;
+    el.controls.hidden = false;
+    el.progress.hidden = false;
+    el.cardTotal.textContent = total;
+    nextCard();
   }
-  renderLevelPills();
 
-  // ---- Render --------------------------------------------------------------
   function renderCard() {
-    if (!current) return;
     el.promptEn.textContent = current.en;
     el.answerKana.textContent = current.jp;
     el.answerRomaji.textContent = current.romaji;
     el.hint.textContent = current.hint || "";
     el.hintRow.hidden = !current.hint;
     el.hint.hidden = true;
+    el.showHintBtn.hidden = false;
     el.revealArea.hidden = true;
     el.replayBtn.hidden = true;
     el.slowBtn.hidden = true;
     el.grade.hidden = true;
     el.revealBtn.disabled = false;
-    el.cardNum.textContent = cardIndex + 1;
+    el.cardNum.textContent = Math.min(cleared + 1, total);
     renderWordBreakdown(current);
   }
 
@@ -160,25 +150,18 @@
     for (const w of prompt.words) {
       const chip = document.createElement("div");
       chip.className = `word-chip pos-${w.pos || "n"}`;
-      const jp = document.createElement("span");
-      jp.className = "wc-jp";
-      jp.textContent = w.jp;
-      const en = document.createElement("span");
-      en.className = "wc-en";
-      en.textContent = w.en;
-      chip.appendChild(jp);
-      chip.appendChild(en);
+      chip.appendChild(span("wc-jp", w.jp));
+      chip.appendChild(span("wc-en", w.en));
       el.wordBreakdown.appendChild(chip);
     }
   }
 
   function nextCard() {
-    if (queue.length === 0) {
-      queue = buildQueue();
-      cardIndex = 0;
+    if (cleared >= total || queue.length === 0) {
+      finishLesson();
+      return;
     }
     current = queue.shift();
-    cardIndex++;
     renderCard();
   }
 
@@ -192,23 +175,26 @@
   }
 
   function grade(g) {
-    const id = current.id;
-    const prev = state.ease[id] || { seen: 0, mistakes: 0 };
-    prev.seen += 1;
-    prev.lastGrade = g;
-    if (g === 0) prev.mistakes += 1;
-    state.ease[id] = prev;
-    saveState(state);
-
-    // Re-insertion: nope = bring back in 2-3, kinda = 6-8, got it = drop for now.
-    if (g === 0) queue.splice(Math.min(2, queue.length), 0, current);
-    else if (g === 1) queue.splice(Math.min(7, queue.length), 0, current);
-    // g === 2: do not re-insert this session.
-
+    // nope: send to the back to try again. kinda/got it: cleared.
+    if (g === 0) queue.push(current);
+    else cleared += 1;
     nextCard();
   }
 
+  function finishLesson() {
+    el.card.hidden = true;
+    el.controls.hidden = true;
+    el.grade.hidden = true;
+    el.progress.hidden = true;
+    el.lessonDone.hidden = false;
+    speechSynthesis.cancel();
+  }
+
   // ---- Wire up -------------------------------------------------------------
+  el.startBtn.addEventListener("click", startPractice);
+  el.restartBtn.addEventListener("click", startPractice);
+  el.reviewVocabBtn.addEventListener("click", showIntro);
+
   el.revealBtn.addEventListener("click", revealAndSpeak);
   el.replayBtn.addEventListener("click", () => speak(current.jp, { lang: "ja-JP" }));
   el.slowBtn.addEventListener("click", () => speak(current.jp, { lang: "ja-JP", rate: 0.7 }));
@@ -223,15 +209,10 @@
     b.addEventListener("click", () => grade(Number(b.dataset.grade)))
   );
 
-  el.resetBtn.addEventListener("click", () => {
-    if (!confirm("Clear learning progress and start over?")) return;
-    localStorage.removeItem(STORAGE_KEY);
-    location.reload();
-  });
-
   // Keyboard shortcuts for desktop testing.
   document.addEventListener("keydown", (e) => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if (el.card.hidden) return;
     if (e.key === " " || e.key === "Enter") {
       e.preventDefault();
       if (el.grade.hidden) revealAndSpeak();
@@ -245,6 +226,11 @@
     }
   });
 
-  // First card
-  nextCard();
+  // First screen
+  if (!lesson) {
+    el.lessonTitle.textContent = "No lesson found.";
+  } else {
+    renderIntro();
+    showIntro();
+  }
 })();
