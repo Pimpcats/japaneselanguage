@@ -30,7 +30,101 @@
   prog.cards = prog.cards || {};          // {cardId: {reps, ease, interval, due, lapses}}
   prog.streak = prog.streak || { current: 0, longest: 0, lastDay: null };
   prog.reviews = prog.reviews || 0;
-  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(prog)); }
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
+    schedulePush();
+  }
+
+  // ---- Optional cross-device sync (VPS API) --------------------------------
+  // Local-only until a token is entered; then GET/PUT a single progress blob.
+  const TOKEN_KEY = "hanasou.token";
+  const API = "/api/progress";
+  let pushTimer = null;
+  let syncState = "off"; // off | syncing | ok | error
+
+  const getToken = () => localStorage.getItem(TOKEN_KEY) || "";
+  const setToken = (t) => t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY);
+
+  function setSync(state) { syncState = state; renderSyncBtn(); }
+  function renderSyncBtn() {
+    if (!el.syncBtn) return;
+    const label = { off: "☁ set up sync", syncing: "☁ syncing…", ok: "☁ synced ✓", error: "☁ sync error — tap to retry" };
+    el.syncBtn.textContent = label[syncState] || label.off;
+  }
+
+  function schedulePush() {
+    if (!getToken()) return;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(push, 1200);
+  }
+
+  async function push() {
+    const t = getToken();
+    if (!t) return;
+    setSync("syncing");
+    try {
+      const r = await fetch(API, {
+        method: "PUT",
+        headers: { "Authorization": "Bearer " + t, "Content-Type": "application/json" },
+        body: JSON.stringify({ progress: prog }),
+      });
+      if (!r.ok) throw new Error(r.status);
+      setSync("ok");
+    } catch { setSync("error"); }
+  }
+
+  // Merge two progress blobs without losing reps made on another device.
+  function mergeProgress(local, remote) {
+    if (!remote) return local;
+    const out = {
+      cards: {},
+      streak: Object.assign({ current: 0, longest: 0, lastDay: null }, local.streak),
+      reviews: Math.max(local.reviews || 0, remote.reviews || 0),
+    };
+    const ids = new Set([...Object.keys(local.cards || {}), ...Object.keys(remote.cards || {})]);
+    for (const id of ids) {
+      const a = local.cards && local.cards[id];
+      const b = remote.cards && remote.cards[id];
+      if (!a) out.cards[id] = b;
+      else if (!b) out.cards[id] = a;
+      else out.cards[id] = (b.reps > a.reps || (b.reps === a.reps && (b.due || 0) > (a.due || 0))) ? b : a;
+    }
+    const rs = remote.streak || {};
+    if ((rs.current || 0) > (out.streak.current || 0)) out.streak.current = rs.current;
+    out.streak.longest = Math.max(out.streak.longest || 0, rs.longest || 0);
+    if ((rs.lastDay || "") > (out.streak.lastDay || "")) out.streak.lastDay = rs.lastDay;
+    return out;
+  }
+
+  async function pull() {
+    const t = getToken();
+    if (!t) return;
+    setSync("syncing");
+    try {
+      const r = await fetch(API, { headers: { "Authorization": "Bearer " + t } });
+      if (!r.ok) throw new Error(r.status);
+      const data = await r.json();
+      if (data && data.progress) {
+        const merged = mergeProgress(prog, data.progress);
+        prog.cards = merged.cards;
+        prog.streak = merged.streak;
+        prog.reviews = merged.reviews;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
+      }
+      setSync("ok");
+      renderHome();
+      push(); // write the merged result back
+    } catch { setSync("error"); }
+  }
+
+  function onSyncClick() {
+    if (!getToken()) {
+      const t = prompt("Paste your sync token (the HANASOU_TOKEN from your server):");
+      if (t && t.trim()) { setToken(t.trim()); pull(); }
+    } else {
+      pull(); // manual re-sync / retry
+    }
+  }
 
   const todayStr = () => new Date().toISOString().slice(0, 10);
 
@@ -97,7 +191,7 @@
     revealBtn: $("reveal-btn"), replayBtn: $("replay-btn"), slowBtn: $("slow-btn"), playEnBtn: $("play-en-btn"),
     grade: $("grade"),
     done: $("lesson-done"), doneSummary: $("done-summary"), restartBtn: $("restart-btn"), doneHomeBtn: $("done-home-btn"),
-    voiceWarn: $("voice-warn"),
+    voiceWarn: $("voice-warn"), syncBtn: $("sync-btn"),
   };
 
   function span(cls, text) { const s = document.createElement("span"); s.className = cls; s.textContent = text; return s; }
@@ -311,6 +405,7 @@
   el.playEnBtn.addEventListener("click", () => speak(current.s.en, { lang: "en-US" }));
   el.showHintBtn.addEventListener("click", () => { el.hint.hidden = false; el.showHintBtn.hidden = true; });
   document.querySelectorAll("button.grade").forEach((b) => b.addEventListener("click", () => grade(Number(b.dataset.grade))));
+  if (el.syncBtn) el.syncBtn.addEventListener("click", onSyncClick);
 
   document.addEventListener("keydown", (e) => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
@@ -324,4 +419,6 @@
   });
 
   renderHome();
+  renderSyncBtn();
+  if (getToken()) pull();
 })();

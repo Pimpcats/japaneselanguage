@@ -1,0 +1,24 @@
+# Hanasou — Caddy config. Caddy gets HTTPS automatically via Let's Encrypt.
+# 1. Replace nihongo.example.com with your real subdomain.
+# 2. Make sure that subdomain's DNS A record points at this VPS's public IP.
+# 3. Put this file at /etc/caddy/Caddyfile and run:  sudo systemctl reload caddy
+
+nihongo.example.com {
+	encode gzip
+
+	# Don't serve server source, deploy files, or git internals.
+	handle /server/* { respond 404 }
+	handle /deploy/* { respond 404 }
+	handle /.git/* { respond 404 }
+
+	# Progress-sync API -> local Node service.
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8787
+	}
+
+	# Everything else -> the static app.
+	handle {
+		root * /opt/hanasou
+		file_server
+	}
+}
