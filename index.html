@@ -3,18 +3,26 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Hanasou — Japanese speaking drill</title>
+    <title>はなそう — Japanese speaking drill</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main id="app">
-      <header>
-        <h1>はなそう</h1>
-        <div id="progress" hidden>card <span id="card-num">–</span> of <span id="card-total">–</span></div>
+      <header id="topbar">
+        <button id="back-btn" class="icon-btn" hidden aria-label="Back">←</button>
+        <h1 id="app-title">はなそう</h1>
+        <div id="streak" class="streak" hidden></div>
       </header>
 
-      <!-- Lesson intro: vocab + grammar point shown before drilling -->
-      <section id="lesson-intro">
+      <!-- ============ HOME / LESSON MAP ============ -->
+      <section id="home" class="screen">
+        <div id="stats" class="stats"></div>
+        <button id="review-btn" class="primary review-btn" hidden></button>
+        <div id="lesson-map"></div>
+      </section>
+
+      <!-- ============ LESSON INTRO ============ -->
+      <section id="lesson-intro" class="screen" hidden>
         <div class="label">Lesson</div>
         <h2 id="lesson-title"></h2>
         <div id="lesson-grammar" class="lesson-grammar"></div>
@@ -26,46 +34,51 @@
         <button id="start-btn" class="primary">Start practice →</button>
       </section>
 
-      <!-- Drill -->
-      <section id="card" hidden>
-        <div class="label">Say this in Japanese</div>
-        <div id="prompt-en">Loading…</div>
+      <!-- ============ DRILL ============ -->
+      <section id="drill" class="screen" hidden>
+        <div id="progress-bar"><div id="progress-fill"></div></div>
 
-        <div id="hint-row" hidden>
-          <button id="show-hint-btn" class="link">show hint</button>
-          <div id="hint" hidden></div>
+        <div id="card">
+          <div class="label">Say this in Japanese</div>
+          <div id="prompt-en">…</div>
+
+          <div id="hint-row" hidden>
+            <button id="show-hint-btn" class="link">show hint</button>
+            <div id="hint" hidden></div>
+          </div>
+
+          <div id="reveal-area" hidden>
+            <div class="label">Model answer</div>
+            <div id="answer-kana"></div>
+            <div id="answer-romaji"></div>
+            <div id="word-breakdown" class="word-breakdown"></div>
+          </div>
         </div>
 
-        <div id="reveal-area" hidden>
-          <div class="label">Model answer</div>
-          <div id="answer-kana"></div>
-          <div id="answer-romaji"></div>
-          <div id="word-breakdown" class="word-breakdown"></div>
+        <div id="controls">
+          <button id="play-en-btn" class="secondary" title="Hear the English prompt">🔈 prompt</button>
+          <button id="reveal-btn" class="primary">🎌 reveal &amp; hear</button>
+          <button id="replay-btn" class="secondary" hidden>🔁 again</button>
+          <button id="slow-btn" class="secondary" hidden>🐢 slow</button>
+        </div>
+
+        <div id="grade" hidden>
+          <div class="label">How did that go?</div>
+          <div class="grade-row">
+            <button data-grade="0" class="grade nope">nope</button>
+            <button data-grade="1" class="grade kinda">kinda</button>
+            <button data-grade="2" class="grade got">got it</button>
+          </div>
         </div>
       </section>
 
-      <section id="controls" hidden>
-        <button id="play-en-btn" class="secondary" title="Hear the English prompt">🔈 prompt</button>
-        <button id="reveal-btn" class="primary">🎌 reveal &amp; hear</button>
-        <button id="replay-btn" class="secondary" hidden>🔁 play again</button>
-        <button id="slow-btn" class="secondary" hidden>🐢 slow</button>
-      </section>
-
-      <section id="grade" hidden>
-        <div class="label">How did that go?</div>
-        <div class="grade-row">
-          <button data-grade="0" class="grade nope">nope</button>
-          <button data-grade="1" class="grade kinda">kinda</button>
-          <button data-grade="2" class="grade got">got it</button>
-        </div>
-      </section>
-
-      <!-- Lesson complete -->
-      <section id="lesson-done" hidden>
-        <h2>Lesson complete 🎉</h2>
-        <p class="lesson-note">You drilled every sentence in this lesson.</p>
+      <!-- ============ LESSON COMPLETE ============ -->
+      <section id="lesson-done" class="screen" hidden>
+        <div class="done-emoji">🎉</div>
+        <h2>Lesson complete</h2>
+        <p id="done-summary" class="lesson-note"></p>
         <div class="done-actions">
-          <button id="review-vocab-btn" class="secondary">← back to words</button>
+          <button id="done-home-btn" class="secondary">← all lessons</button>
           <button id="restart-btn" class="primary">practice again</button>
         </div>
       </section>

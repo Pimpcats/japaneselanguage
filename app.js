@@ -1,138 +1,258 @@
-// Hanasou — lesson-based speaking drill (sample: one lesson).
-// Flow: show lesson vocab + grammar point -> drill sentences that recombine
-// those words -> speak aloud -> reveal model answer (TTS + word breakdown) -> self-grade.
+// Hanasou — lesson-based Japanese speaking drill.
+// Home (lesson map by difficulty) -> lesson intro (vocab + grammar) ->
+// drill (speak, reveal w/ TTS + word breakdown, self-grade) -> complete.
+// Progress is a lightweight SM-2 spaced-repetition system in localStorage.
 
 (function () {
   "use strict";
 
-  const lesson = window.LESSONS && window.LESSONS[0];
+  const STORAGE_KEY = "hanasou.v4";
+  const DAY = 86400000;
 
+  // Flatten every sentence into an addressable card.
+  const CARDS = [];
+  const cardById = {};
+  window.LESSONS.forEach((L) => {
+    L.sentences.forEach((s, i) => {
+      const card = { id: L.id + "#" + i, lessonId: L.id, lessonTitle: L.title, s };
+      CARDS.push(card);
+      cardById[card.id] = card;
+    });
+  });
+  const lessonById = Object.fromEntries(window.LESSONS.map((L) => [L.id, L]));
+
+  // ---- Persistence ---------------------------------------------------------
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
+    catch { return {}; }
+  }
+  const prog = load();
+  prog.cards = prog.cards || {};          // {cardId: {reps, ease, interval, due, lapses}}
+  prog.streak = prog.streak || { current: 0, longest: 0, lastDay: null };
+  prog.reviews = prog.reviews || 0;
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(prog)); }
+
+  const todayStr = () => new Date().toISOString().slice(0, 10);
+
+  function bumpStreak() {
+    const t = todayStr();
+    const s = prog.streak;
+    if (s.lastDay === t) return;
+    const y = new Date(Date.now() - DAY).toISOString().slice(0, 10);
+    s.current = s.lastDay === y ? s.current + 1 : 1;
+    s.longest = Math.max(s.longest, s.current);
+    s.lastDay = t;
+  }
+
+  // ---- SM-2-lite -----------------------------------------------------------
+  function srsUpdate(cardId, grade) {
+    const c = prog.cards[cardId] || { reps: 0, ease: 2.5, interval: 0, lapses: 0 };
+    if (grade === 0) {                       // nope
+      c.reps = 0; c.interval = 0; c.lapses += 1;
+      c.ease = Math.max(1.3, c.ease - 0.2);
+    } else if (grade === 1) {                // kinda
+      c.reps += 1;
+      c.ease = Math.max(1.3, c.ease - 0.05);
+      c.interval = c.interval < 1 ? 1 : Math.round(c.interval * 1.25);
+    } else {                                 // got it
+      c.reps += 1;
+      c.interval = c.reps === 1 ? 1 : c.reps === 2 ? 3 : Math.round(c.interval * c.ease);
+      c.ease += 0.05;
+    }
+    c.due = Date.now() + c.interval * DAY;
+    prog.cards[cardId] = c;
+    prog.reviews += 1;
+    bumpStreak();
+    save();
+  }
+
+  function lessonStats(L) {
+    const cards = CARDS.filter((c) => c.lessonId === L.id);
+    let passed = 0, due = 0, fresh = 0;
+    const now = Date.now();
+    for (const c of cards) {
+      const p = prog.cards[c.id];
+      if (!p || !p.reps) fresh += 1;
+      else { if (p.interval >= 1) passed += 1; if (p.due <= now) due += 1; }
+    }
+    return { total: cards.length, passed, due, fresh, pct: cards.length ? passed / cards.length : 0 };
+  }
+
+  function dueCards() {
+    const now = Date.now();
+    return CARDS.filter((c) => { const p = prog.cards[c.id]; return p && p.reps && p.due <= now; });
+  }
+
+  // ---- Elements ------------------------------------------------------------
+  const $ = (id) => document.getElementById(id);
   const el = {
-    progress: document.getElementById("progress"),
-    cardNum: document.getElementById("card-num"),
-    cardTotal: document.getElementById("card-total"),
-    // intro
-    lessonIntro: document.getElementById("lesson-intro"),
-    lessonTitle: document.getElementById("lesson-title"),
-    lessonGrammar: document.getElementById("lesson-grammar"),
-    lessonNote: document.getElementById("lesson-note"),
-    vocabList: document.getElementById("vocab-list"),
-    startBtn: document.getElementById("start-btn"),
-    // drill
-    card: document.getElementById("card"),
-    promptEn: document.getElementById("prompt-en"),
-    answerKana: document.getElementById("answer-kana"),
-    answerRomaji: document.getElementById("answer-romaji"),
-    wordBreakdown: document.getElementById("word-breakdown"),
-    revealArea: document.getElementById("reveal-area"),
-    hintRow: document.getElementById("hint-row"),
-    showHintBtn: document.getElementById("show-hint-btn"),
-    hint: document.getElementById("hint"),
-    controls: document.getElementById("controls"),
-    revealBtn: document.getElementById("reveal-btn"),
-    replayBtn: document.getElementById("replay-btn"),
-    slowBtn: document.getElementById("slow-btn"),
-    playEnBtn: document.getElementById("play-en-btn"),
-    grade: document.getElementById("grade"),
-    // done
-    lessonDone: document.getElementById("lesson-done"),
-    restartBtn: document.getElementById("restart-btn"),
-    reviewVocabBtn: document.getElementById("review-vocab-btn"),
-    // misc
-    voiceWarn: document.getElementById("voice-warn"),
+    backBtn: $("back-btn"), streak: $("streak"),
+    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), lessonMap: $("lesson-map"),
+    intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
+    lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"),
+    drill: $("drill"), progressFill: $("progress-fill"),
+    promptEn: $("prompt-en"), answerKana: $("answer-kana"), answerRomaji: $("answer-romaji"),
+    wordBreakdown: $("word-breakdown"), revealArea: $("reveal-area"),
+    hintRow: $("hint-row"), showHintBtn: $("show-hint-btn"), hint: $("hint"),
+    revealBtn: $("reveal-btn"), replayBtn: $("replay-btn"), slowBtn: $("slow-btn"), playEnBtn: $("play-en-btn"),
+    grade: $("grade"),
+    done: $("lesson-done"), doneSummary: $("done-summary"), restartBtn: $("restart-btn"), doneHomeBtn: $("done-home-btn"),
+    voiceWarn: $("voice-warn"),
   };
 
-  // ---- Voice picking -------------------------------------------------------
-  let jaVoice = null;
-  let enVoice = null;
+  function span(cls, text) { const s = document.createElement("span"); s.className = cls; s.textContent = text; return s; }
 
+  // ---- Voice ---------------------------------------------------------------
+  let jaVoice = null, enVoice = null;
   function pickVoices() {
-    const voices = speechSynthesis.getVoices();
-    jaVoice =
-      voices.find((v) => v.lang === "ja-JP" && /google/i.test(v.name)) ||
-      voices.find((v) => v.lang === "ja-JP") ||
-      voices.find((v) => v.lang.startsWith("ja")) ||
-      null;
-    enVoice =
-      voices.find((v) => v.lang.startsWith("en") && v.default) ||
-      voices.find((v) => v.lang.startsWith("en")) ||
-      null;
+    const v = speechSynthesis.getVoices();
+    jaVoice = v.find((x) => x.lang === "ja-JP" && /google/i.test(x.name)) || v.find((x) => x.lang === "ja-JP") || v.find((x) => x.lang.startsWith("ja")) || null;
+    enVoice = v.find((x) => x.lang.startsWith("en") && x.default) || v.find((x) => x.lang.startsWith("en")) || null;
     el.voiceWarn.hidden = !!jaVoice;
   }
   pickVoices();
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = pickVoices;
-  }
-
+  if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = pickVoices;
   function speak(text, { lang = "ja-JP", rate = 1.0 } = {}) {
     if (!("speechSynthesis" in window)) return;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang;
-    u.rate = rate;
+    u.lang = lang; u.rate = rate;
     if (lang.startsWith("ja") && jaVoice) u.voice = jaVoice;
     if (lang.startsWith("en") && enVoice) u.voice = enVoice;
     speechSynthesis.speak(u);
   }
 
-  // ---- Intro / vocab -------------------------------------------------------
-  function span(cls, text) {
-    const s = document.createElement("span");
-    s.className = cls;
-    s.textContent = text;
-    return s;
+  // ---- Navigation ----------------------------------------------------------
+  const screens = [el.home, el.intro, el.drill, el.done];
+  function show(screen, { back = false } = {}) {
+    speechSynthesis.cancel();
+    screens.forEach((s) => (s.hidden = s !== screen));
+    el.backBtn.hidden = !back;
   }
 
-  function renderIntro() {
-    el.lessonTitle.textContent = lesson.title;
-    el.lessonGrammar.textContent = lesson.grammar;
-    el.lessonNote.textContent = lesson.grammarNote || "";
+  function renderStreak() {
+    el.streak.hidden = prog.streak.current <= 0;
+    el.streak.textContent = "🔥 " + prog.streak.current;
+  }
+
+  // ---- Home ----------------------------------------------------------------
+  function renderHome() {
+    renderStreak();
+    const due = dueCards().length;
+    const learned = Object.values(prog.cards).filter((p) => p.reps).length;
+    el.stats.innerHTML = "";
+    const tiles = [
+      { num: prog.streak.current, lbl: "day streak" },
+      { num: learned, lbl: "cards learned" },
+      { num: prog.reviews, lbl: "total reviews" },
+    ];
+    for (const t of tiles) {
+      const tile = document.createElement("div");
+      tile.className = "stat-tile";
+      tile.appendChild(span("stat-num", String(t.num)));
+      tile.appendChild(span("stat-lbl", t.lbl));
+      el.stats.appendChild(tile);
+    }
+
+    el.reviewBtn.hidden = due === 0;
+    el.reviewBtn.textContent = `🔁 Review ${due} due card${due === 1 ? "" : "s"}`;
+
+    el.lessonMap.innerHTML = "";
+    for (const section of window.SECTIONS) {
+      const lessons = window.LESSONS.filter((L) => L.section === section);
+      if (!lessons.length) continue;
+      const block = document.createElement("div");
+      block.className = "section-block";
+      const head = document.createElement("div");
+      head.className = "section-head";
+      head.appendChild(Object.assign(document.createElement("h3"), { className: "section-title", textContent: section }));
+      const rule = document.createElement("div"); rule.className = "section-rule"; head.appendChild(rule);
+      block.appendChild(head);
+
+      for (const L of lessons) {
+        const st = lessonStats(L);
+        const tile = document.createElement("button");
+        tile.className = "lesson-tile";
+        const top = document.createElement("div"); top.className = "tile-top";
+        const left = document.createElement("div");
+        left.appendChild(Object.assign(document.createElement("div"), { className: "tile-title", textContent: L.title }));
+        left.appendChild(Object.assign(document.createElement("div"), { className: "tile-grammar", textContent: L.grammar }));
+        top.appendChild(left);
+
+        const badge = document.createElement("span");
+        if (st.passed >= st.total) { badge.className = "tile-badge badge-done"; badge.textContent = "✓ done"; }
+        else if (st.due > 0) { badge.className = "tile-badge badge-due"; badge.textContent = st.due + " due"; }
+        else if (st.fresh === st.total) { badge.className = "tile-badge badge-new"; badge.textContent = "new"; }
+        else { badge.className = "tile-badge badge-due"; badge.textContent = st.passed + "/" + st.total; }
+        top.appendChild(badge);
+        tile.appendChild(top);
+
+        const bar = document.createElement("div"); bar.className = "tile-bar";
+        const fill = document.createElement("i"); fill.style.width = Math.round(st.pct * 100) + "%";
+        bar.appendChild(fill); tile.appendChild(bar);
+
+        tile.addEventListener("click", () => openIntro(L));
+        block.appendChild(tile);
+      }
+      el.lessonMap.appendChild(block);
+    }
+    show(el.home);
+  }
+
+  // ---- Lesson intro --------------------------------------------------------
+  let activeLesson = null;
+  function openIntro(L) {
+    activeLesson = L;
+    el.lessonTitle.textContent = L.title;
+    el.lessonGrammar.textContent = L.grammar;
+    el.lessonNote.textContent = L.grammarNote || "";
     el.vocabList.innerHTML = "";
-    for (const w of lesson.vocab) {
+    for (const w of L.vocab) {
       const row = document.createElement("button");
-      row.className = `vocab-row pos-${w.pos || "n"}`;
+      row.className = "vocab-row pos-" + (w.pos || "n");
       row.appendChild(span("v-jp", w.jp));
       row.appendChild(span("v-romaji", w.romaji));
       row.appendChild(span("v-en", w.en));
       row.addEventListener("click", () => speak(w.jp, { lang: "ja-JP" }));
       el.vocabList.appendChild(row);
     }
-  }
-
-  function showIntro() {
-    el.lessonIntro.hidden = false;
-    el.card.hidden = true;
-    el.controls.hidden = true;
-    el.grade.hidden = true;
-    el.lessonDone.hidden = true;
-    el.progress.hidden = true;
-    speechSynthesis.cancel();
+    show(el.intro, { back: true });
   }
 
   // ---- Drill ---------------------------------------------------------------
-  const total = lesson ? lesson.sentences.length : 0;
-  let queue = [];
-  let current = null;
-  let cleared = 0;
+  let session = null; // { queue, total, cleared, mode, lessonId }
 
-  function startPractice() {
-    queue = lesson.sentences.slice();
-    cleared = 0;
-    el.lessonIntro.hidden = true;
-    el.lessonDone.hidden = true;
-    el.card.hidden = false;
-    el.controls.hidden = false;
-    el.progress.hidden = false;
-    el.cardTotal.textContent = total;
+  function startSession(cards, mode, lessonId) {
+    session = { queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId };
+    show(el.drill, { back: true });
     nextCard();
   }
 
+  function startLesson(L) {
+    const cards = CARDS.filter((c) => c.lessonId === L.id);
+    startSession(cards, "lesson", L.id);
+  }
+  function startReview() {
+    const cards = dueCards();
+    if (!cards.length) return;
+    startSession(cards, "review", null);
+  }
+
+  let current = null;
+  function nextCard() {
+    if (session.cleared >= session.total || session.queue.length === 0) { finish(); return; }
+    current = session.queue.shift();
+    renderCard();
+    el.progressFill.style.width = Math.round((session.cleared / session.total) * 100) + "%";
+  }
+
   function renderCard() {
-    el.promptEn.textContent = current.en;
-    el.answerKana.textContent = current.jp;
-    el.answerRomaji.textContent = current.romaji;
-    el.hint.textContent = current.hint || "";
-    el.hintRow.hidden = !current.hint;
+    const s = current.s;
+    el.promptEn.textContent = s.en;
+    el.answerKana.textContent = s.jp;
+    el.answerRomaji.textContent = s.romaji;
+    el.hint.textContent = s.hint || "";
+    el.hintRow.hidden = !s.hint;
     el.hint.hidden = true;
     el.showHintBtn.hidden = false;
     el.revealArea.hidden = true;
@@ -140,97 +260,68 @@
     el.slowBtn.hidden = true;
     el.grade.hidden = true;
     el.revealBtn.disabled = false;
-    el.cardNum.textContent = Math.min(cleared + 1, total);
-    renderWordBreakdown(current);
-  }
-
-  function renderWordBreakdown(prompt) {
     el.wordBreakdown.innerHTML = "";
-    if (!prompt.words || !prompt.words.length) return;
-    for (const w of prompt.words) {
+    for (const w of s.words || []) {
       const chip = document.createElement("div");
-      chip.className = `word-chip pos-${w.pos || "n"}`;
+      chip.className = "word-chip pos-" + (w.pos || "n");
       chip.appendChild(span("wc-jp", w.jp));
       chip.appendChild(span("wc-en", w.en));
       el.wordBreakdown.appendChild(chip);
     }
   }
 
-  function nextCard() {
-    if (cleared >= total || queue.length === 0) {
-      finishLesson();
-      return;
-    }
-    current = queue.shift();
-    renderCard();
-  }
-
-  function revealAndSpeak() {
+  function reveal() {
     el.revealArea.hidden = false;
     el.replayBtn.hidden = false;
     el.slowBtn.hidden = false;
     el.grade.hidden = false;
     el.revealBtn.disabled = true;
-    speak(current.jp, { lang: "ja-JP" });
+    speak(current.s.jp, { lang: "ja-JP" });
   }
 
   function grade(g) {
-    // nope: send to the back to try again. kinda/got it: cleared.
-    if (g === 0) queue.push(current);
-    else cleared += 1;
+    srsUpdate(current.id, g);
+    if (g === 0) session.queue.push(current); else session.cleared += 1;
+    renderStreak();
     nextCard();
   }
 
-  function finishLesson() {
-    el.card.hidden = true;
-    el.controls.hidden = true;
-    el.grade.hidden = true;
-    el.progress.hidden = true;
-    el.lessonDone.hidden = false;
-    speechSynthesis.cancel();
+  function finish() {
+    el.progressFill.style.width = "100%";
+    const due = dueCards().length;
+    el.doneSummary.textContent = session.mode === "review"
+      ? "Review session done. Nice work keeping things fresh."
+      : (due > 0 ? `You've got ${due} card${due === 1 ? "" : "s"} due across all lessons.` : "Every sentence drilled. Come back tomorrow to lock it in.");
+    show(el.done, { back: true });
   }
 
   // ---- Wire up -------------------------------------------------------------
-  el.startBtn.addEventListener("click", startPractice);
-  el.restartBtn.addEventListener("click", startPractice);
-  el.reviewVocabBtn.addEventListener("click", showIntro);
-
-  el.revealBtn.addEventListener("click", revealAndSpeak);
-  el.replayBtn.addEventListener("click", () => speak(current.jp, { lang: "ja-JP" }));
-  el.slowBtn.addEventListener("click", () => speak(current.jp, { lang: "ja-JP", rate: 0.7 }));
-  el.playEnBtn.addEventListener("click", () => speak(current.en, { lang: "en-US" }));
-
-  el.showHintBtn.addEventListener("click", () => {
-    el.hint.hidden = false;
-    el.showHintBtn.hidden = true;
+  el.backBtn.addEventListener("click", renderHome);
+  el.doneHomeBtn.addEventListener("click", renderHome);
+  el.reviewBtn.addEventListener("click", startReview);
+  el.startBtn.addEventListener("click", () => startLesson(activeLesson));
+  el.restartBtn.addEventListener("click", () => {
+    if (session && session.mode === "review") startReview();
+    else startLesson(activeLesson);
   });
 
-  document.querySelectorAll("button.grade").forEach((b) =>
-    b.addEventListener("click", () => grade(Number(b.dataset.grade)))
-  );
+  el.revealBtn.addEventListener("click", reveal);
+  el.replayBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP" }));
+  el.slowBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP", rate: 0.7 }));
+  el.playEnBtn.addEventListener("click", () => speak(current.s.en, { lang: "en-US" }));
+  el.showHintBtn.addEventListener("click", () => { el.hint.hidden = false; el.showHintBtn.hidden = true; });
+  document.querySelectorAll("button.grade").forEach((b) => b.addEventListener("click", () => grade(Number(b.dataset.grade))));
 
-  // Keyboard shortcuts for desktop testing.
   document.addEventListener("keydown", (e) => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-    if (el.card.hidden) return;
-    if (e.key === " " || e.key === "Enter") {
-      e.preventDefault();
-      if (el.grade.hidden) revealAndSpeak();
-    } else if (e.key === "1") grade(0);
+    if (el.drill.hidden) return;
+    if (e.key === " " || e.key === "Enter") { e.preventDefault(); if (el.grade.hidden) reveal(); }
+    else if (e.key === "1") grade(0);
     else if (e.key === "2") grade(1);
     else if (e.key === "3") grade(2);
-    else if (e.key.toLowerCase() === "r") {
-      if (!el.replayBtn.hidden) speak(current.jp, { lang: "ja-JP" });
-    } else if (e.key.toLowerCase() === "s") {
-      if (!el.slowBtn.hidden) speak(current.jp, { lang: "ja-JP", rate: 0.7 });
-    }
+    else if (e.key.toLowerCase() === "r") { if (!el.replayBtn.hidden) speak(current.s.jp, { lang: "ja-JP" }); }
+    else if (e.key.toLowerCase() === "s") { if (!el.slowBtn.hidden) speak(current.s.jp, { lang: "ja-JP", rate: 0.7 }); }
   });
 
-  // First screen
-  if (!lesson) {
-    el.lessonTitle.textContent = "No lesson found.";
-  } else {
-    renderIntro();
-    showIntro();
-  }
+  renderHome();
 })();
