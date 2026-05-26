@@ -12,10 +12,28 @@
         <button id="back-btn" class="icon-btn" hidden aria-label="Back">←</button>
         <h1 id="app-title">はなそう</h1>
         <div id="topbar-right">
-          <div id="streak" class="streak" hidden></div>
+          <button id="daily-ring" class="daily-ring" hidden aria-label="Daily goal">
+            <svg viewBox="0 0 36 36" aria-hidden="true">
+              <defs>
+                <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="var(--accent)" />
+                  <stop offset="100%" stop-color="var(--accent-2)" />
+                </linearGradient>
+              </defs>
+              <circle class="ring-track" cx="18" cy="18" r="15.915"></circle>
+              <circle class="ring-fill" cx="18" cy="18" r="15.915"></circle>
+            </svg>
+            <span class="ring-label"></span>
+          </button>
           <button id="settings-btn" class="icon-btn" aria-label="Settings">⚙</button>
         </div>
       </header>
+
+      <div id="mastery" class="mastery" hidden aria-label="Course mastery">
+        <span class="mastery-tag">mastery</span>
+        <div class="mastery-bar"><i id="mastery-fill"></i></div>
+        <span id="mastery-pct" class="mastery-pct"></span>
+      </div>
 
       <!-- ============ HOME / LESSON MAP ============ -->
       <section id="home" class="screen">
@@ -85,6 +103,19 @@
             <span class="setting-name">Show romaji<small>Latin reading under the Japanese</small></span>
             <input type="checkbox" id="romaji-toggle" class="switch" />
           </label>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Daily goal</div>
+          <span class="setting-name">Reviews per day<small>Fills your streak ring</small></span>
+          <select id="goal-select" class="select">
+            <option value="5">5 reviews</option>
+            <option value="10">10 reviews</option>
+            <option value="15">15 reviews</option>
+            <option value="20">20 reviews</option>
+            <option value="30">30 reviews</option>
+            <option value="50">50 reviews</option>
+          </select>
         </div>
 
         <div class="setting-group">

@@ -30,6 +30,7 @@
   prog.cards = prog.cards || {};          // {cardId: {reps, ease, interval, due, lapses}}
   prog.streak = prog.streak || { current: 0, longest: 0, lastDay: null };
   prog.reviews = prog.reviews || 0;
+  prog.daily = prog.daily || { day: null, count: 0 };   // reviews done today
   function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
     schedulePush();
@@ -44,6 +45,7 @@
   const settings = loadSettings();
   if (settings.romaji === undefined) settings.romaji = true;
   settings.voiceURI = settings.voiceURI || "";
+  if (!settings.dailyGoal) settings.dailyGoal = 20;
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
   function applyRomaji() { document.body.classList.toggle("no-romaji", !settings.romaji); }
 
@@ -98,6 +100,14 @@
     } catch { setSync("error"); }
   }
 
+  // Same-day counts merge to the higher tally; otherwise the later day wins.
+  function mergeDaily(a, b) {
+    a = a || { day: null, count: 0 };
+    b = b || { day: null, count: 0 };
+    if (a.day === b.day) return { day: a.day, count: Math.max(a.count || 0, b.count || 0) };
+    return (b.day || "") > (a.day || "") ? b : a;
+  }
+
   // Merge two progress blobs without losing reps made on another device.
   function mergeProgress(local, remote) {
     if (!remote) return local;
@@ -105,6 +115,7 @@
       cards: {},
       streak: Object.assign({ current: 0, longest: 0, lastDay: null }, local.streak),
       reviews: Math.max(local.reviews || 0, remote.reviews || 0),
+      daily: mergeDaily(local.daily, remote.daily),
     };
     const ids = new Set([...Object.keys(local.cards || {}), ...Object.keys(remote.cards || {})]);
     for (const id of ids) {
@@ -134,6 +145,7 @@
         prog.cards = merged.cards;
         prog.streak = merged.streak;
         prog.reviews = merged.reviews;
+        prog.daily = merged.daily;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
       }
       setSync("ok");
@@ -172,6 +184,7 @@
 
   function openSettings() {
     el.romajiToggle.checked = settings.romaji;
+    el.goalSelect.value = String(settings.dailyGoal);
     populateVoiceSelect();
     renderSyncSettings();
     show(el.settings, { back: true });
@@ -207,6 +220,9 @@
     c.due = Date.now() + c.interval * DAY;
     prog.cards[cardId] = c;
     prog.reviews += 1;
+    const t = todayStr();
+    if (prog.daily.day !== t) prog.daily = { day: t, count: 0 };
+    prog.daily.count += 1;
     bumpStreak();
     save();
   }
@@ -231,7 +247,9 @@
   // ---- Elements ------------------------------------------------------------
   const $ = (id) => document.getElementById(id);
   const el = {
-    backBtn: $("back-btn"), streak: $("streak"),
+    backBtn: $("back-btn"),
+    dailyRing: $("daily-ring"), ringFill: document.querySelector(".ring-fill"), ringLabel: document.querySelector(".ring-label"),
+    mastery: $("mastery"), masteryFill: $("mastery-fill"), masteryPct: $("mastery-pct"),
     home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), lessonMap: $("lesson-map"),
     intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
     lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"),
@@ -246,7 +264,7 @@
     settingsBtn: $("settings-btn"), settings: $("settings"), romajiToggle: $("romaji-toggle"),
     voiceSelect: $("voice-select"), voiceTestBtn: $("voice-test-btn"),
     syncStatus: $("sync-status"), syncConnectBtn: $("sync-connect-btn"), syncDisconnectBtn: $("sync-disconnect-btn"),
-    resetBtn: $("reset-btn"),
+    resetBtn: $("reset-btn"), goalSelect: $("goal-select"),
   };
 
   function span(cls, text) { const s = document.createElement("span"); s.className = cls; s.textContent = text; return s; }
@@ -297,16 +315,43 @@
     screens.forEach((s) => (s.hidden = s !== screen));
     el.backBtn.hidden = !back;
     if (el.settingsBtn) el.settingsBtn.hidden = screen === el.settings;
+    el.mastery.hidden = !(screen === el.home || screen === el.intro);
   }
 
-  function renderStreak() {
-    el.streak.hidden = prog.streak.current <= 0;
-    el.streak.textContent = "🔥 " + prog.streak.current;
+  const reviewsToday = () => (prog.daily.day === todayStr() ? prog.daily.count : 0);
+
+  function masteryStats() {
+    let passed = 0;
+    for (const c of CARDS) { const p = prog.cards[c.id]; if (p && p.reps && p.interval >= 1) passed += 1; }
+    return { passed, total: CARDS.length, pct: CARDS.length ? passed / CARDS.length : 0 };
+  }
+
+  // Daily-goal ring: fill = today's reviews / goal, center = 🔥streak, gold when met.
+  function renderDailyRing() {
+    const goal = settings.dailyGoal || 20;
+    const done = reviewsToday();
+    const pct = Math.max(0, Math.min(1, goal ? done / goal : 0));
+    el.ringFill.style.strokeDasharray = (pct * 100).toFixed(1) + " 100";
+    const complete = done >= goal && goal > 0;
+    el.dailyRing.classList.toggle("complete", complete);
+    const s = prog.streak.current;
+    el.ringLabel.textContent = s > 0 ? "🔥" + s : String(done);
+    el.dailyRing.hidden = false;
+    el.dailyRing.setAttribute("aria-label", done + " of " + goal + " reviews today · " + s + "-day streak");
+    el.dailyRing.title = el.dailyRing.getAttribute("aria-label");
+  }
+
+  function renderMastery() {
+    const m = masteryStats();
+    el.masteryFill.style.width = Math.round(m.pct * 100) + "%";
+    el.masteryPct.textContent = Math.round(m.pct * 100) + "%";
+    el.mastery.title = m.passed + " of " + m.total + " sentences mastered";
   }
 
   // ---- Home ----------------------------------------------------------------
   function renderHome() {
-    renderStreak();
+    renderDailyRing();
+    renderMastery();
     const due = dueCards().length;
     const learned = Object.values(prog.cards).filter((p) => p.reps).length;
     el.stats.innerHTML = "";
@@ -451,7 +496,7 @@
   function grade(g) {
     srsUpdate(current.id, g);
     if (g === 0) session.queue.push(current); else session.cleared += 1;
-    renderStreak();
+    renderDailyRing();
     nextCard();
   }
 
@@ -483,10 +528,16 @@
   if (el.syncBtn) el.syncBtn.addEventListener("click", onSyncClick);
 
   el.settingsBtn.addEventListener("click", openSettings);
+  el.dailyRing.addEventListener("click", renderHome);
   el.romajiToggle.addEventListener("change", () => {
     settings.romaji = el.romajiToggle.checked;
     saveSettings();
     applyRomaji();
+  });
+  el.goalSelect.addEventListener("change", () => {
+    settings.dailyGoal = Number(el.goalSelect.value) || 20;
+    saveSettings();
+    renderDailyRing();
   });
   el.voiceSelect.addEventListener("change", () => {
     settings.voiceURI = el.voiceSelect.value;
