@@ -58,7 +58,7 @@ html, body {
 /* ---- Top bar ---- */
 #topbar {
   display: grid;
-  grid-template-columns: 2.5rem 1fr 2.5rem;
+  grid-template-columns: 2.5rem 1fr auto;
   align-items: center;
   padding: 0.5rem 0 0.25rem;
   position: sticky;
@@ -66,6 +66,7 @@ html, body {
   background: linear-gradient(var(--bg) 70%, transparent);
   z-index: 5;
 }
+#topbar-right { display: flex; align-items: center; gap: 0.5rem; justify-self: end; }
 #app-title {
   font-size: 1.4rem;
   margin: 0;
@@ -304,6 +305,55 @@ button.grade.got { color: var(--good); border-color: color-mix(in srgb, var(--go
 .done-emoji { font-size: 3rem; }
 #lesson-done h2 { margin: 0.25rem 0 0; font-size: 1.7rem; }
 .done-actions { display: flex; gap: 0.6rem; justify-content: center; margin-top: 1.25rem; flex-wrap: wrap; width: 100%; }
+
+/* ---- Settings ---- */
+.settings-h { font-size: 1.5rem; margin: 0; }
+.setting-group {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  box-shadow: var(--shadow-sm);
+}
+.setting-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; cursor: pointer; }
+.setting-name { display: flex; flex-direction: column; font-weight: 600; font-size: 1rem; }
+.setting-name small { font-weight: 400; color: var(--muted); font-size: 0.78rem; margin-top: 0.15rem; }
+.setting-status { margin: 0; color: var(--muted); font-size: 0.9rem; line-height: 1.45; }
+.select {
+  font: inherit;
+  padding: 0.6rem 0.7rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--card-2);
+  color: var(--fg);
+  width: 100%;
+}
+button.small { padding: 0.6rem 0.95rem; font-size: 0.9rem; border-radius: 999px; align-self: flex-start; }
+button.danger { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); }
+
+/* Toggle switch */
+.switch {
+  appearance: none; -webkit-appearance: none;
+  width: 3rem; height: 1.7rem; border-radius: 999px;
+  background: var(--line); position: relative; cursor: pointer;
+  transition: background 0.15s ease; flex: none; border: none; margin: 0;
+}
+.switch::after {
+  content: ""; position: absolute; top: 0.2rem; left: 0.2rem;
+  width: 1.3rem; height: 1.3rem; border-radius: 50%;
+  background: #fff; box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease;
+}
+.switch:checked { background: var(--accent); }
+.switch:checked::after { transform: translateX(1.3rem); }
+
+/* Romaji off */
+body.no-romaji #answer-romaji,
+body.no-romaji .v-romaji { display: none !important; }
+body.no-romaji button.vocab-row { grid-template-columns: 8rem 1fr; }
 
 footer { margin-top: auto; display: flex; justify-content: center; font-size: 0.8rem; color: var(--muted); }
 #voice-warn { color: var(--bad); font-size: 0.75rem; text-align: center; }

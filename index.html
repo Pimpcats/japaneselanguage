@@ -11,7 +11,10 @@
       <header id="topbar">
         <button id="back-btn" class="icon-btn" hidden aria-label="Back">←</button>
         <h1 id="app-title">はなそう</h1>
-        <div id="streak" class="streak" hidden></div>
+        <div id="topbar-right">
+          <div id="streak" class="streak" hidden></div>
+          <button id="settings-btn" class="icon-btn" aria-label="Settings">⚙</button>
+        </div>
       </header>
 
       <!-- ============ HOME / LESSON MAP ============ -->
@@ -69,6 +72,38 @@
             <button data-grade="1" class="grade kinda">kinda</button>
             <button data-grade="2" class="grade got">got it</button>
           </div>
+        </div>
+      </section>
+
+      <!-- ============ SETTINGS ============ -->
+      <section id="settings" class="screen" hidden>
+        <h2 class="settings-h">Settings</h2>
+
+        <div class="setting-group">
+          <div class="label">Display</div>
+          <label class="setting-row" for="romaji-toggle">
+            <span class="setting-name">Show romaji<small>Latin reading under the Japanese</small></span>
+            <input type="checkbox" id="romaji-toggle" class="switch" />
+          </label>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Audio</div>
+          <span class="setting-name">Japanese voice<small>Used to read answers aloud</small></span>
+          <select id="voice-select" class="select"></select>
+          <button id="voice-test-btn" class="secondary small">🔈 Test voice</button>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Sync</div>
+          <p id="sync-status" class="setting-status"></p>
+          <button id="sync-connect-btn" class="secondary small">☁ Set up sync</button>
+          <button id="sync-disconnect-btn" class="secondary small danger" hidden>Disconnect sync on this device</button>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Data</div>
+          <button id="reset-btn" class="secondary small danger">Reset all progress</button>
         </div>
       </section>
 

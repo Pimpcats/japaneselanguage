@@ -35,6 +35,18 @@
     schedulePush();
   }
 
+  // ---- Local settings (device-specific, not synced) ------------------------
+  const SETTINGS_KEY = "hanasou.settings";
+  function loadSettings() {
+    try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}"); }
+    catch { return {}; }
+  }
+  const settings = loadSettings();
+  if (settings.romaji === undefined) settings.romaji = true;
+  settings.voiceURI = settings.voiceURI || "";
+  function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
+  function applyRomaji() { document.body.classList.toggle("no-romaji", !settings.romaji); }
+
   // ---- Optional cross-device sync (VPS API) --------------------------------
   // Local-only until a token is entered; then GET/PUT a single progress blob.
   const TOKEN_KEY = "hanasou.token";
@@ -45,11 +57,24 @@
   const getToken = () => localStorage.getItem(TOKEN_KEY) || "";
   const setToken = (t) => t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY);
 
-  function setSync(state) { syncState = state; renderSyncBtn(); }
+  function setSync(state) { syncState = state; renderSyncBtn(); renderSyncSettings(); }
   function renderSyncBtn() {
     if (!el.syncBtn) return;
     const label = { off: "☁ set up sync", syncing: "☁ syncing…", ok: "☁ synced ✓", error: "☁ sync error — tap to retry" };
     el.syncBtn.textContent = label[syncState] || label.off;
+  }
+  function renderSyncSettings() {
+    if (!el.syncStatus) return;
+    const connected = !!getToken();
+    const status = {
+      off: "Not connected — progress stays only on this device.",
+      syncing: "Connected — syncing…",
+      ok: "Connected and syncing across your devices.",
+      error: "Connected, but the last sync failed. Tap to retry.",
+    };
+    el.syncStatus.textContent = connected ? (status[syncState] || status.ok) : status.off;
+    el.syncConnectBtn.hidden = connected;
+    el.syncDisconnectBtn.hidden = !connected;
   }
 
   function schedulePush() {
@@ -126,6 +151,32 @@
     }
   }
 
+  function disconnectSync() {
+    if (!confirm("Disconnect sync on this device? Your progress stays here, but it will stop syncing until you re-enter the token.")) return;
+    clearTimeout(pushTimer);
+    setToken("");
+    setSync("off");
+  }
+
+  function resetProgress() {
+    const msg = getToken()
+      ? "Erase all progress on this device? Because sync is on, this also clears your saved progress on the server."
+      : "Erase all progress on this device? This can't be undone.";
+    if (!confirm(msg)) return;
+    prog.cards = {};
+    prog.streak = { current: 0, longest: 0, lastDay: null };
+    prog.reviews = 0;
+    save();
+    renderHome();
+  }
+
+  function openSettings() {
+    el.romajiToggle.checked = settings.romaji;
+    populateVoiceSelect();
+    renderSyncSettings();
+    show(el.settings, { back: true });
+  }
+
   const todayStr = () => new Date().toISOString().slice(0, 10);
 
   function bumpStreak() {
@@ -192,17 +243,40 @@
     grade: $("grade"),
     done: $("lesson-done"), doneSummary: $("done-summary"), restartBtn: $("restart-btn"), doneHomeBtn: $("done-home-btn"),
     voiceWarn: $("voice-warn"), syncBtn: $("sync-btn"),
+    settingsBtn: $("settings-btn"), settings: $("settings"), romajiToggle: $("romaji-toggle"),
+    voiceSelect: $("voice-select"), voiceTestBtn: $("voice-test-btn"),
+    syncStatus: $("sync-status"), syncConnectBtn: $("sync-connect-btn"), syncDisconnectBtn: $("sync-disconnect-btn"),
+    resetBtn: $("reset-btn"),
   };
 
   function span(cls, text) { const s = document.createElement("span"); s.className = cls; s.textContent = text; return s; }
 
   // ---- Voice ---------------------------------------------------------------
-  let jaVoice = null, enVoice = null;
+  let jaVoice = null, enVoice = null, jaVoices = [];
   function pickVoices() {
     const v = speechSynthesis.getVoices();
-    jaVoice = v.find((x) => x.lang === "ja-JP" && /google/i.test(x.name)) || v.find((x) => x.lang === "ja-JP") || v.find((x) => x.lang.startsWith("ja")) || null;
+    jaVoices = v.filter((x) => x.lang && x.lang.toLowerCase().startsWith("ja"));
+    const chosen = settings.voiceURI ? jaVoices.find((x) => x.voiceURI === settings.voiceURI) : null;
+    jaVoice = chosen || jaVoices.find((x) => /google/i.test(x.name)) || jaVoices.find((x) => x.lang === "ja-JP") || jaVoices[0] || null;
     enVoice = v.find((x) => x.lang.startsWith("en") && x.default) || v.find((x) => x.lang.startsWith("en")) || null;
     el.voiceWarn.hidden = !!jaVoice;
+    populateVoiceSelect();
+  }
+  function populateVoiceSelect() {
+    if (!el.voiceSelect) return;
+    el.voiceSelect.innerHTML = "";
+    if (!jaVoices.length) {
+      el.voiceSelect.appendChild(Object.assign(document.createElement("option"), { value: "", textContent: "No Japanese voice available" }));
+      el.voiceSelect.disabled = true;
+      return;
+    }
+    el.voiceSelect.disabled = false;
+    el.voiceSelect.appendChild(Object.assign(document.createElement("option"), { value: "", textContent: "Automatic (best available)" }));
+    for (const v of jaVoices) {
+      const opt = Object.assign(document.createElement("option"), { value: v.voiceURI, textContent: v.name + " (" + v.lang + ")" });
+      if (v.voiceURI === settings.voiceURI) opt.selected = true;
+      el.voiceSelect.appendChild(opt);
+    }
   }
   pickVoices();
   if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = pickVoices;
@@ -217,11 +291,12 @@
   }
 
   // ---- Navigation ----------------------------------------------------------
-  const screens = [el.home, el.intro, el.drill, el.done];
+  const screens = [el.home, el.intro, el.drill, el.done, el.settings];
   function show(screen, { back = false } = {}) {
     speechSynthesis.cancel();
     screens.forEach((s) => (s.hidden = s !== screen));
     el.backBtn.hidden = !back;
+    if (el.settingsBtn) el.settingsBtn.hidden = screen === el.settings;
   }
 
   function renderStreak() {
@@ -407,6 +482,23 @@
   document.querySelectorAll("button.grade").forEach((b) => b.addEventListener("click", () => grade(Number(b.dataset.grade))));
   if (el.syncBtn) el.syncBtn.addEventListener("click", onSyncClick);
 
+  el.settingsBtn.addEventListener("click", openSettings);
+  el.romajiToggle.addEventListener("change", () => {
+    settings.romaji = el.romajiToggle.checked;
+    saveSettings();
+    applyRomaji();
+  });
+  el.voiceSelect.addEventListener("change", () => {
+    settings.voiceURI = el.voiceSelect.value;
+    saveSettings();
+    pickVoices();
+    speak("こんにちは。はなしましょう。", { lang: "ja-JP" });
+  });
+  el.voiceTestBtn.addEventListener("click", () => speak("こんにちは。はなしましょう。", { lang: "ja-JP" }));
+  el.syncConnectBtn.addEventListener("click", onSyncClick);
+  el.syncDisconnectBtn.addEventListener("click", disconnectSync);
+  el.resetBtn.addEventListener("click", resetProgress);
+
   document.addEventListener("keydown", (e) => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (el.drill.hidden) return;
@@ -418,6 +510,7 @@
     else if (e.key.toLowerCase() === "s") { if (!el.slowBtn.hidden) speak(current.s.jp, { lang: "ja-JP", rate: 0.7 }); }
   });
 
+  applyRomaji();
   renderHome();
   renderSyncBtn();
   if (getToken()) pull();
