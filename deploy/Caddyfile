@@ -19,6 +19,14 @@ nihongo.example.com {
 	# Everything else -> the static app.
 	handle {
 		root * /opt/hanasou
+
+		# Serve the PWA manifest with the correct type, and always revalidate
+		# the service worker so new deploys are picked up promptly.
+		@manifest path /manifest.webmanifest
+		header @manifest Content-Type "application/manifest+json"
+		@sw path /sw.js
+		header @sw Cache-Control "no-cache"
+
 		file_server
 	}
 }

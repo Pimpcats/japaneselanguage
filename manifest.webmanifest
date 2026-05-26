@@ -1,0 +1,19 @@
+{
+  "name": "はなそう — Japanese speaking drill",
+  "short_name": "はなそう",
+  "description": "Learn to speak Japanese with spaced-repetition sentence drills.",
+  "lang": "ja",
+  "dir": "ltr",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f4f8",
+  "theme_color": "#f5f4f8",
+  "categories": ["education"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
