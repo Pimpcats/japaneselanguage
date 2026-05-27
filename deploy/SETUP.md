@@ -39,11 +39,11 @@ sudo apt-get update && sudo apt-get install -y caddy
 ```bash
 sudo git clone https://github.com/Pimpcats/japaneselanguage.git /opt/hanasou
 cd /opt/hanasou
-# use the branch we've been building on:
-sudo git checkout claude/amazing-cannon-PPvmw
+# the canonical branch (everything lives here):
+sudo git checkout claude/inspiring-carson-712EI
 ```
 
-(Later, to update: `cd /opt/hanasou && sudo git pull`.)
+(Later, to update by hand: `cd /opt/hanasou && sudo git fetch origin && sudo git reset --hard origin/claude/inspiring-carson-712EI`. Step 8 automates this.)
 
 ## 4. Generate a sync token
 
@@ -78,7 +78,24 @@ sudo systemctl reload caddy
 
 Caddy will fetch an HTTPS certificate automatically (give it ~30s the first time).
 
-## 7. Open it and turn on sync
+## 7. Auto-deploy (push to GitHub → live within a minute)
+
+A tiny systemd timer hard-syncs `/opt/hanasou` to the canonical branch every
+minute, so you never have to SSH in to publish again — just push to GitHub.
+
+```bash
+sudo cp /opt/hanasou/deploy/hanasou-deploy.service /etc/systemd/system/
+sudo cp /opt/hanasou/deploy/hanasou-deploy.timer   /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now hanasou-deploy.timer
+sudo systemctl start hanasou-deploy.service   # deploy right now
+```
+
+Check it: `systemctl list-timers hanasou-deploy` and `journalctl -u hanasou-deploy -n 20`.
+The timer is static-file-only — Caddy keeps serving without a restart. It never
+touches `server/data/` (your synced progress is untracked, so it's preserved).
+
+## 8. Open it and turn on sync
 
 1. Visit `https://nihongo.example.com` — the app should load.
 2. Tap **set up sync** in the footer, paste your token (same one from step 4).

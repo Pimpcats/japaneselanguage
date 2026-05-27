@@ -1,0 +1,10 @@
+[Unit]
+Description=Check GitHub for new Hanasou commits (auto-deploy)
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+Unit=hanasou-deploy.service
+
+[Install]
+WantedBy=timers.target

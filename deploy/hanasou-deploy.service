@@ -1,0 +1,13 @@
+[Unit]
+Description=Deploy Hanasou — sync /opt/hanasou to the latest GitHub commit
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/hanasou
+# Hard-sync to the canonical branch so the served files exactly match GitHub,
+# regardless of which branch the clone was on. reset --hard only touches
+# tracked files, so server/data/ (untracked + gitignored) is left alone.
+ExecStart=/usr/bin/git fetch --prune origin
+ExecStart=/usr/bin/git reset --hard origin/claude/inspiring-carson-712EI
