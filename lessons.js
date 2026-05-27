@@ -11,7 +11,18 @@
 //                     prt=particle cop=copula expr=expression
 //                     aux=auxiliary conj=conjunction
 
-window.SECTIONS = ["Basics", "Everyday life", "Describing things"];
+window.SECTIONS = [
+  "Level 1 · First contact",
+  "Level 2 · Getting things",
+  "Level 3 · Time & when",
+  "Level 4 · Daily life",
+  "Level 5 · The past",
+  "Level 6 · Wants & plans",
+  "Level 7 · Describing things",
+  "Level 8 · Feelings & opinions",
+  "Level 9 · Connecting ideas",
+  "Level 10 · Out in the world",
+];
 
 window.LESSONS = [
   // ============================================================
@@ -19,7 +30,7 @@ window.LESSONS = [
   // ============================================================
   {
     id: "intro",
-    section: "Basics",
+    section: "Level 1 · First contact",
     title: "Hello & introductions",
     grammar: "X は Y です  ·  か",
     grammarNote:
@@ -48,8 +59,113 @@ window.LESSONS = [
     ],
   },
   {
+    id: "greetings",
+    section: "Level 1 · First contact",
+    title: "Greetings & courtesies",
+    grammar: "あいさつ — set phrases",
+    grammarNote:
+      "These greetings never change form — learn each as one chunk. ございます makes おはよう and ありがとう more polite.",
+    vocab: [
+      { jp: "おはよう", romaji: "ohayou", en: "good morning", pos: "expr" },
+      { jp: "こんにちは", romaji: "konnichiwa", en: "hello / good afternoon", pos: "expr" },
+      { jp: "こんばんは", romaji: "konbanwa", en: "good evening", pos: "expr" },
+      { jp: "ありがとう", romaji: "arigatou", en: "thank you", pos: "expr" },
+      { jp: "すみません", romaji: "sumimasen", en: "excuse me / sorry", pos: "expr" },
+      { jp: "さようなら", romaji: "sayounara", en: "goodbye", pos: "expr" },
+      { jp: "はい", romaji: "hai", en: "yes", pos: "expr" },
+      { jp: "いいえ", romaji: "iie", en: "no", pos: "expr" },
+    ],
+    sentences: [
+      { en: "Good morning.", jp: "おはよう ございます。", romaji: "ohayou gozaimasu.", hint: "ございます = polite",
+        words: [{jp:"おはよう",en:"good morning",pos:"expr"},{jp:"ございます",en:"[polite]",pos:"aux"}] },
+      { en: "Hello.", jp: "こんにちは。", romaji: "konnichiwa.",
+        words: [{jp:"こんにちは",en:"hello",pos:"expr"}] },
+      { en: "Good evening.", jp: "こんばんは。", romaji: "konbanwa.",
+        words: [{jp:"こんばんは",en:"good evening",pos:"expr"}] },
+      { en: "Thank you very much.", jp: "ありがとう ございます。", romaji: "arigatou gozaimasu.",
+        words: [{jp:"ありがとう",en:"thank you",pos:"expr"},{jp:"ございます",en:"[polite]",pos:"aux"}] },
+      { en: "Excuse me. / I'm sorry.", jp: "すみません。", romaji: "sumimasen.",
+        words: [{jp:"すみません",en:"excuse me / sorry",pos:"expr"}] },
+      { en: "Yes, that's right.", jp: "はい、そうです。", romaji: "hai, sou desu.", hint: "そう = so / that way",
+        words: [{jp:"はい",en:"yes",pos:"expr"},{jp:"そう",en:"that way",pos:"adv"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "No, that's wrong.", jp: "いいえ、ちがいます。", romaji: "iie, chigaimasu.",
+        words: [{jp:"いいえ",en:"no",pos:"expr"},{jp:"ちがいます",en:"is wrong / differs",pos:"v"}] },
+      { en: "Goodbye.", jp: "さようなら。", romaji: "sayounara.",
+        words: [{jp:"さようなら",en:"goodbye",pos:"expr"}] },
+    ],
+  },
+  {
+    id: "this-that",
+    section: "Level 1 · First contact",
+    title: "This, that & “whose”",
+    grammar: "これ・それ・あれ  ·  の",
+    grammarNote:
+      "これ = this (by me), それ = that (by you), あれ = that (over there), どれ = which. の links two nouns: わたしの ほん = my book.",
+    vocab: [
+      { jp: "これ", romaji: "kore", en: "this", pos: "n" },
+      { jp: "それ", romaji: "sore", en: "that (by you)", pos: "n" },
+      { jp: "あれ", romaji: "are", en: "that (over there)", pos: "n" },
+      { jp: "どれ", romaji: "dore", en: "which one", pos: "n" },
+      { jp: "ほん", romaji: "hon", en: "book", pos: "n" },
+      { jp: "かばん", romaji: "kaban", en: "bag", pos: "n" },
+      { jp: "わたしの", romaji: "watashi no", en: "my / mine", pos: "n" },
+    ],
+    sentences: [
+      { en: "What is this?", jp: "これは なんですか？", romaji: "kore wa nan desu ka?",
+        words: [{jp:"これ",en:"this",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"なん",en:"what",pos:"n"},{jp:"です",en:"is",pos:"cop"},{jp:"か",en:"[?]",pos:"prt"}] },
+      { en: "This is a book.", jp: "これは ほんです。", romaji: "kore wa hon desu.",
+        words: [{jp:"これ",en:"this",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ほん",en:"book",pos:"n"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "That (by you) is a bag.", jp: "それは かばんです。", romaji: "sore wa kaban desu.",
+        words: [{jp:"それ",en:"that",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"かばん",en:"bag",pos:"n"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "That over there is my bag.", jp: "あれは わたしの かばんです。", romaji: "are wa watashi no kaban desu.", hint: "の = 's / of",
+        words: [{jp:"あれ",en:"that over there",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"わたし",en:"I",pos:"n"},{jp:"の",en:"'s",pos:"prt"},{jp:"かばん",en:"bag",pos:"n"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "This is my book.", jp: "これは わたしの ほんです。", romaji: "kore wa watashi no hon desu.",
+        words: [{jp:"これ",en:"this",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"わたし",en:"I",pos:"n"},{jp:"の",en:"'s",pos:"prt"},{jp:"ほん",en:"book",pos:"n"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "Which one is your book?", jp: "どれが あなたの ほんですか？", romaji: "dore ga anata no hon desu ka?", hint: "あなた = you",
+        words: [{jp:"どれ",en:"which one",pos:"n"},{jp:"が",en:"[subject]",pos:"prt"},{jp:"あなた",en:"you",pos:"n"},{jp:"の",en:"'s",pos:"prt"},{jp:"ほん",en:"book",pos:"n"},{jp:"です",en:"is",pos:"cop"},{jp:"か",en:"[?]",pos:"prt"}] },
+      { en: "Is that (by you) a book?", jp: "それは ほんですか？", romaji: "sore wa hon desu ka?",
+        words: [{jp:"それ",en:"that",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ほん",en:"book",pos:"n"},{jp:"です",en:"is",pos:"cop"},{jp:"か",en:"[?]",pos:"prt"}] },
+    ],
+  },
+  {
+    id: "numbers",
+    section: "Level 1 · First contact",
+    title: "Numbers 1–10 & age",
+    grammar: "すうじ 1–10  ·  なんさいですか",
+    grammarNote:
+      "The core numbers 1–10 — they power prices, time and counting later. To ask age: なんさいですか. Note 20 years old is the irregular はたち.",
+    vocab: [
+      { jp: "いち", romaji: "ichi", en: "one (1)", pos: "n" },
+      { jp: "に", romaji: "ni", en: "two (2)", pos: "n" },
+      { jp: "さん", romaji: "san", en: "three (3)", pos: "n" },
+      { jp: "よん", romaji: "yon", en: "four (4)", pos: "n" },
+      { jp: "ご", romaji: "go", en: "five (5)", pos: "n" },
+      { jp: "ろく", romaji: "roku", en: "six (6)", pos: "n" },
+      { jp: "なな", romaji: "nana", en: "seven (7)", pos: "n" },
+      { jp: "はち", romaji: "hachi", en: "eight (8)", pos: "n" },
+      { jp: "きゅう", romaji: "kyuu", en: "nine (9)", pos: "n" },
+      { jp: "じゅう", romaji: "juu", en: "ten (10)", pos: "n" },
+      { jp: "なんさい", romaji: "nan-sai", en: "how old", pos: "n" },
+      { jp: "はたち", romaji: "hatachi", en: "20 years old", pos: "n" },
+    ],
+    sentences: [
+      { en: "One, two, three, four, five.", jp: "いち、に、さん、よん、ご。", romaji: "ichi, ni, san, yon, go.",
+        words: [{jp:"いち",en:"1",pos:"n"},{jp:"に",en:"2",pos:"n"},{jp:"さん",en:"3",pos:"n"},{jp:"よん",en:"4",pos:"n"},{jp:"ご",en:"5",pos:"n"}] },
+      { en: "Six, seven, eight, nine, ten.", jp: "ろく、なな、はち、きゅう、じゅう。", romaji: "roku, nana, hachi, kyuu, juu.",
+        words: [{jp:"ろく",en:"6",pos:"n"},{jp:"なな",en:"7",pos:"n"},{jp:"はち",en:"8",pos:"n"},{jp:"きゅう",en:"9",pos:"n"},{jp:"じゅう",en:"10",pos:"n"}] },
+      { en: "How old are you?", jp: "なんさいですか？", romaji: "nan-sai desu ka?",
+        words: [{jp:"なんさい",en:"how old",pos:"n"},{jp:"です",en:"is",pos:"cop"},{jp:"か",en:"[?]",pos:"prt"}] },
+      { en: "I'm twenty years old.", jp: "はたちです。", romaji: "hatachi desu.", hint: "20 = はたち (irregular)",
+        words: [{jp:"はたち",en:"20 years old",pos:"n"},{jp:"です",en:"am",pos:"cop"}] },
+      { en: "My friend is nine years old.", jp: "ともだちは きゅうさいです。", romaji: "tomodachi wa kyuu-sai desu.", hint: "〜さい = years old",
+        words: [{jp:"ともだち",en:"friend",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"きゅう",en:"9",pos:"n"},{jp:"さい",en:"years old",pos:"n"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "How old is your friend?", jp: "ともだちは なんさいですか？", romaji: "tomodachi wa nan-sai desu ka?",
+        words: [{jp:"ともだち",en:"friend",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"なんさい",en:"how old",pos:"n"},{jp:"です",en:"is",pos:"cop"},{jp:"か",en:"[?]",pos:"prt"}] },
+    ],
+  },
+  {
     id: "shop",
-    section: "Basics",
+    section: "Level 2 · Getting things",
     title: "At a shop — ordering & prices",
     grammar: "〜を ください  ·  〜は いくらですか",
     grammarNote:
@@ -83,7 +199,7 @@ window.LESSONS = [
   // ============================================================
   {
     id: "routine",
-    section: "Everyday life",
+    section: "Level 4 · Daily life",
     title: "My daily routine",
     grammar: "present 〜ます  ·  time に  ·  で (by)",
     grammarNote:
@@ -115,7 +231,7 @@ window.LESSONS = [
   },
   {
     id: "past-1",
-    section: "Everyday life",
+    section: "Level 5 · The past",
     title: "What did you do yesterday?",
     grammar: "past 〜ました  ·  を / に / と",
     grammarNote:
@@ -152,7 +268,7 @@ window.LESSONS = [
   },
   {
     id: "wants",
-    section: "Everyday life",
+    section: "Level 6 · Wants & plans",
     title: "What I want to do",
     grammar: "〜たい (want to)  ·  〜が ほしい (want a thing)",
     grammarNote:
@@ -187,7 +303,7 @@ window.LESSONS = [
   // ============================================================
   {
     id: "adjectives",
-    section: "Describing things",
+    section: "Level 7 · Describing things",
     title: "Describing things (い-adjectives)",
     grammar: "い-adjectives  ·  past 〜かった",
     grammarNote:
