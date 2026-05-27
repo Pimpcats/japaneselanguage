@@ -1,6 +1,6 @@
 // Service worker — offline app shell for the Hanasou PWA.
 // Bump CACHE when the precached shell list changes to evict the old cache.
-const CACHE = "hanasou-v1";
+const CACHE = "hanasou-v2";
 const SHELL = [
   "./",
   "index.html",
@@ -9,15 +9,37 @@ const SHELL = [
   "lessons.js",
   "prompts.js",
   "manifest.webmanifest",
+  "audio/manifest.json",
   "icon-192.png",
   "icon-512.png",
   "icon-maskable-512.png",
   "apple-touch-icon-180.png",
 ];
 
+// Precache every pre-generated audio clip the manifest lists, so the app can
+// speak offline right after install (best-effort — missing clips fall back to
+// speechSynthesis, and the stale-while-revalidate handler caches the rest).
+async function precacheAudio(cache) {
+  try {
+    const res = await fetch("audio/manifest.json", { cache: "no-cache" });
+    if (!res.ok) return;
+    const { clips } = await res.json();
+    const files = [];
+    for (const k in clips) {
+      if (clips[k].n) files.push("audio/" + clips[k].n);
+      if (clips[k].s) files.push("audio/" + clips[k].s);
+    }
+    await Promise.all(files.map((f) =>
+      fetch(f).then((r) => r.ok && cache.put(f, r.clone())).catch(() => {})
+    ));
+  } catch {}
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())
+    caches.open(CACHE)
+      .then((c) => c.addAll(SHELL).then(() => precacheAudio(c)))
+      .then(() => self.skipWaiting())
   );
 });
 

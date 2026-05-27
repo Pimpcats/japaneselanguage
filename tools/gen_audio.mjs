@@ -1,0 +1,128 @@
+// Pre-generates Japanese audio for every spoken string in the app using a
+// local VOICEVOX ENGINE (https://voicevox.hiroshiba.jp/), then writes
+// audio/<sha1>.mp3 files plus audio/manifest.json mapping text -> filenames.
+//
+// The app plays these clips when present and falls back to the browser's
+// speechSynthesis when a clip is missing (e.g. a brand-new sentence, or a
+// browser that never downloaded the audio). Regenerating is idempotent:
+// filenames are content hashes, so unchanged strings keep the same file.
+//
+// Usage (needs a running local VOICEVOX ENGINE listening on $VOICEVOX):
+//   VOICEVOX=http://127.0.0.1:50021 SPEAKER=2 node tools/gen_audio.mjs
+// Get the engine from https://github.com/VOICEVOX/voicevox_engine/releases
+// (or `docker run -p 50021:50021 voicevox/voicevox_engine`), and ffmpeg on PATH.
+//
+// SPEAKER=2 is Shikoku Metan (ノーマル), a clear neutral female voice.
+
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const AUDIO_DIR = join(ROOT, "audio");
+const BASE = (process.env.VOICEVOX || "http://127.0.0.1:50021").replace(/\/$/, "");
+const SPEAKER = Number(process.env.SPEAKER || 2);
+const SLOW_SCALE = 0.75; // natural-pitch slow playback for the "slow" button
+
+// ---- Load the exact strings the app will look up -------------------------
+// lessons.js assigns to window.*, so evaluate it with a window stub.
+function loadLessons() {
+  const src = readFileSync(join(ROOT, "lessons.js"), "utf8");
+  const window = {};
+  new Function("window", src)(window);
+  return window;
+}
+
+const { LESSONS } = loadLessons();
+
+// Sentences get a normal + a slow clip; vocab and fixed UI phrases only normal.
+const EXTRA_PHRASES = ["こんにちは。はなしましょう。"]; // voice test / picker preview
+
+const tasks = new Map(); // text -> { slow: bool }
+const want = (text, slow) => {
+  const t = tasks.get(text) || { slow: false };
+  t.slow = t.slow || slow;
+  tasks.set(text, t);
+};
+for (const L of LESSONS) {
+  for (const s of L.sentences) want(s.jp, true);
+  for (const w of L.vocab) want(w.jp, false);
+}
+for (const p of EXTRA_PHRASES) want(p, false);
+
+// ---- VOICEVOX synthesis --------------------------------------------------
+async function postJSON(path, params, body) {
+  const url = BASE + path + "?" + new URLSearchParams(params).toString();
+  // VOICEVOX closes connections between requests; a pooled keep-alive socket
+  // gets reused and fails ("other side closed"), so force a fresh connection
+  // and retry transient socket errors.
+  let lastErr;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Connection: "close" },
+        body: body ? JSON.stringify(body) : "",
+      });
+      if (!res.ok) throw new Error(`${path} -> ${res.status}`);
+      return res;
+    } catch (e) {
+      lastErr = e;
+      await new Promise((r) => setTimeout(r, 200 * (attempt + 1)));
+    }
+  }
+  throw lastErr;
+}
+
+async function synth(text, speedScale) {
+  const query = await (await postJSON("/audio_query", { text, speaker: SPEAKER })).json();
+  query.speedScale = speedScale;
+  const wav = Buffer.from(await (await postJSON("/synthesis", { speaker: SPEAKER }, query)).arrayBuffer());
+  return wav;
+}
+
+const sha = (s) => createHash("sha1").update(s, "utf8").digest("hex").slice(0, 16);
+
+function toMp3(wav, outPath) {
+  const tmp = outPath + ".wav";
+  writeFileSync(tmp, wav);
+  execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", tmp, "-codec:a", "libmp3lame", "-q:a", "4", outPath]);
+  rmSync(tmp);
+}
+
+// ---- Run -----------------------------------------------------------------
+mkdirSync(AUDIO_DIR, { recursive: true });
+
+const clips = {};
+const keep = new Set(["manifest.json"]);
+let made = 0, reused = 0;
+
+for (const [text, { slow }] of tasks) {
+  const entry = {};
+  const variants = [["n", sha(text), 1.0]];
+  if (slow) variants.push(["s", sha("slow:" + text), SLOW_SCALE]);
+  for (const [key, name, scale] of variants) {
+    const file = name + ".mp3";
+    const out = join(AUDIO_DIR, file);
+    entry[key] = file;
+    keep.add(file);
+    if (existsSync(out)) { reused++; continue; }
+    const wav = await synth(text, scale);
+    toMp3(wav, out);
+    made++;
+    process.stdout.write(`  ${made + reused}/${[...tasks].reduce((n, [, t]) => n + 1 + (t.slow ? 1 : 0), 0)} ${file}  ${text.slice(0, 18)}\n`);
+  }
+  clips[text] = entry;
+}
+
+// Drop stale clips no longer referenced (keeps the directory in sync).
+for (const f of readdirSync(AUDIO_DIR)) {
+  if (f.endsWith(".mp3") && !keep.has(f)) { rmSync(join(AUDIO_DIR, f)); }
+}
+
+const manifest = { version: 1, speaker: SPEAKER, slowScale: SLOW_SCALE, clips };
+writeFileSync(join(AUDIO_DIR, "manifest.json"), JSON.stringify(manifest, null, 0) + "\n");
+
+console.log(`\nDone. ${made} generated, ${reused} reused, ${Object.keys(clips).length} strings -> audio/manifest.json`);

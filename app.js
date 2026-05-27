@@ -271,13 +271,14 @@
 
   // ---- Voice ---------------------------------------------------------------
   let jaVoice = null, enVoice = null, jaVoices = [];
+  let clips = null; // pre-generated VOICEVOX clips, loaded below: { "<jp>": {n, s?} }
   function pickVoices() {
     const v = speechSynthesis.getVoices();
     jaVoices = v.filter((x) => x.lang && x.lang.toLowerCase().startsWith("ja"));
     const chosen = settings.voiceURI ? jaVoices.find((x) => x.voiceURI === settings.voiceURI) : null;
     jaVoice = chosen || jaVoices.find((x) => /google/i.test(x.name)) || jaVoices.find((x) => x.lang === "ja-JP") || jaVoices[0] || null;
     enVoice = v.find((x) => x.lang.startsWith("en") && x.default) || v.find((x) => x.lang.startsWith("en")) || null;
-    el.voiceWarn.hidden = !!jaVoice;
+    el.voiceWarn.hidden = !!jaVoice || !!clips;
     populateVoiceSelect();
   }
   function populateVoiceSelect() {
@@ -298,7 +299,19 @@
   }
   pickVoices();
   if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = pickVoices;
-  function speak(text, { lang = "ja-JP", rate = 1.0 } = {}) {
+
+  // Pre-generated VOICEVOX clips (audio/manifest.json) play a clear, consistent
+  // Japanese voice on every device. Anything missing — a brand-new sentence, or
+  // a clip the browser never downloaded — falls back to speechSynthesis.
+  fetch("audio/manifest.json", { cache: "no-cache" })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((m) => { if (m && m.clips) { clips = m.clips; el.voiceWarn.hidden = true; } })
+    .catch(() => {});
+
+  let curAudio = null;
+  function stopAudio() { if (curAudio) { curAudio.pause(); curAudio = null; } }
+
+  function speakTTS(text, lang, rate) {
     if (!("speechSynthesis" in window)) return;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
@@ -308,10 +321,29 @@
     speechSynthesis.speak(u);
   }
 
+  function speak(text, { lang = "ja-JP", rate = 1.0 } = {}) {
+    speechSynthesis.cancel();
+    stopAudio();
+    const clip = lang.startsWith("ja") && clips && clips[text];
+    if (clip) {
+      const slow = rate < 1;
+      const a = new Audio("audio/" + (slow && clip.s ? clip.s : clip.n));
+      a.playbackRate = slow && !clip.s ? rate : 1.0; // a slow clip is already slowed
+      curAudio = a;
+      let fell = false;
+      const fallback = () => { if (fell) return; fell = true; if (curAudio === a) curAudio = null; speakTTS(text, lang, rate); };
+      a.addEventListener("error", fallback, { once: true });
+      a.play().catch(fallback);
+      return;
+    }
+    speakTTS(text, lang, rate);
+  }
+
   // ---- Navigation ----------------------------------------------------------
   const screens = [el.home, el.intro, el.drill, el.done, el.settings];
   function show(screen, { back = false } = {}) {
     speechSynthesis.cancel();
+    stopAudio();
     screens.forEach((s) => (s.hidden = s !== screen));
     el.backBtn.hidden = !back;
     if (el.settingsBtn) el.settingsBtn.hidden = screen === el.settings;
