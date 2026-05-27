@@ -1,0 +1,19 @@
+[Unit]
+Description=Hanasou progress-sync API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/hanasou/server
+# Generate a long random token (e.g. `openssl rand -hex 24`) and paste it here:
+Environment=HANASOU_TOKEN=CHANGE_ME_TO_A_LONG_RANDOM_STRING
+Environment=PORT=8787
+Environment=HANASOU_DATA=/opt/hanasou/server/data
+ExecStart=/usr/bin/node /opt/hanasou/server/server.js
+Restart=on-failure
+RestartSec=2
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target

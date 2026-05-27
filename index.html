@@ -3,55 +3,169 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Hanasou — Japanese speaking drill</title>
+    <title>はなそう — Japanese speaking drill</title>
+    <meta name="description" content="Learn to speak Japanese with spaced-repetition sentence drills." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#f5f4f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#100f15" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="icon-192.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="はなそう" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <main id="app">
-      <header>
-        <h1>はなそう</h1>
-        <div id="progress">card <span id="card-num">–</span> of <span id="card-total">–</span></div>
+      <header id="topbar">
+        <button id="back-btn" class="icon-btn" hidden aria-label="Back">←</button>
+        <h1 id="app-title">はなそう</h1>
+        <div id="topbar-right">
+          <button id="daily-ring" class="daily-ring" hidden aria-label="Daily goal">
+            <svg viewBox="0 0 36 36" aria-hidden="true">
+              <defs>
+                <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="var(--accent)" />
+                  <stop offset="100%" stop-color="var(--accent-2)" />
+                </linearGradient>
+              </defs>
+              <circle class="ring-track" cx="18" cy="18" r="15.915"></circle>
+              <circle class="ring-fill" cx="18" cy="18" r="15.915"></circle>
+            </svg>
+            <span class="ring-label"></span>
+          </button>
+          <button id="settings-btn" class="icon-btn" aria-label="Settings">⚙</button>
+        </div>
       </header>
 
-      <section id="card">
-        <div class="label">Say this in Japanese</div>
-        <div id="prompt-en">Loading…</div>
+      <div id="mastery" class="mastery" hidden aria-label="Course mastery">
+        <span class="mastery-tag">mastery</span>
+        <div class="mastery-bar"><i id="mastery-fill"></i></div>
+        <span id="mastery-pct" class="mastery-pct"></span>
+      </div>
 
-        <div id="hint-row" hidden>
-          <button id="show-hint-btn" class="link">show hint</button>
-          <div id="hint" hidden></div>
+      <!-- ============ HOME / LESSON MAP ============ -->
+      <section id="home" class="screen">
+        <div id="stats" class="stats"></div>
+        <button id="review-btn" class="primary review-btn" hidden></button>
+        <div id="lesson-map"></div>
+      </section>
+
+      <!-- ============ LESSON INTRO ============ -->
+      <section id="lesson-intro" class="screen" hidden>
+        <div class="label">Lesson</div>
+        <h2 id="lesson-title"></h2>
+        <div id="lesson-grammar" class="lesson-grammar"></div>
+        <p id="lesson-note" class="lesson-note"></p>
+
+        <div class="label">Words in this lesson <span class="tap-hint">tap to hear</span></div>
+        <div id="vocab-list" class="vocab-list"></div>
+
+        <button id="start-btn" class="primary">Start practice →</button>
+      </section>
+
+      <!-- ============ DRILL ============ -->
+      <section id="drill" class="screen" hidden>
+        <div id="progress-bar"><div id="progress-fill"></div></div>
+
+        <div id="card">
+          <div class="label">Say this in Japanese</div>
+          <div id="prompt-en">…</div>
+
+          <div id="hint-row" hidden>
+            <button id="show-hint-btn" class="link">show hint</button>
+            <div id="hint" hidden></div>
+          </div>
+
+          <div id="reveal-area" hidden>
+            <div class="label">Model answer</div>
+            <div id="answer-kana"></div>
+            <div id="answer-romaji"></div>
+            <div id="word-breakdown" class="word-breakdown"></div>
+          </div>
         </div>
 
-        <div id="reveal-area" hidden>
-          <div class="label">Model answer</div>
-          <div id="answer-kana"></div>
-          <div id="answer-romaji"></div>
+        <div id="controls">
+          <button id="play-en-btn" class="secondary" title="Hear the English prompt">🔈 prompt</button>
+          <button id="reveal-btn" class="primary">🎌 reveal &amp; hear</button>
+          <button id="replay-btn" class="secondary" hidden>🔁 again</button>
+          <button id="slow-btn" class="secondary" hidden>🐢 slow</button>
+        </div>
+
+        <div id="grade" hidden>
+          <div class="label">How did that go?</div>
+          <div class="grade-row">
+            <button data-grade="0" class="grade nope">nope</button>
+            <button data-grade="1" class="grade kinda">kinda</button>
+            <button data-grade="2" class="grade got">got it</button>
+          </div>
         </div>
       </section>
 
-      <section id="controls">
-        <button id="play-en-btn" class="secondary" title="Hear the English prompt">🔈 prompt</button>
-        <button id="reveal-btn" class="primary">🎌 reveal &amp; hear</button>
-        <button id="replay-btn" class="secondary" hidden>🔁 play again</button>
-        <button id="slow-btn" class="secondary" hidden>🐢 slow</button>
+      <!-- ============ SETTINGS ============ -->
+      <section id="settings" class="screen" hidden>
+        <h2 class="settings-h">Settings</h2>
+
+        <div class="setting-group">
+          <div class="label">Display</div>
+          <label class="setting-row" for="romaji-toggle">
+            <span class="setting-name">Show romaji<small>Latin reading under the Japanese</small></span>
+            <input type="checkbox" id="romaji-toggle" class="switch" />
+          </label>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Daily goal</div>
+          <span class="setting-name">Reviews per day<small>Fills your streak ring</small></span>
+          <select id="goal-select" class="select">
+            <option value="5">5 reviews</option>
+            <option value="10">10 reviews</option>
+            <option value="15">15 reviews</option>
+            <option value="20">20 reviews</option>
+            <option value="30">30 reviews</option>
+            <option value="50">50 reviews</option>
+          </select>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Audio</div>
+          <span class="setting-name">Japanese voice<small>Used to read answers aloud</small></span>
+          <select id="voice-select" class="select"></select>
+          <button id="voice-test-btn" class="secondary small">🔈 Test voice</button>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Sync</div>
+          <p id="sync-status" class="setting-status"></p>
+          <button id="sync-connect-btn" class="secondary small">☁ Set up sync</button>
+          <button id="sync-disconnect-btn" class="secondary small danger" hidden>Disconnect sync on this device</button>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Data</div>
+          <button id="reset-btn" class="secondary small danger">Reset all progress</button>
+        </div>
       </section>
 
-      <section id="grade" hidden>
-        <div class="label">How did that go?</div>
-        <div class="grade-row">
-          <button data-grade="0" class="grade nope">nope</button>
-          <button data-grade="1" class="grade kinda">kinda</button>
-          <button data-grade="2" class="grade got">got it</button>
+      <!-- ============ LESSON COMPLETE ============ -->
+      <section id="lesson-done" class="screen" hidden>
+        <div class="done-emoji">🎉</div>
+        <h2>Lesson complete</h2>
+        <p id="done-summary" class="lesson-note"></p>
+        <div class="done-actions">
+          <button id="done-home-btn" class="secondary">← all lessons</button>
+          <button id="restart-btn" class="primary">practice again</button>
         </div>
       </section>
 
       <footer>
-        <button id="reset-btn" class="link" title="Clear progress for this session">reset session</button>
+        <button id="sync-btn" class="link">☁ set up sync</button>
         <span id="voice-warn" hidden>⚠ no Japanese voice detected — try Chrome or install a Japanese TTS voice</span>
       </footer>
     </main>
 
-    <script src="prompts.js"></script>
+    <script src="lessons.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
