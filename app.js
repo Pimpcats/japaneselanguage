@@ -300,6 +300,10 @@
     mineFuriBtn: $("mine-furi-btn"),
     importForm: $("import-form"), importText: $("import-text"), importStatus: $("import-status"),
     importError: $("import-error"), importCancelBtn: $("import-cancel-btn"), importDoBtn: $("import-do-btn"),
+    reader: $("reader"), readerInput: $("reader-input"), readerError: $("reader-error"),
+    readerAnalyzeBtn: $("reader-analyze-btn"), readerClearBtn: $("reader-clear-btn"),
+    readerResult: $("reader-result"), readerCoverage: $("reader-coverage"), readerText: $("reader-text"),
+    readerPop: $("reader-pop"),
     intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
     lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"),
     drill: $("drill"), progressFill: $("progress-fill"),
@@ -449,11 +453,12 @@
   }
 
   // ---- Navigation ----------------------------------------------------------
-  const screens = [el.home, el.intro, el.drill, el.done, el.settings, el.mineForm, el.importForm];
+  const screens = [el.home, el.intro, el.drill, el.done, el.settings, el.mineForm, el.importForm, el.reader];
   function show(screen, { back = false } = {}) {
     speechSynthesis.cancel();
     stopAudio();
     screens.forEach((s) => (s.hidden = s !== screen));
+    if (el.readerPop) el.readerPop.hidden = true;
     el.backBtn.hidden = !back;
     if (el.settingsBtn) el.settingsBtn.hidden = screen === el.settings;
     el.mastery.hidden = !(screen === el.home || screen === el.intro);
@@ -567,6 +572,9 @@
     text.appendChild(Object.assign(document.createElement("h2"), { className: "tier-name", textContent: "My sentences" }));
     text.appendChild(Object.assign(document.createElement("div"), { className: "tier-blurb", textContent: "Mine lines you meet in the wild" }));
     head.appendChild(text);
+    const read = Object.assign(document.createElement("button"), { className: "mine-add mine-import", textContent: "📖 Read" });
+    read.addEventListener("click", openReader);
+    head.appendChild(read);
     const imp = Object.assign(document.createElement("button"), { className: "mine-add mine-import", textContent: "⤓ Import" });
     imp.addEventListener("click", openImportForm);
     head.appendChild(imp);
@@ -626,11 +634,12 @@
     el.mining.appendChild(block);
   }
 
-  function openMineForm() {
-    el.mineJp.value = ""; el.mineEn.value = ""; el.mineRomaji.value = ""; el.mineHint.value = "";
+  function openMineForm(prefillJp) {
+    el.mineJp.value = prefillJp || ""; el.mineEn.value = ""; el.mineRomaji.value = ""; el.mineHint.value = "";
     el.mineError.hidden = true;
     show(el.mineForm, { back: true });
-    el.mineJp.focus();
+    if (prefillJp) { el.mineFuriBtn.click(); el.mineEn.focus(); }
+    else el.mineJp.focus();
   }
 
   function saveMined() {
@@ -721,6 +730,143 @@
     rebuildMined();
     save();
     renderHome();
+  }
+
+  // ---- Reader (paste text, color by known/unknown, tap to mine) -----------
+  const READER_KEY = "hanasou.reader";
+  const POS_EN = { "名詞": "noun", "動詞": "verb", "形容詞": "adjective", "副詞": "adverb", "助詞": "particle", "助動詞": "aux. verb", "接続詞": "conjunction", "連体詞": "adnominal", "感動詞": "interjection", "記号": "symbol", "接頭詞": "prefix", "フィラー": "filler", "その他": "other" };
+  const CONTENT_POS = /名詞|動詞|形容詞|副詞/;
+  const tokTerm = (t) => (t.basic_form && t.basic_form !== "*" ? t.basic_form : t.surface_form);
+  let readerSpans = [];   // [{el, term}] content-word spans, for live recolor
+
+  function openReader() {
+    el.readerInput.value = localStorage.getItem(READER_KEY) || "";
+    el.readerError.hidden = true;
+    el.readerResult.hidden = true;
+    el.readerPop.hidden = true;
+    readerSpans = [];
+    show(el.reader, { back: true });
+    if (!el.readerInput.value) el.readerInput.focus();
+  }
+
+  function analyzeReader() {
+    const text = el.readerInput.value.trim();
+    if (!text) return;
+    localStorage.setItem(READER_KEY, text);
+    const btn = el.readerAnalyzeBtn;
+    btn.disabled = true;
+    btn.textContent = kuroTok ? "analyzing…" : "⏳ loading dictionary…";
+    el.readerError.hidden = true;
+    loadTokenizer()
+      .then((tok) => renderReader(tok, text))
+      .catch((e) => {
+        el.readerError.textContent = "Word analysis needs the dictionary, which downloads once while online. (" + e.message + ")";
+        el.readerError.hidden = false;
+      })
+      .finally(() => { btn.disabled = false; btn.textContent = "analyze"; });
+  }
+
+  function renderReader(tok, text) {
+    el.readerPop.hidden = true;
+    readerSpans = [];
+    const wrap = el.readerText;
+    wrap.innerHTML = "";
+    const lines = text.split(/\r?\n/);
+    lines.forEach((line, li) => {
+      if (li) wrap.appendChild(document.createElement("br"));
+      if (!line.trim()) return;
+      for (const sentence of line.split(/(?<=[。．.!?！？])/)) {
+        if (!sentence) continue;
+        for (const t of tok.tokenize(plainJP(sentence))) {
+          const isContent = CONTENT_POS.test(t.pos);
+          const node = document.createElement(isContent ? "button" : "span");
+          node.className = "rt-tok";
+          node.textContent = t.surface_form;
+          if (isContent) {
+            const term = tokTerm(t);
+            node.classList.add(isKnown(term) ? "known" : "unknown");
+            node.addEventListener("click", () => openReaderPop(t, sentence, node));
+            readerSpans.push({ el: node, term });
+          } else {
+            node.classList.add("plain");
+          }
+          wrap.appendChild(node);
+        }
+      }
+    });
+    refreshReaderCoverage();
+    el.readerResult.hidden = false;
+  }
+
+  function refreshReaderCoverage() {
+    let known = 0;
+    for (const s of readerSpans) {
+      const k = isKnown(s.term);
+      s.el.classList.toggle("known", k);
+      s.el.classList.toggle("unknown", !k);
+      if (k) known += 1;
+    }
+    const total = readerSpans.length;
+    const pct = total ? Math.round((known / total) * 100) : 0;
+    el.readerCoverage.innerHTML = "";
+    const lab = document.createElement("div");
+    lab.className = "rc-label";
+    lab.appendChild(span("rc-pct", pct + "%"));
+    lab.appendChild(span("rc-text", "comprehension · " + known + " / " + total + " content words known"));
+    el.readerCoverage.appendChild(lab);
+    const bar = document.createElement("div"); bar.className = "rc-bar";
+    const fill = document.createElement("i"); fill.style.width = pct + "%";
+    bar.appendChild(fill);
+    el.readerCoverage.appendChild(bar);
+  }
+
+  function openReaderPop(t, sentence, node) {
+    document.querySelectorAll(".rt-tok.active").forEach((n) => n.classList.remove("active"));
+    node.classList.add("active");
+    const term = tokTerm(t);
+    const reading = t.reading && t.reading !== "*" ? kataToHira(t.reading) : "";
+    const pop = el.readerPop;
+    pop.innerHTML = "";
+
+    const close = Object.assign(document.createElement("button"), { className: "rp-close", textContent: "×" });
+    close.setAttribute("aria-label", "Close");
+    close.addEventListener("click", () => { pop.hidden = true; node.classList.remove("active"); });
+    pop.appendChild(close);
+
+    const head = document.createElement("div"); head.className = "rp-head";
+    head.appendChild(span("rp-jp", t.surface_form));
+    if (reading && reading !== t.surface_form) head.appendChild(span("rp-read", reading));
+    head.appendChild(span("rp-pos", POS_EN[t.pos] || t.pos));
+    pop.appendChild(head);
+
+    const row = document.createElement("div"); row.className = "rp-actions";
+    const knownBtn = document.createElement("button");
+    knownBtn.className = "secondary small";
+    const setLbl = () => { knownBtn.textContent = isKnown(term) ? "✓ known" : "mark known"; };
+    setLbl();
+    knownBtn.addEventListener("click", () => { toggleKnown(term); setLbl(); refreshReaderCoverage(); });
+    row.appendChild(knownBtn);
+
+    const jisho = document.createElement("a");
+    jisho.className = "secondary small"; jisho.textContent = "Jisho ↗";
+    jisho.href = "https://jisho.org/search/" + encodeURIComponent(term);
+    jisho.target = "_blank"; jisho.rel = "noopener noreferrer";
+    row.appendChild(jisho);
+
+    const hear = Object.assign(document.createElement("button"), { className: "secondary small", textContent: "🔈" });
+    hear.addEventListener("click", () => speak(t.surface_form, { lang: "ja-JP" }));
+    row.appendChild(hear);
+
+    const mineBtn = Object.assign(document.createElement("button"), { className: "primary small", textContent: "★ mine sentence" });
+    mineBtn.addEventListener("click", () => { pop.hidden = true; node.classList.remove("active"); mineSentenceFromReader(sentence.trim()); });
+    row.appendChild(mineBtn);
+
+    pop.appendChild(row);
+    pop.hidden = false;
+  }
+
+  function mineSentenceFromReader(sentence) {
+    openMineForm(sentence);
   }
 
   function deleteMined(id) {
@@ -1086,6 +1232,12 @@
   el.importText.addEventListener("input", refreshImportStatus);
   el.importDoBtn.addEventListener("click", doImport);
   el.importCancelBtn.addEventListener("click", renderHome);
+
+  el.readerAnalyzeBtn.addEventListener("click", analyzeReader);
+  el.readerClearBtn.addEventListener("click", () => {
+    el.readerInput.value = ""; el.readerResult.hidden = true; el.readerPop.hidden = true;
+    readerSpans = []; localStorage.removeItem(READER_KEY); el.readerInput.focus();
+  });
 
   el.revealBtn.addEventListener("click", reveal);
   el.replayBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP" }));

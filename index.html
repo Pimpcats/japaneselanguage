@@ -215,6 +215,34 @@
         </div>
       </section>
 
+      <!-- ============ READER ============ -->
+      <section id="reader" class="screen" hidden>
+        <div class="label">Immersion</div>
+        <h2 class="settings-h">Reader</h2>
+        <p class="lesson-note">Paste anything in Japanese — an article, subtitles, a chat. Each word is colored by whether you know it; tap a word for its reading, mark it known, or mine its sentence into your reviews.</p>
+
+        <div class="setting-group">
+          <label class="mine-field" for="reader-input">
+            <span class="setting-name">Paste Japanese text<small>Then tap Analyze — the dictionary loads once when online</small></span>
+            <textarea id="reader-input" class="mine-input" rows="5" placeholder="日本語の文章をここに貼り付けてください。" autocapitalize="off"></textarea>
+          </label>
+          <p id="reader-error" class="mine-error" hidden></p>
+        </div>
+
+        <div id="controls">
+          <button id="reader-clear-btn" class="secondary">clear</button>
+          <button id="reader-analyze-btn" class="primary">analyze</button>
+        </div>
+
+        <div id="reader-result" hidden>
+          <div id="reader-coverage" class="reader-coverage"></div>
+          <div id="reader-text" class="reader-text"></div>
+          <p class="reader-legend"><span class="rt-tok unknown">unknown</span> <span class="rt-tok known">known</span> · tap a word to look it up or mark it known</p>
+        </div>
+      </section>
+
+      <div id="reader-pop" class="reader-pop" hidden></div>
+
       <!-- ============ LESSON COMPLETE ============ -->
       <section id="lesson-done" class="screen" hidden>
         <div class="done-emoji">🎉</div>
