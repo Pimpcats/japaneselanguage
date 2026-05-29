@@ -372,6 +372,11 @@ rt { font-size: 0.5em; font-weight: 600; color: var(--muted); user-select: none;
 .wc-analyze { font-size: 0.85rem; font-weight: 700; color: var(--accent); background: transparent; border: 1px dashed color-mix(in srgb, var(--accent) 55%, var(--line)); padding: 0.4rem 0.8rem; border-radius: 999px; }
 .ip1-badge { width: 100%; text-align: center; font-size: 0.72rem; font-weight: 800; color: var(--on-accent); background: color-mix(in srgb, var(--accent) 55%, #fff); border-radius: 999px; padding: 0.2rem 0.5rem; margin-bottom: 0.2rem; }
 
+.sw-update { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(0.9rem + env(safe-area-inset-bottom)); z-index: 9999; display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.9rem; border-radius: 14px; background: var(--accent); color: var(--on-accent); box-shadow: var(--shadow-lg, 0 8px 24px rgba(0,0,0,0.25)); font-size: 0.9rem; max-width: calc(100vw - 2rem); }
+.sw-update-text { font-weight: 600; }
+.sw-update-btn { font-weight: 800; background: var(--on-accent); color: var(--accent); border: none; border-radius: 999px; padding: 0.35rem 0.9rem; cursor: pointer; }
+.sw-update-btn:disabled { opacity: 0.6; }
+
 /* ---- Buttons ---- */
 button { font: inherit; cursor: pointer; transition: transform 0.06s ease, box-shadow 0.15s ease, background 0.15s ease; }
 button:active { transform: scale(0.97); }

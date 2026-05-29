@@ -1,6 +1,6 @@
 // Service worker — offline app shell for the Hanasou PWA.
 // Bump CACHE when the precached shell list changes to evict the old cache.
-const CACHE = "hanasou-v13";
+const CACHE = "hanasou-v14";
 const SHELL = [
   "./",
   "index.html",
@@ -37,10 +37,13 @@ async function precacheAudio(cache) {
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE)
-      .then((c) => c.addAll(SHELL).then(() => precacheAudio(c)))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE).then((c) => c.addAll(SHELL).then(() => precacheAudio(c)))
   );
+});
+
+// The page asks us to activate immediately when the user taps "Reload".
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {

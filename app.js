@@ -1143,9 +1143,44 @@
   if (getToken()) pull();
 })();
 
-// Register the service worker for offline / installable PWA support.
+// Register the service worker for offline / installable PWA support, and prompt
+// to reload when a freshly deployed version is ready (so updates never get stuck
+// behind a stale cache).
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    let reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloading) return;
+      reloading = true;
+      window.location.reload();
+    });
+    navigator.serviceWorker.register("sw.js").then((reg) => {
+      const notify = (worker) => {
+        if (worker && navigator.serviceWorker.controller) showUpdateBanner(worker);
+      };
+      if (reg.waiting) notify(reg.waiting);
+      reg.addEventListener("updatefound", () => {
+        const nw = reg.installing;
+        if (nw) nw.addEventListener("statechange", () => { if (nw.state === "installed") notify(nw); });
+      });
+      setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+    }).catch(() => {});
   });
+}
+
+function showUpdateBanner(worker) {
+  if (document.getElementById("sw-update")) return;
+  const bar = document.createElement("div");
+  bar.id = "sw-update";
+  bar.className = "sw-update";
+  const text = document.createElement("span");
+  text.className = "sw-update-text";
+  text.textContent = "A new version is ready.";
+  bar.appendChild(text);
+  const btn = document.createElement("button");
+  btn.className = "sw-update-btn";
+  btn.textContent = "Reload";
+  btn.addEventListener("click", () => { btn.disabled = true; worker.postMessage({ type: "SKIP_WAITING" }); });
+  bar.appendChild(btn);
+  document.body.appendChild(bar);
 }
