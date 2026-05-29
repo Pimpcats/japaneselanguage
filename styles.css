@@ -212,6 +212,10 @@ html, body {
   background: color-mix(in srgb, var(--accent) 55%, #fff);
   border: none; padding: 0.4rem 0.8rem; border-radius: 999px; white-space: nowrap;
 }
+.mine-import {
+  color: var(--accent); background: transparent;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--line));
+}
 .mine-empty { font-size: 0.85rem; color: var(--muted); line-height: 1.5; padding: 0.2rem 0.2rem 0.1rem; }
 .mine-list { display: flex; flex-direction: column; gap: 0.4rem; }
 .mine-item {

@@ -193,6 +193,27 @@
         </div>
       </section>
 
+      <!-- ============ IMPORT ============ -->
+      <section id="import-form" class="screen" hidden>
+        <div class="label">Mining</div>
+        <h2 class="settings-h">Import sentences</h2>
+        <p class="lesson-note">Paste rows exported from Migaku, Anki, or a spreadsheet. One sentence per line, fields separated by a <strong>Tab</strong> (or comma):<br><code>Japanese&nbsp;⇥&nbsp;Meaning&nbsp;⇥&nbsp;Reading</code><br>Only the first two are required. Migaku-style <code>kanji[reading]</code> furigana in the Japanese column is kept.</p>
+
+        <div class="setting-group">
+          <label class="mine-field" for="import-text">
+            <span class="setting-name">Paste here<small>Tab- or comma-separated, one per line</small></span>
+            <textarea id="import-text" class="mine-input" rows="8" placeholder="昨日[きのう]映画[えいが]を見[み]た。	I watched a movie yesterday.	kinō eiga o mita" autocapitalize="off"></textarea>
+          </label>
+          <p id="import-status" class="lesson-note"></p>
+          <p id="import-error" class="mine-error" hidden></p>
+        </div>
+
+        <div id="controls">
+          <button id="import-cancel-btn" class="secondary">cancel</button>
+          <button id="import-do-btn" class="primary" disabled>import</button>
+        </div>
+      </section>
+
       <!-- ============ LESSON COMPLETE ============ -->
       <section id="lesson-done" class="screen" hidden>
         <div class="done-emoji">🎉</div>

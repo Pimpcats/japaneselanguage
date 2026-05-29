@@ -294,6 +294,8 @@
     mineForm: $("mine-form"), mineJp: $("mine-jp"), mineEn: $("mine-en"), mineRomaji: $("mine-romaji"),
     mineHint: $("mine-hint"), mineError: $("mine-error"),
     mineSaveBtn: $("mine-save-btn"), mineCancelBtn: $("mine-cancel-btn"), minePreviewBtn: $("mine-preview-btn"),
+    importForm: $("import-form"), importText: $("import-text"), importStatus: $("import-status"),
+    importError: $("import-error"), importCancelBtn: $("import-cancel-btn"), importDoBtn: $("import-do-btn"),
     intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
     lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"),
     drill: $("drill"), progressFill: $("progress-fill"),
@@ -403,7 +405,7 @@
   }
 
   // ---- Navigation ----------------------------------------------------------
-  const screens = [el.home, el.intro, el.drill, el.done, el.settings, el.mineForm];
+  const screens = [el.home, el.intro, el.drill, el.done, el.settings, el.mineForm, el.importForm];
   function show(screen, { back = false } = {}) {
     speechSynthesis.cancel();
     stopAudio();
@@ -521,6 +523,9 @@
     text.appendChild(Object.assign(document.createElement("h2"), { className: "tier-name", textContent: "My sentences" }));
     text.appendChild(Object.assign(document.createElement("div"), { className: "tier-blurb", textContent: "Mine lines you meet in the wild" }));
     head.appendChild(text);
+    const imp = Object.assign(document.createElement("button"), { className: "mine-add mine-import", textContent: "⤓ Import" });
+    imp.addEventListener("click", openImportForm);
+    head.appendChild(imp);
     const add = Object.assign(document.createElement("button"), { className: "mine-add", textContent: "＋ Add" });
     add.addEventListener("click", openMineForm);
     head.appendChild(add);
@@ -600,6 +605,75 @@
       added: Date.now(),
     };
     prog.mined.unshift(m);
+    rebuildMined();
+    save();
+    renderHome();
+  }
+
+  // ---- Import (Migaku / Anki / spreadsheet exports) -----------------------
+  function splitRow(line) {
+    if (line.indexOf("\t") !== -1) return line.split("\t");
+    return line.split(",");
+  }
+  // Parse pasted text into {jp, en, romaji} rows, skipping blanks/incomplete lines.
+  function parseImport(text) {
+    const rows = [];
+    let skipped = 0;
+    for (const raw of String(text).split(/\r?\n/)) {
+      if (!raw.trim()) continue;
+      const cols = splitRow(raw).map((c) => c.trim());
+      const jp = cols[0] || "", en = cols[1] || "";
+      if (!jp || !en) { skipped += 1; continue; }
+      rows.push({ jp, en, romaji: cols[2] || "" });
+    }
+    return { rows, skipped };
+  }
+  function refreshImportStatus() {
+    const { rows, skipped } = parseImport(el.importText.value);
+    const have = new Set(prog.mined.map((m) => m.jp + "" + m.en));
+    let fresh = 0;
+    const seen = new Set();
+    for (const r of rows) {
+      const key = r.jp + "" + r.en;
+      if (have.has(key) || seen.has(key)) continue;
+      seen.add(key); fresh += 1;
+    }
+    const dup = rows.length - fresh;
+    const parts = [];
+    if (fresh) parts.push(fresh + " new sentence" + (fresh === 1 ? "" : "s"));
+    if (dup) parts.push(dup + " already saved");
+    if (skipped) parts.push(skipped + " line" + (skipped === 1 ? "" : "s") + " skipped (need 2 columns)");
+    el.importStatus.textContent = parts.length ? "Ready: " + parts.join(" · ") : "";
+    el.importDoBtn.disabled = fresh === 0;
+    return fresh;
+  }
+  function openImportForm() {
+    el.importText.value = "";
+    el.importStatus.textContent = "";
+    el.importError.hidden = true;
+    el.importDoBtn.disabled = true;
+    show(el.importForm, { back: true });
+    el.importText.focus();
+  }
+  function doImport() {
+    const { rows } = parseImport(el.importText.value);
+    const have = new Set(prog.mined.map((m) => m.jp + "" + m.en));
+    const fresh = [];
+    for (const r of rows) {
+      const key = r.jp + "" + r.en;
+      if (have.has(key)) continue;
+      have.add(key);
+      fresh.push({
+        id: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        jp: r.jp, en: r.en, romaji: r.romaji, hint: "", added: Date.now(),
+      });
+    }
+    if (!fresh.length) {
+      el.importError.textContent = "Nothing new to import.";
+      el.importError.hidden = false;
+      return;
+    }
+    prog.mined = fresh.concat(prog.mined);
     rebuildMined();
     save();
     renderHome();
@@ -897,6 +971,10 @@
     const jp = el.mineJp.value.trim();
     if (jp) speak(jp, { lang: "ja-JP" });
   });
+
+  el.importText.addEventListener("input", refreshImportStatus);
+  el.importDoBtn.addEventListener("click", doImport);
+  el.importCancelBtn.addEventListener("click", renderHome);
 
   el.revealBtn.addEventListener("click", reveal);
   el.replayBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP" }));
