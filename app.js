@@ -62,6 +62,7 @@
   if (settings.romaji === undefined) settings.romaji = true;
   settings.voiceURI = settings.voiceURI || "";
   if (!settings.dailyGoal) settings.dailyGoal = 20;
+  settings.collapsedTiers = settings.collapsedTiers || {};
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
   function applyRomaji() { document.body.classList.toggle("no-romaji", !settings.romaji); }
 
@@ -566,13 +567,38 @@
         const done = tierLessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
         tHead.appendChild(span("tier-count", done + "/" + tierLessons.length));
       }
-      tierBlock.appendChild(tHead);
 
       if (!tierLessons.length) {
+        tierBlock.appendChild(tHead);
         tierBlock.appendChild(Object.assign(document.createElement("div"), { className: "tier-soon", textContent: "Coming soon" }));
         el.lessonMap.appendChild(tierBlock);
         continue;
       }
+
+      const collapsed = !!settings.collapsedTiers[tier.name];
+      tHead.appendChild(span("tier-chevron", "▾"));
+      tHead.setAttribute("role", "button");
+      tHead.tabIndex = 0;
+      tHead.setAttribute("aria-expanded", String(!collapsed));
+      tierBlock.appendChild(tHead);
+
+      const body = document.createElement("div");
+      body.className = "tier-body";
+      body.hidden = collapsed;
+      tierBlock.classList.toggle("collapsed", collapsed);
+
+      const toggleTier = () => {
+        const now = !settings.collapsedTiers[tier.name];
+        settings.collapsedTiers[tier.name] = now;
+        saveSettings();
+        body.hidden = now;
+        tierBlock.classList.toggle("collapsed", now);
+        tHead.setAttribute("aria-expanded", String(!now));
+      };
+      tHead.addEventListener("click", toggleTier);
+      tHead.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleTier(); }
+      });
 
       for (const theme of tier.themes) {
         const lessons = window.LESSONS.filter((L) => L.section === theme);
@@ -610,8 +636,9 @@
           tile.addEventListener("click", () => openIntro(L));
           block.appendChild(tile);
         }
-        tierBlock.appendChild(block);
+        body.appendChild(block);
       }
+      tierBlock.appendChild(body);
       el.lessonMap.appendChild(tierBlock);
     }
     show(el.home);
