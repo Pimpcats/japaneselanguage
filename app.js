@@ -294,6 +294,7 @@
     mineForm: $("mine-form"), mineJp: $("mine-jp"), mineEn: $("mine-en"), mineRomaji: $("mine-romaji"),
     mineHint: $("mine-hint"), mineError: $("mine-error"),
     mineSaveBtn: $("mine-save-btn"), mineCancelBtn: $("mine-cancel-btn"), minePreviewBtn: $("mine-preview-btn"),
+    mineFuriBtn: $("mine-furi-btn"),
     importForm: $("import-form"), importText: $("import-text"), importStatus: $("import-status"),
     importError: $("import-error"), importCancelBtn: $("import-cancel-btn"), importDoBtn: $("import-do-btn"),
     intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
@@ -363,6 +364,46 @@
     return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   }
   function plainJP(s) { return String(s || "").replace(/\[[^\]]*\]/g, ""); }
+
+  // ---- Tokenizer (Kuromoji, vendored) for auto-furigana --------------------
+  let kuroTok = null, kuroLoading = null;
+  function loadTokenizer() {
+    if (kuroTok) return Promise.resolve(kuroTok);
+    if (kuroLoading) return kuroLoading;
+    kuroLoading = new Promise((resolve, reject) => {
+      const build = () => {
+        if (!window.kuromoji) { reject(new Error("tokenizer script missing")); return; }
+        window.kuromoji.builder({ dicPath: "vendor/kuromoji/dict/" }).build((err, tok) => {
+          if (err) { kuroLoading = null; reject(err); return; }
+          kuroTok = tok; resolve(tok);
+        });
+      };
+      if (window.kuromoji) { build(); return; }
+      const s = document.createElement("script");
+      s.src = "vendor/kuromoji/kuromoji.js";
+      s.onload = build;
+      s.onerror = () => { kuroLoading = null; reject(new Error("could not load tokenizer")); };
+      document.head.appendChild(s);
+    });
+    return kuroLoading;
+  }
+  const kataToHira = (s) => String(s || "").replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
+  const hasKanji = (s) => /[㐀-鿿]/.test(s || "");
+  const isKana = (ch) => /[぀-ヿｦ-ﾝー]/.test(ch);
+  // Build "kanji[reading]" for one token, peeling shared okurigana off both ends.
+  function tokenFurigana(surface, readingKata) {
+    if (!hasKanji(surface) || !readingKata || readingKata === "*") return surface;
+    let s = surface, r = kataToHira(readingKata), pre = "", suf = "";
+    while (s && r && isKana(s[0]) && s[0] === r[0]) { pre += s[0]; s = s.slice(1); r = r.slice(1); }
+    while (s && r && isKana(s[s.length - 1]) && s[s.length - 1] === r[r.length - 1]) { suf = s[s.length - 1] + suf; s = s.slice(0, -1); r = r.slice(0, -1); }
+    if (!s || !r) return surface;
+    return pre + s + "[" + r + "]" + suf;
+  }
+  function autoFurigana(text) {
+    return loadTokenizer().then((tok) =>
+      tok.tokenize(plainJP(text)).map((t) => tokenFurigana(t.surface_form, t.reading)).join("")
+    );
+  }
   function furiganaHTML(s) {
     s = String(s || "");
     const re = /([^\s[\]]+)\[([^\]]*)\]/g;
@@ -970,6 +1011,21 @@
   el.minePreviewBtn.addEventListener("click", () => {
     const jp = el.mineJp.value.trim();
     if (jp) speak(jp, { lang: "ja-JP" });
+  });
+  el.mineFuriBtn.addEventListener("click", () => {
+    const jp = el.mineJp.value.trim();
+    if (!jp) return;
+    const btn = el.mineFuriBtn;
+    btn.disabled = true;
+    btn.textContent = kuroTok ? "✨ …" : "⏳ loading dict";
+    el.mineError.hidden = true;
+    autoFurigana(jp)
+      .then((out) => { el.mineJp.value = out; })
+      .catch((e) => {
+        el.mineError.textContent = "Furigana unavailable offline until the dictionary has loaded once. (" + e.message + ")";
+        el.mineError.hidden = false;
+      })
+      .finally(() => { btn.disabled = false; btn.textContent = "✨ furigana"; });
   });
 
   el.importText.addEventListener("input", refreshImportStatus);
