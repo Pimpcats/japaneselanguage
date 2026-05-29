@@ -181,6 +181,30 @@ html, body {
 .section-title { font-size: 0.98rem; font-weight: 800; margin: 0; color: var(--muted); }
 .section-rule { flex: 1; height: 1px; background: var(--line); }
 
+/* ---- Immersion log ---- */
+.imm-card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 0.85rem 1rem;
+  box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 0.55rem;
+}
+.imm-head { display: flex; align-items: baseline; gap: 0.5rem; }
+.imm-total { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+.imm-unit { font-size: 0.8rem; color: var(--muted); }
+.imm-streak { margin-left: auto; font-size: 0.78rem; font-weight: 800; color: var(--on-accent);
+  background: color-mix(in srgb, var(--accent) 50%, #fff); padding: 0.2rem 0.55rem; border-radius: 999px; }
+.imm-today { font-size: 0.82rem; color: var(--muted); }
+.imm-actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.imm-add {
+  font-size: 0.85rem; font-weight: 700; color: var(--fg);
+  background: var(--card-2); border: 1px solid var(--line);
+  padding: 0.45rem 0.7rem; border-radius: 999px;
+}
+.imm-add:active { background: color-mix(in srgb, var(--accent) 22%, var(--card-2)); }
+.imm-edit {
+  font-size: 0.85rem; color: var(--muted); background: none; border: none;
+  text-decoration: underline; padding: 0.45rem 0.4rem; margin-left: auto;
+}
+
 /* ---- Mining: "My sentences" ---- */
 #mining:empty { display: none; }
 .mine-add {

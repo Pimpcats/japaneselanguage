@@ -46,6 +46,7 @@
   prog.reviews = prog.reviews || 0;
   prog.daily = prog.daily || { day: null, count: 0 };   // reviews done today
   prog.mined = prog.mined || [];          // [{id, en, jp, romaji, hint, added}]
+  prog.immersion = prog.immersion || {};  // {"YYYY-MM-DD": minutes}
   rebuildMined();
   function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
@@ -134,6 +135,13 @@
     return Object.values(map);
   }
 
+  // Immersion minutes per day — keep the higher tally for each date.
+  function mergeImmersion(a, b) {
+    const out = Object.assign({}, a || {});
+    for (const [k, v] of Object.entries(b || {})) out[k] = Math.max(out[k] || 0, v);
+    return out;
+  }
+
   // Merge two progress blobs without losing reps made on another device.
   function mergeProgress(local, remote) {
     if (!remote) return local;
@@ -143,6 +151,7 @@
       reviews: Math.max(local.reviews || 0, remote.reviews || 0),
       daily: mergeDaily(local.daily, remote.daily),
       mined: mergeMined(local.mined, remote.mined),
+      immersion: mergeImmersion(local.immersion, remote.immersion),
     };
     const ids = new Set([...Object.keys(local.cards || {}), ...Object.keys(remote.cards || {})]);
     for (const id of ids) {
@@ -174,6 +183,7 @@
         prog.reviews = merged.reviews;
         prog.daily = merged.daily;
         prog.mined = merged.mined;
+        prog.immersion = merged.immersion;
         rebuildMined();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
       }
@@ -280,7 +290,7 @@
     backBtn: $("back-btn"),
     dailyRing: $("daily-ring"), ringFill: document.querySelector(".ring-fill"), ringLabel: document.querySelector(".ring-label"),
     mastery: $("mastery"), masteryFill: $("mastery-fill"), masteryPct: $("mastery-pct"),
-    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), lessonMap: $("lesson-map"), mining: $("mining"),
+    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), lessonMap: $("lesson-map"), mining: $("mining"), immersion: $("immersion"),
     mineForm: $("mine-form"), mineJp: $("mine-jp"), mineEn: $("mine-en"), mineRomaji: $("mine-romaji"),
     mineHint: $("mine-hint"), mineError: $("mine-error"),
     mineSaveBtn: $("mine-save-btn"), mineCancelBtn: $("mine-cancel-btn"), minePreviewBtn: $("mine-preview-btn"),
@@ -413,6 +423,70 @@
     el.masteryFill.style.width = Math.round(m.pct * 100) + "%";
     el.masteryPct.textContent = Math.round(m.pct * 100) + "%";
     el.mastery.title = m.passed + " of " + m.total + " sentences mastered";
+  }
+
+  // ---- Immersion log -------------------------------------------------------
+  function fmtHours(min) {
+    const h = min / 60;
+    return (h >= 10 ? Math.round(h) : Math.round(h * 10) / 10).toString();
+  }
+  function immersionStreak() {
+    let n = 0;
+    for (let i = 0; ; i++) {
+      const d = new Date(Date.now() - i * DAY).toISOString().slice(0, 10);
+      if ((prog.immersion[d] || 0) > 0) n += 1;
+      else if (i === 0) continue;       // today not logged yet doesn't break a prior streak
+      else break;
+    }
+    return n;
+  }
+  function addImmersion(min) {
+    const t = todayStr();
+    prog.immersion[t] = Math.max(0, (prog.immersion[t] || 0) + min);
+    if (prog.immersion[t] === 0) delete prog.immersion[t];
+    save();
+    renderImmersion();
+  }
+  function editImmersion() {
+    const t = todayStr();
+    const cur = prog.immersion[t] || 0;
+    const v = prompt("Minutes immersed today:", String(cur));
+    if (v === null) return;
+    const n = Math.max(0, Math.round(Number(v)) || 0);
+    if (n === 0) delete prog.immersion[t]; else prog.immersion[t] = n;
+    save();
+    renderImmersion();
+  }
+  function renderImmersion() {
+    el.immersion.innerHTML = "";
+    const today = prog.immersion[todayStr()] || 0;
+    const total = Object.values(prog.immersion).reduce((a, b) => a + b, 0);
+    const streak = immersionStreak();
+
+    const card = document.createElement("div");
+    card.className = "imm-card";
+    const head = document.createElement("div"); head.className = "imm-head";
+    head.appendChild(span("imm-total", fmtHours(total)));
+    head.appendChild(span("imm-unit", "hours immersed"));
+    if (streak > 0) head.appendChild(span("imm-streak", "🎧 " + streak + "d"));
+    card.appendChild(head);
+
+    const today_row = document.createElement("div"); today_row.className = "imm-today";
+    today_row.textContent = today > 0 ? "Today: " + today + " min" : "No immersion logged today";
+    card.appendChild(today_row);
+
+    const actions = document.createElement("div"); actions.className = "imm-actions";
+    for (const m of [15, 30, 60]) {
+      const b = Object.assign(document.createElement("button"), { className: "imm-add", textContent: "+" + m + "m" });
+      b.addEventListener("click", () => addImmersion(m));
+      actions.appendChild(b);
+    }
+    const edit = Object.assign(document.createElement("button"), { className: "imm-edit", textContent: "edit" });
+    edit.addEventListener("click", editImmersion);
+    actions.appendChild(edit);
+    card.appendChild(actions);
+
+    el.immersion.appendChild(card);
   }
 
   // ---- Mining: user-added sentences ---------------------------------------
@@ -552,6 +626,7 @@
     el.reviewBtn.hidden = due === 0;
     el.reviewBtn.textContent = `🔁 Review ${due} due card${due === 1 ? "" : "s"}`;
 
+    renderImmersion();
     renderMining();
 
     el.lessonMap.innerHTML = "";
