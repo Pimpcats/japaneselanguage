@@ -1,0 +1,11 @@
+leeds-ja.txt — Japanese word frequency list (most frequent first)
+
+Derived from the University of Leeds Internet Japanese corpus
+(http://corpus.leeds.ac.uk/frqc/internet-jp.num), cleanup by William Hingston
+(https://github.com/hingston/japanese).
+
+Distributed under the Creative Commons Attribution 2.5 (CC BY 2.5) license:
+https://creativecommons.org/licenses/by/2.5/
+
+This file keeps only entries containing Japanese characters, deduplicated,
+preserving the original frequency order (line number = rank, 1 = most frequent).

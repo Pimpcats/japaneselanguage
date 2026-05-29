@@ -48,6 +48,7 @@
   prog.mined = prog.mined || [];          // [{id, en, jp, romaji, hint, added}]
   prog.immersion = prog.immersion || {};  // {"YYYY-MM-DD": minutes}
   prog.known = prog.known || [];          // [base_form] words marked known
+  prog.knownHistory = prog.knownHistory || {}; // {"YYYY-MM-DD": known count}
   rebuildMined();
   function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
@@ -154,6 +155,7 @@
       mined: mergeMined(local.mined, remote.mined),
       immersion: mergeImmersion(local.immersion, remote.immersion),
       known: Array.from(new Set([...(local.known || []), ...(remote.known || [])])),
+      knownHistory: mergeImmersion(local.knownHistory, remote.knownHistory),
     };
     const ids = new Set([...Object.keys(local.cards || {}), ...Object.keys(remote.cards || {})]);
     for (const id of ids) {
@@ -187,6 +189,7 @@
         prog.mined = merged.mined;
         prog.immersion = merged.immersion;
         prog.known = merged.known;
+        prog.knownHistory = merged.knownHistory;
         rebuildMined();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
       }
@@ -303,7 +306,7 @@
     reader: $("reader"), readerInput: $("reader-input"), readerError: $("reader-error"),
     readerAnalyzeBtn: $("reader-analyze-btn"), readerClearBtn: $("reader-clear-btn"),
     readerResult: $("reader-result"), readerCoverage: $("reader-coverage"), readerText: $("reader-text"),
-    readerPop: $("reader-pop"),
+    readerLearn: $("reader-learn"), readerPop: $("reader-pop"),
     intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
     lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"),
     drill: $("drill"), progressFill: $("progress-fill"),
@@ -394,6 +397,31 @@
     });
     return kuroLoading;
   }
+  // ---- Word frequency (University of Leeds corpus, CC BY) -----------------
+  let freqRank = null, freqLoading = null;
+  function loadFreq() {
+    if (freqRank) return Promise.resolve(freqRank);
+    if (freqLoading) return freqLoading;
+    freqLoading = fetch("vendor/freq/leeds-ja.txt")
+      .then((r) => { if (!r.ok) throw new Error("freq " + r.status); return r.text(); })
+      .then((txt) => {
+        freqRank = new Map();
+        let rank = 0;
+        for (const line of txt.split("\n")) { const w = line.trim(); if (!w) continue; rank += 1; if (!freqRank.has(w)) freqRank.set(w, rank); }
+        return freqRank;
+      })
+      .catch((e) => { freqLoading = null; throw e; });
+    return freqLoading;
+  }
+  const freqOf = (term) => (freqRank ? freqRank.get(term) || null : null);
+  function freqTier(rank) {
+    if (rank == null) return { label: "rare", cls: "rare" };
+    if (rank <= 1500) return { label: "very common", cls: "vcommon" };
+    if (rank <= 5000) return { label: "common", cls: "common" };
+    if (rank <= 15000) return { label: "uncommon", cls: "uncommon" };
+    return { label: "rare", cls: "rare" };
+  }
+
   const kataToHira = (s) => String(s || "").replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
   const hasKanji = (s) => /[㐀-鿿]/.test(s || "");
   const isKana = (ch) => /[぀-ヿｦ-ﾝー]/.test(ch);
@@ -544,6 +572,14 @@
     today_row.textContent = today > 0 ? "Today: " + today + " min" : "No immersion logged today";
     card.appendChild(today_row);
 
+    if (prog.known.length > 0) {
+      const g = knownGrowth(7);
+      const kr = document.createElement("div"); kr.className = "imm-known";
+      kr.appendChild(span("imm-known-n", "📚 " + prog.known.length));
+      kr.appendChild(span("imm-known-l", "words known" + (g > 0 ? " · +" + g + " this week" : "")));
+      card.appendChild(kr);
+    }
+
     const actions = document.createElement("div"); actions.className = "imm-actions";
     for (const m of [15, 30, 60]) {
       const b = Object.assign(document.createElement("button"), { className: "imm-add", textContent: "+" + m + "m" });
@@ -556,6 +592,15 @@
     card.appendChild(actions);
 
     el.immersion.appendChild(card);
+  }
+
+  function knownGrowth(days) {
+    const cutoff = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
+    let base = 0;
+    for (const d of Object.keys(prog.knownHistory).sort()) {
+      if (d <= cutoff) base = prog.knownHistory[d]; else break;
+    }
+    return prog.known.length - base;
   }
 
   // ---- Mining: user-added sentences ---------------------------------------
@@ -757,8 +802,8 @@
     btn.disabled = true;
     btn.textContent = kuroTok ? "analyzing…" : "⏳ loading dictionary…";
     el.readerError.hidden = true;
-    loadTokenizer()
-      .then((tok) => renderReader(tok, text))
+    Promise.all([loadTokenizer(), loadFreq().catch(() => null)])
+      .then(([tok]) => renderReader(tok, text))
       .catch((e) => {
         el.readerError.textContent = "Word analysis needs the dictionary, which downloads once while online. (" + e.message + ")";
         el.readerError.hidden = false;
@@ -786,7 +831,7 @@
             const term = tokTerm(t);
             node.classList.add(isKnown(term) ? "known" : "unknown");
             node.addEventListener("click", () => openReaderPop(t, sentence, node));
-            readerSpans.push({ el: node, term });
+            readerSpans.push({ el: node, term, t, sentence });
           } else {
             node.classList.add("plain");
           }
@@ -796,6 +841,28 @@
     });
     refreshReaderCoverage();
     el.readerResult.hidden = false;
+  }
+
+  function renderLearnList() {
+    const wrap = el.readerLearn;
+    wrap.innerHTML = "";
+    const uniq = new Map();
+    for (const s of readerSpans) { if (isKnown(s.term) || uniq.has(s.term)) continue; uniq.set(s.term, s); }
+    const items = [...uniq.values()].map((s) => Object.assign({ rank: freqOf(s.term) }, s));
+    items.sort((a, b) => (a.rank || 1e9) - (b.rank || 1e9));
+    if (!items.length) return;
+    wrap.appendChild(span("rl-title", "Words to learn here — most common first"));
+    const row = document.createElement("div"); row.className = "rl-row";
+    for (const it of items.slice(0, 24)) {
+      const tier = freqTier(it.rank);
+      const chip = document.createElement("button");
+      chip.className = "rl-chip freq-" + tier.cls;
+      chip.appendChild(span("rl-word", it.t.surface_form));
+      chip.appendChild(span("rl-tier", tier.label));
+      chip.addEventListener("click", () => openReaderPop(it.t, it.sentence, it.el));
+      row.appendChild(chip);
+    }
+    wrap.appendChild(row);
   }
 
   function refreshReaderCoverage() {
@@ -818,6 +885,7 @@
     const fill = document.createElement("i"); fill.style.width = pct + "%";
     bar.appendChild(fill);
     el.readerCoverage.appendChild(bar);
+    renderLearnList();
   }
 
   function openReaderPop(t, sentence, node) {
@@ -838,6 +906,10 @@
     if (reading && reading !== t.surface_form) head.appendChild(span("rp-read", reading));
     head.appendChild(span("rp-pos", POS_EN[t.pos] || t.pos));
     pop.appendChild(head);
+
+    const rank = freqOf(term);
+    const tier = freqTier(rank);
+    pop.appendChild(span("rp-freq freq-" + tier.cls, tier.label + (rank ? " · #" + rank : "")));
 
     const row = document.createElement("div"); row.className = "rp-actions";
     const knownBtn = document.createElement("button");
@@ -1091,6 +1163,7 @@
   function toggleKnown(term) {
     const i = prog.known.indexOf(term);
     if (i >= 0) prog.known.splice(i, 1); else prog.known.push(term);
+    prog.knownHistory[todayStr()] = prog.known.length;
     save();
   }
   const POS_MAP = { "名詞": "n", "動詞": "v", "形容詞": "adj", "副詞": "adv", "助詞": "prt", "助動詞": "aux", "接続詞": "conj", "連体詞": "adj", "感動詞": "expr" };

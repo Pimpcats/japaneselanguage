@@ -402,6 +402,26 @@ button.rt-tok { cursor: pointer; }
 .rp-pos { font-size: 0.75rem; color: var(--muted); }
 .rp-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; align-items: center; }
 .rp-actions .small { text-decoration: none; }
+.rp-freq { display: inline-block; margin-top: 0.5rem; font-size: 0.78rem; font-weight: 700; }
+
+/* frequency tiers */
+.freq-vcommon { color: #1a7f37; }
+.freq-common  { color: #3a8a2e; }
+.freq-uncommon { color: #b3801b; }
+.freq-rare    { color: var(--muted); }
+
+.reader-learn { margin-bottom: 0.9rem; }
+.rl-title { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; margin-bottom: 0.4rem; }
+.rl-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.rl-chip { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0.05rem; padding: 0.3rem 0.55rem; border-radius: 10px; border: 1px solid var(--line); background: var(--card); cursor: pointer; }
+.rl-word { font-size: 1rem; font-weight: 700; }
+.rl-tier { font-size: 0.6rem; opacity: 0.85; }
+.rl-chip.freq-vcommon { border-color: #9ad5a8; background: #eefaf0; }
+.rl-chip.freq-common { border-color: #bfe0b0; background: #f3faee; }
+
+.imm-known { margin-top: 0.5rem; display: flex; align-items: baseline; gap: 0.4rem; }
+.imm-known-n { font-weight: 800; color: var(--accent); }
+.imm-known-l { font-size: 0.8rem; color: var(--muted); }
 
 /* ---- Buttons ---- */
 button { font: inherit; cursor: pointer; transition: transform 0.06s ease, box-shadow 0.15s ease, background 0.15s ease; }
