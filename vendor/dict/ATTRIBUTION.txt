@@ -1,0 +1,13 @@
+jmdict-min.json — compact Japanese→English glosses
+
+Derived from JMdict (the common-words English subset, jmdict-eng-common) via
+the jmdict-simplified project (https://github.com/scriptin/jmdict-simplified).
+
+JMdict is the property of the Electronic Dictionary Research and Development
+Group (EDRDG) and is used in conformance with its license:
+https://www.edrdg.org/edrdg/licence.html (Creative Commons Attribution-ShareAlike
+4.0 International — CC BY-SA 4.0).
+
+This file maps each headword (kanji and kana forms) to a shortened gloss
+(first glosses of up to three senses) for in-app lookups. The full dictionary
+is at https://www.edrdg.org/jmdict/edict_doc.html

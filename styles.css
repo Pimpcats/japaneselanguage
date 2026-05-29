@@ -403,6 +403,7 @@ button.rt-tok { cursor: pointer; }
 .rp-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; align-items: center; }
 .rp-actions .small { text-decoration: none; }
 .rp-freq { display: inline-block; margin-top: 0.5rem; font-size: 0.78rem; font-weight: 700; }
+.rp-gloss { display: block; margin-top: 0.35rem; font-size: 0.95rem; color: var(--fg); line-height: 1.35; }
 
 /* frequency tiers */
 .freq-vcommon { color: #1a7f37; }

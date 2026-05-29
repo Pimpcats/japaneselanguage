@@ -422,6 +422,19 @@
     return { label: "rare", cls: "rare" };
   }
 
+  // ---- Definitions (JMdict common subset, CC BY-SA) -----------------------
+  let glossMap = null, glossLoading = null;
+  function loadGloss() {
+    if (glossMap) return Promise.resolve(glossMap);
+    if (glossLoading) return glossLoading;
+    glossLoading = fetch("vendor/dict/jmdict-min.json")
+      .then((r) => { if (!r.ok) throw new Error("gloss " + r.status); return r.json(); })
+      .then((m) => { glossMap = m; return m; })
+      .catch((e) => { glossLoading = null; throw e; });
+    return glossLoading;
+  }
+  const glossOf = (term, surface) => (glossMap ? (glossMap[term] || (surface ? glossMap[surface] : null) || null) : null);
+
   const kataToHira = (s) => String(s || "").replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
   const hasKanji = (s) => /[㐀-鿿]/.test(s || "");
   const isKana = (ch) => /[぀-ヿｦ-ﾝー]/.test(ch);
@@ -780,7 +793,7 @@
   // ---- Reader (paste text, color by known/unknown, tap to mine) -----------
   const READER_KEY = "hanasou.reader";
   const POS_EN = { "名詞": "noun", "動詞": "verb", "形容詞": "adjective", "副詞": "adverb", "助詞": "particle", "助動詞": "aux. verb", "接続詞": "conjunction", "連体詞": "adnominal", "感動詞": "interjection", "記号": "symbol", "接頭詞": "prefix", "フィラー": "filler", "その他": "other" };
-  const CONTENT_POS = /名詞|動詞|形容詞|副詞/;
+  const CONTENT_POS = /^(名詞|動詞|形容詞|副詞)$/;
   const tokTerm = (t) => (t.basic_form && t.basic_form !== "*" ? t.basic_form : t.surface_form);
   let readerSpans = [];   // [{el, term}] content-word spans, for live recolor
 
@@ -802,7 +815,7 @@
     btn.disabled = true;
     btn.textContent = kuroTok ? "analyzing…" : "⏳ loading dictionary…";
     el.readerError.hidden = true;
-    Promise.all([loadTokenizer(), loadFreq().catch(() => null)])
+    Promise.all([loadTokenizer(), loadFreq().catch(() => null), loadGloss().catch(() => null)])
       .then(([tok]) => renderReader(tok, text))
       .catch((e) => {
         el.readerError.textContent = "Word analysis needs the dictionary, which downloads once while online. (" + e.message + ")";
@@ -910,6 +923,9 @@
     const rank = freqOf(term);
     const tier = freqTier(rank);
     pop.appendChild(span("rp-freq freq-" + tier.cls, tier.label + (rank ? " · #" + rank : "")));
+
+    const def = glossOf(term, t.surface_form);
+    if (def) pop.appendChild(span("rp-gloss", def));
 
     const row = document.createElement("div"); row.className = "rp-actions";
     const knownBtn = document.createElement("button");
@@ -1193,8 +1209,9 @@
       if (/記号|フィラー|その他/.test(t.pos)) continue;
       const term = t.basic_form && t.basic_form !== "*" ? t.basic_form : t.surface_form;
       const reading = t.reading && t.reading !== "*" ? kataToHira(t.reading) : "";
-      el.wordBreakdown.appendChild(makeWordChip({ jp: t.surface_form, reading, pos: POS_MAP[t.pos] || "n", term }));
-      if (/名詞|動詞|形容詞|副詞/.test(t.pos) && !isKnown(term)) unknownContent += 1;
+      const gloss = glossOf(term, t.surface_form);
+      el.wordBreakdown.appendChild(makeWordChip({ jp: t.surface_form, reading, gloss, pos: POS_MAP[t.pos] || "n", term }));
+      if (CONTENT_POS.test(t.pos) && !isKnown(term)) unknownContent += 1;
     }
     if (unknownContent === 1) {
       const badge = span("ip1-badge", "i+1 — one new word");
@@ -1208,12 +1225,14 @@
       return;
     }
     if (!current.mined) return;
-    if (kuroTok) { renderTokenChips(s); return; }
+    if (kuroTok) { loadGloss().catch(() => null).then(() => renderTokenChips(s)); return; }
     const btn = document.createElement("button");
     btn.className = "wc-analyze"; btn.textContent = "🔤 break into words";
     btn.addEventListener("click", () => {
       btn.disabled = true; btn.textContent = "⏳ loading dictionary…";
-      loadTokenizer().then(() => renderTokenChips(s)).catch(() => { btn.disabled = false; btn.textContent = "word breakdown unavailable offline"; });
+      Promise.all([loadTokenizer(), loadGloss().catch(() => null)])
+        .then(() => renderTokenChips(s))
+        .catch(() => { btn.disabled = false; btn.textContent = "word breakdown unavailable offline"; });
     });
     el.wordBreakdown.appendChild(btn);
   }
