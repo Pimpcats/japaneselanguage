@@ -288,6 +288,7 @@
     wordBreakdown: $("word-breakdown"), revealArea: $("reveal-area"),
     hintRow: $("hint-row"), showHintBtn: $("show-hint-btn"), hint: $("hint"),
     revealBtn: $("reveal-btn"), replayBtn: $("replay-btn"), slowBtn: $("slow-btn"), playEnBtn: $("play-en-btn"),
+    mineThisBtn: $("mine-this-btn"),
     grade: $("grade"),
     done: $("lesson-done"), doneSummary: $("done-summary"), restartBtn: $("restart-btn"), doneHomeBtn: $("done-home-btn"),
     voiceWarn: $("voice-warn"), syncBtn: $("sync-btn"),
@@ -675,6 +676,7 @@
     el.revealArea.hidden = true;
     el.replayBtn.hidden = true;
     el.slowBtn.hidden = true;
+    el.mineThisBtn.hidden = true;
     el.grade.hidden = true;
     el.revealBtn.disabled = false;
     el.wordBreakdown.innerHTML = "";
@@ -691,9 +693,33 @@
     el.revealArea.hidden = false;
     el.replayBtn.hidden = false;
     el.slowBtn.hidden = false;
+    if (!current.mined) {
+      const already = prog.mined.some((m) => m.jp === current.s.jp && m.en === current.s.en);
+      el.mineThisBtn.hidden = false;
+      el.mineThisBtn.disabled = already;
+      el.mineThisBtn.textContent = already ? "✓ mined" : "★ mine";
+    }
     el.grade.hidden = false;
     el.revealBtn.disabled = true;
     speak(current.s.jp, { lang: "ja-JP" });
+  }
+
+  function mineCurrent() {
+    const s = current.s;
+    if (!prog.mined.some((m) => m.jp === s.jp && m.en === s.en)) {
+      prog.mined.unshift({
+        id: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        jp: s.jp, en: s.en,
+        romaji: s.romaji || "",
+        hint: s.hint || "",
+        words: s.words ? JSON.parse(JSON.stringify(s.words)) : undefined,
+        added: Date.now(),
+      });
+      rebuildMined();
+      save();
+    }
+    el.mineThisBtn.disabled = true;
+    el.mineThisBtn.textContent = "✓ mined";
   }
 
   function grade(g) {
@@ -735,6 +761,7 @@
   el.revealBtn.addEventListener("click", reveal);
   el.replayBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP" }));
   el.slowBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP", rate: 0.7 }));
+  el.mineThisBtn.addEventListener("click", mineCurrent);
   el.playEnBtn.addEventListener("click", () => speak(current.s.en, { lang: "en-US" }));
   el.showHintBtn.addEventListener("click", () => { el.hint.hidden = false; el.showHintBtn.hidden = true; });
   document.querySelectorAll("button.grade").forEach((b) => b.addEventListener("click", () => grade(Number(b.dataset.grade))));
