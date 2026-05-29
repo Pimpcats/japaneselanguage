@@ -356,6 +356,23 @@
   let curAudio = null;
   function stopAudio() { if (curAudio) { curAudio.pause(); curAudio = null; } }
 
+  // Furigana via Anki-style "kanji[reading]" annotations.
+  function escHTML(s) {
+    return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  }
+  function plainJP(s) { return String(s || "").replace(/\[[^\]]*\]/g, ""); }
+  function furiganaHTML(s) {
+    s = String(s || "");
+    const re = /([^\s[\]]+)\[([^\]]*)\]/g;
+    let out = "", i = 0, m;
+    while ((m = re.exec(s))) {
+      out += escHTML(s.slice(i, m.index));
+      out += "<ruby>" + escHTML(m[1]) + "<rt>" + escHTML(m[2]) + "</rt></ruby>";
+      i = m.index + m[0].length;
+    }
+    return out + escHTML(s.slice(i));
+  }
+
   function speakTTS(text, lang, rate) {
     if (!("speechSynthesis" in window)) return;
     speechSynthesis.cancel();
@@ -367,6 +384,7 @@
   }
 
   function speak(text, { lang = "ja-JP", rate = 1.0 } = {}) {
+    text = plainJP(text);
     speechSynthesis.cancel();
     stopAudio();
     const clip = lang.startsWith("ja") && clips && clips[text];
@@ -542,7 +560,7 @@
     for (const m of prog.mined) {
       const item = document.createElement("div"); item.className = "mine-item";
       const t = document.createElement("div"); t.className = "mine-item-text";
-      t.appendChild(Object.assign(document.createElement("div"), { className: "mine-item-jp", textContent: m.jp }));
+      t.appendChild(Object.assign(document.createElement("div"), { className: "mine-item-jp", innerHTML: furiganaHTML(m.jp) }));
       t.appendChild(Object.assign(document.createElement("div"), { className: "mine-item-en", textContent: m.en }));
       item.appendChild(t);
       const play = Object.assign(document.createElement("button"), { className: "mine-del", textContent: "🔈", title: "Hear it" });
@@ -782,10 +800,12 @@
     const s = current.s;
     const recognize = current.dir === "recognize";
     el.promptLabel.textContent = recognize ? "What does this mean?" : "Say this in Japanese";
-    el.promptEn.textContent = recognize ? s.jp : s.en;
+    if (recognize) el.promptEn.innerHTML = furiganaHTML(s.jp);
+    else el.promptEn.textContent = s.en;
     el.promptEn.classList.toggle("jp", recognize);
     el.revealLabel.textContent = recognize ? "Meaning" : "Model answer";
-    el.answerKana.textContent = recognize ? s.en : s.jp;
+    if (recognize) el.answerKana.textContent = s.en;
+    else el.answerKana.innerHTML = furiganaHTML(s.jp);
     el.answerRomaji.textContent = s.romaji;
     el.playEnBtn.textContent = recognize ? "🔈 hear" : "🔈 prompt";
     el.playEnBtn.title = recognize ? "Hear the Japanese prompt" : "Hear the English prompt";
