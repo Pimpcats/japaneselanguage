@@ -21,6 +21,20 @@
   });
   const lessonById = Object.fromEntries(window.LESSONS.map((L) => [L.id, L]));
 
+  // Mined sentences (user-added) flatten into the same card pool, so the SRS,
+  // review queue, audio and drill all treat them like any lesson sentence.
+  const MINED_LESSON = "__mined";
+  function rebuildMined() {
+    for (let i = CARDS.length - 1; i >= 0; i--) {
+      if (CARDS[i].mined) { delete cardById[CARDS[i].id]; CARDS.splice(i, 1); }
+    }
+    for (const m of prog.mined) {
+      const card = { id: "mined#" + m.id, lessonId: MINED_LESSON, lessonTitle: "My sentences", s: m, mined: true };
+      CARDS.push(card);
+      cardById[card.id] = card;
+    }
+  }
+
   // ---- Persistence ---------------------------------------------------------
   function load() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
@@ -31,6 +45,8 @@
   prog.streak = prog.streak || { current: 0, longest: 0, lastDay: null };
   prog.reviews = prog.reviews || 0;
   prog.daily = prog.daily || { day: null, count: 0 };   // reviews done today
+  prog.mined = prog.mined || [];          // [{id, en, jp, romaji, hint, added}]
+  rebuildMined();
   function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
     schedulePush();
@@ -108,6 +124,14 @@
     return (b.day || "") > (a.day || "") ? b : a;
   }
 
+  // Union mined sentences from both devices, keyed by id (first seen wins).
+  function mergeMined(a, b) {
+    const map = {};
+    for (const m of a || []) map[m.id] = m;
+    for (const m of b || []) if (!map[m.id]) map[m.id] = m;
+    return Object.values(map);
+  }
+
   // Merge two progress blobs without losing reps made on another device.
   function mergeProgress(local, remote) {
     if (!remote) return local;
@@ -116,6 +140,7 @@
       streak: Object.assign({ current: 0, longest: 0, lastDay: null }, local.streak),
       reviews: Math.max(local.reviews || 0, remote.reviews || 0),
       daily: mergeDaily(local.daily, remote.daily),
+      mined: mergeMined(local.mined, remote.mined),
     };
     const ids = new Set([...Object.keys(local.cards || {}), ...Object.keys(remote.cards || {})]);
     for (const id of ids) {
@@ -146,6 +171,8 @@
         prog.streak = merged.streak;
         prog.reviews = merged.reviews;
         prog.daily = merged.daily;
+        prog.mined = merged.mined;
+        rebuildMined();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
       }
       setSync("ok");
@@ -250,7 +277,10 @@
     backBtn: $("back-btn"),
     dailyRing: $("daily-ring"), ringFill: document.querySelector(".ring-fill"), ringLabel: document.querySelector(".ring-label"),
     mastery: $("mastery"), masteryFill: $("mastery-fill"), masteryPct: $("mastery-pct"),
-    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), lessonMap: $("lesson-map"),
+    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), lessonMap: $("lesson-map"), mining: $("mining"),
+    mineForm: $("mine-form"), mineJp: $("mine-jp"), mineEn: $("mine-en"), mineRomaji: $("mine-romaji"),
+    mineHint: $("mine-hint"), mineError: $("mine-error"),
+    mineSaveBtn: $("mine-save-btn"), mineCancelBtn: $("mine-cancel-btn"), minePreviewBtn: $("mine-preview-btn"),
     intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
     lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"),
     drill: $("drill"), progressFill: $("progress-fill"),
@@ -340,7 +370,7 @@
   }
 
   // ---- Navigation ----------------------------------------------------------
-  const screens = [el.home, el.intro, el.drill, el.done, el.settings];
+  const screens = [el.home, el.intro, el.drill, el.done, el.settings, el.mineForm];
   function show(screen, { back = false } = {}) {
     speechSynthesis.cancel();
     stopAudio();
@@ -380,6 +410,120 @@
     el.mastery.title = m.passed + " of " + m.total + " sentences mastered";
   }
 
+  // ---- Mining: user-added sentences ---------------------------------------
+  function minedCards() { return CARDS.filter((c) => c.mined); }
+
+  function renderMining() {
+    el.mining.innerHTML = "";
+    const block = document.createElement("div");
+    block.className = "tier-block";
+
+    const head = document.createElement("div");
+    head.className = "tier-head";
+    const text = document.createElement("div"); text.className = "tier-text";
+    text.appendChild(Object.assign(document.createElement("h2"), { className: "tier-name", textContent: "My sentences" }));
+    text.appendChild(Object.assign(document.createElement("div"), { className: "tier-blurb", textContent: "Mine lines you meet in the wild" }));
+    head.appendChild(text);
+    const add = Object.assign(document.createElement("button"), { className: "mine-add", textContent: "＋ Add" });
+    add.addEventListener("click", openMineForm);
+    head.appendChild(add);
+    block.appendChild(head);
+
+    const cards = minedCards();
+    if (!cards.length) {
+      block.appendChild(Object.assign(document.createElement("div"), {
+        className: "mine-empty",
+        textContent: "Heard or read a sentence you liked? Add it and drill it with spaced repetition — audio included.",
+      }));
+      el.mining.appendChild(block);
+      return;
+    }
+
+    const now = Date.now();
+    const due = cards.filter((c) => { const p = prog.cards[c.id]; return p && p.reps && p.due <= now; }).length;
+    const fresh = cards.filter((c) => { const p = prog.cards[c.id]; return !p || !p.reps; }).length;
+
+    const tile = document.createElement("button");
+    tile.className = "lesson-tile";
+    const top = document.createElement("div"); top.className = "tile-top";
+    const left = document.createElement("div");
+    left.appendChild(Object.assign(document.createElement("div"), { className: "tile-title", textContent: "Drill my sentences" }));
+    left.appendChild(Object.assign(document.createElement("div"), { className: "tile-grammar", textContent: cards.length + " sentence" + (cards.length === 1 ? "" : "s") }));
+    top.appendChild(left);
+    const badge = document.createElement("span");
+    if (due > 0) { badge.className = "tile-badge badge-due"; badge.textContent = due + " due"; }
+    else if (fresh > 0) { badge.className = "tile-badge badge-new"; badge.textContent = fresh + " new"; }
+    else { badge.className = "tile-badge badge-done"; badge.textContent = "✓ fresh"; }
+    top.appendChild(badge);
+    tile.appendChild(top);
+    tile.addEventListener("click", startMined);
+    block.appendChild(tile);
+
+    const list = document.createElement("div"); list.className = "mine-list";
+    for (const m of prog.mined) {
+      const item = document.createElement("div"); item.className = "mine-item";
+      const t = document.createElement("div"); t.className = "mine-item-text";
+      t.appendChild(Object.assign(document.createElement("div"), { className: "mine-item-jp", textContent: m.jp }));
+      t.appendChild(Object.assign(document.createElement("div"), { className: "mine-item-en", textContent: m.en }));
+      item.appendChild(t);
+      const play = Object.assign(document.createElement("button"), { className: "mine-del", textContent: "🔈", title: "Hear it" });
+      play.setAttribute("aria-label", "Hear sentence");
+      play.addEventListener("click", () => speak(m.jp, { lang: "ja-JP" }));
+      item.appendChild(play);
+      const del = Object.assign(document.createElement("button"), { className: "mine-del", textContent: "×", title: "Delete" });
+      del.setAttribute("aria-label", "Delete sentence");
+      del.addEventListener("click", () => deleteMined(m.id));
+      item.appendChild(del);
+      list.appendChild(item);
+    }
+    block.appendChild(list);
+    el.mining.appendChild(block);
+  }
+
+  function openMineForm() {
+    el.mineJp.value = ""; el.mineEn.value = ""; el.mineRomaji.value = ""; el.mineHint.value = "";
+    el.mineError.hidden = true;
+    show(el.mineForm, { back: true });
+    el.mineJp.focus();
+  }
+
+  function saveMined() {
+    const jp = el.mineJp.value.trim();
+    const en = el.mineEn.value.trim();
+    if (!jp || !en) {
+      el.mineError.textContent = "Please fill in both the Japanese and its meaning.";
+      el.mineError.hidden = false;
+      return;
+    }
+    const m = {
+      id: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      jp, en,
+      romaji: el.mineRomaji.value.trim(),
+      hint: el.mineHint.value.trim(),
+      added: Date.now(),
+    };
+    prog.mined.unshift(m);
+    rebuildMined();
+    save();
+    renderHome();
+  }
+
+  function deleteMined(id) {
+    const m = prog.mined.find((x) => x.id === id);
+    if (m && !confirm("Delete this sentence?\n\n" + m.jp)) return;
+    prog.mined = prog.mined.filter((x) => x.id !== id);
+    delete prog.cards["mined#" + id];
+    rebuildMined();
+    save();
+    renderHome();
+  }
+
+  function startMined() {
+    const cards = minedCards();
+    if (!cards.length) return;
+    startSession(cards, "mined", null);
+  }
+
   // ---- Home ----------------------------------------------------------------
   function renderHome() {
     renderDailyRing();
@@ -402,6 +546,8 @@
 
     el.reviewBtn.hidden = due === 0;
     el.reviewBtn.textContent = `🔁 Review ${due} due card${due === 1 ? "" : "s"}`;
+
+    renderMining();
 
     el.lessonMap.innerHTML = "";
     for (const tier of window.TIERS) {
@@ -562,7 +708,9 @@
     const due = dueCards().length;
     el.doneSummary.textContent = session.mode === "review"
       ? "Review session done. Nice work keeping things fresh."
-      : (due > 0 ? `You've got ${due} card${due === 1 ? "" : "s"} due across all lessons.` : "Every sentence drilled. Come back tomorrow to lock it in.");
+      : session.mode === "mined"
+        ? "Your sentences are in the rotation now — they'll resurface in your reviews."
+        : (due > 0 ? `You've got ${due} card${due === 1 ? "" : "s"} due across all lessons.` : "Every sentence drilled. Come back tomorrow to lock it in.");
     show(el.done, { back: true });
   }
 
@@ -573,7 +721,15 @@
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
   el.restartBtn.addEventListener("click", () => {
     if (session && session.mode === "review") startReview();
+    else if (session && session.mode === "mined") startMined();
     else startLesson(activeLesson);
+  });
+
+  el.mineSaveBtn.addEventListener("click", saveMined);
+  el.mineCancelBtn.addEventListener("click", renderHome);
+  el.minePreviewBtn.addEventListener("click", () => {
+    const jp = el.mineJp.value.trim();
+    if (jp) speak(jp, { lang: "ja-JP" });
   });
 
   el.revealBtn.addEventListener("click", reveal);

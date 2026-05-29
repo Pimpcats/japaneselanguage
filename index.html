@@ -49,6 +49,7 @@
       <section id="home" class="screen">
         <div id="stats" class="stats"></div>
         <button id="review-btn" class="primary review-btn" hidden></button>
+        <div id="mining"></div>
         <div id="lesson-map"></div>
       </section>
 
@@ -145,6 +146,39 @@
         <div class="setting-group">
           <div class="label">Data</div>
           <button id="reset-btn" class="secondary small danger">Reset all progress</button>
+        </div>
+      </section>
+
+      <!-- ============ ADD A MINED SENTENCE ============ -->
+      <section id="mine-form" class="screen" hidden>
+        <div class="label">Mining</div>
+        <h2 class="settings-h">Add a sentence</h2>
+        <p class="lesson-note">Heard or read a line you liked? Add it here and it joins your spaced-repetition reviews — with audio, just like the lessons.</p>
+
+        <div class="setting-group">
+          <label class="mine-field" for="mine-jp">
+            <span class="setting-name">Japanese<small>The sentence, in kana/kanji — required</small></span>
+            <textarea id="mine-jp" class="mine-input" rows="2" placeholder="例：もう一度お願いします。" autocapitalize="off"></textarea>
+          </label>
+          <label class="mine-field" for="mine-en">
+            <span class="setting-name">Meaning<small>Shown as the prompt to translate — required</small></span>
+            <input id="mine-en" class="mine-input" type="text" placeholder="e.g. One more time, please." />
+          </label>
+          <label class="mine-field" for="mine-romaji">
+            <span class="setting-name">Romaji<small>Optional</small></span>
+            <input id="mine-romaji" class="mine-input" type="text" placeholder="mō ichido onegai shimasu" autocapitalize="off" />
+          </label>
+          <label class="mine-field" for="mine-hint">
+            <span class="setting-name">Hint<small>Optional — a nudge you can reveal while drilling</small></span>
+            <input id="mine-hint" class="mine-input" type="text" placeholder="どこで聞いた？文脈など" />
+          </label>
+          <p id="mine-error" class="mine-error" hidden></p>
+        </div>
+
+        <div id="controls">
+          <button id="mine-preview-btn" class="secondary">🔈 hear it</button>
+          <button id="mine-cancel-btn" class="secondary">cancel</button>
+          <button id="mine-save-btn" class="primary">save sentence</button>
         </div>
       </section>
 
