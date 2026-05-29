@@ -1,31 +1,33 @@
 :root {
-  --bg: #f5f4f8;
-  --fg: #1b1a22;
-  --muted: #6b6878;
-  --accent: #e23b54;
-  --accent-2: #ff6b6b;
-  --card: #ffffff;
-  --card-2: #fbfbfd;
-  --line: #e7e5ee;
-  --good: #1f9d57;
+  --bg: #faf6ec;
+  --fg: #3e3526;
+  --muted: #8a7c5f;
+  --accent: #e0a92e;
+  --accent-2: #f2c75a;
+  --on-accent: #3e2f12;
+  --card: #fff6cc;
+  --card-2: #fbf3d2;
+  --line: #ebdfb4;
+  --good: #3e8e41;
   --mid: #c98a00;
-  --bad: #d23b3b;
-  --shadow: 0 1px 2px rgba(20, 18, 40, 0.04), 0 8px 24px rgba(20, 18, 40, 0.06);
-  --shadow-sm: 0 1px 2px rgba(20, 18, 40, 0.05), 0 2px 8px rgba(20, 18, 40, 0.05);
+  --bad: #c5453b;
+  --shadow: 0 1px 2px rgba(120, 90, 20, 0.05), 0 8px 24px rgba(120, 90, 20, 0.09);
+  --shadow-sm: 0 1px 2px rgba(120, 90, 20, 0.06), 0 2px 8px rgba(120, 90, 20, 0.07);
   --radius: 18px;
   --radius-sm: 12px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #100f15;
-    --fg: #f0eef6;
-    --muted: #9b96aa;
-    --accent: #ff5470;
-    --accent-2: #ff7a7a;
-    --card: #1a1922;
-    --card-2: #201f2a;
-    --line: #2a2834;
+    --bg: #17140d;
+    --fg: #f3ecd9;
+    --muted: #b3a684;
+    --accent: #e6b33e;
+    --accent-2: #f2c14e;
+    --on-accent: #2a2008;
+    --card: #231e12;
+    --card-2: #2b2516;
+    --line: #3a3320;
     --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 30px rgba(0,0,0,0.35);
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.3), 0 3px 10px rgba(0,0,0,0.25);
   }
@@ -72,10 +74,7 @@ html, body {
   margin: 0;
   text-align: center;
   letter-spacing: 0.04em;
-  background: linear-gradient(120deg, var(--accent), var(--accent-2));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--fg);
   font-weight: 800;
 }
 .icon-btn {
@@ -154,14 +153,40 @@ html, body {
 }
 
 /* ---- Home: lesson map ---- */
-#lesson-map { display: flex; flex-direction: column; gap: 1.5rem; }
-.section-block { display: flex; flex-direction: column; gap: 0.7rem; }
+#lesson-map { display: flex; flex-direction: column; gap: 2rem; }
+
+/* Skill tier (Beginner … Master) */
+.tier-block { display: flex; flex-direction: column; gap: 1.1rem; }
+.tier-head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 22%, var(--card)), color-mix(in srgb, var(--accent-2) 20%, var(--card)));
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  box-shadow: var(--shadow-sm);
+}
+.tier-text { flex: 1; min-width: 0; }
+.tier-name { font-size: 1.15rem; font-weight: 800; margin: 0; letter-spacing: 0.01em; }
+.tier-blurb { font-size: 0.76rem; color: var(--muted); margin-top: 0.1rem; }
+.tier-count {
+  font-size: 0.78rem; font-weight: 800; color: var(--on-accent);
+  background: color-mix(in srgb, var(--accent) 55%, #fff);
+  padding: 0.25rem 0.6rem; border-radius: 999px; white-space: nowrap;
+}
+.tier-soon {
+  font-size: 0.85rem; color: var(--muted); font-style: italic;
+  padding: 0.4rem 0.2rem;
+}
+
+.section-block { display: flex; flex-direction: column; gap: 0.7rem; padding-left: 0.2rem; }
 .section-head {
   display: flex;
   align-items: center;
   gap: 0.6rem;
 }
-.section-title { font-size: 1.05rem; font-weight: 800; margin: 0; }
+.section-title { font-size: 0.98rem; font-weight: 800; margin: 0; color: var(--muted); }
 .section-rule { flex: 1; height: 1px; background: var(--line); }
 
 button.lesson-tile {
@@ -201,7 +226,7 @@ button.lesson-tile:active { transform: scale(0.99); }
 .lesson-grammar {
   align-self: flex-start;
   background: linear-gradient(120deg, var(--accent), var(--accent-2));
-  color: #fff;
+  color: var(--on-accent);
   font-size: 0.85rem;
   font-weight: 700;
   padding: 0.4rem 0.8rem;
@@ -305,9 +330,9 @@ button.primary, button.secondary {
 }
 button.primary {
   background: linear-gradient(120deg, var(--accent), var(--accent-2));
-  color: #fff;
+  color: var(--on-accent);
   border-color: transparent;
-  font-weight: 700;
+  font-weight: 800;
   flex: 1;
   min-width: 170px;
   box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 35%, transparent);

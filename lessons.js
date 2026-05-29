@@ -11,17 +11,14 @@
 //                     prt=particle cop=copula expr=expression
 //                     aux=auxiliary conj=conjunction
 
-window.SECTIONS = [
-  "Level 1 · First contact",
-  "Level 2 · Getting things",
-  "Level 3 · Time & when",
-  "Level 4 · Daily life",
-  "Level 5 · The past",
-  "Level 6 · Wants & plans",
-  "Level 7 · Describing things",
-  "Level 8 · Feelings & opinions",
-  "Level 9 · Connecting ideas",
-  "Level 10 · Out in the world",
+// Five skill tiers, each holding one or more theme groups. Lessons attach to a
+// theme via their `section` field; the home screen groups themes under tiers.
+window.TIERS = [
+  { name: "Beginner",     blurb: "First words & survival phrases", themes: ["First contact", "Getting things"] },
+  { name: "Intermediate", blurb: "Verbs & everyday actions",       themes: ["Doing things", "Daily life"] },
+  { name: "Advanced",     blurb: "The past, wants & plans",        themes: ["The past", "Wants & plans"] },
+  { name: "Expert",       blurb: "Describing & connecting ideas",  themes: ["Describing things", "Connecting ideas"] },
+  { name: "Master",       blurb: "Getting around & real talk",     themes: ["Getting around", "Real conversations"] },
 ];
 
 window.LESSONS = [
@@ -30,7 +27,7 @@ window.LESSONS = [
   // ============================================================
   {
     id: "intro",
-    section: "Level 1 · First contact",
+    section: "First contact",
     title: "Hello & introductions",
     grammar: "X は Y です  ·  か",
     grammarNote:
@@ -60,7 +57,7 @@ window.LESSONS = [
   },
   {
     id: "greetings",
-    section: "Level 1 · First contact",
+    section: "First contact",
     title: "Greetings & courtesies",
     grammar: "あいさつ — set phrases",
     grammarNote:
@@ -96,7 +93,7 @@ window.LESSONS = [
   },
   {
     id: "this-that",
-    section: "Level 1 · First contact",
+    section: "First contact",
     title: "This, that & “whose”",
     grammar: "これ・それ・あれ  ·  の",
     grammarNote:
@@ -129,7 +126,7 @@ window.LESSONS = [
   },
   {
     id: "numbers",
-    section: "Level 1 · First contact",
+    section: "First contact",
     title: "Numbers 1–10 & age",
     grammar: "すうじ 1–10  ·  なんさいですか",
     grammarNote:
@@ -165,7 +162,7 @@ window.LESSONS = [
   },
   {
     id: "shop",
-    section: "Level 2 · Getting things",
+    section: "Getting things",
     title: "At a shop — ordering & prices",
     grammar: "〜を ください  ·  〜は いくらですか",
     grammarNote:
@@ -195,7 +192,7 @@ window.LESSONS = [
   },
   {
     id: "money",
-    section: "Level 2 · Getting things",
+    section: "Getting things",
     title: "Money & prices",
     grammar: "ひゃく・せん  ·  〜えん  ·  いくら",
     grammarNote:
@@ -228,7 +225,7 @@ window.LESSONS = [
   },
   {
     id: "counters",
-    section: "Level 2 · Getting things",
+    section: "Getting things",
     title: "Counting things (ひとつ…)",
     grammar: "ひとつ〜とお  ·  〜を [かず] ください",
     grammarNote:
@@ -259,7 +256,7 @@ window.LESSONS = [
   },
   {
     id: "where",
-    section: "Level 2 · Getting things",
+    section: "Getting things",
     title: "Where is it? (ここ・どこ)",
     grammar: "ここ・そこ・あそこ・どこ  ·  〜に あります／います",
     grammarNote:
@@ -293,7 +290,7 @@ window.LESSONS = [
   },
   {
     id: "cafe",
-    section: "Level 2 · Getting things",
+    section: "Getting things",
     title: "At the café (putting it together)",
     grammar: "review  ·  〜と〜  ·  おねがいします",
     grammarNote:
@@ -323,7 +320,7 @@ window.LESSONS = [
   },
   {
     id: "verbs",
-    section: "Level 3 · Doing things",
+    section: "Doing things",
     title: "Doing things (〜ます)",
     grammar: "polite present 〜ます",
     grammarNote:
@@ -353,7 +350,7 @@ window.LESSONS = [
   },
   {
     id: "object",
-    section: "Level 3 · Doing things",
+    section: "Doing things",
     title: "What you do it to (を)",
     grammar: "〜を 〜ます  (object + verb)",
     grammarNote:
@@ -383,7 +380,7 @@ window.LESSONS = [
   },
   {
     id: "negative",
-    section: "Level 3 · Doing things",
+    section: "Doing things",
     title: "Saying no & asking (〜ません／〜ますか)",
     grammar: "〜ません (don't)  ·  〜ますか (do you…?)",
     grammarNote:
@@ -413,7 +410,7 @@ window.LESSONS = [
   },
   {
     id: "coming-going",
-    section: "Level 3 · Doing things",
+    section: "Doing things",
     title: "Coming & going (〜に いきます)",
     grammar: "[place]に いきます／きます／かえります",
     grammarNote:
@@ -447,7 +444,7 @@ window.LESSONS = [
   // ============================================================
   {
     id: "routine",
-    section: "Level 4 · Daily life",
+    section: "Daily life",
     title: "My daily routine",
     grammar: "present 〜ます  ·  time に  ·  で (by)",
     grammarNote:
@@ -479,7 +476,7 @@ window.LESSONS = [
   },
   {
     id: "telling-time",
-    section: "Level 4 · Daily life",
+    section: "Daily life",
     title: "Telling time (なんじ)",
     grammar: "いま なんじ  ·  〜じ・はん  ·  ごぜん／ごご",
     grammarNote:
@@ -509,7 +506,7 @@ window.LESSONS = [
   },
   {
     id: "frequency",
-    section: "Level 4 · Daily life",
+    section: "Daily life",
     title: "How often (よく・ときどき)",
     grammar: "よく・ときどき  ·  あまり／ぜんぜん 〜ません",
     grammarNote:
@@ -539,7 +536,7 @@ window.LESSONS = [
   },
   {
     id: "activities",
-    section: "Level 4 · Daily life",
+    section: "Daily life",
     title: "Where you do it (〜で)",
     grammar: "[place]で [verb]  ·  あさ／よる",
     grammarNote:
@@ -569,7 +566,7 @@ window.LESSONS = [
   },
   {
     id: "past-1",
-    section: "Level 5 · The past",
+    section: "The past",
     title: "What did you do yesterday?",
     grammar: "past 〜ました  ·  を / に / と",
     grammarNote:
@@ -606,7 +603,7 @@ window.LESSONS = [
   },
   {
     id: "past-negative",
-    section: "Level 5 · The past",
+    section: "The past",
     title: "Didn't do it (〜ませんでした)",
     grammar: "〜ませんでした (didn't)  ·  なにも + neg",
     grammarNote:
@@ -636,7 +633,7 @@ window.LESSONS = [
   },
   {
     id: "was-were",
-    section: "Level 5 · The past",
+    section: "The past",
     title: "It was… (でした)",
     grammar: "でした (was/were)  ·  〜じゃ ありませんでした",
     grammarNote:
@@ -666,7 +663,7 @@ window.LESSONS = [
   },
   {
     id: "sequence",
-    section: "Level 5 · The past",
+    section: "The past",
     title: "And then… (それから)",
     grammar: "それから (and then)  ·  chaining 〜ました",
     grammarNote:
@@ -696,7 +693,7 @@ window.LESSONS = [
   },
   {
     id: "wants",
-    section: "Level 6 · Wants & plans",
+    section: "Wants & plans",
     title: "What I want to do",
     grammar: "〜たい (want to)  ·  〜が ほしい (want a thing)",
     grammarNote:
@@ -727,7 +724,7 @@ window.LESSONS = [
   },
   {
     id: "lets",
-    section: "Level 6 · Wants & plans",
+    section: "Wants & plans",
     title: "Let's… (〜ましょう／〜ませんか)",
     grammar: "〜ましょう (let's)  ·  〜ませんか (shall we?)",
     grammarNote:
@@ -757,7 +754,7 @@ window.LESSONS = [
   },
   {
     id: "likes",
-    section: "Level 6 · Wants & plans",
+    section: "Wants & plans",
     title: "Likes & dislikes (すき／きらい)",
     grammar: "〜が すき／きらい (です)  ·  だいすき",
     grammarNote:
@@ -787,7 +784,7 @@ window.LESSONS = [
   },
   {
     id: "can-do",
-    section: "Level 6 · Wants & plans",
+    section: "Wants & plans",
     title: "Can do (できます)",
     grammar: "〜が できます (can)  ·  すこし／じょうず",
     grammarNote:
@@ -821,7 +818,7 @@ window.LESSONS = [
   // ============================================================
   {
     id: "adjectives",
-    section: "Level 7 · Describing things",
+    section: "Describing things",
     title: "Describing things (い-adjectives)",
     grammar: "い-adjectives  ·  past 〜かった",
     grammarNote:
@@ -851,7 +848,7 @@ window.LESSONS = [
   },
   {
     id: "adj-noun",
-    section: "Level 7 · Describing things",
+    section: "Describing things",
     title: "Big, small, new… (adj + noun)",
     grammar: "[い-adj][noun]  ·  どんな",
     grammarNote:
@@ -881,7 +878,7 @@ window.LESSONS = [
   },
   {
     id: "na-adj",
-    section: "Level 7 · Describing things",
+    section: "Describing things",
     title: "な-adjectives (きれい・げんき)",
     grammar: "な-adjectives  ·  [adj]な [noun]",
     grammarNote:
@@ -911,7 +908,7 @@ window.LESSONS = [
   },
   {
     id: "adj-negative",
-    section: "Level 7 · Describing things",
+    section: "Describing things",
     title: "Not so… (〜くない／〜じゃない)",
     grammar: "い-adj 〜くない  ·  な-adj/noun じゃない",
     grammarNote:

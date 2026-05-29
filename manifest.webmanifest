@@ -8,8 +8,8 @@
   "scope": ".",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f5f4f8",
-  "theme_color": "#f5f4f8",
+  "background_color": "#faf6ec",
+  "theme_color": "#faf6ec",
   "categories": ["education"],
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },

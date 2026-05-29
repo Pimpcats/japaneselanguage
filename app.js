@@ -404,43 +404,68 @@
     el.reviewBtn.textContent = `🔁 Review ${due} due card${due === 1 ? "" : "s"}`;
 
     el.lessonMap.innerHTML = "";
-    for (const section of window.SECTIONS) {
-      const lessons = window.LESSONS.filter((L) => L.section === section);
-      if (!lessons.length) continue;
-      const block = document.createElement("div");
-      block.className = "section-block";
-      const head = document.createElement("div");
-      head.className = "section-head";
-      head.appendChild(Object.assign(document.createElement("h3"), { className: "section-title", textContent: section }));
-      const rule = document.createElement("div"); rule.className = "section-rule"; head.appendChild(rule);
-      block.appendChild(head);
+    for (const tier of window.TIERS) {
+      const tierLessons = window.LESSONS.filter((L) => tier.themes.includes(L.section));
 
-      for (const L of lessons) {
-        const st = lessonStats(L);
-        const tile = document.createElement("button");
-        tile.className = "lesson-tile";
-        const top = document.createElement("div"); top.className = "tile-top";
-        const left = document.createElement("div");
-        left.appendChild(Object.assign(document.createElement("div"), { className: "tile-title", textContent: L.title }));
-        left.appendChild(Object.assign(document.createElement("div"), { className: "tile-grammar", textContent: L.grammar }));
-        top.appendChild(left);
-
-        const badge = document.createElement("span");
-        if (st.passed >= st.total) { badge.className = "tile-badge badge-done"; badge.textContent = "✓ done"; }
-        else if (st.due > 0) { badge.className = "tile-badge badge-due"; badge.textContent = st.due + " due"; }
-        else if (st.fresh === st.total) { badge.className = "tile-badge badge-new"; badge.textContent = "new"; }
-        else { badge.className = "tile-badge badge-due"; badge.textContent = st.passed + "/" + st.total; }
-        top.appendChild(badge);
-        tile.appendChild(top);
-
-        const bar = document.createElement("div"); bar.className = "tile-bar";
-        const fill = document.createElement("i"); fill.style.width = Math.round(st.pct * 100) + "%";
-        bar.appendChild(fill); tile.appendChild(bar);
-
-        tile.addEventListener("click", () => openIntro(L));
-        block.appendChild(tile);
+      const tierBlock = document.createElement("div");
+      tierBlock.className = "tier-block";
+      const tHead = document.createElement("div");
+      tHead.className = "tier-head";
+      const tText = document.createElement("div"); tText.className = "tier-text";
+      tText.appendChild(Object.assign(document.createElement("h2"), { className: "tier-name", textContent: tier.name }));
+      if (tier.blurb) tText.appendChild(Object.assign(document.createElement("div"), { className: "tier-blurb", textContent: tier.blurb }));
+      tHead.appendChild(tText);
+      if (tierLessons.length) {
+        const done = tierLessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
+        tHead.appendChild(span("tier-count", done + "/" + tierLessons.length));
       }
-      el.lessonMap.appendChild(block);
+      tierBlock.appendChild(tHead);
+
+      if (!tierLessons.length) {
+        tierBlock.appendChild(Object.assign(document.createElement("div"), { className: "tier-soon", textContent: "Coming soon" }));
+        el.lessonMap.appendChild(tierBlock);
+        continue;
+      }
+
+      for (const theme of tier.themes) {
+        const lessons = window.LESSONS.filter((L) => L.section === theme);
+        if (!lessons.length) continue;
+        const block = document.createElement("div");
+        block.className = "section-block";
+        const head = document.createElement("div");
+        head.className = "section-head";
+        head.appendChild(Object.assign(document.createElement("h3"), { className: "section-title", textContent: theme }));
+        const rule = document.createElement("div"); rule.className = "section-rule"; head.appendChild(rule);
+        block.appendChild(head);
+
+        for (const L of lessons) {
+          const st = lessonStats(L);
+          const tile = document.createElement("button");
+          tile.className = "lesson-tile";
+          const top = document.createElement("div"); top.className = "tile-top";
+          const left = document.createElement("div");
+          left.appendChild(Object.assign(document.createElement("div"), { className: "tile-title", textContent: L.title }));
+          left.appendChild(Object.assign(document.createElement("div"), { className: "tile-grammar", textContent: L.grammar }));
+          top.appendChild(left);
+
+          const badge = document.createElement("span");
+          if (st.passed >= st.total) { badge.className = "tile-badge badge-done"; badge.textContent = "✓ done"; }
+          else if (st.due > 0) { badge.className = "tile-badge badge-due"; badge.textContent = st.due + " due"; }
+          else if (st.fresh === st.total) { badge.className = "tile-badge badge-new"; badge.textContent = "new"; }
+          else { badge.className = "tile-badge badge-due"; badge.textContent = st.passed + "/" + st.total; }
+          top.appendChild(badge);
+          tile.appendChild(top);
+
+          const bar = document.createElement("div"); bar.className = "tile-bar";
+          const fill = document.createElement("i"); fill.style.width = Math.round(st.pct * 100) + "%";
+          bar.appendChild(fill); tile.appendChild(bar);
+
+          tile.addEventListener("click", () => openIntro(L));
+          block.appendChild(tile);
+        }
+        tierBlock.appendChild(block);
+      }
+      el.lessonMap.appendChild(tierBlock);
     }
     show(el.home);
   }
