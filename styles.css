@@ -298,6 +298,7 @@ button.vocab-row:active { transform: scale(0.99); }
   box-shadow: var(--shadow);
 }
 #prompt-en { font-size: 1.55rem; line-height: 1.35; font-weight: 600; }
+#prompt-en.jp { font-size: 1.95rem; line-height: 1.4; font-weight: 700; }
 
 #hint-row { font-size: 0.95rem; }
 #hint {

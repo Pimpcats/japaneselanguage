@@ -63,6 +63,7 @@
   settings.voiceURI = settings.voiceURI || "";
   if (!settings.dailyGoal) settings.dailyGoal = 20;
   settings.collapsedTiers = settings.collapsedTiers || {};
+  settings.direction = settings.direction || "produce";   // produce | recognize | both
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
   function applyRomaji() { document.body.classList.toggle("no-romaji", !settings.romaji); }
 
@@ -213,6 +214,7 @@
   function openSettings() {
     el.romajiToggle.checked = settings.romaji;
     el.goalSelect.value = String(settings.dailyGoal);
+    el.directionSelect.value = settings.direction;
     populateVoiceSelect();
     renderSyncSettings();
     show(el.settings, { back: true });
@@ -285,6 +287,7 @@
     intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
     lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"),
     drill: $("drill"), progressFill: $("progress-fill"),
+    promptLabel: $("prompt-label"), revealLabel: $("reveal-label"),
     promptEn: $("prompt-en"), answerKana: $("answer-kana"), answerRomaji: $("answer-romaji"),
     wordBreakdown: $("word-breakdown"), revealArea: $("reveal-area"),
     hintRow: $("hint-row"), showHintBtn: $("show-hint-btn"), hint: $("hint"),
@@ -296,7 +299,7 @@
     settingsBtn: $("settings-btn"), settings: $("settings"), romajiToggle: $("romaji-toggle"),
     voiceSelect: $("voice-select"), voiceTestBtn: $("voice-test-btn"),
     syncStatus: $("sync-status"), syncConnectBtn: $("sync-connect-btn"), syncDisconnectBtn: $("sync-disconnect-btn"),
-    resetBtn: $("reset-btn"), goalSelect: $("goal-select"),
+    resetBtn: $("reset-btn"), goalSelect: $("goal-select"), directionSelect: $("direction-select"),
   };
 
   function span(cls, text) { const s = document.createElement("span"); s.className = cls; s.textContent = text; return s; }
@@ -668,7 +671,7 @@
   let session = null; // { queue, total, cleared, mode, lessonId }
 
   function startSession(cards, mode, lessonId) {
-    session = { queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId };
+    session = { queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId, flip: false };
     show(el.drill, { back: true });
     nextCard();
   }
@@ -683,19 +686,34 @@
     startSession(cards, "review", null);
   }
 
+  // produce = see English, say Japanese · recognize = see Japanese, recall meaning
+  function cardDirection() {
+    const d = settings.direction;
+    if (d === "recognize") return "recognize";
+    if (d === "both") { session.flip = !session.flip; return session.flip ? "recognize" : "produce"; }
+    return "produce";
+  }
+
   let current = null;
   function nextCard() {
     if (session.cleared >= session.total || session.queue.length === 0) { finish(); return; }
     current = session.queue.shift();
+    current.dir = cardDirection();
     renderCard();
     el.progressFill.style.width = Math.round((session.cleared / session.total) * 100) + "%";
   }
 
   function renderCard() {
     const s = current.s;
-    el.promptEn.textContent = s.en;
-    el.answerKana.textContent = s.jp;
+    const recognize = current.dir === "recognize";
+    el.promptLabel.textContent = recognize ? "What does this mean?" : "Say this in Japanese";
+    el.promptEn.textContent = recognize ? s.jp : s.en;
+    el.promptEn.classList.toggle("jp", recognize);
+    el.revealLabel.textContent = recognize ? "Meaning" : "Model answer";
+    el.answerKana.textContent = recognize ? s.en : s.jp;
     el.answerRomaji.textContent = s.romaji;
+    el.playEnBtn.textContent = recognize ? "🔈 hear" : "🔈 prompt";
+    el.playEnBtn.title = recognize ? "Hear the Japanese prompt" : "Hear the English prompt";
     el.hint.textContent = s.hint || "";
     el.hintRow.hidden = !s.hint;
     el.hint.hidden = true;
@@ -789,7 +807,10 @@
   el.replayBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP" }));
   el.slowBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP", rate: 0.7 }));
   el.mineThisBtn.addEventListener("click", mineCurrent);
-  el.playEnBtn.addEventListener("click", () => speak(current.s.en, { lang: "en-US" }));
+  el.playEnBtn.addEventListener("click", () => {
+    if (current.dir === "recognize") speak(current.s.jp, { lang: "ja-JP" });
+    else speak(current.s.en, { lang: "en-US" });
+  });
   el.showHintBtn.addEventListener("click", () => { el.hint.hidden = false; el.showHintBtn.hidden = true; });
   document.querySelectorAll("button.grade").forEach((b) => b.addEventListener("click", () => grade(Number(b.dataset.grade))));
   if (el.syncBtn) el.syncBtn.addEventListener("click", onSyncClick);
@@ -805,6 +826,10 @@
     settings.dailyGoal = Number(el.goalSelect.value) || 20;
     saveSettings();
     renderDailyRing();
+  });
+  el.directionSelect.addEventListener("change", () => {
+    settings.direction = el.directionSelect.value || "produce";
+    saveSettings();
   });
   el.voiceSelect.addEventListener("change", () => {
     settings.voiceURI = el.voiceSelect.value;

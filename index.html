@@ -70,7 +70,7 @@
         <div id="progress-bar"><div id="progress-fill"></div></div>
 
         <div id="card">
-          <div class="label">Say this in Japanese</div>
+          <div id="prompt-label" class="label">Say this in Japanese</div>
           <div id="prompt-en">…</div>
 
           <div id="hint-row" hidden>
@@ -79,7 +79,7 @@
           </div>
 
           <div id="reveal-area" hidden>
-            <div class="label">Model answer</div>
+            <div id="reveal-label" class="label">Model answer</div>
             <div id="answer-kana"></div>
             <div id="answer-romaji"></div>
             <div id="word-breakdown" class="word-breakdown"></div>
@@ -114,6 +114,16 @@
             <span class="setting-name">Show romaji<small>Latin reading under the Japanese</small></span>
             <input type="checkbox" id="romaji-toggle" class="switch" />
           </label>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Practice direction</div>
+          <span class="setting-name">What you drill<small>Produce = see English, say Japanese. Recognize = see Japanese, recall the meaning.</small></span>
+          <select id="direction-select" class="select">
+            <option value="produce">Produce (English → Japanese)</option>
+            <option value="recognize">Recognize (Japanese → meaning)</option>
+            <option value="both">Both (alternate each card)</option>
+          </select>
         </div>
 
         <div class="setting-group">
