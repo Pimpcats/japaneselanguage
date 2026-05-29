@@ -47,6 +47,7 @@
   prog.daily = prog.daily || { day: null, count: 0 };   // reviews done today
   prog.mined = prog.mined || [];          // [{id, en, jp, romaji, hint, added}]
   prog.immersion = prog.immersion || {};  // {"YYYY-MM-DD": minutes}
+  prog.known = prog.known || [];          // [base_form] words marked known
   rebuildMined();
   function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
@@ -152,6 +153,7 @@
       daily: mergeDaily(local.daily, remote.daily),
       mined: mergeMined(local.mined, remote.mined),
       immersion: mergeImmersion(local.immersion, remote.immersion),
+      known: Array.from(new Set([...(local.known || []), ...(remote.known || [])])),
     };
     const ids = new Set([...Object.keys(local.cards || {}), ...Object.keys(remote.cards || {})]);
     for (const id of ids) {
@@ -184,6 +186,7 @@
         prog.daily = merged.daily;
         prog.mined = merged.mined;
         prog.immersion = merged.immersion;
+        prog.known = merged.known;
         rebuildMined();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
       }
@@ -934,14 +937,66 @@
     el.mineThisBtn.hidden = true;
     el.grade.hidden = true;
     el.revealBtn.disabled = false;
+    renderWordChips(s);
+  }
+
+  // ---- Word chips + known-words tracking ----------------------------------
+  const isKnown = (term) => prog.known.includes(term);
+  function toggleKnown(term) {
+    const i = prog.known.indexOf(term);
+    if (i >= 0) prog.known.splice(i, 1); else prog.known.push(term);
+    save();
+  }
+  const POS_MAP = { "名詞": "n", "動詞": "v", "形容詞": "adj", "副詞": "adv", "助詞": "prt", "助動詞": "aux", "接続詞": "conj", "連体詞": "adj", "感動詞": "expr" };
+  function makeWordChip({ jp, reading, gloss, pos, term }) {
+    const chip = document.createElement("div");
+    chip.className = "word-chip pos-" + (pos || "n");
+    if (isKnown(term)) chip.classList.add("known");
+    const main = document.createElement("button");
+    main.className = "wc-main";
+    main.appendChild(span("wc-jp", jp));
+    if (reading && reading !== jp) main.appendChild(span("wc-read", reading));
+    if (gloss) main.appendChild(span("wc-en", gloss));
+    main.addEventListener("click", () => { toggleKnown(term); chip.classList.toggle("known", isKnown(term)); });
+    chip.appendChild(main);
+    const jisho = document.createElement("a");
+    jisho.className = "wc-jisho"; jisho.textContent = "↗";
+    jisho.href = "https://jisho.org/search/" + encodeURIComponent(term);
+    jisho.target = "_blank"; jisho.rel = "noopener noreferrer";
+    jisho.title = "Look up “" + term + "” on Jisho";
+    chip.appendChild(jisho);
+    return chip;
+  }
+  function renderTokenChips(s) {
     el.wordBreakdown.innerHTML = "";
-    for (const w of s.words || []) {
-      const chip = document.createElement("div");
-      chip.className = "word-chip pos-" + (w.pos || "n");
-      chip.appendChild(span("wc-jp", w.jp));
-      chip.appendChild(span("wc-en", w.en));
-      el.wordBreakdown.appendChild(chip);
+    let unknownContent = 0;
+    for (const t of kuroTok.tokenize(plainJP(s.jp))) {
+      if (/記号|フィラー|その他/.test(t.pos)) continue;
+      const term = t.basic_form && t.basic_form !== "*" ? t.basic_form : t.surface_form;
+      const reading = t.reading && t.reading !== "*" ? kataToHira(t.reading) : "";
+      el.wordBreakdown.appendChild(makeWordChip({ jp: t.surface_form, reading, pos: POS_MAP[t.pos] || "n", term }));
+      if (/名詞|動詞|形容詞|副詞/.test(t.pos) && !isKnown(term)) unknownContent += 1;
     }
+    if (unknownContent === 1) {
+      const badge = span("ip1-badge", "i+1 — one new word");
+      el.wordBreakdown.insertBefore(badge, el.wordBreakdown.firstChild);
+    }
+  }
+  function renderWordChips(s) {
+    el.wordBreakdown.innerHTML = "";
+    if (s.words && s.words.length) {
+      for (const w of s.words) el.wordBreakdown.appendChild(makeWordChip({ jp: w.jp, gloss: w.en, pos: w.pos, term: w.jp }));
+      return;
+    }
+    if (!current.mined) return;
+    if (kuroTok) { renderTokenChips(s); return; }
+    const btn = document.createElement("button");
+    btn.className = "wc-analyze"; btn.textContent = "🔤 break into words";
+    btn.addEventListener("click", () => {
+      btn.disabled = true; btn.textContent = "⏳ loading dictionary…";
+      loadTokenizer().then(() => renderTokenChips(s)).catch(() => { btn.disabled = false; btn.textContent = "word breakdown unavailable offline"; });
+    });
+    el.wordBreakdown.appendChild(btn);
   }
 
   function reveal() {
