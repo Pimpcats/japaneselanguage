@@ -11,14 +11,42 @@
 //                     prt=particle cop=copula expr=expression
 //                     aux=auxiliary conj=conjunction
 
-// Five skill tiers, each holding one or more theme groups. Lessons attach to a
-// theme via their `section` field; the home screen groups themes under tiers.
-window.TIERS = [
-  { name: "Beginner",     blurb: "First words & survival phrases", themes: ["First contact", "Getting things"] },
-  { name: "Intermediate", blurb: "Verbs & everyday actions",       themes: ["Doing things", "Daily life"] },
-  { name: "Advanced",     blurb: "The past, wants & plans",        themes: ["The past", "Wants & plans"] },
-  { name: "Expert",       blurb: "Describing & connecting ideas",  themes: ["Describing things", "Connecting ideas"] },
-  { name: "Master",       blurb: "Getting around & real talk",     themes: ["Getting around", "Real conversations"] },
+// Content is organised into LEVELS (the tabs on the home screen). Each level
+// holds one or more difficulty tiers; each tier holds one or more themes;
+// lessons attach to a theme via their `section` field. A level with no lessons
+// yet renders as "Coming soon".
+window.LEVELS = [
+  {
+    id: "L1", name: "Level 1", title: "Foundations",
+    blurb: "Survival Japanese — greetings, shopping & daily life · N5",
+    tiers: [
+      { name: "Beginner",     blurb: "First words & survival phrases", themes: ["First contact", "Getting things"] },
+      { name: "Intermediate", blurb: "Verbs & everyday actions",       themes: ["Doing things", "Daily life"] },
+      { name: "Advanced",     blurb: "The past, wants & plans",        themes: ["The past", "Wants & plans"] },
+      { name: "Describing",   blurb: "Adjectives & description",       themes: ["Describing things"] },
+    ],
+  },
+  {
+    id: "L2", name: "Level 2", title: "Connecting & doing",
+    blurb: "The て-form — link ideas, make requests, say what's happening · N5→N4",
+    tiers: [
+      { name: "Connecting ideas", blurb: "Join thoughts with the て-form", themes: ["The て-form", "Linking ideas"] },
+    ],
+  },
+  {
+    id: "L3", name: "Level 3", title: "Getting around",
+    blurb: "Directions, transport & travel trouble · N4",
+    tiers: [
+      { name: "Getting around", blurb: "Find your way & handle hiccups", themes: ["Getting around"] },
+    ],
+  },
+  {
+    id: "L4", name: "Level 4", title: "Real conversations",
+    blurb: "Casual speech, opinions & reactions · N4→N3",
+    tiers: [
+      { name: "Real conversations", blurb: "Talk like you mean it", themes: ["Real conversations"] },
+    ],
+  },
 ];
 
 window.LESSONS = [
@@ -934,6 +962,232 @@ window.LESSONS = [
         words: [{jp:"あまり",en:"not very",pos:"adv"},{jp:"よくない",en:"not good",pos:"adj"},{jp:"です",en:"is",pos:"cop"}] },
       { en: "It's not quiet.", jp: "しずかじゃ ないです。", romaji: "shizuka ja nai desu.", hint: "な-adj → じゃ ない",
         words: [{jp:"しずか",en:"quiet",pos:"adj"},{jp:"じゃ ない",en:"isn't",pos:"cop"},{jp:"です",en:"is",pos:"cop"}] },
+    ],
+  },
+
+  // ============================================================
+  // LEVEL 2 — Connecting & doing (the て-form)
+  // ============================================================
+  {
+    id: "te-form",
+    section: "The て-form",
+    title: "The て-form",
+    grammar: "verb → 〜て",
+    grammarNote:
+      "The て-form is the connector verb. Build it from the dictionary form: る-verbs drop る (たべる→たべて); う/つ/る→って, む/ぶ/ぬ→んで, く→いて, ぐ→いで, す→して. する→して, くる→きて, いく→いって (irregular). On its own it's a quick casual request: みて！ = “look!”",
+    vocab: [
+      { jp: "みて",   romaji: "mite",   en: "look / watch  (見る)", pos: "v" },
+      { jp: "まって", romaji: "matte",  en: "wait  (待つ)", pos: "v" },
+      { jp: "きいて", romaji: "kiite",  en: "listen / ask  (聞く)", pos: "v" },
+      { jp: "きて",   romaji: "kite",   en: "come  (来る)", pos: "v" },
+      { jp: "やめて", romaji: "yamete", en: "stop it  (やめる)", pos: "v" },
+      { jp: "こっち", romaji: "kocchi", en: "over here / this way", pos: "n" },
+    ],
+    sentences: [
+      { en: "Look!", jp: "みて！", romaji: "mite!", hint: "bare て-form = casual request",
+        words: [{jp:"みて",en:"look",pos:"v"}] },
+      { en: "Wait!", jp: "まって！", romaji: "matte!", hint: "add ください to be polite (next lesson)",
+        words: [{jp:"まって",en:"wait",pos:"v"}] },
+      { en: "Hey, listen.", jp: "ちょっと きいて。", romaji: "chotto kiite.",
+        words: [{jp:"ちょっと",en:"a sec / a little",pos:"adv"},{jp:"きいて",en:"listen",pos:"v"}] },
+      { en: "Come here.", jp: "こっち きて。", romaji: "kocchi kite.",
+        words: [{jp:"こっち",en:"over here",pos:"n"},{jp:"きて",en:"come",pos:"v"}] },
+      { en: "Stop it.", jp: "やめて。", romaji: "yamete.",
+        words: [{jp:"やめて",en:"stop it",pos:"v"}] },
+    ],
+  },
+  {
+    id: "te-please",
+    section: "The て-form",
+    title: "Please do X (〜てください)",
+    grammar: "〜てください",
+    grammarNote:
+      "Add ください to a verb's て-form to politely ask someone to do something. These are the phrases you'll lean on most as a learner and traveller.",
+    vocab: [
+      { jp: "まって",   romaji: "matte",    en: "wait  (待つ)", pos: "v" },
+      { jp: "いって",   romaji: "itte",     en: "say it  (言う)", pos: "v" },
+      { jp: "はなして", romaji: "hanashite", en: "speak / talk  (話す)", pos: "v" },
+      { jp: "おしえて", romaji: "oshiete",  en: "tell / teach me  (教える)", pos: "v" },
+      { jp: "ゆっくり", romaji: "yukkuri",  en: "slowly", pos: "adv" },
+      { jp: "もう いちど", romaji: "mou ichido", en: "once more", pos: "adv" },
+    ],
+    sentences: [
+      { en: "Please wait a moment.", jp: "ちょっと まって ください。", romaji: "chotto matte kudasai.",
+        words: [{jp:"ちょっと",en:"a moment",pos:"adv"},{jp:"まって",en:"wait",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
+      { en: "Please say it once more.", jp: "もう いちど いって ください。", romaji: "mou ichido itte kudasai.", hint: "lifesaver when you didn't catch it",
+        words: [{jp:"もう いちど",en:"once more",pos:"adv"},{jp:"いって",en:"say it",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
+      { en: "Please speak slowly.", jp: "ゆっくり はなして ください。", romaji: "yukkuri hanashite kudasai.",
+        words: [{jp:"ゆっくり",en:"slowly",pos:"adv"},{jp:"はなして",en:"speak",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
+      { en: "Please tell me.", jp: "おしえて ください。", romaji: "oshiete kudasai.",
+        words: [{jp:"おしえて",en:"tell me",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
+      { en: "Please help me.", jp: "たすけて ください。", romaji: "tasukete kudasai.", hint: "たすける = to help",
+        words: [{jp:"たすけて",en:"help",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
+    ],
+  },
+  {
+    id: "te-iru",
+    section: "The て-form",
+    title: "In progress (〜ています)",
+    grammar: "〜ています",
+    grammarNote:
+      "て-form + います describes an action happening right now (たべています = “I'm eating”) or an ongoing state (すんでいます = “I live”). Casually, drop the い: なにしてる？ = “what're you up to?”",
+    vocab: [
+      { jp: "たべて",     romaji: "tabete",     en: "eating  (食べる)", pos: "v" },
+      { jp: "みて",       romaji: "mite",       en: "watching  (見る)", pos: "v" },
+      { jp: "よんで",     romaji: "yonde",      en: "reading  (読む)", pos: "v" },
+      { jp: "すんで",     romaji: "sunde",      en: "living  (住む)", pos: "v" },
+      { jp: "はたらいて", romaji: "hataraite",  en: "working  (働く)", pos: "v" },
+      { jp: "して",       romaji: "shite",      en: "doing  (する)", pos: "v" },
+    ],
+    sentences: [
+      { en: "What are you doing?", jp: "なにを して いますか？", romaji: "nani o shite imasu ka?", hint: "casual: なにしてる？",
+        words: [{jp:"なに",en:"what",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"して",en:"doing",pos:"v"},{jp:"います",en:"[ongoing]",pos:"aux"},{jp:"か",en:"[?]",pos:"prt"}] },
+      { en: "I'm eating right now.", jp: "いま たべて います。", romaji: "ima tabete imasu.",
+        words: [{jp:"いま",en:"now",pos:"adv"},{jp:"たべて",en:"eating",pos:"v"},{jp:"います",en:"[ongoing]",pos:"aux"}] },
+      { en: "I'm watching TV.", jp: "テレビを みて います。", romaji: "terebi o mite imasu.",
+        words: [{jp:"テレビ",en:"TV",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"みて",en:"watching",pos:"v"},{jp:"います",en:"[ongoing]",pos:"aux"}] },
+      { en: "I live in Tokyo.", jp: "とうきょうに すんで います。", romaji: "toukyou ni sunde imasu.", hint: "すむ = to live → ongoing state",
+        words: [{jp:"とうきょう",en:"Tokyo",pos:"n"},{jp:"に",en:"[in]",pos:"prt"},{jp:"すんで",en:"living",pos:"v"},{jp:"います",en:"[state]",pos:"aux"}] },
+      { en: "I work at a bank.", jp: "ぎんこうで はたらいて います。", romaji: "ginkou de hataraite imasu.",
+        words: [{jp:"ぎんこう",en:"bank",pos:"n"},{jp:"で",en:"[at]",pos:"prt"},{jp:"はたらいて",en:"working",pos:"v"},{jp:"います",en:"[ongoing]",pos:"aux"}] },
+    ],
+  },
+  {
+    id: "because",
+    section: "Linking ideas",
+    title: "Because / so (〜から・〜ので)",
+    grammar: "〜から  ·  〜ので",
+    grammarNote:
+      "Put から after the reason, then the result: [reason]から、[result]。 ので is a softer, more polite “since”. The reason always comes first — the opposite order from English.",
+    vocab: [
+      { jp: "つかれた",   romaji: "tsukareta", en: "(I'm) tired", pos: "adj" },
+      { jp: "いそがしい", romaji: "isogashii", en: "busy", pos: "adj" },
+      { jp: "たかい",     romaji: "takai",     en: "expensive", pos: "adj" },
+      { jp: "やすい",     romaji: "yasui",     en: "cheap", pos: "adj" },
+      { jp: "さむい",     romaji: "samui",     en: "cold", pos: "adj" },
+      { jp: "どうして",   romaji: "doushite",  en: "why", pos: "adv" },
+    ],
+    sentences: [
+      { en: "I'm tired, so I'm going home.", jp: "つかれたから、かえります。", romaji: "tsukareta kara, kaerimasu.",
+        words: [{jp:"つかれた",en:"tired",pos:"adj"},{jp:"から",en:"because / so",pos:"conj"},{jp:"かえり",en:"go home",pos:"v"},{jp:"ます",en:"[polite]",pos:"aux"}] },
+      { en: "It's expensive, so I won't buy it.", jp: "たかいから、かいません。", romaji: "takai kara, kaimasen.",
+        words: [{jp:"たかい",en:"expensive",pos:"adj"},{jp:"から",en:"so",pos:"conj"},{jp:"かい",en:"buy",pos:"v"},{jp:"ません",en:"[don't]",pos:"aux"}] },
+      { en: "I'm busy today, so sorry.", jp: "きょうは いそがしいので、すみません。", romaji: "kyou wa isogashii node, sumimasen.", hint: "ので = softer “since”",
+        words: [{jp:"きょう",en:"today",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"いそがしい",en:"busy",pos:"adj"},{jp:"ので",en:"since",pos:"conj"},{jp:"すみません",en:"sorry",pos:"expr"}] },
+      { en: "It's cold, so let's head home.", jp: "さむいから、かえりましょう。", romaji: "samui kara, kaerimashou.",
+        words: [{jp:"さむい",en:"cold",pos:"adj"},{jp:"から",en:"so",pos:"conj"},{jp:"かえり",en:"go home",pos:"v"},{jp:"ましょう",en:"let's",pos:"aux"}] },
+      { en: "Why? — Because it's tasty.", jp: "どうして？ — おいしいから。", romaji: "doushite? — oishii kara.",
+        words: [{jp:"どうして",en:"why",pos:"adv"},{jp:"おいしい",en:"tasty",pos:"adj"},{jp:"から",en:"because",pos:"conj"}] },
+    ],
+  },
+  {
+    id: "but-kedo",
+    section: "Linking ideas",
+    title: "But / though (〜が・〜けど)",
+    grammar: "〜が  ·  〜けど",
+    grammarNote:
+      "Join two clauses with が or けど for “but / though”: [clause]が、[contrasting clause]。 けど is the everyday, casual one; が is a touch more formal.",
+    vocab: [
+      { jp: "たかい",     romaji: "takai",      en: "expensive", pos: "adj" },
+      { jp: "ほしい",     romaji: "hoshii",     en: "want (it)", pos: "adj" },
+      { jp: "おかね",     romaji: "okane",      en: "money", pos: "n" },
+      { jp: "むずかしい", romaji: "muzukashii", en: "difficult", pos: "adj" },
+      { jp: "たのしい",   romaji: "tanoshii",   en: "fun", pos: "adj" },
+      { jp: "けど",       romaji: "kedo",       en: "but / though", pos: "conj" },
+    ],
+    sentences: [
+      { en: "It's expensive, but I'll buy it.", jp: "たかいですが、かいます。", romaji: "takai desu ga, kaimasu.",
+        words: [{jp:"たかい",en:"expensive",pos:"adj"},{jp:"です",en:"is",pos:"cop"},{jp:"が",en:"but",pos:"conj"},{jp:"かい",en:"buy",pos:"v"},{jp:"ます",en:"[polite]",pos:"aux"}] },
+      { en: "It's pricey, but tasty.", jp: "たかいけど、おいしい。", romaji: "takai kedo, oishii.",
+        words: [{jp:"たかい",en:"pricey",pos:"adj"},{jp:"けど",en:"but",pos:"conj"},{jp:"おいしい",en:"tasty",pos:"adj"}] },
+      { en: "I want it, but I have no money.", jp: "ほしいけど、おかねが ない。", romaji: "hoshii kedo, okane ga nai.",
+        words: [{jp:"ほしい",en:"want it",pos:"adj"},{jp:"けど",en:"but",pos:"conj"},{jp:"おかね",en:"money",pos:"n"},{jp:"が",en:"[subject]",pos:"prt"},{jp:"ない",en:"none / don't have",pos:"adj"}] },
+      { en: "Japanese is hard, but fun.", jp: "にほんごは むずかしいけど、たのしい。", romaji: "nihongo wa muzukashii kedo, tanoshii.",
+        words: [{jp:"にほんご",en:"Japanese",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"むずかしい",en:"hard",pos:"adj"},{jp:"けど",en:"but",pos:"conj"},{jp:"たのしい",en:"fun",pos:"adj"}] },
+      { en: "Sorry, but I don't understand.", jp: "すみませんが、わかりません。", romaji: "sumimasen ga, wakarimasen.",
+        words: [{jp:"すみません",en:"sorry",pos:"expr"},{jp:"が",en:"but",pos:"conj"},{jp:"わかりません",en:"don't understand",pos:"v"}] },
+    ],
+  },
+  {
+    id: "permission",
+    section: "Linking ideas",
+    title: "May I? / You mustn't (〜てもいい・〜ては だめ)",
+    grammar: "〜てもいいですか  ·  〜ては だめ／いけません",
+    grammarNote:
+      "て-form + もいいですか asks permission (“may I…?”). て-form + は だめ／いけません says it's not allowed. どうぞ is the friendly “go ahead”.",
+    vocab: [
+      { jp: "とって",   romaji: "totte",   en: "take (a photo)  (撮る)", pos: "v" },
+      { jp: "すわって", romaji: "suwatte", en: "sit  (座る)", pos: "v" },
+      { jp: "はいって", romaji: "haitte",  en: "enter / come in  (入る)", pos: "v" },
+      { jp: "さわって", romaji: "sawatte", en: "touch  (触る)", pos: "v" },
+      { jp: "しゃしん", romaji: "shashin", en: "photo", pos: "n" },
+      { jp: "どうぞ",   romaji: "douzo",   en: "go ahead / please", pos: "expr" },
+    ],
+    sentences: [
+      { en: "May I take a photo here?", jp: "ここで しゃしんを とっても いいですか？", romaji: "koko de shashin o totte mo ii desu ka?",
+        words: [{jp:"ここ",en:"here",pos:"n"},{jp:"で",en:"[at]",pos:"prt"},{jp:"しゃしん",en:"photo",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"とって",en:"take",pos:"v"},{jp:"も",en:"even",pos:"prt"},{jp:"いい",en:"good / ok",pos:"adj"},{jp:"です",en:"is",pos:"cop"},{jp:"か",en:"[?]",pos:"prt"}] },
+      { en: "May I sit here?", jp: "ここに すわっても いいですか？", romaji: "koko ni suwatte mo ii desu ka?",
+        words: [{jp:"ここ",en:"here",pos:"n"},{jp:"に",en:"[in]",pos:"prt"},{jp:"すわって",en:"sit",pos:"v"},{jp:"も",en:"even",pos:"prt"},{jp:"いい",en:"ok",pos:"adj"},{jp:"です",en:"is",pos:"cop"},{jp:"か",en:"[?]",pos:"prt"}] },
+      { en: "Sure, go ahead.", jp: "どうぞ。", romaji: "douzo.",
+        words: [{jp:"どうぞ",en:"go ahead",pos:"expr"}] },
+      { en: "You can't take photos here.", jp: "ここで しゃしんを とっては いけません。", romaji: "koko de shashin o totte wa ikemasen.", hint: "〜ては いけません = not allowed",
+        words: [{jp:"ここ",en:"here",pos:"n"},{jp:"で",en:"[at]",pos:"prt"},{jp:"しゃしん",en:"photo",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"とって",en:"take",pos:"v"},{jp:"は",en:"[as for]",pos:"prt"},{jp:"いけません",en:"must not",pos:"aux"}] },
+      { en: "Don't touch, please.", jp: "さわっては だめです。", romaji: "sawatte wa dame desu.",
+        words: [{jp:"さわって",en:"touch",pos:"v"},{jp:"は",en:"[as for]",pos:"prt"},{jp:"だめ",en:"no good",pos:"adj"},{jp:"です",en:"is",pos:"cop"}] },
+    ],
+  },
+  {
+    id: "sequence-te",
+    section: "Linking ideas",
+    title: "Do A, then B (〜て、… ・ 〜たり)",
+    grammar: "〜て、〜  ·  〜たり〜たり",
+    grammarNote:
+      "Chain actions with the て-form: A して、B して、C します。 For a loose “things like A and B” list, use 〜たり〜たり して/します.",
+    vocab: [
+      { jp: "おきて",   romaji: "okite",    en: "get up  (起きる)", pos: "v" },
+      { jp: "でかけて", romaji: "dekakete", en: "go out  (出かける)", pos: "v" },
+      { jp: "かえって", romaji: "kaette",   en: "go back  (帰る)", pos: "v" },
+      { jp: "やすんで", romaji: "yasunde",  en: "rest  (休む)", pos: "v" },
+      { jp: "あそんで", romaji: "asonde",   en: "hang out / play  (遊ぶ)", pos: "v" },
+      { jp: "しゅうまつ", romaji: "shuumatsu", en: "weekend", pos: "n" },
+    ],
+    sentences: [
+      { en: "I get up, eat, and head out.", jp: "おきて、たべて、でかけます。", romaji: "okite, tabete, dekakemasu.",
+        words: [{jp:"おきて",en:"get up",pos:"v"},{jp:"たべて",en:"eat",pos:"v"},{jp:"でかけ",en:"go out",pos:"v"},{jp:"ます",en:"[polite]",pos:"aux"}] },
+      { en: "I'll go home and rest.", jp: "かえって、やすみます。", romaji: "kaette, yasumimasu.",
+        words: [{jp:"かえって",en:"go home",pos:"v"},{jp:"やすみ",en:"rest",pos:"v"},{jp:"ます",en:"[polite]",pos:"aux"}] },
+      { en: "Let's grab food and hang out.", jp: "ごはんを たべて、あそびましょう。", romaji: "gohan o tabete, asobimashou.",
+        words: [{jp:"ごはん",en:"food / a meal",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"たべて",en:"eat",pos:"v"},{jp:"あそび",en:"hang out",pos:"v"},{jp:"ましょう",en:"let's",pos:"aux"}] },
+      { en: "On weekends I read and watch movies and such.", jp: "しゅうまつは、ほんを よんだり えいがを みたり します。", romaji: "shuumatsu wa, hon o yondari eiga o mitari shimasu.", hint: "〜たり〜たり = “things like…”",
+        words: [{jp:"しゅうまつ",en:"weekend",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ほん",en:"book",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"よんだり",en:"read (and)",pos:"v"},{jp:"えいが",en:"movie",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"みたり",en:"watch (and)",pos:"v"},{jp:"します",en:"do",pos:"v"}] },
+    ],
+  },
+  {
+    id: "timing",
+    section: "Linking ideas",
+    title: "When / before / after (〜とき・まえに・あとで)",
+    grammar: "〜とき  ·  〜まえに  ·  〜あとで",
+    grammarNote:
+      "[verb/plain]とき = “when…”. [dictionary verb]まえに = “before doing…”. [noun]の あとで = “after…”. Nouns also take の: しょくじの まえに = “before the meal”.",
+    vocab: [
+      { jp: "ねる",     romaji: "neru",    en: "sleep / go to bed  (寝る)", pos: "v" },
+      { jp: "まえに",   romaji: "mae ni",  en: "before", pos: "conj" },
+      { jp: "あとで",   romaji: "ato de",  en: "after / later", pos: "conj" },
+      { jp: "ひま",     romaji: "hima",    en: "free (time)", pos: "adj" },
+      { jp: "しょくじ", romaji: "shokuji", en: "a meal", pos: "n" },
+      { jp: "でんわ",   romaji: "denwa",   en: "phone / a call", pos: "n" },
+    ],
+    sentences: [
+      { en: "I brush my teeth before bed.", jp: "ねるまえに、はを みがきます。", romaji: "neru mae ni, ha o migakimasu.",
+        words: [{jp:"ねる",en:"sleep",pos:"v"},{jp:"まえに",en:"before",pos:"conj"},{jp:"は",en:"teeth",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"みがき",en:"brush",pos:"v"},{jp:"ます",en:"[polite]",pos:"aux"}] },
+      { en: "Let's talk after the meal.", jp: "しょくじの あとで、はなしましょう。", romaji: "shokuji no ato de, hanashimashou.",
+        words: [{jp:"しょくじ",en:"meal",pos:"n"},{jp:"の",en:"[of]",pos:"prt"},{jp:"あとで",en:"after",pos:"conj"},{jp:"はなし",en:"talk",pos:"v"},{jp:"ましょう",en:"let's",pos:"aux"}] },
+      { en: "When I'm free, I watch movies.", jp: "ひまな とき、えいがを みます。", romaji: "hima na toki, eiga o mimasu.",
+        words: [{jp:"ひま",en:"free",pos:"adj"},{jp:"な",en:"[な-adj]",pos:"aux"},{jp:"とき",en:"when",pos:"conj"},{jp:"えいが",en:"movie",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"み",en:"watch",pos:"v"},{jp:"ます",en:"[polite]",pos:"aux"}] },
+      { en: "Wash your hands before you eat.", jp: "たべるまえに、てを あらって ください。", romaji: "taberu mae ni, te o aratte kudasai.",
+        words: [{jp:"たべる",en:"eat",pos:"v"},{jp:"まえに",en:"before",pos:"conj"},{jp:"て",en:"hands",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"あらって",en:"wash",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
+      { en: "I'll call you later.", jp: "あとで でんわします。", romaji: "ato de denwa shimasu.",
+        words: [{jp:"あとで",en:"later",pos:"conj"},{jp:"でんわ",en:"a call",pos:"n"},{jp:"します",en:"do / make",pos:"v"}] },
     ],
   },
 ];

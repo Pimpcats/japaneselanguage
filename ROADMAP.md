@@ -28,20 +28,20 @@ Work/formal and media/anime flavors are welcome later but are not the focus.
 - **Prompts** (`prompts.js`): 180 standalone drill sentences, levels 1–5.
 - **Coverage:** most of **N5**, edging into N4.
 
-The UI (`window.TIERS` in `lessons.js`) declares **10 themes across 5 tiers**,
-but **3 themes have no lessons yet** — visible empty slots:
+The home screen is organised into **Levels** (the tabs, `window.LEVELS` in
+`lessons.js`); each level nests difficulty **tiers**, each tier nests **themes**,
+and lessons attach to a theme via their `section`. One stage = one level.
 
-| Tier | Themes | Status |
-|------|--------|--------|
-| Beginner | First contact, Getting things | done |
-| Intermediate | Doing things, Daily life | done |
-| Advanced | The past, Wants & plans | done |
-| Expert | Describing things, **Connecting ideas** | half — *Connecting ideas* empty |
-| Master | **Getting around**, **Real conversations** | both empty |
+| Level | Stage | Themes | Status |
+|-------|-------|--------|--------|
+| Level 1 — Foundations | 1 | First contact, Getting things, Doing things, Daily life, The past, Wants & plans, Describing things | **built** (37→29 lessons) |
+| Level 2 — Connecting & doing | 2 | The て-form, Linking ideas | **built** (te-form, 8 lessons) |
+| Level 3 — Getting around | 3 | Getting around | coming soon |
+| Level 4 — Real conversations | 4 | Real conversations | coming soon |
 
-**Biggest gap:** there is no **て-form** anywhere in the content. It's the single
-gateway to natural speech (requests, "I'm doing X", "because", permission,
-chaining actions) — and it's exactly the empty *Connecting ideas* theme.
+**The て-form gap is now closed** — Level 2 added it (requests, "I'm doing X",
+because/but, permission, chaining, when/before/after). It was the single
+biggest gateway to natural speech and is the foundation everything above builds on.
 
 ## The stages
 
@@ -56,9 +56,10 @@ wants (たい/ほしい), let's (ましょう/ませんか), likes (すき/き�
 
 ---
 
-### Stage 2 — Connecting & doing · ≈ N5→N4 · BUILD FIRST
-**Fills the empty *Connecting ideas* theme.** The highest-leverage missing
-piece. Introduces the て-form and the words that join thoughts together.
+### Stage 2 — Connecting & doing · ≈ N5→N4 · ✅ BUILT (Level 2)
+**Now live as Level 2**, split into two tier-themes: *The て-form* (basics,
+requests, in-progress) and *Linking ideas* (because/but, permission, sequences,
+timing). Introduces the て-form and the words that join thoughts together.
 
 | Lesson | Grammar | Example useful sentence |
 |--------|---------|-------------------------|
@@ -161,7 +162,7 @@ grammar point, then drills sentences that recombine those words:
 
 ## Suggested build order
 
-1. **Stage 2** — te-form (fills *Connecting ideas*). Biggest unlock.
-2. **Stage 3** — *Getting around* (daily-life/travel payoff).
-3. **Stage 4** — *Real conversations* (casual register; completes the Master tier).
-4. **Stages 5–7** — add new tiers as the lower stages fill in.
+1. ~~**Stage 2** — te-form (Level 2).~~ ✅ done — biggest unlock.
+2. **Stage 3** — *Getting around* / Level 3 (daily-life/travel payoff). **← next**
+3. **Stage 4** — *Real conversations* / Level 4 (casual register).
+4. **Stages 5–7** — add Levels 5+ as the lower levels fill in.

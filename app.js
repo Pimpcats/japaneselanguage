@@ -66,6 +66,7 @@
   settings.voiceURI = settings.voiceURI || "";
   if (!settings.dailyGoal) settings.dailyGoal = 20;
   settings.collapsedTiers = settings.collapsedTiers || {};
+  settings.activeLevel = settings.activeLevel || (window.LEVELS[0] && window.LEVELS[0].id);
   settings.direction = settings.direction || "produce";   // produce | recognize | both
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
   function applyRomaji() { document.body.classList.toggle("no-romaji", !settings.romaji); }
@@ -1000,7 +1001,34 @@
     renderMining();
 
     el.lessonMap.innerHTML = "";
-    for (const tier of window.TIERS) {
+
+    // Level tabs — each level nests its own difficulty tiers.
+    const levelLessons = (lv) =>
+      window.LESSONS.filter((L) => lv.tiers.some((t) => t.themes.includes(L.section)));
+    if (!window.LEVELS.some((l) => l.id === settings.activeLevel))
+      settings.activeLevel = window.LEVELS[0].id;
+
+    const tabs = document.createElement("div");
+    tabs.className = "level-tabs";
+    for (const lv of window.LEVELS) {
+      const tab = document.createElement("button");
+      tab.className = "level-tab" + (lv.id === settings.activeLevel ? " active" : "");
+      tab.appendChild(span("level-tab-name", lv.name));
+      tab.appendChild(span("level-tab-title", lv.title));
+      if (!levelLessons(lv).length) tab.appendChild(span("level-tab-soon", "soon"));
+      tab.addEventListener("click", () => {
+        settings.activeLevel = lv.id; saveSettings(); renderHome();
+      });
+      tabs.appendChild(tab);
+    }
+    el.lessonMap.appendChild(tabs);
+
+    const level = window.LEVELS.find((l) => l.id === settings.activeLevel);
+    if (level.blurb)
+      el.lessonMap.appendChild(Object.assign(document.createElement("div"),
+        { className: "level-blurb", textContent: level.blurb }));
+
+    for (const tier of level.tiers) {
       const tierLessons = window.LESSONS.filter((L) => tier.themes.includes(L.section));
 
       const tierBlock = document.createElement("div");

@@ -140,6 +140,35 @@ html, body {
 /* ---- Home: lesson map ---- */
 #lesson-map { display: flex; flex-direction: column; gap: 2rem; }
 
+/* Level tabs (Level 1 … Level 4) */
+.level-tabs {
+  display: flex; gap: 0.5rem; overflow-x: auto;
+  padding-bottom: 0.2rem; margin-bottom: -1.2rem;
+  -webkit-overflow-scrolling: touch;
+}
+.level-tab {
+  flex: none; display: flex; flex-direction: column; gap: 0.1rem;
+  text-align: left; cursor: pointer;
+  padding: 0.5rem 0.85rem; border-radius: var(--radius-sm);
+  border: 1px solid var(--line); background: var(--card-2); color: var(--fg);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.level-tab:active { transform: translateY(1px); }
+.level-tab.active {
+  background: linear-gradient(120deg, var(--accent), var(--accent-2));
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--line));
+  color: var(--on-accent);
+  box-shadow: var(--shadow-sm);
+}
+.level-tab-name { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; }
+.level-tab-title { font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+.level-tab:not(.active) .level-tab-name { color: var(--muted); }
+.level-tab-soon {
+  font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--muted); margin-top: 0.05rem;
+}
+.level-blurb { font-size: 0.82rem; color: var(--muted); margin: -0.8rem 0 -0.6rem; }
+
 /* Skill tier (Beginner … Master) */
 .tier-block { display: flex; flex-direction: column; gap: 1.1rem; }
 .tier-head {
