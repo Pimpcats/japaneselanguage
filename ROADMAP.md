@@ -36,8 +36,8 @@ and lessons attach to a theme via their `section`. One stage = one level.
 |-------|-------|--------|--------|
 | Level 1 — Foundations | 1 | First contact, Getting things, Doing things, Daily life, The past, Wants & plans, Describing things | **built** (37→29 lessons) |
 | Level 2 — Connecting & doing | 2 | The て-form, Linking ideas | **built** (te-form, 8 lessons) |
-| Level 3 — Getting around | 3 | Getting around | coming soon |
-| Level 4 — Real conversations | 4 | Real conversations | coming soon |
+| Level 3 — Getting around | 3 | Finding your way, Tickets & trouble | **built** (7 lessons) |
+| Level 4 — Real conversations | 4 | Talking casually, Reacting & relating | **built** (7 lessons) |
 
 **The て-form gap is now closed** — Level 2 added it (requests, "I'm doing X",
 because/but, permission, chaining, when/before/after). It was the single
@@ -92,9 +92,11 @@ Pure daily-life-and-travel — navigation and the small problems that come with 
 
 ---
 
-### Stage 4 — Real conversations · ≈ N4→N3 · fills *Real conversations* theme
-Where speaking gets natural. **Plain/casual form** plus the social glue of
-opinions, favors, comparisons, and reactions. Heavy on the casual-social flavor.
+### Stage 4 — Real conversations · ≈ N4→N3 · ✅ BUILT (Level 4)
+**Now live as Level 4**, split into two tier-themes: *Talking casually* (plain
+form, 〜ない？/〜よう invites, 〜と おもう, って quoting) and *Reacting & relating*
+(あげる/くれる/もらう favors, より/のほうが/いちばん comparing, aizuchi reactions).
+Where speaking gets natural — the casual-social register.
 
 | Lesson | Grammar / focus | Example useful sentence |
 |--------|-----------------|-------------------------|
@@ -167,5 +169,5 @@ grammar point, then drills sentences that recombine those words:
 
 1. ~~**Stage 2** — te-form (Level 2).~~ ✅ done — biggest unlock.
 2. ~~**Stage 3** — *Getting around* / Level 3.~~ ✅ done.
-3. **Stage 4** — *Real conversations* / Level 4 (casual register). **← next**
-4. **Stages 5–7** — add Levels 5+ as the lower levels fill in.
+3. ~~**Stage 4** — *Real conversations* / Level 4.~~ ✅ done.
+4. **Stages 5–7** — add Levels 5+ (N3→N1) as the lower levels fill in. **← next**
