@@ -309,7 +309,8 @@
     readerResult: $("reader-result"), readerCoverage: $("reader-coverage"), readerText: $("reader-text"),
     readerLearn: $("reader-learn"), readerPop: $("reader-pop"),
     intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
-    lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"),
+    lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"), buildBtn: $("build-btn"),
+    buildArea: $("build-area"), buildAnswer: $("build-answer"), buildBank: $("build-bank"), buildReset: $("build-reset"),
     drill: $("drill"), progressFill: $("progress-fill"),
     promptLabel: $("prompt-label"), revealLabel: $("reveal-label"),
     promptEn: $("prompt-en"), answerKana: $("answer-kana"), answerRomaji: $("answer-romaji"),
@@ -1143,15 +1144,15 @@
   // ---- Drill ---------------------------------------------------------------
   let session = null; // { queue, total, cleared, mode, lessonId }
 
-  function startSession(cards, mode, lessonId) {
-    session = { queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId, flip: false };
+  function startSession(cards, mode, lessonId, opts) {
+    session = { queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId, flip: false, build: !!(opts && opts.build) };
     show(el.drill, { back: true });
     nextCard();
   }
 
-  function startLesson(L) {
+  function startLesson(L, opts) {
     const cards = CARDS.filter((c) => c.lessonId === L.id);
-    startSession(cards, "lesson", L.id);
+    startSession(cards, "lesson", L.id, opts);
   }
   function startReview() {
     const cards = dueCards();
@@ -1178,8 +1179,11 @@
 
   function renderCard() {
     const s = current.s;
-    const recognize = current.dir === "recognize";
-    el.promptLabel.textContent = recognize ? "What does this mean?" : "Say this in Japanese";
+    // Build mode needs at least two word chips to assemble; otherwise fall back.
+    const doBuild = session.build && s.words && s.words.length >= 2;
+    current.doBuild = doBuild;
+    const recognize = !doBuild && current.dir === "recognize";
+    el.promptLabel.textContent = doBuild ? "Build the sentence" : (recognize ? "What does this mean?" : "Say this in Japanese");
     if (recognize) el.promptEn.innerHTML = furiganaHTML(s.jp);
     else el.promptEn.textContent = s.en;
     el.promptEn.classList.toggle("jp", recognize);
@@ -1199,7 +1203,72 @@
     el.mineThisBtn.hidden = true;
     el.grade.hidden = true;
     el.revealBtn.disabled = false;
+    el.revealBtn.hidden = doBuild;       // no manual reveal — solving the puzzle reveals it
+    el.buildArea.hidden = !doBuild;
     renderWordChips(s);
+    if (doBuild) startBuild(s);
+  }
+
+  // ---- Build-the-sentence mode --------------------------------------------
+  let build = null; // { correct:[tok], placed:[item], bank:[item], solved }
+
+  function startBuild(s) {
+    const items = s.words.map((w, i) => ({ tok: w.jp, pos: w.pos || "n", uid: i }));
+    const correct = s.words.map((w) => w.jp);
+    const bank = items.slice();
+    // Shuffle, but avoid handing back the already-correct order.
+    for (let tries = 0; tries < 12; tries++) {
+      for (let i = bank.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bank[i], bank[j]] = [bank[j], bank[i]];
+      }
+      if (bank.some((it, i) => it.tok !== correct[i])) break;
+    }
+    build = { correct, placed: [], bank, solved: false };
+    renderBuild();
+  }
+
+  function buildChip(item, cls) {
+    const c = document.createElement("button");
+    c.className = "build-chip pos-" + item.pos + (cls ? " " + cls : "");
+    c.textContent = item.tok;
+    return c;
+  }
+
+  function renderBuild() {
+    const full = build.placed.length === build.correct.length;
+    const allOk = full && build.placed.every((it, i) => it.tok === build.correct[i]);
+
+    el.buildAnswer.innerHTML = "";
+    if (!build.placed.length) el.buildAnswer.appendChild(span("build-ph", "tap the words below, in order"));
+    build.placed.forEach((item, idx) => {
+      let cls = "placed";
+      if (full) cls += item.tok === build.correct[idx] ? " ok" : " bad";
+      const chip = buildChip(item, cls);
+      if (allOk) chip.disabled = true;
+      else chip.addEventListener("click", () => { build.bank.push(build.placed.splice(idx, 1)[0]); renderBuild(); });
+      el.buildAnswer.appendChild(chip);
+    });
+
+    el.buildBank.innerHTML = "";
+    build.bank.forEach((item) => {
+      const chip = buildChip(item, "bank");
+      chip.addEventListener("click", () => {
+        build.bank.splice(build.bank.indexOf(item), 1);
+        build.placed.push(item);
+        renderBuild();
+      });
+      el.buildBank.appendChild(chip);
+    });
+
+    el.buildReset.hidden = allOk || !build.placed.length;
+    if (allOk && !build.solved) {
+      build.solved = true;
+      el.buildAnswer.classList.add("solved");
+      reveal();
+    } else {
+      el.buildAnswer.classList.remove("solved");
+    }
   }
 
   // ---- Word chips + known-words tracking ----------------------------------
@@ -1321,10 +1390,12 @@
   el.doneHomeBtn.addEventListener("click", renderHome);
   el.reviewBtn.addEventListener("click", startReview);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
+  el.buildBtn.addEventListener("click", () => startLesson(activeLesson, { build: true }));
+  el.buildReset.addEventListener("click", () => { if (build && !build.solved) startBuild(current.s); });
   el.restartBtn.addEventListener("click", () => {
     if (session && session.mode === "review") startReview();
     else if (session && session.mode === "mined") startMined();
-    else startLesson(activeLesson);
+    else startLesson(activeLesson, { build: session && session.build });
   });
 
   el.mineSaveBtn.addEventListener("click", saveMined);
@@ -1401,7 +1472,7 @@
   document.addEventListener("keydown", (e) => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (el.drill.hidden) return;
-    if (e.key === " " || e.key === "Enter") { e.preventDefault(); if (el.grade.hidden) reveal(); }
+    if (e.key === " " || e.key === "Enter") { e.preventDefault(); if (el.grade.hidden && !(current && current.doBuild)) reveal(); }
     else if (e.key === "1") grade(0);
     else if (e.key === "2") grade(1);
     else if (e.key === "3") grade(2);

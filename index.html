@@ -13,7 +13,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="はなそう" />
-    <link rel="stylesheet" href="styles.css?v=22" />
+    <link rel="stylesheet" href="styles.css?v=23" />
   </head>
   <body>
     <main id="app">
@@ -63,7 +63,10 @@
         <div class="label">Words in this lesson <span class="tap-hint">tap to hear</span></div>
         <div id="vocab-list" class="vocab-list"></div>
 
-        <button id="start-btn" class="primary">Start practice →</button>
+        <div class="intro-actions">
+          <button id="start-btn" class="primary">Start practice →</button>
+          <button id="build-btn" class="secondary">🧩 Build the sentence</button>
+        </div>
       </section>
 
       <!-- ============ DRILL ============ -->
@@ -77,6 +80,12 @@
           <div id="hint-row" hidden>
             <button id="show-hint-btn" class="link">show hint</button>
             <div id="hint" hidden></div>
+          </div>
+
+          <div id="build-area" hidden>
+            <div id="build-answer" class="build-answer"></div>
+            <div id="build-bank" class="build-bank"></div>
+            <button id="build-reset" class="link" hidden>↺ start over</button>
           </div>
 
           <div id="reveal-area" hidden>
@@ -261,7 +270,7 @@
       </footer>
     </main>
 
-    <script src="lessons.js?v=22"></script>
-    <script src="app.js?v=22"></script>
+    <script src="lessons.js?v=23"></script>
+    <script src="app.js?v=23"></script>
   </body>
 </html>
