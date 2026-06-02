@@ -74,8 +74,11 @@ timing). Introduces the て-form and the words that join thoughts together.
 
 ---
 
-### Stage 3 — Getting around · ≈ N4 · fills *Getting around* theme
-Pure daily-life-and-travel. Navigation and the small problems that come with it.
+### Stage 3 — Getting around · ≈ N4 · ✅ BUILT (Level 3)
+**Now live as Level 3**, split into two tier-themes: *Finding your way*
+(directions, transport, "does this go to…?", how far/long) and *Tickets &
+trouble* (buying tickets, lost/missed/lost-item, 〜たほうがいい advice).
+Pure daily-life-and-travel — navigation and the small problems that come with it.
 
 | Lesson | Grammar / focus | Example useful sentence |
 |--------|-----------------|-------------------------|
@@ -163,6 +166,6 @@ grammar point, then drills sentences that recombine those words:
 ## Suggested build order
 
 1. ~~**Stage 2** — te-form (Level 2).~~ ✅ done — biggest unlock.
-2. **Stage 3** — *Getting around* / Level 3 (daily-life/travel payoff). **← next**
-3. **Stage 4** — *Real conversations* / Level 4 (casual register).
+2. ~~**Stage 3** — *Getting around* / Level 3.~~ ✅ done.
+3. **Stage 4** — *Real conversations* / Level 4 (casual register). **← next**
 4. **Stages 5–7** — add Levels 5+ as the lower levels fill in.
