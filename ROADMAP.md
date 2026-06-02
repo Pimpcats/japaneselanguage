@@ -38,6 +38,7 @@ and lessons attach to a theme via their `section`. One stage = one level.
 | Level 2 — Connecting & doing | 2 | The て-form, Linking ideas | **built** (te-form, 8 lessons) |
 | Level 3 — Getting around | 3 | Finding your way, Tickets & trouble | **built** (7 lessons) |
 | Level 4 — Real conversations | 4 | Talking casually, Reacting & relating | **built** (7 lessons) |
+| Level 5 — Nuance & plans | 5 | If & necessity, Plans & impressions | **built** (7 lessons) |
 
 **The て-form gap is now closed** — Level 2 added it (requests, "I'm doing X",
 because/but, permission, chaining, when/before/after). It was the single
@@ -110,7 +111,12 @@ Where speaking gets natural — the casual-social register.
 
 ---
 
-### Stage 5 — Nuance & plans · ≈ N3 · new tier
+### Stage 5 — Nuance & plans · ≈ N3 · ✅ BUILT (Level 5)
+**Now live as Level 5**, split into two tier-themes: *If & necessity*
+(conditionals 〜たら/〜なら, obligation 〜なきゃ/〜なくてもいい, potential 〜られる/〜える)
+and *Plans & impressions* (〜つもり/〜よてい, 〜そう/〜みたい/〜らしい, 〜てみる/〜ちゃう,
+〜たことがある). Adds the nuance that makes you sound less like a beginner.
+
 | Focus | Grammar | Example useful sentence |
 |-------|---------|-------------------------|
 | If / when | 〜たら・〜ば・〜と・〜なら | やすかったら、かう。— *If it's cheap, I'll buy it.* |
@@ -170,4 +176,5 @@ grammar point, then drills sentences that recombine those words:
 1. ~~**Stage 2** — te-form (Level 2).~~ ✅ done — biggest unlock.
 2. ~~**Stage 3** — *Getting around* / Level 3.~~ ✅ done.
 3. ~~**Stage 4** — *Real conversations* / Level 4.~~ ✅ done.
-4. **Stages 5–7** — add Levels 5+ (N3→N1) as the lower levels fill in. **← next**
+4. ~~**Stage 5** — *Nuance & plans* / Level 5 (N3).~~ ✅ done.
+5. **Stages 6–7** — Level 6 (N2: passive/causative, explaining) then Level 7 (N1: keigo, formal connectives). **← next**
