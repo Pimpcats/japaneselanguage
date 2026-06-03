@@ -1,3 +1,6 @@
 server/data/
 *.log
 .DS_Store
+
+# generated source bundles
+*.zip
