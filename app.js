@@ -1179,8 +1179,9 @@
 
   function renderCard() {
     const s = current.s;
-    // Build mode needs at least two word chips to assemble; otherwise fall back.
-    const doBuild = session.build && s.words && s.words.length >= 2;
+    // Build mode needs at least one word chip; single-word set phrases just get
+    // tapped into place so every card in a build session behaves the same way.
+    const doBuild = session.build && s.words && s.words.length >= 1;
     current.doBuild = doBuild;
     const recognize = !doBuild && current.dir === "recognize";
     el.promptLabel.textContent = doBuild ? "Build the sentence" : (recognize ? "What does this mean?" : "Say this in Japanese");
