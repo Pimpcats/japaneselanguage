@@ -1245,8 +1245,10 @@
       let cls = "placed";
       if (full) cls += item.tok === build.correct[idx] ? " ok" : " bad";
       const chip = buildChip(item, cls);
-      if (allOk) chip.disabled = true;
-      else chip.addEventListener("click", () => { build.bank.push(build.placed.splice(idx, 1)[0]); renderBuild(); });
+      chip.addEventListener("click", () => {
+        speak(item.tok, { lang: "ja-JP" });
+        if (!build.solved) { build.bank.push(build.placed.splice(idx, 1)[0]); renderBuild(); }
+      });
       el.buildAnswer.appendChild(chip);
     });
 
@@ -1254,6 +1256,7 @@
     build.bank.forEach((item) => {
       const chip = buildChip(item, "bank");
       chip.addEventListener("click", () => {
+        speak(item.tok, { lang: "ja-JP" });
         build.bank.splice(build.bank.indexOf(item), 1);
         build.placed.push(item);
         renderBuild();
