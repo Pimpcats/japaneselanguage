@@ -1506,6 +1506,11 @@ if ("serviceWorker" in navigator) {
         const nw = reg.installing;
         if (nw) nw.addEventListener("statechange", () => { if (nw.state === "installed") notify(nw); });
       });
+      // Check for a new deploy whenever the app regains focus (e.g. you reopen
+      // it on mobile) — not just on full reload — so updates surface promptly.
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") reg.update().catch(() => {});
+      });
       setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
     }).catch(() => {});
   });
