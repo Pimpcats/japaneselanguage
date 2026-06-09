@@ -68,6 +68,13 @@
   settings.collapsedTiers = settings.collapsedTiers || {};
   // Home cards (immersion log, My sentences) start collapsed into drop-down tabs.
   settings.collapsedHome = settings.collapsedHome || { immersion: true, mining: true };
+  // One-time: force "My sentences" closed for users who had it expanded before
+  // (a big imported deck makes it dominate the home screen). The toggle still works.
+  if (!settings.miningCollapseMigrated) {
+    settings.collapsedHome.mining = true;
+    settings.miningCollapseMigrated = true;
+    saveSettings();
+  }
   settings.activeLevel = settings.activeLevel || (window.LEVELS[0] && window.LEVELS[0].id);
   settings.direction = settings.direction || "produce";   // produce | recognize | both
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
