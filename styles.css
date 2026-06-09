@@ -137,6 +137,32 @@ html, body {
   gap: 0.5rem;
 }
 
+/* Review sub-buckets: cards last graded nope / kinda */
+.review-sub { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.review-chip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.5rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+.review-chip-n {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
+.review-chip.nope { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); }
+.review-chip.kinda { color: var(--mid); border-color: color-mix(in srgb, var(--mid) 45%, var(--line)); }
+
 /* ---- Home: lesson map ---- */
 #lesson-map { display: flex; flex-direction: column; gap: 2rem; }
 

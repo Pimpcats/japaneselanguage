@@ -265,6 +265,7 @@
     c.interval = nextInterval(c, grade);
     if (grade === 0) { c.reps = 0; c.lapses += 1; }
     else c.reps += 1;
+    c.lastGrade = grade;                     // drives the Nope/Kinda review buckets
     c.due = Date.now() + c.interval * DAY;
     prog.cards[cardId] = c;
     prog.reviews += 1;
@@ -302,7 +303,7 @@
     backBtn: $("back-btn"),
     dailyRing: $("daily-ring"), ringFill: document.querySelector(".ring-fill"), ringLabel: document.querySelector(".ring-label"),
     mastery: $("mastery"), masteryFill: $("mastery-fill"), masteryPct: $("mastery-pct"),
-    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), lessonMap: $("lesson-map"), mining: $("mining"), immersion: $("immersion"),
+    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), reviewSub: $("review-sub"), lessonMap: $("lesson-map"), mining: $("mining"), immersion: $("immersion"),
     mineForm: $("mine-form"), mineJp: $("mine-jp"), mineEn: $("mine-en"), mineRomaji: $("mine-romaji"),
     mineHint: $("mine-hint"), mineError: $("mine-error"),
     mineSaveBtn: $("mine-save-btn"), mineCancelBtn: $("mine-cancel-btn"), minePreviewBtn: $("mine-preview-btn"),
@@ -1034,7 +1035,28 @@
     el.reviewBtn.hidden = due === 0;
     el.reviewBtn.textContent = `🔁 Review ${due} due card${due === 1 ? "" : "s"}`;
 
-    renderImmersion();
+    // Break the due pile into the two struggling buckets — cards last graded
+    // "nope" and "kinda" — so you can drill the weak ones on their own.
+    el.reviewSub.innerHTML = "";
+    if (due > 0) {
+      const dueList = dueCards();
+      const buckets = [
+        { grade: 0, cls: "nope", label: "😬 Nope" },
+        { grade: 1, cls: "kinda", label: "🤔 Kinda" },
+      ];
+      for (const b of buckets) {
+        const n = dueList.filter((c) => lastGradeOf(prog.cards[c.id]) === b.grade).length;
+        if (!n) continue;
+        const chip = document.createElement("button");
+        chip.className = "review-chip " + b.cls;
+        chip.appendChild(span("review-chip-label", b.label));
+        chip.appendChild(span("review-chip-n", String(n)));
+        chip.addEventListener("click", () => reviewBucket(b.grade));
+        el.reviewSub.appendChild(chip);
+      }
+    }
+    el.reviewSub.hidden = el.reviewSub.children.length === 0;
+
     renderMining();
 
     el.lessonMap.innerHTML = "";
@@ -1196,6 +1218,19 @@
   }
   function startReview() {
     const cards = dueCards();
+    if (!cards.length) return;
+    startSession(cards, "review", null);
+  }
+  // How a due card last went, so we can split review into Nope / Kinda buckets.
+  // Older cards predate the stored grade, so infer: reps only reset to 0 on a
+  // nope, otherwise assume it was previously passed.
+  function lastGradeOf(p) {
+    if (!p) return 0;
+    if (typeof p.lastGrade === "number") return p.lastGrade;
+    return p.reps ? 2 : 0;
+  }
+  function reviewBucket(grade) {
+    const cards = dueCards().filter((c) => lastGradeOf(prog.cards[c.id]) === grade);
     if (!cards.length) return;
     startSession(cards, "review", null);
   }
