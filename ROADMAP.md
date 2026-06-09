@@ -39,6 +39,8 @@ and lessons attach to a theme via their `section`. One stage = one level.
 | Level 3 — Getting around | 3 | Finding your way, Tickets & trouble | **built** (7 lessons) |
 | Level 4 — Real conversations | 4 | Talking casually, Reacting & relating | **built** (7 lessons) |
 | Level 5 — Nuance & plans | 5 | If & necessity, Plans & impressions | **built** (7 lessons) |
+| Level 6 — Expert | 6 | Things happen to you, Explaining & nuance | **built** (7 lessons, N2) |
+| Level 7 — Master | 7 | Keigo & politeness, Native connectives | **built** (7 lessons, N1) |
 
 **The て-form gap is now closed** — Level 2 added it (requests, "I'm doing X",
 because/but, permission, chaining, when/before/after). It was the single
@@ -129,17 +131,19 @@ and *Plans & impressions* (〜つもり/〜よてい, 〜そう/〜みたい/〜
 
 ---
 
-### Stage 6 — Expressing yourself · ≈ N2 · new tier
-Passive & causative (real uses: "I was told to…", "let me…"), connectives
-(のに / ても / ば〜ほど / によって), explaining (はず / わけ / べき), and softeners
-for slightly more formal situations.
+### Stage 6 — Expert · ≈ N2 · ✅ BUILT (Level 6)
+**Now live as Level 6**, two tier-themes: *Things happen to you* (passive
+〜られる, causative 〜させる, causative-passive 〜させられる) and *Explaining &
+nuance* (〜べき/〜はず, 〜のに/〜ても, 〜ようになる/〜ようにする, 〜わけ). Real uses —
+"I was scolded," "let me think," "you should apologize," "that's why."
 
 ---
 
-### Stage 7 — Native polish · ≈ N1 · new tier
-Keigo (sonkeigo / kenjougo) for work and service, formal/written connectives
-(において / にあたって / ものの), nuance particles, and idiomatic, discourse-level
-fluency drawn from native content.
+### Stage 7 — Master · ≈ N1 · ✅ BUILT (Level 7)
+**Now live as Level 7**, two tier-themes: *Keigo & politeness* (honorific 尊敬語,
+humble 謙譲語, business requests 〜ていただけますか) and *Native connectives*
+(〜ざるを得ない, 〜において/〜にあたって, 〜ものの/〜とはいえ, 〜かぎり/〜つつ/〜にほかならない).
+Service/work keigo plus the formal, written-register glue of native Japanese.
 
 ---
 
@@ -177,4 +181,5 @@ grammar point, then drills sentences that recombine those words:
 2. ~~**Stage 3** — *Getting around* / Level 3.~~ ✅ done.
 3. ~~**Stage 4** — *Real conversations* / Level 4.~~ ✅ done.
 4. ~~**Stage 5** — *Nuance & plans* / Level 5 (N3).~~ ✅ done.
-5. **Stages 6–7** — Level 6 (N2: passive/causative, explaining) then Level 7 (N1: keigo, formal connectives). **← next**
+5. ~~**Stage 6** — *Expert* / Level 6 (N2).~~ ✅ done.
+6. ~~**Stage 7** — *Master* / Level 7 (N1).~~ ✅ done. **All 7 levels (N5→N1) are built.**
