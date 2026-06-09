@@ -252,20 +252,27 @@
   }
 
   // ---- SM-2-lite -----------------------------------------------------------
+  // Base intervals: nope = 1d, kinda = 2d, got it = 5d; repeat passes grow
+  // from there (kinda ×1.25, got it ×ease).
+  function nextInterval(c, grade) {
+    if (grade === 0) return 1;
+    if (grade === 1) return c.interval < 1 ? 2 : Math.round(c.interval * 1.25);
+    return !c.reps ? 5 : Math.round(Math.max(c.interval, 1) * c.ease);
+  }
   function srsUpdate(cardId, grade) {
     const c = prog.cards[cardId] || { reps: 0, ease: 2.5, interval: 0, lapses: 0 };
+    const interval = nextInterval(c, grade);
     if (grade === 0) {                       // nope
-      c.reps = 0; c.interval = 0; c.lapses += 1;
+      c.reps = 0; c.lapses += 1;
       c.ease = Math.max(1.3, c.ease - 0.2);
     } else if (grade === 1) {                // kinda
       c.reps += 1;
       c.ease = Math.max(1.3, c.ease - 0.05);
-      c.interval = c.interval < 1 ? 1 : Math.round(c.interval * 1.25);
     } else {                                 // got it
       c.reps += 1;
-      c.interval = c.reps === 1 ? 1 : c.reps === 2 ? 3 : Math.round(c.interval * c.ease);
       c.ease += 0.05;
     }
+    c.interval = interval;
     c.due = Date.now() + c.interval * DAY;
     prog.cards[cardId] = c;
     prog.reviews += 1;
@@ -290,7 +297,11 @@
 
   function dueCards() {
     const now = Date.now();
-    return CARDS.filter((c) => { const p = prog.cards[c.id]; return p && p.reps && p.due <= now; });
+    return CARDS.filter((c) => {
+      const p = prog.cards[c.id];
+      if (p && p.reps) return p.due <= now;
+      return c.mined; // mined sentences join the review rotation right away
+    });
   }
 
   // ---- Elements ------------------------------------------------------------
@@ -313,7 +324,8 @@
     intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
     lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"), buildBtn: $("build-btn"),
     buildArea: $("build-area"), buildAnswer: $("build-answer"), buildBank: $("build-bank"), buildReset: $("build-reset"),
-    drill: $("drill"), progressFill: $("progress-fill"),
+    drill: $("drill"), progressFill: $("progress-fill"), combo: $("combo"),
+    retireBtn: $("retire-btn"), transformBtn: $("transform-btn"), buildHardBtn: $("build-hard-btn"),
     promptLabel: $("prompt-label"), revealLabel: $("reveal-label"),
     promptEn: $("prompt-en"), answerKana: $("answer-kana"), answerRomaji: $("answer-romaji"),
     wordBreakdown: $("word-breakdown"), revealArea: $("reveal-area"),
@@ -701,25 +713,14 @@
     }
 
     const now = Date.now();
-    const due = cards.filter((c) => { const p = prog.cards[c.id]; return p && p.reps && p.due <= now; }).length;
-    const fresh = cards.filter((c) => { const p = prog.cards[c.id]; return !p || !p.reps; }).length;
+    const due = cards.filter((c) => { const p = prog.cards[c.id]; return !p || !p.reps || p.due <= now; }).length;
     if (due > 0) head.insertBefore(span("tier-count", due + " due"), head.lastChild);
 
-    const tile = document.createElement("button");
-    tile.className = "lesson-tile";
-    const top = document.createElement("div"); top.className = "tile-top";
-    const left = document.createElement("div");
-    left.appendChild(Object.assign(document.createElement("div"), { className: "tile-title", textContent: "Drill my sentences" }));
-    left.appendChild(Object.assign(document.createElement("div"), { className: "tile-grammar", textContent: cards.length + " sentence" + (cards.length === 1 ? "" : "s") }));
-    top.appendChild(left);
-    const badge = document.createElement("span");
-    if (due > 0) { badge.className = "tile-badge badge-due"; badge.textContent = due + " due"; }
-    else if (fresh > 0) { badge.className = "tile-badge badge-new"; badge.textContent = fresh + " new"; }
-    else { badge.className = "tile-badge badge-done"; badge.textContent = "✓ fresh"; }
-    top.appendChild(badge);
-    tile.appendChild(top);
-    tile.addEventListener("click", startMined);
-    body.appendChild(tile);
+    // Mined sentences review alongside lesson cards — no separate drill.
+    body.appendChild(Object.assign(document.createElement("div"), {
+      className: "mine-note",
+      textContent: "These come up with your due cards in 🔁 Review.",
+    }));
 
     const list = document.createElement("div"); list.className = "mine-list";
     for (const m of prog.mined) {
@@ -1018,18 +1019,12 @@
     renderHome();
   }
 
-  function startMined() {
-    const cards = minedCards();
-    if (!cards.length) return;
-    startSession(cards, "mined", null);
-  }
-
   // ---- Home ----------------------------------------------------------------
   function renderHome() {
     renderDailyRing();
     renderMastery();
     const due = dueCards().length;
-    const learned = Object.values(prog.cards).filter((p) => p.reps).length;
+    const learned = Object.entries(prog.cards).filter(([id, p]) => p.reps && !id.startsWith("tf#")).length;
     el.stats.innerHTML = "";
     const tiles = [
       { num: prog.streak.current, lbl: "day streak" },
@@ -1194,7 +1189,11 @@
   let session = null; // { queue, total, cleared, mode, lessonId }
 
   function startSession(cards, mode, lessonId, opts) {
-    session = { queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId, flip: false, build: !!(opts && opts.build) };
+    session = {
+      queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId, flip: false,
+      build: !!(opts && opts.build), hard: !!(opts && opts.hard), combo: 0, bestCombo: 0,
+    };
+    renderCombo();
     show(el.drill, { back: true });
     nextCard();
   }
@@ -1209,6 +1208,38 @@
     startSession(cards, "review", null);
   }
 
+  // ---- Transform drill: switch a verb between its forms --------------------
+  const TF_FORMS = [
+    { key: "masen",        q: "make it negative",       label: "〜ません (don't)" },
+    { key: "mashita",      q: "make it past",           label: "〜ました (did)" },
+    { key: "masendeshita", q: "make it past negative",  label: "〜ませんでした (didn't)" },
+    { key: "te",           q: "て-form",                label: "〜て (connector)" },
+    { key: "plain",        q: "make it casual",         label: "dictionary form" },
+    { key: "nai",          q: "casual negative",        label: "〜ない (don't, casual)" },
+    { key: "ta",           q: "casual past",            label: "〜た (did, casual)" },
+  ];
+  function startTransform() {
+    const pool = [];
+    for (const v of window.VERBS) for (const f of TF_FORMS) if (v.forms[f.key]) pool.push({ v, f });
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const cards = pool.slice(0, 12).map(({ v, f }) => ({
+      id: "tf#" + v.dict + "#" + f.key,
+      lessonId: null, lessonTitle: "Transform",
+      transform: v,
+      s: {
+        en: v.masu + " (" + v.en + ")  →  " + f.q,
+        jp: v.forms[f.key][0],
+        romaji: v.forms[f.key][1],
+        hint: f.label,
+        words: [],
+      },
+    }));
+    startSession(cards, "transform", null);
+  }
+
   // produce = see English, say Japanese · recognize = see Japanese, recall meaning
   function cardDirection() {
     const d = settings.direction;
@@ -1221,7 +1252,7 @@
   function nextCard() {
     if (session.cleared >= session.total || session.queue.length === 0) { finish(); return; }
     current = session.queue.shift();
-    current.dir = cardDirection();
+    current.dir = current.transform ? "produce" : cardDirection();
     renderCard();
     el.progressFill.style.width = Math.round((session.cleared / session.total) * 100) + "%";
   }
@@ -1251,10 +1282,18 @@
     el.replayBtn.hidden = true;
     el.slowBtn.hidden = true;
     el.mineThisBtn.hidden = true;
+    el.retireBtn.hidden = true;
     el.grade.hidden = true;
     el.revealBtn.disabled = false;
     el.revealBtn.hidden = doBuild;       // no manual reveal — solving the puzzle reveals it
     el.buildArea.hidden = !doBuild;
+    if (doBuild && session.hard) {       // hard mode: no English — rebuild from audio
+      el.promptLabel.textContent = "Build what you hear";
+      el.promptEn.textContent = "🔈 Listen, then rebuild it";
+      el.playEnBtn.textContent = "🔈 hear";
+      el.playEnBtn.title = "Hear the Japanese again";
+      speak(s.jp, { lang: "ja-JP" });
+    }
     renderWordChips(s);
     if (doBuild) startBuild(s);
   }
@@ -1265,7 +1304,21 @@
   function startBuild(s) {
     const items = s.words.map((w, i) => ({ tok: w.jp, pos: w.pos || "n", uid: i }));
     const correct = s.words.map((w) => w.jp);
-    const bank = items.slice();
+    let bank = items.slice();
+    if (session.hard) {
+      // Hard mode: mix in decoy words from the same lesson's other sentences.
+      const used = new Set(correct);
+      const decoys = [];
+      const L = lessonById[session.lessonId];
+      if (L) for (const sen of L.sentences) for (const w of (sen.words || [])) {
+        if (!used.has(w.jp)) { used.add(w.jp); decoys.push({ tok: w.jp, pos: w.pos || "n", uid: "d" + decoys.length }); }
+      }
+      for (let i = decoys.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [decoys[i], decoys[j]] = [decoys[j], decoys[i]];
+      }
+      bank = bank.concat(decoys.slice(0, 3));
+    }
     // Shuffle, but avoid handing back the already-correct order.
     for (let tries = 0; tries < 12; tries++) {
       for (let i = bank.length - 1; i > 0; i--) {
@@ -1307,6 +1360,7 @@
       const chip = buildChip(item, "bank");
       chip.addEventListener("click", () => {
         speak(item.tok, { lang: "ja-JP" });
+        if (build.solved) return;        // leftover (decoy) chips just speak after solving
         build.bank.splice(build.bank.indexOf(item), 1);
         build.placed.push(item);
         renderBuild();
@@ -1368,8 +1422,22 @@
       el.wordBreakdown.insertBefore(badge, el.wordBreakdown.firstChild);
     }
   }
+  // For transform cards, the breakdown area shows the verb's whole form family.
+  function renderFormChips(v) {
+    const items = [{ jp: v.masu, lbl: "polite (〜ます)" }];
+    for (const f of TF_FORMS) if (v.forms[f.key]) items.push({ jp: v.forms[f.key][0], lbl: f.label });
+    for (const it of items) {
+      const chip = document.createElement("button");
+      chip.className = "tf-chip";
+      chip.appendChild(span("tf-jp", it.jp));
+      chip.appendChild(span("tf-lbl", it.lbl));
+      chip.addEventListener("click", () => speak(it.jp, { lang: "ja-JP" }));
+      el.wordBreakdown.appendChild(chip);
+    }
+  }
   function renderWordChips(s) {
     el.wordBreakdown.innerHTML = "";
+    if (current.transform) { renderFormChips(current.transform); return; }
     if (s.words && s.words.length) {
       for (const w of s.words) el.wordBreakdown.appendChild(makeWordChip({ jp: w.jp, gloss: w.en, pos: w.pos, term: w.jp }));
       return;
@@ -1391,12 +1459,20 @@
     el.revealArea.hidden = false;
     el.replayBtn.hidden = false;
     el.slowBtn.hidden = false;
-    if (!current.mined) {
+    if (!current.mined && !current.transform) {
       const already = prog.mined.some((m) => m.jp === current.s.jp && m.en === current.s.en);
       el.mineThisBtn.hidden = false;
       el.mineThisBtn.disabled = already;
       el.mineThisBtn.textContent = already ? "✓ mined" : "★ mine";
     }
+    // In a review, a card can be retired — sent back to its lesson as new.
+    el.retireBtn.hidden = !(session.mode === "review" && !current.mined && !current.transform);
+    // Show when each grade would bring this card back (1d / 2d / 5d, growing).
+    const c = prog.cards[current.id] || { reps: 0, ease: 2.5, interval: 0 };
+    document.querySelectorAll("#grade .grade").forEach((b) => {
+      const d = b.querySelector(".grade-days");
+      if (d) d.textContent = nextInterval(c, Number(b.dataset.grade)) + "d";
+    });
     el.grade.hidden = false;
     el.revealBtn.disabled = true;
     speak(current.s.jp, { lang: "ja-JP" });
@@ -1422,19 +1498,31 @@
 
   function grade(g) {
     srsUpdate(current.id, g);
+    if (g === 2) { session.combo += 1; session.bestCombo = Math.max(session.bestCombo, session.combo); }
+    else session.combo = 0;
+    renderCombo();
     if (g === 0) session.queue.push(current); else session.cleared += 1;
     renderDailyRing();
     nextCard();
   }
 
+  function renderCombo() {
+    const c = session ? session.combo : 0;
+    el.combo.hidden = c < 2;
+    el.combo.textContent = "🔥 " + c;
+    if (c >= 2) { el.combo.classList.remove("pop"); void el.combo.offsetWidth; el.combo.classList.add("pop"); }
+  }
+
   function finish() {
     el.progressFill.style.width = "100%";
     const due = dueCards().length;
-    el.doneSummary.textContent = session.mode === "review"
+    let msg = session.mode === "review"
       ? "Review session done. Nice work keeping things fresh."
-      : session.mode === "mined"
-        ? "Your sentences are in the rotation now — they'll resurface in your reviews."
+      : session.mode === "transform"
+        ? "Transform drill done — switching forms fast is what makes grammar automatic."
         : (due > 0 ? `You've got ${due} card${due === 1 ? "" : "s"} due across all lessons.` : "Every sentence drilled. Come back tomorrow to lock it in.");
+    if (session.bestCombo >= 3) msg += ` Best streak: 🔥 ${session.bestCombo} in a row.`;
+    el.doneSummary.textContent = msg;
     show(el.done, { back: true });
   }
 
@@ -1444,11 +1532,19 @@
   el.reviewBtn.addEventListener("click", startReview);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
   el.buildBtn.addEventListener("click", () => startLesson(activeLesson, { build: true }));
+  el.buildHardBtn.addEventListener("click", () => startLesson(activeLesson, { build: true, hard: true }));
   el.buildReset.addEventListener("click", () => { if (build && !build.solved) startBuild(current.s); });
+  el.transformBtn.addEventListener("click", startTransform);
+  el.retireBtn.addEventListener("click", () => {
+    delete prog.cards[current.id];     // back to "new" — only its lesson drills it now
+    save();
+    session.cleared += 1;
+    nextCard();
+  });
   el.restartBtn.addEventListener("click", () => {
     if (session && session.mode === "review") startReview();
-    else if (session && session.mode === "mined") startMined();
-    else startLesson(activeLesson, { build: session && session.build });
+    else if (session && session.mode === "transform") startTransform();
+    else startLesson(activeLesson, { build: session && session.build, hard: session && session.hard });
   });
 
   el.mineSaveBtn.addEventListener("click", saveMined);
@@ -1488,7 +1584,7 @@
   el.slowBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP", rate: 0.7 }));
   el.mineThisBtn.addEventListener("click", mineCurrent);
   el.playEnBtn.addEventListener("click", () => {
-    if (current.dir === "recognize") speak(current.s.jp, { lang: "ja-JP" });
+    if (current.dir === "recognize" || (current.doBuild && session.hard)) speak(current.s.jp, { lang: "ja-JP" });
     else speak(current.s.en, { lang: "en-US" });
   });
   el.showHintBtn.addEventListener("click", () => { el.hint.hidden = false; el.showHintBtn.hidden = true; });

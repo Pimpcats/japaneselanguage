@@ -13,7 +13,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="はなそう" />
-    <link rel="stylesheet" href="styles.css?v=28" />
+    <link rel="stylesheet" href="styles.css?v=29" />
   </head>
   <body>
     <main id="app">
@@ -49,6 +49,7 @@
         <div id="stats" class="stats"></div>
         <div id="immersion"></div>
         <button id="review-btn" class="primary review-btn" hidden></button>
+        <button id="transform-btn" class="secondary transform-btn">⚡ Transform drill — verb forms</button>
         <div id="mining"></div>
         <div id="lesson-map"></div>
       </section>
@@ -66,12 +67,14 @@
         <div class="intro-actions">
           <button id="start-btn" class="primary">Start practice →</button>
           <button id="build-btn" class="secondary">🧩 Build the sentence</button>
+          <button id="build-hard-btn" class="secondary" title="No English — rebuild from audio, with decoy words mixed in">🔥 Build — hard mode</button>
         </div>
       </section>
 
       <!-- ============ DRILL ============ -->
       <section id="drill" class="screen" hidden>
         <div id="progress-bar"><div id="progress-fill"></div></div>
+        <div id="combo" class="combo" hidden></div>
 
         <div id="card">
           <div id="prompt-label" class="label">Say this in Japanese</div>
@@ -102,14 +105,15 @@
           <button id="replay-btn" class="secondary" hidden>🔁 again</button>
           <button id="slow-btn" class="secondary" hidden>🐢 slow</button>
           <button id="mine-this-btn" class="secondary" hidden title="Save to My sentences">★ mine</button>
+          <button id="retire-btn" class="secondary" hidden title="Stop reviewing this — send it back to its lesson as new">↩ lesson</button>
         </div>
 
         <div id="grade" hidden>
           <div class="label">How did that go?</div>
           <div class="grade-row">
-            <button data-grade="0" class="grade nope">nope</button>
-            <button data-grade="1" class="grade kinda">kinda</button>
-            <button data-grade="2" class="grade got">got it</button>
+            <button data-grade="0" class="grade nope">nope<small class="grade-days"></small></button>
+            <button data-grade="1" class="grade kinda">kinda<small class="grade-days"></small></button>
+            <button data-grade="2" class="grade got">got it<small class="grade-days"></small></button>
           </div>
         </div>
       </section>
@@ -270,7 +274,7 @@
       </footer>
     </main>
 
-    <script src="lessons.js?v=28"></script>
-    <script src="app.js?v=28"></script>
+    <script src="lessons.js?v=29"></script>
+    <script src="app.js?v=29"></script>
   </body>
 </html>
