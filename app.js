@@ -1064,7 +1064,8 @@
     }
     el.reviewSub.hidden = el.reviewSub.children.length === 0;
 
-    renderMining();
+    // My sentences (mining) is hidden for now, like the immersion card —
+    // renderMining() stays for an easy restore. Mined cards still review.
 
     el.lessonMap.innerHTML = "";
 
