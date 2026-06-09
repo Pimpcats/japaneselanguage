@@ -1,6 +1,6 @@
 // Service worker — offline app shell for the Hanasou PWA.
 // Bump CACHE when the precached shell list changes to evict the old cache.
-const CACHE = "hanasou-v30";
+const CACHE = "hanasou-v31";
 const SHELL = [
   "./",
   "index.html",
@@ -60,6 +60,18 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;        // ignore third-party requests
   if (url.pathname.startsWith("/api/")) return;           // never cache the sync API
+
+  // Audio manifest: network-first so freshly generated clips are discovered
+  // without a version bump. The clip files themselves are content-hashed
+  // (so never stale) and keep using stale-while-revalidate below.
+  if (url.pathname.endsWith("/audio/manifest.json")) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); return res; })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
 
   // Navigations: network-first so a fresh deploy is picked up, cache as offline fallback.
   if (req.mode === "navigate") {
