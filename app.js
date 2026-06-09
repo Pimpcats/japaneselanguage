@@ -1039,30 +1039,11 @@
       el.stats.appendChild(tile);
     }
 
-    el.reviewBtn.hidden = due === 0;
-    el.reviewBtn.textContent = `🔁 Review ${due} due card${due === 1 ? "" : "s"}`;
-
-    // Break the due pile into the two struggling buckets — cards last graded
-    // "nope" and "kinda" — so you can drill the weak ones on their own.
-    el.reviewSub.innerHTML = "";
-    if (due > 0) {
-      const dueList = dueCards();
-      const buckets = [
-        { grade: 0, cls: "nope", label: "😬 Nope" },
-        { grade: 1, cls: "kinda", label: "🤔 Kinda" },
-      ];
-      for (const b of buckets) {
-        const n = dueList.filter((c) => lastGradeOf(prog.cards[c.id]) === b.grade).length;
-        if (!n) continue;
-        const chip = document.createElement("button");
-        chip.className = "review-chip " + b.cls;
-        chip.appendChild(span("review-chip-label", b.label));
-        chip.appendChild(span("review-chip-n", String(n)));
-        chip.addEventListener("click", () => reviewBucket(b.grade));
-        el.reviewSub.appendChild(chip);
-      }
-    }
-    el.reviewSub.hidden = el.reviewSub.children.length === 0;
+    // Review section (button + Nope/Kinda buckets) is hidden for now. Cards
+    // still schedule and come due — the rendering below is kept for an easy
+    // restore.
+    el.reviewBtn.hidden = true;
+    el.reviewSub.hidden = true;
 
     // My sentences (mining) is hidden for now, like the immersion card —
     // renderMining() stays for an easy restore. Mined cards still review.
