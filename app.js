@@ -1024,20 +1024,10 @@
     renderDailyRing();
     renderMastery();
     const due = dueCards().length;
-    const learned = Object.entries(prog.cards).filter(([id, p]) => p.reps && !id.startsWith("tf#")).length;
+    // Stats tiles (streak / cards learned / total reviews) are hidden for now;
+    // the Mastery bar above stays. Code kept for an easy restore.
+    el.stats.hidden = true;
     el.stats.innerHTML = "";
-    const tiles = [
-      { num: prog.streak.current, lbl: "day streak" },
-      { num: learned, lbl: "cards learned" },
-      { num: prog.reviews, lbl: "total reviews" },
-    ];
-    for (const t of tiles) {
-      const tile = document.createElement("div");
-      tile.className = "stat-tile";
-      tile.appendChild(span("stat-num", String(t.num)));
-      tile.appendChild(span("stat-lbl", t.lbl));
-      el.stats.appendChild(tile);
-    }
 
     // Review section (button + Nope/Kinda buckets) is hidden for now. Cards
     // still schedule and come due — the rendering below is kept for an easy
