@@ -251,28 +251,20 @@
     s.lastDay = t;
   }
 
-  // ---- SM-2-lite -----------------------------------------------------------
-  // Base intervals: nope = 1d, kinda = 2d, got it = 5d; repeat passes grow
-  // from there (kinda ×1.25, got it ×ease).
+  // ---- Scheduling -----------------------------------------------------------
+  // The interval comes straight from the card's correct-answer count (reps,
+  // which resets on nope): got it = 5d, 10d, 15d…; kinda = 2d, 4d, 6d…;
+  // nope = always 1d.
   function nextInterval(c, grade) {
     if (grade === 0) return 1;
-    if (grade === 1) return c.interval < 1 ? 2 : Math.round(c.interval * 1.25);
-    return !c.reps ? 5 : Math.round(Math.max(c.interval, 1) * c.ease);
+    const n = (c.reps || 0) + 1;             // counting this pass
+    return grade === 1 ? 2 * n : 5 * n;
   }
   function srsUpdate(cardId, grade) {
     const c = prog.cards[cardId] || { reps: 0, ease: 2.5, interval: 0, lapses: 0 };
-    const interval = nextInterval(c, grade);
-    if (grade === 0) {                       // nope
-      c.reps = 0; c.lapses += 1;
-      c.ease = Math.max(1.3, c.ease - 0.2);
-    } else if (grade === 1) {                // kinda
-      c.reps += 1;
-      c.ease = Math.max(1.3, c.ease - 0.05);
-    } else {                                 // got it
-      c.reps += 1;
-      c.ease += 0.05;
-    }
-    c.interval = interval;
+    c.interval = nextInterval(c, grade);
+    if (grade === 0) { c.reps = 0; c.lapses += 1; }
+    else c.reps += 1;
     c.due = Date.now() + c.interval * DAY;
     prog.cards[cardId] = c;
     prog.reviews += 1;
@@ -325,7 +317,7 @@
     lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"), buildBtn: $("build-btn"),
     buildArea: $("build-area"), buildAnswer: $("build-answer"), buildBank: $("build-bank"), buildReset: $("build-reset"),
     drill: $("drill"), progressFill: $("progress-fill"), combo: $("combo"),
-    retireBtn: $("retire-btn"), transformBtn: $("transform-btn"), buildHardBtn: $("build-hard-btn"),
+    retireBtn: $("retire-btn"), buildHardBtn: $("build-hard-btn"),
     promptLabel: $("prompt-label"), revealLabel: $("reveal-label"),
     promptEn: $("prompt-en"), answerKana: $("answer-kana"), answerRomaji: $("answer-romaji"),
     wordBreakdown: $("word-breakdown"), revealArea: $("reveal-area"),
@@ -1208,36 +1200,29 @@
     startSession(cards, "review", null);
   }
 
-  // ---- Transform drill: switch a verb between its forms --------------------
+  // ---- Verb forms (〜ます ⇄ 〜ません ⇄ 〜ました…) ---------------------------
   const TF_FORMS = [
-    { key: "masen",        q: "make it negative",       label: "〜ません (don't)" },
-    { key: "mashita",      q: "make it past",           label: "〜ました (did)" },
-    { key: "masendeshita", q: "make it past negative",  label: "〜ませんでした (didn't)" },
-    { key: "te",           q: "て-form",                label: "〜て (connector)" },
-    { key: "plain",        q: "make it casual",         label: "dictionary form" },
-    { key: "nai",          q: "casual negative",        label: "〜ない (don't, casual)" },
-    { key: "ta",           q: "casual past",            label: "〜た (did, casual)" },
+    { key: "masen",        label: "〜ません (don't)" },
+    { key: "mashita",      label: "〜ました (did)" },
+    { key: "masendeshita", label: "〜ませんでした (didn't)" },
+    { key: "te",           label: "〜て (connector)" },
+    { key: "plain",        label: "dictionary form" },
+    { key: "nai",          label: "〜ない (don't, casual)" },
+    { key: "ta",           label: "〜た (did, casual)" },
   ];
-  function startTransform() {
-    const pool = [];
-    for (const v of window.VERBS) for (const f of TF_FORMS) if (v.forms[f.key]) pool.push({ v, f });
-    for (let i = pool.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
+  // Find VERBS entries present in a sentence, matching whole word-chips only
+  // (a chip equal to a known form, or a stem chip followed by a ます-family aux).
+  function verbsInSentence(s) {
+    if (!s.words || !s.words.length || !window.VERBS) return [];
+    const toks = s.words.map((w) => w.jp);
+    const found = [];
+    for (const v of window.VERBS) {
+      const formVals = [v.masu, v.dict, ...Object.values(v.forms).map((f) => f[0])];
+      const hit = toks.some((t, i) =>
+        formVals.includes(t) || (v.masu === t + "ます" && /^ま/.test(toks[i + 1] || "")));
+      if (hit) found.push(v);
     }
-    const cards = pool.slice(0, 12).map(({ v, f }) => ({
-      id: "tf#" + v.dict + "#" + f.key,
-      lessonId: null, lessonTitle: "Transform",
-      transform: v,
-      s: {
-        en: v.masu + " (" + v.en + ")  →  " + f.q,
-        jp: v.forms[f.key][0],
-        romaji: v.forms[f.key][1],
-        hint: f.label,
-        words: [],
-      },
-    }));
-    startSession(cards, "transform", null);
+    return found;
   }
 
   // produce = see English, say Japanese · recognize = see Japanese, recall meaning
@@ -1252,7 +1237,7 @@
   function nextCard() {
     if (session.cleared >= session.total || session.queue.length === 0) { finish(); return; }
     current = session.queue.shift();
-    current.dir = current.transform ? "produce" : cardDirection();
+    current.dir = cardDirection();
     renderCard();
     el.progressFill.style.width = Math.round((session.cleared / session.total) * 100) + "%";
   }
@@ -1422,8 +1407,8 @@
       el.wordBreakdown.insertBefore(badge, el.wordBreakdown.firstChild);
     }
   }
-  // For transform cards, the breakdown area shows the verb's whole form family.
-  function renderFormChips(v) {
+  // A sentence verb's whole form family, shown behind a "⚡ forms of …" toggle.
+  function renderFormChipsInto(holder, v) {
     const items = [{ jp: v.masu, lbl: "polite (〜ます)" }];
     for (const f of TF_FORMS) if (v.forms[f.key]) items.push({ jp: v.forms[f.key][0], lbl: f.label });
     for (const it of items) {
@@ -1432,14 +1417,30 @@
       chip.appendChild(span("tf-jp", it.jp));
       chip.appendChild(span("tf-lbl", it.lbl));
       chip.addEventListener("click", () => speak(it.jp, { lang: "ja-JP" }));
-      el.wordBreakdown.appendChild(chip);
+      holder.appendChild(chip);
+    }
+  }
+  function renderVerbForms(s) {
+    for (const v of verbsInSentence(s)) {
+      const btn = document.createElement("button");
+      btn.className = "wc-analyze";
+      btn.textContent = "⚡ forms of " + v.masu;
+      const holder = document.createElement("div");
+      holder.className = "tf-row";
+      holder.hidden = true;
+      btn.addEventListener("click", () => {
+        if (holder.hidden && !holder.childNodes.length) renderFormChipsInto(holder, v);
+        holder.hidden = !holder.hidden;
+      });
+      el.wordBreakdown.appendChild(btn);
+      el.wordBreakdown.appendChild(holder);
     }
   }
   function renderWordChips(s) {
     el.wordBreakdown.innerHTML = "";
-    if (current.transform) { renderFormChips(current.transform); return; }
     if (s.words && s.words.length) {
       for (const w of s.words) el.wordBreakdown.appendChild(makeWordChip({ jp: w.jp, gloss: w.en, pos: w.pos, term: w.jp }));
+      renderVerbForms(s);
       return;
     }
     if (!current.mined) return;
@@ -1459,14 +1460,14 @@
     el.revealArea.hidden = false;
     el.replayBtn.hidden = false;
     el.slowBtn.hidden = false;
-    if (!current.mined && !current.transform) {
+    if (!current.mined) {
       const already = prog.mined.some((m) => m.jp === current.s.jp && m.en === current.s.en);
       el.mineThisBtn.hidden = false;
       el.mineThisBtn.disabled = already;
       el.mineThisBtn.textContent = already ? "✓ mined" : "★ mine";
     }
     // In a review, a card can be retired — sent back to its lesson as new.
-    el.retireBtn.hidden = !(session.mode === "review" && !current.mined && !current.transform);
+    el.retireBtn.hidden = !(session.mode === "review" && !current.mined);
     // Show when each grade would bring this card back (1d / 2d / 5d, growing).
     const c = prog.cards[current.id] || { reps: 0, ease: 2.5, interval: 0 };
     document.querySelectorAll("#grade .grade").forEach((b) => {
@@ -1518,9 +1519,7 @@
     const due = dueCards().length;
     let msg = session.mode === "review"
       ? "Review session done. Nice work keeping things fresh."
-      : session.mode === "transform"
-        ? "Transform drill done — switching forms fast is what makes grammar automatic."
-        : (due > 0 ? `You've got ${due} card${due === 1 ? "" : "s"} due across all lessons.` : "Every sentence drilled. Come back tomorrow to lock it in.");
+      : (due > 0 ? `You've got ${due} card${due === 1 ? "" : "s"} due across all lessons.` : "Every sentence drilled. Come back tomorrow to lock it in.");
     if (session.bestCombo >= 3) msg += ` Best streak: 🔥 ${session.bestCombo} in a row.`;
     el.doneSummary.textContent = msg;
     show(el.done, { back: true });
@@ -1534,7 +1533,6 @@
   el.buildBtn.addEventListener("click", () => startLesson(activeLesson, { build: true }));
   el.buildHardBtn.addEventListener("click", () => startLesson(activeLesson, { build: true, hard: true }));
   el.buildReset.addEventListener("click", () => { if (build && !build.solved) startBuild(current.s); });
-  el.transformBtn.addEventListener("click", startTransform);
   el.retireBtn.addEventListener("click", () => {
     delete prog.cards[current.id];     // back to "new" — only its lesson drills it now
     save();
@@ -1543,7 +1541,6 @@
   });
   el.restartBtn.addEventListener("click", () => {
     if (session && session.mode === "review") startReview();
-    else if (session && session.mode === "transform") startTransform();
     else startLesson(activeLesson, { build: session && session.build, hard: session && session.hard });
   });
 
