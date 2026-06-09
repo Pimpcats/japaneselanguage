@@ -66,6 +66,8 @@
   settings.voiceURI = settings.voiceURI || "";
   if (!settings.dailyGoal) settings.dailyGoal = 20;
   settings.collapsedTiers = settings.collapsedTiers || {};
+  // Home cards (immersion log, My sentences) start collapsed into drop-down tabs.
+  settings.collapsedHome = settings.collapsedHome || { immersion: true, mining: true };
   settings.activeLevel = settings.activeLevel || (window.LEVELS[0] && window.LEVELS[0].id);
   settings.direction = settings.direction || "produce";   // produce | recognize | both
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
@@ -575,24 +577,33 @@
     const total = Object.values(prog.immersion).reduce((a, b) => a + b, 0);
     const streak = immersionStreak();
 
+    const collapsed = !!settings.collapsedHome.immersion;
     const card = document.createElement("div");
     card.className = "imm-card";
     const head = document.createElement("div"); head.className = "imm-head";
     head.appendChild(span("imm-total", fmtHours(total)));
     head.appendChild(span("imm-unit", "hours immersed"));
     if (streak > 0) head.appendChild(span("imm-streak", "🎧 " + streak + "d"));
+    head.appendChild(span("tier-chevron", "▾"));
+    head.setAttribute("role", "button");
+    head.tabIndex = 0;
+    head.setAttribute("aria-expanded", String(!collapsed));
     card.appendChild(head);
+
+    const body = document.createElement("div"); body.className = "imm-body";
+    body.hidden = collapsed;
+    card.classList.toggle("collapsed", collapsed);
 
     const today_row = document.createElement("div"); today_row.className = "imm-today";
     today_row.textContent = today > 0 ? "Today: " + today + " min" : "No immersion logged today";
-    card.appendChild(today_row);
+    body.appendChild(today_row);
 
     if (prog.known.length > 0) {
       const g = knownGrowth(7);
       const kr = document.createElement("div"); kr.className = "imm-known";
       kr.appendChild(span("imm-known-n", "📚 " + prog.known.length));
       kr.appendChild(span("imm-known-l", "words known" + (g > 0 ? " · +" + g + " this week" : "")));
-      card.appendChild(kr);
+      body.appendChild(kr);
     }
 
     const actions = document.createElement("div"); actions.className = "imm-actions";
@@ -604,7 +615,21 @@
     const edit = Object.assign(document.createElement("button"), { className: "imm-edit", textContent: "edit" });
     edit.addEventListener("click", editImmersion);
     actions.appendChild(edit);
-    card.appendChild(actions);
+    body.appendChild(actions);
+    card.appendChild(body);
+
+    const toggle = () => {
+      const now = !settings.collapsedHome.immersion;
+      settings.collapsedHome.immersion = now;
+      saveSettings();
+      body.hidden = now;
+      card.classList.toggle("collapsed", now);
+      head.setAttribute("aria-expanded", String(!now));
+    };
+    head.addEventListener("click", toggle);
+    head.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+    });
 
     el.immersion.appendChild(card);
   }
@@ -623,6 +648,7 @@
 
   function renderMining() {
     el.mining.innerHTML = "";
+    const collapsed = !!settings.collapsedHome.mining;
     const block = document.createElement("div");
     block.className = "tier-block";
 
@@ -633,22 +659,43 @@
     text.appendChild(Object.assign(document.createElement("div"), { className: "tier-blurb", textContent: "Mine lines you meet in the wild" }));
     head.appendChild(text);
     const read = Object.assign(document.createElement("button"), { className: "mine-add mine-import", textContent: "📖 Read" });
-    read.addEventListener("click", openReader);
+    read.addEventListener("click", (e) => { e.stopPropagation(); openReader(); });
     head.appendChild(read);
     const imp = Object.assign(document.createElement("button"), { className: "mine-add mine-import", textContent: "⤓ Import" });
-    imp.addEventListener("click", openImportForm);
+    imp.addEventListener("click", (e) => { e.stopPropagation(); openImportForm(); });
     head.appendChild(imp);
     const add = Object.assign(document.createElement("button"), { className: "mine-add", textContent: "＋ Add" });
-    add.addEventListener("click", openMineForm);
+    add.addEventListener("click", (e) => { e.stopPropagation(); openMineForm(); });
     head.appendChild(add);
+    head.appendChild(span("tier-chevron", "▾"));
+    head.setAttribute("role", "button");
+    head.tabIndex = 0;
+    head.setAttribute("aria-expanded", String(!collapsed));
     block.appendChild(head);
+
+    const body = document.createElement("div"); body.className = "tier-body";
+    body.hidden = collapsed;
+    block.classList.toggle("collapsed", collapsed);
+    const toggle = () => {
+      const now = !settings.collapsedHome.mining;
+      settings.collapsedHome.mining = now;
+      saveSettings();
+      body.hidden = now;
+      block.classList.toggle("collapsed", now);
+      head.setAttribute("aria-expanded", String(!now));
+    };
+    head.addEventListener("click", toggle);
+    head.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+    });
 
     const cards = minedCards();
     if (!cards.length) {
-      block.appendChild(Object.assign(document.createElement("div"), {
+      body.appendChild(Object.assign(document.createElement("div"), {
         className: "mine-empty",
         textContent: "Heard or read a sentence you liked? Add it and drill it with spaced repetition — audio included.",
       }));
+      block.appendChild(body);
       el.mining.appendChild(block);
       return;
     }
@@ -656,6 +703,7 @@
     const now = Date.now();
     const due = cards.filter((c) => { const p = prog.cards[c.id]; return p && p.reps && p.due <= now; }).length;
     const fresh = cards.filter((c) => { const p = prog.cards[c.id]; return !p || !p.reps; }).length;
+    if (due > 0) head.insertBefore(span("tier-count", due + " due"), head.lastChild);
 
     const tile = document.createElement("button");
     tile.className = "lesson-tile";
@@ -671,7 +719,7 @@
     top.appendChild(badge);
     tile.appendChild(top);
     tile.addEventListener("click", startMined);
-    block.appendChild(tile);
+    body.appendChild(tile);
 
     const list = document.createElement("div"); list.className = "mine-list";
     for (const m of prog.mined) {
@@ -690,7 +738,8 @@
       item.appendChild(del);
       list.appendChild(item);
     }
-    block.appendChild(list);
+    body.appendChild(list);
+    block.appendChild(body);
     el.mining.appendChild(block);
   }
 

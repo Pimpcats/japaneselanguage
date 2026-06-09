@@ -216,7 +216,13 @@ html, body {
   border-radius: var(--radius-sm); padding: 0.85rem 1rem;
   box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 0.55rem;
 }
-.imm-head { display: flex; align-items: baseline; gap: 0.5rem; }
+.imm-head { display: flex; align-items: baseline; gap: 0.5rem; cursor: pointer; user-select: none; }
+.imm-head:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.imm-head .tier-chevron { align-self: center; margin-left: auto; }
+.imm-head .imm-streak { margin-left: 0; }
+.imm-card.collapsed .tier-chevron { transform: rotate(-90deg); }
+.imm-card.collapsed { gap: 0; }
+.imm-body { display: flex; flex-direction: column; gap: 0.55rem; }
 .imm-total { font-size: 1.6rem; font-weight: 800; line-height: 1; }
 .imm-unit { font-size: 0.8rem; color: var(--muted); }
 .imm-streak { margin-left: auto; font-size: 0.78rem; font-weight: 800; color: var(--on-accent);
