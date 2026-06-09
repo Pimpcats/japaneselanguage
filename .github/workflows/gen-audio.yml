@@ -55,7 +55,12 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain audio)" ]; then
-            git add audio
+            # Bump the service-worker cache version so the app surfaces its
+            # usual "Reload" banner for the new audio — same as any other
+            # update — instead of slipping it in silently.
+            perl -i -pe 's/(hanasou-v)(\d+)/$1 . ($2 + 1)/e' sw.js
+            echo "Service worker bumped to: $(grep -o 'hanasou-v[0-9]*' sw.js)"
+            git add audio sw.js
             git commit -m "Regenerate audio clips [skip ci]"
             git push
           else
