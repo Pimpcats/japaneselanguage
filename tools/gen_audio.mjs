@@ -35,7 +35,7 @@ function loadLessons() {
   return window;
 }
 
-const { LESSONS } = loadLessons();
+const { LESSONS, VERBS } = loadLessons();
 
 // Sentences get a normal + a slow clip; vocab and fixed UI phrases only normal.
 const EXTRA_PHRASES = ["こんにちは。はなしましょう。"]; // voice test / picker preview
@@ -49,6 +49,14 @@ const want = (text, slow) => {
 for (const L of LESSONS) {
   for (const s of L.sentences) want(s.jp, true);
   for (const w of L.vocab) want(w.jp, false);
+}
+// Verb form families surfaced via the "⚡ forms of …" toggle — give every
+// form (ます / ません / ました / て / dictionary / ない / た …) its own clip so
+// they all use the same voice as the rest of the app.
+for (const v of (VERBS || [])) {
+  want(v.masu, false);
+  want(v.dict, false);
+  for (const f of Object.values(v.forms)) want(f[0], false);
 }
 for (const p of EXTRA_PHRASES) want(p, false);
 
