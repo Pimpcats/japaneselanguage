@@ -310,7 +310,7 @@
     backBtn: $("back-btn"),
     dailyRing: $("daily-ring"), ringFill: document.querySelector(".ring-fill"), ringLabel: document.querySelector(".ring-label"),
     mastery: $("mastery"), masteryFill: $("mastery-fill"), masteryPct: $("mastery-pct"),
-    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), reviewSub: $("review-sub"), lessonMap: $("lesson-map"), mining: $("mining"), immersion: $("immersion"),
+    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), reviewSub: $("review-sub"), focusBtn: $("focus-btn"), lessonMap: $("lesson-map"), mining: $("mining"), immersion: $("immersion"),
     mineForm: $("mine-form"), mineJp: $("mine-jp"), mineEn: $("mine-en"), mineRomaji: $("mine-romaji"),
     mineHint: $("mine-hint"), mineError: $("mine-error"),
     mineSaveBtn: $("mine-save-btn"), mineCancelBtn: $("mine-cancel-btn"), minePreviewBtn: $("mine-preview-btn"),
@@ -1035,6 +1035,11 @@
     el.reviewBtn.hidden = true;
     el.reviewSub.hidden = true;
 
+    // Focus section: weak cards (last graded nope / kind of) that are due today.
+    const weak = focusCards().length;
+    el.focusBtn.hidden = weak === 0;
+    el.focusBtn.textContent = `🎯 Review ${weak} weak card${weak === 1 ? "" : "s"}`;
+
     // My sentences (mining) is hidden for now, like the immersion card —
     // renderMining() stays for an easy restore. Mined cards still review.
 
@@ -1212,6 +1217,45 @@
     const cards = dueCards().filter((c) => lastGradeOf(prog.cards[c.id]) === grade);
     if (!cards.length) return;
     startSession(cards, "review", null);
+  }
+
+  // ---- Focus: weak cards (last graded nope / kind of) ----------------------
+  // Cards you last missed live here until you nail them. Due ones surface today;
+  // grading "nope" or "kind of" reschedules for tomorrow (stays in the section),
+  // "got it" promotes the card out of the section entirely.
+  function focusCards() {
+    const now = Date.now();
+    return CARDS.filter((c) => {
+      const p = prog.cards[c.id];
+      if (!p || !p.reps && !p.lapses) return false;
+      const lg = lastGradeOf(p);
+      return (lg === 0 || lg === 1) && (p.due || 0) <= now;
+    });
+  }
+  function focusUpdate(cardId, grade) {
+    const c = prog.cards[cardId] || { reps: 0, ease: 2.5, interval: 0, lapses: 0 };
+    c.lastGrade = grade;
+    if (grade === 2) {                        // got it — leaves the focus section
+      c.reps = (c.reps || 0) + 1;
+      c.interval = 5 * c.reps;
+      c.due = Date.now() + c.interval * DAY;
+    } else {                                  // nope / kind of — back tomorrow
+      if (grade === 0) c.lapses = (c.lapses || 0) + 1;
+      c.interval = 1;
+      c.due = Date.now() + DAY;
+    }
+    prog.cards[cardId] = c;
+    prog.reviews += 1;
+    const t = todayStr();
+    if (prog.daily.day !== t) prog.daily = { day: t, count: 0 };
+    prog.daily.count += 1;
+    bumpStreak();
+    save();
+  }
+  function startFocus() {
+    const cards = focusCards();
+    if (!cards.length) return;
+    startSession(cards, "focus", null);
   }
 
   // ---- Verb forms (〜ます ⇄ 〜ません ⇄ 〜ました…) ---------------------------
@@ -1482,11 +1526,15 @@
     }
     // In a review, a card can be retired — sent back to its lesson as new.
     el.retireBtn.hidden = !(session.mode === "review" && !current.mined);
-    // Show when each grade would bring this card back (1d / 2d / 5d, growing).
+    // Show when each grade would bring this card back. In focus mode it's a
+    // daily loop (nope / kind of = tomorrow, got it = promoted out).
     const c = prog.cards[current.id] || { reps: 0, ease: 2.5, interval: 0 };
     document.querySelectorAll("#grade .grade").forEach((b) => {
       const d = b.querySelector(".grade-days");
-      if (d) d.textContent = nextInterval(c, Number(b.dataset.grade)) + "d";
+      if (!d) return;
+      const g = Number(b.dataset.grade);
+      if (session.mode === "focus") d.textContent = g === 2 ? "✓ done" : "1d";
+      else d.textContent = nextInterval(c, g) + "d";
     });
     el.grade.hidden = false;
     el.revealBtn.disabled = true;
@@ -1512,6 +1560,16 @@
   }
 
   function grade(g) {
+    if (session.mode === "focus") {           // day-based loop, no in-session repeats
+      focusUpdate(current.id, g);
+      if (g === 2) { session.combo += 1; session.bestCombo = Math.max(session.bestCombo, session.combo); }
+      else session.combo = 0;
+      renderCombo();
+      session.cleared += 1;
+      renderDailyRing();
+      nextCard();
+      return;
+    }
     srsUpdate(current.id, g);
     if (g === 2) { session.combo += 1; session.bestCombo = Math.max(session.bestCombo, session.combo); }
     else session.combo = 0;
@@ -1531,9 +1589,17 @@
   function finish() {
     el.progressFill.style.width = "100%";
     const due = dueCards().length;
-    let msg = session.mode === "review"
-      ? "Review session done. Nice work keeping things fresh."
-      : (due > 0 ? `You've got ${due} card${due === 1 ? "" : "s"} due across all lessons.` : "Every sentence drilled. Come back tomorrow to lock it in.");
+    let msg;
+    if (session.mode === "focus") {
+      const left = focusCards().length;
+      msg = left > 0
+        ? `${left} weak card${left === 1 ? "" : "s"} still to go.`
+        : "Weak cards cleared for today. The ones you missed come back tomorrow.";
+    } else if (session.mode === "review") {
+      msg = "Review session done. Nice work keeping things fresh.";
+    } else {
+      msg = due > 0 ? `You've got ${due} card${due === 1 ? "" : "s"} due across all lessons.` : "Every sentence drilled. Come back tomorrow to lock it in.";
+    }
     if (session.bestCombo >= 3) msg += ` Best streak: 🔥 ${session.bestCombo} in a row.`;
     el.doneSummary.textContent = msg;
     show(el.done, { back: true });
@@ -1543,6 +1609,7 @@
   el.backBtn.addEventListener("click", renderHome);
   el.doneHomeBtn.addEventListener("click", renderHome);
   el.reviewBtn.addEventListener("click", startReview);
+  el.focusBtn.addEventListener("click", startFocus);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
   el.buildBtn.addEventListener("click", () => startLesson(activeLesson, { build: true }));
   el.buildHardBtn.addEventListener("click", () => startLesson(activeLesson, { build: true, hard: true }));
@@ -1554,7 +1621,8 @@
     nextCard();
   });
   el.restartBtn.addEventListener("click", () => {
-    if (session && session.mode === "review") startReview();
+    if (session && session.mode === "focus") startFocus();
+    else if (session && session.mode === "review") startReview();
     else startLesson(activeLesson, { build: session && session.build, hard: session && session.hard });
   });
 
