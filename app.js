@@ -479,6 +479,28 @@
     }
     return out + escHTML(s.slice(i));
   }
+  // Like furiganaHTML, but tints each word's characters with the same
+  // part-of-speech color as its breakdown chip, so the sentence visually maps
+  // onto the chips below it.
+  function coloredFuriganaHTML(s, words) {
+    if (!words || !words.length) return furiganaHTML(s);
+    s = String(s || "");
+    let out = "", cursor = 0;
+    for (const w of words) {
+      const i = s.indexOf(w.jp, cursor);
+      if (i < 0) continue;
+      let end = i + w.jp.length;
+      while (s[end] === "[") {                 // keep furigana inside the tint
+        const close = s.indexOf("]", end);
+        if (close < 0) break;
+        end = close + 1;
+      }
+      out += furiganaHTML(s.slice(cursor, i));
+      out += '<span class="ck pos-' + escHTML(w.pos || "n") + '">' + furiganaHTML(s.slice(i, end)) + "</span>";
+      cursor = end;
+    }
+    return out + furiganaHTML(s.slice(cursor));
+  }
 
   function speakTTS(text, lang, rate) {
     if (!("speechSynthesis" in window)) return;
@@ -1313,7 +1335,7 @@
     el.promptEn.classList.toggle("jp", recognize);
     el.revealLabel.textContent = recognize ? "Meaning" : "Model answer";
     if (recognize) el.answerKana.textContent = s.en;
-    else el.answerKana.innerHTML = furiganaHTML(s.jp);
+    else el.answerKana.innerHTML = coloredFuriganaHTML(s.jp, s.words);
     el.answerRomaji.textContent = s.romaji;
     el.playEnBtn.textContent = recognize ? "🔈 hear" : "🔈 prompt";
     el.playEnBtn.title = recognize ? "Hear the Japanese prompt" : "Hear the English prompt";
