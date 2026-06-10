@@ -13,7 +13,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="はなそう" />
-    <link rel="stylesheet" href="styles.css?v=37" />
+    <link rel="stylesheet" href="styles.css?v=38" />
   </head>
   <body>
     <main id="app">
@@ -46,6 +46,15 @@
 
       <!-- ============ HOME / LESSON MAP ============ -->
       <section id="home" class="screen">
+        <details id="howit" class="howit">
+          <summary>How it works <span class="howit-chev">▾</span></summary>
+          <div class="howit-body">
+            <p>Each card shows an English line — say it in Japanese, then tap <b>reveal &amp; hear</b> to check against the model answer and audio.</p>
+            <p>Grade yourself honestly: <b>nope</b>, <b>kind of</b>, or <b>got it</b>. That's how the app decides what to show you next.</p>
+            <p>Anything you mark <b>nope</b> or <b>kind of</b> lands in <b>🎯 weak cards</b> and comes back each day until you finally <b>get it</b>.</p>
+            <p>The <b>mastery</b> bar up top tracks how much of the course you've locked in.</p>
+          </div>
+        </details>
         <div id="stats" class="stats"></div>
         <div id="immersion" hidden></div>
         <button id="review-btn" class="primary review-btn" hidden></button>
@@ -275,7 +284,7 @@
       </footer>
     </main>
 
-    <script src="lessons.js?v=37"></script>
-    <script src="app.js?v=37"></script>
+    <script src="lessons.js?v=38"></script>
+    <script src="app.js?v=38"></script>
   </body>
 </html>
