@@ -1357,8 +1357,8 @@
       el.promptEn.title = "Tap to hear it again";
       speak(s.jp, { lang: "ja-JP" });
     } else if (!recognize) {
-      // Auto-play the English prompt in the device's Japanese voice (accented).
-      speak(s.en, { lang: "ja-JP" });
+      // Auto-play the English prompt in the device's regular English voice.
+      speak(s.en, { lang: "en-US" });
     }
     renderWordChips(s);
     if (doBuild) startBuild(s);
@@ -1688,7 +1688,7 @@
   el.promptEn.addEventListener("click", () => {
     if (!current) return;
     if (current.doBuild && session.hard) speak(current.s.jp, { lang: "ja-JP" });
-    else if (current.dir !== "recognize") speak(current.s.en, { lang: "ja-JP" });
+    else if (current.dir !== "recognize") speak(current.s.en, { lang: "en-US" });
   });
   el.showHintBtn.addEventListener("click", () => { el.hint.hidden = false; el.showHintBtn.hidden = true; });
   document.querySelectorAll("button.grade").forEach((b) => b.addEventListener("click", () => grade(Number(b.dataset.grade))));
