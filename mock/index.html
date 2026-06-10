@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>はなそう — art mockup</title>
+    <meta name="robots" content="noindex" />
+    <link rel="stylesheet" href="styles.css?v=1" />
+  </head>
+  <body>
+    <div class="mock-banner">
+      🎨 <b>Design mockup</b> — a preview only, your progress &amp; the real app are untouched.
+      <a href="../">open the live app →</a>
+    </div>
+
+    <main id="app">
+      <!-- mock nav -->
+      <nav class="mock-tabs" id="mock-tabs">
+        <button data-tab="home" class="active">Home</button>
+        <button data-tab="drill">Drill</button>
+        <button data-tab="done">Celebrate</button>
+        <button data-tab="art">🎨 Art checklist</button>
+      </nav>
+
+      <!-- ============ HOME ============ -->
+      <section data-screen="home" class="screen">
+        <!-- hero banner: hero-bg + mascot-hello -->
+        <div class="hero">
+          <img class="hero-bg art" data-asset="hero-bg.png" alt="" />
+          <div class="hero-scrim"></div>
+          <div class="hero-text">
+            <h1>はなそう</h1>
+            <p>Let's talk. Day <b>12</b> 🔥</p>
+          </div>
+          <div class="hero-bubble">おかえり！<br /><small>Ready for today's cards?</small></div>
+          <img class="hero-mascot art" data-asset="mascot-hello.png" alt="" />
+        </div>
+
+        <div class="mastery mastery-fancy">
+          <span class="mastery-tag">mastery</span>
+          <div class="mastery-bar"><i style="width: 38%"></i></div>
+          <span class="mastery-pct">38%</span>
+        </div>
+
+        <div class="stats">
+          <div class="stat-tile"><span class="stat-ico">📚</span><span class="stat-num">132</span><span class="stat-lbl">learned</span></div>
+          <div class="stat-tile due"><span class="stat-ico">⏰</span><span class="stat-num">17</span><span class="stat-lbl">due now</span></div>
+          <div class="stat-tile"><span class="stat-ico">🔥</span><span class="stat-num">12</span><span class="stat-lbl">day streak</span></div>
+        </div>
+
+        <button class="primary review-btn glow">⚡ Review 17 due cards</button>
+
+        <!-- tier with emblem art -->
+        <div class="tier-block">
+          <div class="tier-head fancy">
+            <img class="tier-emblem art" data-asset="tier-beginner.png" alt="" />
+            <div class="tier-text">
+              <h3 class="tier-name">Beginner</h3>
+              <div class="tier-blurb">Greetings, food, getting around</div>
+            </div>
+            <span class="tier-count">6 / 8</span>
+          </div>
+
+          <button class="lesson-tile fancy done-tile">
+            <div class="tile-top">
+              <div><div class="tile-title">Greetings &amp; introductions</div><div class="tile-grammar">は・です</div></div>
+              <span class="tile-badge badge-done">done</span>
+            </div>
+            <div class="tile-bar"><i style="width: 100%"></i></div>
+            <span class="hanko">済</span>
+          </button>
+
+          <button class="lesson-tile fancy">
+            <div class="tile-top">
+              <div><div class="tile-title">Ordering food</div><div class="tile-grammar">を ください</div></div>
+              <span class="tile-badge badge-due">3 due</span>
+            </div>
+            <div class="tile-bar"><i style="width: 62%"></i></div>
+          </button>
+
+          <button class="lesson-tile fancy">
+            <div class="tile-top">
+              <div><div class="tile-title">Getting around town</div><div class="tile-grammar">に いきます</div></div>
+              <span class="tile-badge badge-new">new</span>
+            </div>
+            <div class="tile-bar"><i style="width: 0%"></i></div>
+          </button>
+        </div>
+
+        <div class="tier-block">
+          <div class="tier-head fancy locked">
+            <img class="tier-emblem art" data-asset="tier-intermediate.png" alt="" />
+            <div class="tier-text">
+              <h3 class="tier-name">Intermediate</h3>
+              <div class="tier-blurb">Past tense, adjectives, requests</div>
+            </div>
+            <span class="tier-count">0 / 10</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ DRILL ============ -->
+      <section data-screen="drill" class="screen" hidden>
+        <div id="progress-bar"><div id="progress-fill" style="width: 45%"></div></div>
+
+        <div id="card" class="card-fancy">
+          <span class="card-watermark">話</span>
+          <img class="card-mascot art" id="drill-mascot" data-asset="mascot-think.png" alt="" />
+          <div class="label">Say this in Japanese</div>
+          <div id="prompt-en">I went to the library yesterday.</div>
+
+          <div id="reveal-area">
+            <div class="label">Model answer</div>
+            <div id="answer-kana">
+              <span class="ck pos-adv">きのう</span>
+              <span class="ck pos-n">としょかん</span><span class="ck pos-prt">に</span>
+              <span class="ck pos-v">いきました</span>
+            </div>
+            <div id="answer-romaji">kinō toshokan ni ikimashita</div>
+          </div>
+        </div>
+
+        <div id="controls">
+          <button class="secondary">🔁 again</button>
+          <button class="secondary">🐢 slow</button>
+        </div>
+
+        <div id="grade">
+          <div class="label">How did that go? <small>(tap one — the mascot reacts)</small></div>
+          <div class="grade-row">
+            <button class="grade nope" data-react="mascot-oops.png">😖 nope</button>
+            <button class="grade kinda" data-react="mascot-think.png">🤏 kinda</button>
+            <button class="grade got" data-react="mascot-cheer.png">🎌 got it</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CELEBRATE ============ -->
+      <section data-screen="done" class="screen" hidden>
+        <div class="celebrate">
+          <div class="confetti" aria-hidden="true"></div>
+          <img class="done-mascot art" data-asset="mascot-cheer.png" alt="" />
+          <span class="hanko hanko-big">合格</span>
+          <h2>Lesson complete!</h2>
+          <p class="lesson-note">12 cards · 9 got it · best combo ×6</p>
+          <div class="done-actions">
+            <button class="secondary">← all lessons</button>
+            <button class="primary">practice again</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ART CHECKLIST ============ -->
+      <section data-screen="art" class="screen" hidden>
+        <h2 class="settings-h">🎨 Art to add</h2>
+        <p class="lesson-note">
+          Drop files with <b>exactly these names</b> into the <code>assets/</code> folder at the repo root and
+          this mockup picks them up automatically — reload this page to re-check. Until then you're seeing my
+          built-in placeholder sketches.
+        </p>
+        <div id="art-list"></div>
+        <h3 class="art-sub">Nice-to-have (no slot yet, but worth making)</h3>
+        <ul class="lesson-note art-extra">
+          <li><b>Lesson-theme icons</b> — small icon per lesson topic (food, travel, school…), 128×128.</li>
+          <li><b>App icon refresh</b> — current icons are plain; a mascot-face icon set (192/512/maskable) would tie it together.</li>
+          <li><b>Confetti / sakura burst sprite</b> — the mock uses CSS confetti; a hand-drawn burst would look richer.</li>
+        </ul>
+      </section>
+
+      <footer>はなそう mockup · nothing here saves or syncs</footer>
+    </main>
+
+    <script src="mock.js?v=1"></script>
+  </body>
+</html>
