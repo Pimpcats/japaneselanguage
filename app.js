@@ -330,7 +330,7 @@
     promptEn: $("prompt-en"), answerKana: $("answer-kana"), answerRomaji: $("answer-romaji"),
     wordBreakdown: $("word-breakdown"), revealArea: $("reveal-area"),
     hintRow: $("hint-row"), showHintBtn: $("show-hint-btn"), hint: $("hint"),
-    revealBtn: $("reveal-btn"), replayBtn: $("replay-btn"), slowBtn: $("slow-btn"), playEnBtn: $("play-en-btn"),
+    revealBtn: $("reveal-btn"), replayBtn: $("replay-btn"), slowBtn: $("slow-btn"),
     mineThisBtn: $("mine-this-btn"),
     grade: $("grade"),
     done: $("lesson-done"), doneSummary: $("done-summary"), restartBtn: $("restart-btn"), doneHomeBtn: $("done-home-btn"),
@@ -1337,8 +1337,6 @@
     if (recognize) el.answerKana.textContent = s.en;
     else el.answerKana.innerHTML = coloredFuriganaHTML(s.jp, s.words);
     el.answerRomaji.textContent = s.romaji;
-    el.playEnBtn.textContent = recognize ? "🔈 hear" : "🔈 prompt";
-    el.playEnBtn.title = recognize ? "Hear the Japanese prompt" : "Hear the English prompt";
     el.hint.textContent = s.hint || "";
     el.hintRow.hidden = !s.hint;
     el.hint.hidden = true;
@@ -1352,11 +1350,11 @@
     el.revealBtn.disabled = false;
     el.revealBtn.hidden = doBuild;       // no manual reveal — solving the puzzle reveals it
     el.buildArea.hidden = !doBuild;
+    el.promptEn.classList.toggle("tap-replay", doBuild && session.hard);
     if (doBuild && session.hard) {       // hard mode: no English — rebuild from audio
       el.promptLabel.textContent = "Build what you hear";
       el.promptEn.textContent = "🔈 Listen, then rebuild it";
-      el.playEnBtn.textContent = "🔈 hear";
-      el.playEnBtn.title = "Hear the Japanese again";
+      el.promptEn.title = "Tap to hear it again";
       speak(s.jp, { lang: "ja-JP" });
     }
     renderWordChips(s);
@@ -1455,13 +1453,13 @@
   function makeWordChip({ jp, reading, gloss, pos, term }) {
     const chip = document.createElement("div");
     chip.className = "word-chip pos-" + (pos || "n");
-    if (isKnown(term)) chip.classList.add("known");
     const main = document.createElement("button");
     main.className = "wc-main";
     main.appendChild(span("wc-jp", jp));
     if (reading && reading !== jp) main.appendChild(span("wc-read", reading));
     if (gloss) main.appendChild(span("wc-en", gloss));
-    main.addEventListener("click", () => { toggleKnown(term); chip.classList.toggle("known", isKnown(term)); });
+    main.title = "Hear this word";
+    main.addEventListener("click", () => speak(jp, { lang: "ja-JP" }));
     chip.appendChild(main);
     const jisho = document.createElement("a");
     jisho.className = "wc-jisho"; jisho.textContent = "↗";
@@ -1684,9 +1682,8 @@
   el.replayBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP" }));
   el.slowBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP", rate: 0.7 }));
   el.mineThisBtn.addEventListener("click", mineCurrent);
-  el.playEnBtn.addEventListener("click", () => {
-    if (current.dir === "recognize" || (current.doBuild && session.hard)) speak(current.s.jp, { lang: "ja-JP" });
-    else speak(current.s.en, { lang: "en-US" });
+  el.promptEn.addEventListener("click", () => {
+    if (current && current.doBuild && session.hard) speak(current.s.jp, { lang: "ja-JP" });
   });
   el.showHintBtn.addEventListener("click", () => { el.hint.hidden = false; el.showHintBtn.hidden = true; });
   document.querySelectorAll("button.grade").forEach((b) => b.addEventListener("click", () => grade(Number(b.dataset.grade))));

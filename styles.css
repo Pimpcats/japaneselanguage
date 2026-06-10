@@ -499,6 +499,8 @@ rt { font-size: 0.5em; font-weight: 600; color: var(--muted); user-select: none;
 .pos-aux  { background: #fef9c3; border-color: #fde047; color: #713f12; }
 .pos-conj { background: #ccfbf1; border-color: #5eead4; color: #134e4a; }
 
+#prompt-en.tap-replay { cursor: pointer; }
+
 /* Colored word segments in the model answer — same pos-* palette as the chips */
 #answer-kana .ck { border-radius: 8px; padding: 0.02em 0.12em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 
