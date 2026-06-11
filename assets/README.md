@@ -1,31 +1,40 @@
-# Art assets for はなそう
+# Art assets — はなそう theme v2
 
-Drop image files in this folder using **exactly these filenames** — the design
-mockup at `/mock/` detects them automatically and swaps out its placeholder
-sketches (reload the page after adding files). Live preview of every slot,
-with notes, is on the mockup's **🎨 Art checklist** tab.
+Kawaii pink shopping-street theme with the chibi mascot **Kōhai**. The design
+mockup at `/mock/` wires these into the app's real screens (reload after
+changes; live inventory on the mockup's 🎨 Art tab).
 
-## Required
+> **Note:** the loose `.png` files were once corrupted in transit (a binary
+> byte mangled into text). The clean masters live in `hanasou_theme_v2.zip`;
+> the loose files have been restored from it. If you re-add art, prefer adding
+> via the zip or verify `file assets/foo.png` reports a real `PNG image`.
 
-| File | What it is | Size / format |
-| --- | --- | --- |
-| `mascot-hello.png` | Mascot waving / welcoming — home hero banner | ~600×600, transparent PNG |
-| `mascot-think.png` | Mascot thinking (hand on chin) — drill card | ~600×600, transparent PNG |
-| `mascot-cheer.png` | Mascot celebrating, arms up — "got it" / lesson complete | ~600×600, transparent PNG |
-| `mascot-oops.png` | Mascot sheepish / encouraging — "nope" grade | ~600×600, transparent PNG |
-| `mascot-listen.png` | Mascot listening (headphones / hand to ear) — hard mode | ~600×600, transparent PNG |
-| `hero-bg.png` | Wide soft landscape (torii, Fuji, sunrise…) — home banner backdrop | ~1200×480, PNG or JPG |
-| `tier-beginner.png` | Beginner tier emblem (e.g. sprout) | 256×256, transparent PNG |
-| `tier-intermediate.png` | Intermediate tier emblem (e.g. folding fan) | 256×256, transparent PNG |
-| `tier-advanced.png` | Advanced tier emblem (e.g. daruma) | 256×256, transparent PNG |
-| `tier-master.png` | Master tier emblem (e.g. Fuji + rising sun) | 256×256, transparent PNG |
+## Delivered
 
-Keep the mascot consistent across the five poses — same character, same
-rendering style. The app's palette is warm cream/gold (`#faf6ec` background,
-`#e0a92e` accent); art that leans warm will sit best.
+| File | Use |
+| --- | --- |
+| `chibi_think.png` | Kōhai thinking — drill idle / recall |
+| `chibi_thumbs.png` | Kōhai thumbs-up — home + "OK" grade |
+| `chibi_cheer.png` | Kōhai cheering — "easy" grade + lesson clear |
+| `chibi_cry.png` | Kōhai crying — "again" grade |
+| `chibi_sheet.png` | All four poses on one sheet (source) |
+| `sign.png` | Painted cat shop-sign — home header |
+| `awning.png` | Striped awning — under the sign |
+| `frame.png` | Gold star frame — drill vocab card |
+| `stampcard.png` | Streak stamp card — home |
+| `star_stamp.png` | Gold star stamp — streak / tier / tiles |
+| `street_soft.jpg` | Blurred pink street — app background |
+| `street_full.png` | Sharp street art (spare) |
 
-## Nice-to-have (no slot wired up yet)
+Palette: cream `#FFF7EA`, sakura `#F8A8C6` / deep `#EF6FA7`, gold `#F2BE45`,
+cobalt `#2E5BCF`, sky `#79C8EC`, ink `#4A3328`.
+Fonts: Mochiy Pop One (display), Zen Maru Gothic (body).
 
-- Lesson-theme icons (food, travel, school…), 128×128
-- App icon refresh featuring the mascot (192 / 512 / maskable 512)
-- A hand-drawn confetti or sakura-burst sprite for celebrations
+## Still needed for full coverage
+
+- `chibi_listen.png` — Kōhai listening (hand to ear / headphones), for hard
+  "listen & rebuild" cards.
+- `tier-intermediate.png`, `tier-advanced.png`, `tier-master.png` — emblems for
+  the other three tiers (Beginner reuses `star_stamp.png`).
+- App icon set (192 / 512 / maskable 512) featuring Kōhai, to replace the plain
+  current icons.
