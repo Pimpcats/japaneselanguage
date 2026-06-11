@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=2" />
+    <link rel="stylesheet" href="styles.css?v=4" />
   </head>
   <body>
     <div class="mock-banner">
@@ -102,14 +102,26 @@
             <div class="inner">
               <div class="ribbon">いえる？ · N5</div>
               <div class="prompt-en">I went to the library yesterday.</div>
+
+              <div class="hint-row">
+                <button class="link" id="hint-btn">show hint</button>
+                <div class="hint" id="hint" hidden>Time word first, place + に, verb last.</div>
+              </div>
+
               <div class="answer">
-                <div class="kana">きのう としょかんに いきました</div>
+                <div class="label-mini">こたえ · model answer</div>
+                <div class="kana">
+                  <span class="ck pos-adv">きのう</span>
+                  <span class="ck pos-n">としょかん</span><span class="ck pos-prt">に</span>
+                  <span class="ck pos-v">いきました</span>
+                </div>
                 <div class="romaji">kinō toshokan ni ikimashita</div>
               </div>
+
               <div class="srs">
-                <button class="again" data-mood="cry"    data-say="つぎはできるよ！|Tsugi wa dekiru yo!">もう一回</button>
-                <button class="good"  data-mood="thumbs" data-say="いいね！|Ii ne!">OK！</button>
-                <button class="easy"  data-mood="cheer"  data-say="すごーい！|Sugoi!">楽勝 ★</button>
+                <button class="again" data-mood="cry"    data-say="つぎはできるよ！|Tsugi wa dekiru yo!">もう一回<small>10 min</small></button>
+                <button class="good"  data-mood="thumbs" data-say="いいね！|Ii ne!">OK！<small>3 days</small></button>
+                <button class="easy"  data-mood="cheer"  data-say="すごーい！|Sugoi!">楽勝 ★<small>7 days</small></button>
               </div>
             </div>
           </div>
@@ -117,6 +129,37 @@
           <div class="mascot">
             <div class="bubble" id="drill-bubble">きいてみて！<span class="romaji">Kiite mite!</span></div>
             <img class="kohai" id="drill-mascot" src="../assets/chibi_think.png" alt="Kōhai" />
+          </div>
+        </div>
+
+        <div class="drill-controls">
+          <button class="pop sky" data-speak="きのう としょかんに いきました">🔁 again</button>
+          <button class="pop sky" data-speak="きのう としょかんに いきました" data-rate="0.7">🐢 slow</button>
+          <button class="pop ghost">★ mine</button>
+        </div>
+
+        <!-- word breakdown: same chips as the live app — tap to hear, ↗ opens Jisho -->
+        <div class="breakdown-panel">
+          <div class="label">ことば · word breakdown <small>tap to hear · ↗ looks it up on Jisho</small></div>
+          <div class="word-breakdown">
+            <span class="ip1-badge">i+1 — one new word</span>
+            <div class="word-chip pos-adv">
+              <button class="wc-main" data-speak="きのう"><span class="wc-jp">きのう</span><span class="wc-en">yesterday</span></button>
+              <a class="wc-jisho" href="https://jisho.org/search/%E6%98%A8%E6%97%A5" target="_blank" rel="noopener noreferrer" title="Look up 昨日 on Jisho">↗</a>
+            </div>
+            <div class="word-chip pos-n">
+              <button class="wc-main" data-speak="としょかん"><span class="wc-jp">としょかん</span><span class="wc-read">図書館</span><span class="wc-en">library</span></button>
+              <a class="wc-jisho" href="https://jisho.org/search/%E5%9B%B3%E6%9B%B8%E9%A4%A8" target="_blank" rel="noopener noreferrer" title="Look up 図書館 on Jisho">↗</a>
+            </div>
+            <div class="word-chip pos-prt">
+              <button class="wc-main" data-speak="に"><span class="wc-jp">に</span><span class="wc-en">to (destination)</span></button>
+              <a class="wc-jisho" href="https://jisho.org/search/%E3%81%AB%20particle" target="_blank" rel="noopener noreferrer" title="Look up に on Jisho">↗</a>
+            </div>
+            <div class="word-chip pos-v">
+              <button class="wc-main" data-speak="いきました"><span class="wc-jp">いきました</span><span class="wc-read">行きました</span><span class="wc-en">went</span></button>
+              <a class="wc-jisho" href="https://jisho.org/search/%E8%A1%8C%E3%81%8F" target="_blank" rel="noopener noreferrer" title="Look up 行く on Jisho">↗</a>
+            </div>
+            <button class="wc-analyze">⚡ forms of いきます</button>
           </div>
         </div>
       </section>
@@ -156,6 +199,6 @@
       <footer>OTAKU HUNTER × HANASOU · mockup</footer>
     </main>
 
-    <script src="mock.js?v=2"></script>
+    <script src="mock.js?v=3"></script>
   </body>
 </html>

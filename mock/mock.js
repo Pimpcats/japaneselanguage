@@ -31,6 +31,27 @@
     document.querySelectorAll("[data-screen]").forEach((s) => (s.hidden = s.dataset.screen !== btn.dataset.tab));
   });
 
+  // ---- Audio: anything with data-speak talks via the device ja-JP voice ----
+  // (the real app prefers its VOICEVOX clips; this is the mock's stand-in)
+  const speak = (text, rate = 1) => {
+    if (!("speechSynthesis" in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "ja-JP"; u.rate = rate;
+    speechSynthesis.speak(u);
+  };
+  document.querySelectorAll("[data-speak]").forEach((b) =>
+    b.addEventListener("click", () => speak(b.dataset.speak, Number(b.dataset.rate || 1)))
+  );
+
+  // ---- Hint toggle ----
+  const hintBtn = document.getElementById("hint-btn");
+  hintBtn.addEventListener("click", () => {
+    const h = document.getElementById("hint");
+    h.hidden = !h.hidden;
+    hintBtn.textContent = h.hidden ? "show hint" : "hide hint";
+  });
+
   // ---- Reactive Kōhai on the drill card ----
   const mascot = document.getElementById("drill-mascot");
   const bubble = document.getElementById("drill-bubble");
