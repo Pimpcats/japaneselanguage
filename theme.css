@@ -1,0 +1,168 @@
+/* はなそう THEME PREVIEW — layers over the real styles.css to re-skin the
+   live app (same DOM/IDs, every feature intact) in the kawaii shopping-street
+   look. Loaded only by /mock/; the live app never sees this file. */
+
+/* ---- 1. palette + fonts: the app reads these vars everywhere, so redefining
+   them recolors buttons, bars, badges, tiles, chips, rings… in one move. ---- */
+:root {
+  --bg: #fff7ea; --fg: #4a3328; --muted: #9a7d63;
+  --accent: #ef6fa7; --accent-2: #f8a8c6; --on-accent: #5a1f3a;
+  --card: #ffffff; --card-2: #fff3f7; --line: #f3d3df;
+  --good: #3e8e41; --mid: #c98a00; --bad: #d8567f;
+  --ink: #4a3328; --cobalt: #2e5bcf; --gold: #f2be45; --sky: #79c8ec;
+  --display: "Mochiy Pop One", system-ui, sans-serif;
+  --body: "Zen Maru Gothic", ui-rounded, system-ui, sans-serif;
+  --shadow: 0 4px 0 rgba(74, 51, 40, 0.16);
+  --shadow-sm: 0 3px 0 rgba(74, 51, 40, 0.14);
+  --radius: 18px; --radius-sm: 14px;
+}
+
+/* ---- 2. street background under everything, with a cream veil for legibility ---- */
+html, body {
+  font-family: var(--body);
+  background: var(--bg) url("assets/street_soft.jpg") center / cover fixed no-repeat;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1;
+  background: linear-gradient(rgba(255, 247, 234, 0.58), rgba(255, 247, 234, 0.8));
+}
+
+/* ---- 3. headings + labels in the display face ---- */
+#app-title, .settings-h, #lesson-title, .tier-name, .stat-num, #answer-kana,
+#lesson-done h2, .mastery-pct { font-family: var(--display); }
+#app-title { color: var(--accent); letter-spacing: 0.06em; white-space: nowrap; }
+.label, .mastery-tag, .section-title { color: var(--accent); }
+
+/* painted shop-sign + awning header (injected into #home by theme.js) */
+#topbar { background: linear-gradient(var(--bg) 70%, transparent); }
+#home-banner { display: flex; flex-direction: column; align-items: center; margin: 0.2rem 0 0.4rem; }
+.hb-sign { position: relative; width: 100%; }
+.hb-sign img { width: 100%; display: block; filter: drop-shadow(0 5px 0 rgba(74, 51, 40, 0.14)); }
+.hb-sign span {
+  position: absolute; inset: 0 0 6% 0; display: grid; place-items: center;
+  font-family: var(--display); color: var(--accent); font-size: clamp(1.6rem, 7vw, 2.4rem);
+  text-shadow: 0 3px 0 rgba(239, 111, 167, 0.22);
+}
+.hb-awning { width: 86%; margin-top: -6px; filter: drop-shadow(0 6px 0 rgba(74, 51, 40, 0.14)); }
+
+/* ---- 4. signature chunky "pop" buttons (ink outline + hard drop-shadow) ---- */
+button.primary, button.secondary {
+  border: 3px solid var(--ink); border-radius: 999px; font-weight: 900;
+  color: var(--ink); box-shadow: 0 4px 0 var(--ink);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+button.primary { background: var(--gold); }
+button.secondary { background: #fff; }
+button.primary:active, button.secondary:active { transform: translateY(4px); box-shadow: 0 0 0 var(--ink); }
+button.small { border-width: 2.5px; box-shadow: 0 3px 0 var(--ink); }
+button.link { color: var(--accent); font-weight: 700; }
+
+/* grade + review-sub chips */
+button.grade { border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink); background: #fff; }
+button.grade.nope { background: color-mix(in srgb, var(--bad) 16%, #fff); }
+button.grade.kinda { background: color-mix(in srgb, var(--gold) 22%, #fff); }
+button.grade.got { background: color-mix(in srgb, var(--sky) 22%, #fff); }
+.review-chip { border: 2.5px solid var(--ink); box-shadow: var(--shadow-sm); background: #fff; }
+
+/* ---- 5. cards, tiles, panels: white with ink outline + hard shadow ---- */
+#card, .stat-tile, button.lesson-tile, .setting-group, .howit, .imm-card,
+.mine-item, .tier-head, .reader-text, .reader-pop, .sw-update, .level-tab {
+  border: 2.5px solid var(--ink) !important;
+  box-shadow: var(--shadow) !important;
+  background: var(--card);
+}
+button.lesson-tile, #card { border-width: 3px !important; border-radius: var(--radius); }
+.tier-head { background: linear-gradient(120deg, var(--card-2), #fff); }
+.tier-count, .tile-badge, .imm-streak, .mine-add, .ip1-badge, .combo, .lesson-grammar {
+  border: 2px solid var(--ink); color: var(--ink); font-family: var(--display); font-size: 0.62rem;
+}
+.lesson-grammar { background: var(--sky); color: var(--ink); }
+.combo { background: var(--gold); }
+
+/* progress + mastery bars: ink-outlined candy fills */
+#progress-bar, .mastery-bar, .tile-bar, .rc-bar, .mastery-bar { border: 2.5px solid var(--ink); background: #fff; }
+#progress-fill, .mastery-bar > i, #mastery-fill, .tile-bar > i, .rc-bar > i {
+  background: repeating-linear-gradient(45deg, var(--accent-2) 0 10px, var(--accent) 10px 20px) !important;
+}
+
+/* daily-goal ring → gold */
+.ring-fill { stroke: var(--accent) !important; }
+.daily-ring.complete .ring-fill { stroke: var(--gold) !important; }
+
+/* ---- 6. drill card: gold star-frame backdrop + roomy padding ---- */
+#card {
+  background:
+    url("assets/frame.png") center / 100% 100% no-repeat,
+    var(--card);
+  border: none !important; box-shadow: 0 6px 0 rgba(74, 51, 40, 0.16) !important;
+  padding: 13% 16% 12%;
+}
+#prompt-en { color: var(--ink); font-weight: 900; }
+#answer-kana { line-height: 1.6; }
+/* keep the app's POS word colors exactly as-is — do NOT override .ck / .pos-* */
+
+/* word-breakdown chips: ink outline + Jisho link as a stamp */
+.word-chip { border-width: 2px; border-radius: 12px; }
+.wc-jisho { border: 2px solid var(--ink); color: var(--ink); font-weight: 900; box-shadow: 0 2px 0 rgba(74, 51, 40, 0.2); }
+.wc-analyze { border: 2px dashed var(--cobalt); color: var(--cobalt); font-weight: 900; }
+
+/* build-the-sentence chips */
+.build-chip { border: 2.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
+.build-answer { border: 2.5px dashed var(--accent); background: var(--card-2); }
+
+/* ---- 7. lesson complete: drop in cheering Kōhai ---- */
+#lesson-done .done-emoji { display: none; }
+#lesson-done::before {
+  content: ""; display: block; width: min(220px, 60%); aspect-ratio: 1; margin: 0 auto;
+  background: url("assets/chibi_cheer.png") center / contain no-repeat;
+  filter: drop-shadow(0 6px 0 rgba(74, 51, 40, 0.18));
+}
+#lesson-done h2 { color: var(--accent); }
+
+/* ---- 8. playful interactions ---- */
+/* sticker reveal: card tips toward you and pops flat — never goes edge-on */
+#card.card-flip { animation: card-reveal 0.5s cubic-bezier(0.2, 0.8, 0.25, 1); transform-origin: top center; }
+@keyframes card-reveal {
+  0% { transform: perspective(1000px) rotateX(-16deg) scale(0.97); opacity: 0.65; }
+  55% { transform: perspective(1000px) rotateX(5deg) scale(1.015); opacity: 1; }
+  100% { transform: perspective(1000px) rotateX(0) scale(1); }
+}
+
+/* star stamp-press when a card is nailed */
+.stamp-hit {
+  position: absolute; top: 6%; right: 7%; width: 64px; pointer-events: none;
+  transform: rotate(-12deg); animation: stamp-press 1.35s ease forwards; z-index: 4;
+  filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.25));
+}
+@keyframes stamp-press {
+  0% { transform: scale(2.4) rotate(-40deg); opacity: 0; }
+  35% { transform: scale(0.94) rotate(-12deg); opacity: 1; }
+  45% { transform: scale(1.06) rotate(-12deg); }
+  55%, 80% { transform: scale(1) rotate(-12deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-12deg) translateY(-6px); opacity: 0; }
+}
+
+/* tier emblems (theme.js slots them into .tier-head) */
+.tier-emblem { width: 42px; height: 42px; object-fit: contain; flex: none; filter: drop-shadow(0 2px 0 rgba(74, 51, 40, 0.18)); }
+
+/* ---- 9. floating mascot helper (injected by theme.js) ---- */
+#kohai-helper {
+  position: fixed; right: 0.6rem; bottom: 0.5rem; z-index: 50;
+  width: 104px; pointer-events: none; text-align: center;
+  filter: drop-shadow(0 5px 0 rgba(74, 51, 40, 0.16));
+  transition: opacity 0.2s;
+}
+#kohai-helper img { width: 100%; display: block; }
+#kohai-helper .kh-bubble {
+  display: inline-block; background: #fff; border: 2.5px solid var(--ink); border-radius: 12px;
+  padding: 0.25rem 0.5rem; font-size: 0.72rem; font-weight: 900; color: var(--ink);
+  margin: 0 auto 4px; box-shadow: 0 3px 0 rgba(74, 51, 40, 0.18); max-width: 130px; line-height: 1.2;
+}
+#kohai-helper .kh-bubble .romaji { display: block; font-size: 0.58rem; color: var(--accent); font-weight: 700; }
+#kohai-helper.pop img { animation: kh-pop 0.4s ease; }
+@keyframes kh-pop { 0% { transform: scale(0.85); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
+@media (max-width: 520px) { #kohai-helper { width: 84px; } }
+
+/* footer */
+footer { font-family: var(--display); color: var(--muted); }
+#voice-warn { font-family: var(--body); }
