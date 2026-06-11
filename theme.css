@@ -119,6 +119,22 @@ button.lesson-tile, #card { border-width: 3px !important; border-radius: var(--r
 .build-chip { border: 2.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
 .build-answer { border: 2.5px dashed var(--accent); background: var(--card-2); }
 
+/* ---- tidy: even vocab rows (no wrapping → uniform height) + outlined ---- */
+button.vocab-row {
+  border: 2.5px solid var(--ink) !important;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  grid-template-columns: 7.2rem minmax(0, 1fr) auto;
+  align-items: center;
+  background: #fff;
+  column-gap: 0.6rem;
+}
+.vocab-row .v-jp { white-space: nowrap; }
+.vocab-row .v-romaji { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vocab-row .v-en { text-align: right; }
+body.no-romaji button.vocab-row { grid-template-columns: 7.2rem 1fr; }
+.vocab-row .v-en { justify-self: end; }
+
 /* ---- 7. lesson complete: drop in cheering Kōhai ---- */
 #lesson-done .done-emoji { display: none; }
 #lesson-done::before {

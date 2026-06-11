@@ -270,6 +270,8 @@ window.LESSONS = [
         words: [{jp:"いいえ",en:"no",pos:"expr"},{jp:"やすい",en:"cheap",pos:"adj"},{jp:"です",en:"is",pos:"cop"}] },
       { en: "The water is 100 yen.", jp: "みずは ひゃくえんです。", romaji: "mizu wa hyaku-en desu.",
         words: [{jp:"みず",en:"water",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ひゃく",en:"100",pos:"n"},{jp:"えん",en:"yen",pos:"n"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "This one is 1000 yen.", jp: "これは せんえんです。", romaji: "kore wa sen-en desu.",
+        words: [{jp:"これ",en:"this",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"せん",en:"1000",pos:"n"},{jp:"えん",en:"yen",pos:"n"},{jp:"です",en:"is",pos:"cop"}] },
     ],
   },
   {
@@ -301,6 +303,8 @@ window.LESSONS = [
         words: [{jp:"いつつ",en:"five",pos:"n"},{jp:"ください",en:"please give me",pos:"aux"}] },
       { en: "All of it, please.", jp: "ぜんぶ ください。", romaji: "zenbu kudasai.",
         words: [{jp:"ぜんぶ",en:"all",pos:"n"},{jp:"ください",en:"please give me",pos:"aux"}] },
+      { en: "Four, please.", jp: "よっつ ください。", romaji: "yottsu kudasai.",
+        words: [{jp:"よっつ",en:"four (items)",pos:"n"},{jp:"ください",en:"please give me",pos:"aux"}] },
     ],
   },
   {
@@ -551,6 +555,8 @@ window.LESSONS = [
         words: [{jp:"ごぜん",en:"AM",pos:"n"},{jp:"ろくじ",en:"6 o'clock",pos:"n"},{jp:"に",en:"[at]",pos:"prt"},{jp:"おきます",en:"wake up",pos:"v"}] },
       { en: "Work is at 9.", jp: "しごとは くじです。", romaji: "shigoto wa ku-ji desu.",
         words: [{jp:"しごと",en:"work",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"くじ",en:"9 o'clock",pos:"n"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "I sleep at 11 PM.", jp: "ごご じゅういちじに ねます。", romaji: "gogo jūichi-ji ni nemasu.",
+        words: [{jp:"ごご",en:"PM",pos:"n"},{jp:"じゅういちじ",en:"11 o'clock",pos:"n"},{jp:"に",en:"[at]",pos:"prt"},{jp:"ねます",en:"sleep",pos:"v"}] },
     ],
   },
   {
@@ -1071,6 +1077,8 @@ window.LESSONS = [
         words: [{jp:"とうきょう",en:"Tokyo",pos:"n"},{jp:"に",en:"[in]",pos:"prt"},{jp:"すんで",en:"living",pos:"v"},{jp:"います",en:"[state]",pos:"aux"}] },
       { en: "I work at a bank.", jp: "ぎんこうで はたらいて います。", romaji: "ginkou de hataraite imasu.",
         words: [{jp:"ぎんこう",en:"bank",pos:"n"},{jp:"で",en:"[at]",pos:"prt"},{jp:"はたらいて",en:"working",pos:"v"},{jp:"います",en:"[ongoing]",pos:"aux"}] },
+      { en: "I'm reading a book.", jp: "ほんを よんで います。", romaji: "hon o yonde imasu.",
+        words: [{jp:"ほん",en:"book",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"よんで",en:"reading",pos:"v"},{jp:"います",en:"[ongoing]",pos:"aux"}] },
     ],
   },
   {
@@ -1097,6 +1105,8 @@ window.LESSONS = [
         words: [{jp:"きょう",en:"today",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"いそがしい",en:"busy",pos:"adj"},{jp:"ので",en:"since",pos:"conj"},{jp:"すみません",en:"sorry",pos:"expr"}] },
       { en: "It's cold, so let's head home.", jp: "さむいから、かえりましょう。", romaji: "samui kara, kaerimashou.",
         words: [{jp:"さむい",en:"cold",pos:"adj"},{jp:"から",en:"so",pos:"conj"},{jp:"かえり",en:"go home",pos:"v"},{jp:"ましょう",en:"let's",pos:"aux"}] },
+      { en: "It's cheap, so I'll buy it.", jp: "やすいから、かいます。", romaji: "yasui kara, kaimasu.",
+        words: [{jp:"やすい",en:"cheap",pos:"adj"},{jp:"から",en:"because",pos:"conj"},{jp:"かいます",en:"will buy",pos:"v"}] },
       { en: "Why? — Because it's tasty.", jp: "どうして？ — おいしいから。", romaji: "doushite? — oishii kara.",
         words: [{jp:"どうして",en:"why",pos:"adv"},{jp:"おいしい",en:"tasty",pos:"adj"},{jp:"から",en:"because",pos:"conj"}] },
     ],
@@ -1759,6 +1769,8 @@ window.LESSONS = [
         words: [{jp:"きょう",en:"today",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"やすみ",en:"closed",pos:"n"},{jp:"らしい",en:"apparently",pos:"aux"}] },
       { en: "He's like a kid.", jp: "こどもみたい。", romaji: "kodomo mitai.",
         words: [{jp:"こども",en:"kid",pos:"n"},{jp:"みたい",en:"like",pos:"aux"}] },
+      { en: "She looks busy.", jp: "いそがしそう。", romaji: "isogashisō.",
+        words: [{jp:"いそがし",en:"busy",pos:"adj"},{jp:"そう",en:"looks like",pos:"aux"}] },
     ],
   },
   {
@@ -2077,6 +2089,8 @@ window.LESSONS = [
         words: [{jp:"あした",en:"tomorrow",pos:"n"},{jp:"うかがいます",en:"will visit",pos:"v"}] },
       { en: "Thank you, I'll gladly accept it.", jp: "ありがたく いただきます。", romaji: "arigataku itadakimasu.",
         words: [{jp:"ありがたく",en:"gratefully",pos:"adv"},{jp:"いただきます",en:"will accept",pos:"v"}] },
+      { en: "I'll come right away.", jp: "すぐに まいります。", romaji: "sugu ni mairimasu.",
+        words: [{jp:"すぐに",en:"right away",pos:"adv"},{jp:"まいります",en:"will come (humble)",pos:"v"}] },
     ],
   },
   {
