@@ -120,12 +120,12 @@ button.lesson-tile, #card { border-width: 3px !important; border-radius: var(--r
 #lesson-done h2 { color: var(--accent); }
 
 /* ---- 8. playful interactions ---- */
-/* sticker card-flip on reveal */
-#card.card-flip { animation: card-flip 0.45s ease; }
-@keyframes card-flip {
-  0% { transform: perspective(900px) rotateY(0); }
-  50% { transform: perspective(900px) rotateY(88deg); }
-  100% { transform: perspective(900px) rotateY(0); }
+/* sticker reveal: card tips toward you and pops flat — never goes edge-on */
+#card.card-flip { animation: card-reveal 0.5s cubic-bezier(0.2, 0.8, 0.25, 1); transform-origin: top center; }
+@keyframes card-reveal {
+  0% { transform: perspective(1000px) rotateX(-16deg) scale(0.97); opacity: 0.65; }
+  55% { transform: perspective(1000px) rotateX(5deg) scale(1.015); opacity: 1; }
+  100% { transform: perspective(1000px) rotateX(0) scale(1); }
 }
 
 /* star stamp-press when a card is nailed */
