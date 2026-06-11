@@ -14,8 +14,16 @@
   // enhanced / Siri / Google voice and soften the prosody a touch. Preview-
   // only (wraps speechSynthesis.speak); the live app is untouched.
   if ("speechSynthesis" in window) {
+    // the voice list loads async — warm it so even the first card gets the
+    // upgraded voice instead of the stiff default
+    let voices = speechSynthesis.getVoices();
+    const refresh = () => { voices = speechSynthesis.getVoices(); };
+    speechSynthesis.addEventListener?.("voiceschanged", refresh);
+    setTimeout(refresh, 300);
+
+    let announced = false;
     const bestEnglish = () => {
-      const vs = speechSynthesis.getVoices().filter((v) => /^en/i.test(v.lang));
+      const vs = (voices.length ? voices : speechSynthesis.getVoices()).filter((v) => /^en/i.test(v.lang));
       const score = (v) => {
         const n = (v.name || "").toLowerCase();
         let s = 0;
@@ -28,7 +36,9 @@
         if (/samantha|aria|jenny|libby|sonia|ava|nora|evan/.test(n)) s += 1;
         return s;
       };
-      return vs.sort((a, b) => score(b) - score(a))[0] || null;
+      const win = vs.sort((a, b) => score(b) - score(a))[0] || null;
+      if (win && !announced) { announced = true; console.info("[theme] English voice:", win.name, "(" + win.lang + ")"); }
+      return win;
     };
     const realSpeak = speechSynthesis.speak.bind(speechSynthesis);
     speechSynthesis.speak = (u) => {
