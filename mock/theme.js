@@ -8,50 +8,6 @@
   "use strict";
   const A = "assets/"; // resolved against <base href="../"> → repo root
 
-  // ----------------------------------------------- nicer English voice ----
-  // The app speaks the English prompt with the device's *default* en voice,
-  // which is often the stiff "compact" one. Upgrade it: prefer a natural /
-  // enhanced / Siri / Google voice and soften the prosody a touch. Preview-
-  // only (wraps speechSynthesis.speak); the live app is untouched.
-  if ("speechSynthesis" in window) {
-    // the voice list loads async — warm it so even the first card gets the
-    // upgraded voice instead of the stiff default
-    let voices = speechSynthesis.getVoices();
-    const refresh = () => { voices = speechSynthesis.getVoices(); };
-    speechSynthesis.addEventListener?.("voiceschanged", refresh);
-    setTimeout(refresh, 300);
-
-    let announced = false;
-    const bestEnglish = () => {
-      const vs = (voices.length ? voices : speechSynthesis.getVoices()).filter((v) => /^en/i.test(v.lang));
-      const score = (v) => {
-        const n = (v.name || "").toLowerCase();
-        let s = 0;
-        if (/natural|neural|enhanced|premium/.test(n)) s += 6;
-        if (/siri/.test(n)) s += 6;
-        if (/google/.test(n)) s += 4;
-        if (v.localService === false) s += 3;       // remote voices tend to sound better
-        if (/compact/.test(n)) s -= 4;
-        if (/^en-us/i.test(v.lang)) s += 1;
-        if (/samantha|aria|jenny|libby|sonia|ava|nora|evan/.test(n)) s += 1;
-        return s;
-      };
-      const win = vs.sort((a, b) => score(b) - score(a))[0] || null;
-      if (win && !announced) { announced = true; console.info("[theme] English voice:", win.name, "(" + win.lang + ")"); }
-      return win;
-    };
-    const realSpeak = speechSynthesis.speak.bind(speechSynthesis);
-    speechSynthesis.speak = (u) => {
-      if (u && u.lang && /^en/i.test(u.lang)) {
-        const v = bestEnglish();
-        if (v) u.voice = v;
-        u.pitch = 1.06;   // a hair brighter, less robotic
-        u.rate = 0.97;    // ease off the clipped default cadence
-      }
-      return realSpeak(u);
-    };
-  }
-
   // ---------------------------------------------------------------- Kōhai --
   const POSES = {
     happy: "chibi_thumbs.png",

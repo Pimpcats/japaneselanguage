@@ -89,13 +89,22 @@ button.lesson-tile, #card { border-width: 3px !important; border-radius: var(--r
 .ring-fill { stroke: var(--accent) !important; }
 .daily-ring.complete .ring-fill { stroke: var(--gold) !important; }
 
-/* ---- 6. drill card: gold star-frame backdrop + roomy padding ---- */
+/* ---- 6. drill card: gold star-frame, sliced so it flexes with content ----
+   The painted frame is split into caps + side strips (assets/frame-*.png).
+   Caps scale with card WIDTH and the sides stretch in the middle band, so a
+   tall card on a phone never lets text slide under the painted border.
+   Slice thicknesses (relative to width): top 21.8%, bottom 16.2%, sides 14%. */
 #card {
   background:
-    url("../assets/frame.png") center / 100% 100% no-repeat,
-    var(--card);
-  border: none !important; box-shadow: 0 6px 0 rgba(74, 51, 40, 0.16) !important;
-  padding: 13% 16% 12%;
+    url("../assets/frame-top.png") top center / 100% auto no-repeat,
+    url("../assets/frame-bottom.png") bottom center / 100% auto no-repeat,
+    url("../assets/frame-left.png") left top / 14% auto repeat-y,
+    url("../assets/frame-right.png") right top / 14% auto repeat-y,
+    #fffdf6;
+  border: none !important; border-radius: 30px;
+  box-shadow: none !important;
+  filter: drop-shadow(0 6px 0 rgba(74, 51, 40, 0.16));
+  padding: 24% 17% 19%;
 }
 #prompt-en { color: var(--ink); font-weight: 900; }
 #answer-kana { line-height: 1.6; }

@@ -1350,15 +1350,12 @@
     el.revealBtn.disabled = false;
     el.revealBtn.hidden = doBuild;       // no manual reveal — solving the puzzle reveals it
     el.buildArea.hidden = !doBuild;
-    el.promptEn.classList.toggle("tap-replay", !recognize);
+    el.promptEn.classList.toggle("tap-replay", doBuild && session.hard);
     if (doBuild && session.hard) {       // hard mode: no English — rebuild from audio
       el.promptLabel.textContent = "Build what you hear";
       el.promptEn.textContent = "🔈 Listen, then rebuild it";
       el.promptEn.title = "Tap to hear it again";
       speak(s.jp, { lang: "ja-JP" });
-    } else if (!recognize) {
-      // Auto-play the English prompt in the device's regular English voice.
-      speak(s.en, { lang: "en-US" });
     }
     renderWordChips(s);
     if (doBuild) startBuild(s);
@@ -1686,9 +1683,7 @@
   el.slowBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP", rate: 0.7 }));
   el.mineThisBtn.addEventListener("click", mineCurrent);
   el.promptEn.addEventListener("click", () => {
-    if (!current) return;
-    if (current.doBuild && session.hard) speak(current.s.jp, { lang: "ja-JP" });
-    else if (current.dir !== "recognize") speak(current.s.en, { lang: "en-US" });
+    if (current && current.doBuild && session.hard) speak(current.s.jp, { lang: "ja-JP" });
   });
   el.showHintBtn.addEventListener("click", () => { el.hint.hidden = false; el.showHintBtn.hidden = true; });
   document.querySelectorAll("button.grade").forEach((b) => b.addEventListener("click", () => grade(Number(b.dataset.grade))));
