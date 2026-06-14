@@ -1623,6 +1623,13 @@
     }
     if (session.bestCombo >= 3) msg += ` Best streak: 🔥 ${session.bestCombo} in a row.`;
     el.doneSummary.textContent = msg;
+    // Let add-on layers (sticker/stamp collection) award rewards for this run.
+    try {
+      window.dispatchEvent(new CustomEvent("hanasou:finish", { detail: {
+        lessonId: session.lessonId || null, mode: session.mode,
+        cleared: session.cleared, total: session.total, bestCombo: session.bestCombo,
+      } }));
+    } catch (e) {}
     show(el.done, { back: true });
   }
 

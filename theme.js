@@ -223,4 +223,7 @@
       '<img class="hb-awning" src="' + A + 'awning.png" alt="">';
     home.prepend(banner);
   }
+
+  // expose the juicy effects so collection.js (and anything else) can reuse them
+  window.HanaFX = { confetti, jingle, pop };
 })();

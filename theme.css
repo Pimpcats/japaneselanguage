@@ -228,3 +228,77 @@ body.no-romaji button.vocab-row { grid-template-columns: 7.2rem 1fr; }
 /* footer */
 footer { font-family: var(--display); color: var(--muted); }
 #voice-warn { font-family: var(--body); }
+
+/* ============ Sticker & Stamp collection (collection.js) ============ */
+#collection-btn { position: relative; }
+.col-badge {
+  position: absolute; top: -4px; right: -4px; min-width: 16px; height: 16px;
+  font-size: 0.6rem; font-weight: 900; line-height: 16px; text-align: center;
+  background: var(--accent); color: #fff; border: 2px solid #fff; border-radius: 999px; padding: 0 3px;
+}
+
+/* earn toast */
+.earn-toast { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; pointer-events: none; }
+.earn-card {
+  background: #fff; border: 3px solid var(--ink); border-radius: 20px; padding: 1rem 1.4rem; text-align: center;
+  box-shadow: 0 8px 0 rgba(74, 51, 40, 0.18); transform: scale(0.6) rotate(-4deg); opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.2, 1.4, 0.4, 1), opacity 0.25s;
+}
+.earn-toast.show .earn-card { transform: scale(1) rotate(-3deg); opacity: 1; }
+.earn-kicker { font-family: var(--display); font-size: 0.72rem; color: var(--accent); margin-bottom: 0.4rem; }
+.earn-art { width: 96px; height: 96px; object-fit: contain; filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.18)); }
+.earn-name { font-family: var(--display); font-size: 1.1rem; color: var(--ink); margin-top: 0.3rem; }
+.earn-en { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+
+/* collection overlay */
+#collection-overlay {
+  position: fixed; inset: 0; z-index: 70; background: rgba(74, 51, 40, 0.45);
+  display: flex; justify-content: center; align-items: flex-start; padding: 1.2rem 0.8rem;
+  overflow-y: auto; opacity: 0; transition: opacity 0.25s;
+}
+#collection-overlay.show { opacity: 1; }
+.col-sheet {
+  position: relative; width: min(560px, 100%);
+  background: var(--cream, #fff7ea) url("assets/street_soft.jpg") center / cover fixed;
+  border: 3px solid var(--ink); border-radius: 22px; padding: 1.2rem 1rem 1.6rem;
+  box-shadow: 0 10px 0 rgba(74, 51, 40, 0.25);
+}
+.col-sheet > * { position: relative; }
+.col-sheet::before { content: ""; position: absolute; inset: 0; border-radius: 19px; background: rgba(255, 247, 234, 0.86); }
+.col-close {
+  position: absolute; top: 0.7rem; right: 0.7rem; z-index: 2; width: 2rem; height: 2rem; border-radius: 999px;
+  border: 2.5px solid var(--ink); background: #fff; font-weight: 900; box-shadow: 0 3px 0 var(--ink); cursor: pointer;
+}
+.col-title { font-family: var(--display); color: var(--accent); font-size: 1.5rem; text-align: center; }
+.col-sub { text-align: center; font-weight: 700; color: var(--muted); font-size: 0.8rem; margin-top: -0.1rem; }
+.col-progress { display: flex; justify-content: center; gap: 0.8rem; margin: 0.6rem 0 0.2rem; flex-wrap: wrap; }
+.col-progress span {
+  font-family: var(--display); font-size: 0.72rem; color: var(--ink); background: #fff;
+  border: 2px solid var(--ink); border-radius: 999px; padding: 0.2rem 0.7rem; box-shadow: 0 2px 0 rgba(74,51,40,.18);
+}
+.col-section-title { font-family: var(--display); color: var(--sakura-deep, #ef6fa7); font-size: 0.95rem; margin: 1rem 0 0.5rem; }
+
+.col-sticker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.55rem; }
+.col-sticker {
+  background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; padding: 0.5rem 0.3rem; text-align: center;
+  box-shadow: 0 3px 0 rgba(74, 51, 40, 0.15);
+}
+.col-sticker img { width: 58px; height: 58px; object-fit: contain; }
+.col-sticker:not(.got) img { filter: grayscale(1) brightness(0.7) opacity(0.35); }
+.cs-name { font-family: var(--display); font-size: 0.66rem; color: var(--ink); margin-top: 0.2rem; }
+.col-sticker:not(.got) .cs-name { color: var(--muted); }
+.cs-hint { font-size: 0.6rem; font-weight: 700; color: var(--muted); line-height: 1.2; margin-top: 0.1rem; }
+
+.passport-page { margin-bottom: 0.9rem; }
+.pp-head { font-family: var(--display); font-size: 0.78rem; color: var(--ink); display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+.pp-count { font-size: 0.66rem; background: var(--gold); border: 2px solid var(--ink); border-radius: 999px; padding: 0.05rem 0.5rem; }
+.stamp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.45rem; }
+.stamp-slot {
+  background: #fff; border: 2px dashed color-mix(in srgb, var(--ink) 40%, #fff); border-radius: 12px;
+  padding: 0.4rem 0.3rem; text-align: center; min-height: 74px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem;
+}
+.stamp-slot.got { border-style: solid; border-color: var(--ink); box-shadow: 0 2px 0 rgba(74, 51, 40, 0.15); }
+.stamp-slot img { width: 42px; height: 42px; object-fit: contain; transform: rotate(-8deg); }
+.slot-dot { width: 30px; height: 30px; border-radius: 999px; border: 2px dashed color-mix(in srgb, var(--ink) 35%, #fff); }
+.slot-label { font-size: 0.58rem; font-weight: 700; color: var(--muted); line-height: 1.15; }
+.stamp-slot.got .slot-label { color: var(--ink); }
