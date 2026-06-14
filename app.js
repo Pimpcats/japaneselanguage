@@ -1093,7 +1093,8 @@
       el.lessonMap.appendChild(Object.assign(document.createElement("div"),
         { className: "level-blurb", textContent: level.blurb }));
 
-    for (const tier of level.tiers) {
+    renderJourney(el.lessonMap, level);        // world-map view (below)
+    if (false) for (const tier of level.tiers) {   // legacy list view — kept for easy rollback
       const tierLessons = window.LESSONS.filter((L) => tier.themes.includes(L.section));
 
       const tierBlock = document.createElement("div");
@@ -1183,6 +1184,89 @@
       el.lessonMap.appendChild(tierBlock);
     }
     show(el.home);
+  }
+
+  // ---- World-map journey view ----------------------------------------------
+  // Each theme is a "stop" on the road; each lesson is a node you travel to.
+  // Reuses the real lessonStats() + openIntro() so behaviour is unchanged.
+  const REGION_ICONS = ["⛩️", "🏯", "🗻", "🌸", "🏮", "🍵", "🚉", "🌊", "🦊", "🎋", "🏔️", "🛤️"];
+  function renderJourney(container, level) {
+    const lvIdx = window.LEVELS.findIndex((l) => l.id === level.id);
+    const map = document.createElement("div");
+    map.className = "world-map lv-" + (((lvIdx % 5) + 5) % 5);
+    let regionN = 0, placedMe = false;
+
+    for (const tier of level.tiers) {
+      const tierLessons = window.LESSONS.filter((L) => tier.themes.includes(L.section));
+      const chapter = document.createElement("div");
+      chapter.className = "map-chapter";
+      chapter.appendChild(span("map-chapter-name", tier.name));
+      if (tierLessons.length) {
+        const done = tierLessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
+        chapter.appendChild(span("map-chapter-count", done + " / " + tierLessons.length));
+      }
+      map.appendChild(chapter);
+      if (!tierLessons.length) {
+        map.appendChild(Object.assign(document.createElement("div"), { className: "tier-soon", textContent: "Coming soon" }));
+        continue;
+      }
+
+      for (const theme of tier.themes) {
+        const lessons = window.LESSONS.filter((L) => L.section === theme);
+        if (!lessons.length) continue;
+        const doneN = lessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
+
+        const region = document.createElement("div");
+        region.className = "map-region";
+        region.appendChild(span("region-ico", REGION_ICONS[regionN % REGION_ICONS.length]));
+        region.appendChild(span("region-name", theme));
+        region.appendChild(span("region-count", doneN + "/" + lessons.length));
+        map.appendChild(region);
+        regionN++;
+
+        const path = document.createElement("div");
+        path.className = "map-path";
+        lessons.forEach((L, i) => {
+          const st = lessonStats(L);
+          const isDone = st.passed >= st.total;
+          const current = !isDone && !placedMe;
+          const status = isDone ? "done" : (current ? "current" : "todo");
+
+          const node = document.createElement("div");
+          node.className = "map-node node-" + status;
+
+          if (current) {
+            placedMe = true;
+            const me = document.createElement("img");
+            me.className = "node-me"; me.src = "assets/chibi_think.png"; me.alt = "";
+            node.appendChild(me);
+          }
+
+          const dot = document.createElement("button");
+          dot.className = "node-dot";
+          dot.setAttribute("aria-label", L.title);
+          if (isDone) dot.innerHTML = '<img src="assets/star_stamp.png" alt="">';
+          else dot.textContent = current ? "▶" : String(i + 1);
+          dot.addEventListener("click", () => openIntro(L));
+          node.appendChild(dot);
+
+          const side = document.createElement("div");
+          side.className = "node-side";
+          side.appendChild(Object.assign(document.createElement("div"), { className: "node-label", textContent: L.title }));
+          const sb = document.createElement("span");
+          if (isDone) { sb.className = "node-badge done"; sb.textContent = "✓ done"; }
+          else if (st.due > 0) { sb.className = "node-badge due"; sb.textContent = st.due + " due"; }
+          else if (st.passed > 0) { sb.className = "node-badge due"; sb.textContent = st.passed + "/" + st.total; }
+          else { sb.className = "node-badge new"; sb.textContent = "new"; }
+          side.appendChild(sb);
+          node.appendChild(side);
+
+          path.appendChild(node);
+        });
+        map.appendChild(path);
+      }
+    }
+    container.appendChild(map);
   }
 
   // ---- Lesson intro --------------------------------------------------------
