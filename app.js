@@ -1190,81 +1190,127 @@
   // Each theme is a "stop" on the road; each lesson is a node you travel to.
   // Reuses the real lessonStats() + openIntro() so behaviour is unchanged.
   const REGION_ICONS = ["⛩️", "🏯", "🗻", "🌸", "🏮", "🍵", "🚉", "🌊", "🦊", "🎋", "🏔️", "🛤️"];
+  // Pin positions (% of the map box) tracing the archipelago NE → SW.
+  const PIN_SLOTS = [[74, 25], [67, 36], [59, 44], [51, 51], [44, 58], [37, 64], [31, 71], [43, 75], [60, 30], [34, 81]];
+  const JAPAN_SVG =
+    '<svg viewBox="0 0 200 240" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
+    '<g fill="#cfe6c4" stroke="#4a3328" stroke-width="3" stroke-linejoin="round">' +
+    '<path d="M150 24 q24 -4 28 16 q3 18 -16 23 q-21 5 -27 -13 q-5 -21 15 -26 Z"/>' +
+    '<path d="M150 60 C152 86 128 104 110 121 C90 140 73 154 56 172 C70 170 84 163 98 150 C118 132 136 116 151 97 C163 83 169 73 162 61 Q156 54 150 60 Z"/>' +
+    '<path d="M86 178 q14 0 14 13 q0 13 -14 13 q-13 0 -13 -13 q0 -13 13 -13 Z"/>' +
+    '<path d="M52 182 q-17 3 -17 22 q0 19 19 19 q16 0 16 -19 q0 -19 -18 -22 Z"/>' +
+    "</g></svg>";
+
+  function buildJapanMap(regionList, currentIdx, scrollToRegion) {
+    const wrap = document.createElement("div");
+    wrap.className = "japan-map";
+    wrap.innerHTML = JAPAN_SVG + '<span class="jm-title">🗾 にほんの たび</span>';
+    regionList.forEach((r, idx) => {
+      const [x, y] = PIN_SLOTS[idx % PIN_SLOTS.length];
+      const status = r.done ? "done" : (idx === currentIdx ? "current" : (idx < currentIdx ? "done" : "locked"));
+      const pin = document.createElement("button");
+      pin.className = "map-pin pin-" + status;
+      pin.style.left = x + "%"; pin.style.top = y + "%";
+      pin.title = r.theme;
+      pin.addEventListener("click", () => scrollToRegion(idx));
+      wrap.appendChild(pin);
+    });
+    return wrap;
+  }
+
   function renderJourney(container, level) {
     const lvIdx = window.LEVELS.findIndex((l) => l.id === level.id);
     const map = document.createElement("div");
     map.className = "world-map lv-" + (((lvIdx % 5) + 5) % 5);
-    let regionN = 0, placedMe = false;
 
-    for (const tier of level.tiers) {
-      const tierLessons = window.LESSONS.filter((L) => tier.themes.includes(L.section));
-      const chapter = document.createElement("div");
-      chapter.className = "map-chapter";
-      chapter.appendChild(span("map-chapter-name", tier.name));
-      if (tierLessons.length) {
-        const done = tierLessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
-        chapter.appendChild(span("map-chapter-count", done + " / " + tierLessons.length));
+    // Regions (themes) in order, each with a done flag.
+    const isDoneL = (L) => { const s = lessonStats(L); return s.passed >= s.total; };
+    const regionList = [];
+    for (const tier of level.tiers) for (const theme of tier.themes) {
+      const lessons = window.LESSONS.filter((L) => L.section === theme);
+      if (lessons.length) regionList.push({ theme, tier, lessons, done: lessons.every(isDoneL) });
+    }
+    // Frontier = first not-done lesson across the level: that's where you are.
+    let frontierId = null;
+    outer: for (const r of regionList) for (const L of r.lessons) if (!isDoneL(L)) { frontierId = L.id; break outer; }
+    const currentIdx = frontierId === null ? regionList.length
+      : Math.max(0, regionList.findIndex((r) => r.lessons.some((L) => L.id === frontierId)));
+
+    const scrollToRegion = (idx) => {
+      const el2 = map.querySelector('[data-region="' + idx + '"]');
+      if (el2) el2.scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+    if (regionList.length) map.appendChild(buildJapanMap(regionList, currentIdx, scrollToRegion));
+
+    let lastTier = null, regionIdx = 0;
+    for (const r of regionList) {
+      if (r.tier !== lastTier) {
+        lastTier = r.tier;
+        const tierLessons = window.LESSONS.filter((L) => r.tier.themes.includes(L.section));
+        const chapter = document.createElement("div");
+        chapter.className = "map-chapter";
+        chapter.appendChild(span("map-chapter-name", r.tier.name));
+        chapter.appendChild(span("map-chapter-count", tierLessons.filter(isDoneL).length + " / " + tierLessons.length));
+        map.appendChild(chapter);
       }
-      map.appendChild(chapter);
-      if (!tierLessons.length) {
-        map.appendChild(Object.assign(document.createElement("div"), { className: "tier-soon", textContent: "Coming soon" }));
-        continue;
+
+      const region = document.createElement("div");
+      region.className = "map-region" + (r.done ? " region-done" : "");
+      region.dataset.region = String(regionIdx);
+      region.appendChild(span("region-ico", REGION_ICONS[regionIdx % REGION_ICONS.length]));
+      region.appendChild(span("region-name", r.theme));
+      if (r.done) {
+        const stamp = document.createElement("img");
+        stamp.className = "region-stamp"; stamp.src = "assets/star_stamp.png"; stamp.alt = "";
+        region.appendChild(stamp);
+      } else {
+        region.appendChild(span("region-count", r.lessons.filter(isDoneL).length + "/" + r.lessons.length));
       }
+      map.appendChild(region);
 
-      for (const theme of tier.themes) {
-        const lessons = window.LESSONS.filter((L) => L.section === theme);
-        if (!lessons.length) continue;
-        const doneN = lessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
+      const path = document.createElement("div");
+      path.className = "map-path";
+      r.lessons.forEach((L) => {
+        const st = lessonStats(L);
+        const isDone = st.passed >= st.total;
+        const current = !isDone && L.id === frontierId;
+        const locked = !isDone && !current;
+        const status = isDone ? "done" : current ? "current" : "locked";
 
-        const region = document.createElement("div");
-        region.className = "map-region";
-        region.appendChild(span("region-ico", REGION_ICONS[regionN % REGION_ICONS.length]));
-        region.appendChild(span("region-name", theme));
-        region.appendChild(span("region-count", doneN + "/" + lessons.length));
-        map.appendChild(region);
-        regionN++;
+        const node = document.createElement("div");
+        node.className = "map-node node-" + status;
+        if (current) {
+          const me = document.createElement("img");
+          me.className = "node-me"; me.src = "assets/chibi_think.png"; me.alt = "";
+          node.appendChild(me);
+        }
 
-        const path = document.createElement("div");
-        path.className = "map-path";
-        lessons.forEach((L, i) => {
-          const st = lessonStats(L);
-          const isDone = st.passed >= st.total;
-          const current = !isDone && !placedMe;
-          const status = isDone ? "done" : (current ? "current" : "todo");
-
-          const node = document.createElement("div");
-          node.className = "map-node node-" + status;
-
-          if (current) {
-            placedMe = true;
-            const me = document.createElement("img");
-            me.className = "node-me"; me.src = "assets/chibi_think.png"; me.alt = "";
-            node.appendChild(me);
-          }
-
-          const dot = document.createElement("button");
-          dot.className = "node-dot";
-          dot.setAttribute("aria-label", L.title);
-          if (isDone) dot.innerHTML = '<img src="assets/star_stamp.png" alt="">';
-          else dot.textContent = current ? "▶" : String(i + 1);
-          dot.addEventListener("click", () => openIntro(L));
-          node.appendChild(dot);
-
-          const side = document.createElement("div");
-          side.className = "node-side";
-          side.appendChild(Object.assign(document.createElement("div"), { className: "node-label", textContent: L.title }));
-          const sb = document.createElement("span");
-          if (isDone) { sb.className = "node-badge done"; sb.textContent = "✓ done"; }
-          else if (st.due > 0) { sb.className = "node-badge due"; sb.textContent = st.due + " due"; }
-          else if (st.passed > 0) { sb.className = "node-badge due"; sb.textContent = st.passed + "/" + st.total; }
-          else { sb.className = "node-badge new"; sb.textContent = "new"; }
-          side.appendChild(sb);
-          node.appendChild(side);
-
-          path.appendChild(node);
+        const dot = document.createElement("button");
+        dot.className = "node-dot";
+        dot.setAttribute("aria-label", L.title);
+        if (isDone) dot.innerHTML = '<img src="assets/star_stamp.png" alt="">';
+        else if (current) dot.textContent = "▶";
+        else dot.textContent = "🔒";
+        dot.addEventListener("click", () => {
+          if (locked) { node.classList.remove("shake"); void node.offsetWidth; node.classList.add("shake"); return; }
+          openIntro(L);
         });
-        map.appendChild(path);
-      }
+        node.appendChild(dot);
+
+        const side = document.createElement("div");
+        side.className = "node-side";
+        side.appendChild(Object.assign(document.createElement("div"), { className: "node-label", textContent: L.title }));
+        const sb = document.createElement("span");
+        if (isDone) { sb.className = "node-badge done"; sb.textContent = "✓ done"; }
+        else if (current) { sb.className = "node-badge due"; sb.textContent = st.due > 0 ? st.due + " due" : "start →"; }
+        else { sb.className = "node-badge locked"; sb.textContent = "🔒 locked"; }
+        side.appendChild(sb);
+        node.appendChild(side);
+
+        path.appendChild(node);
+      });
+      map.appendChild(path);
+      regionIdx++;
     }
     container.appendChild(map);
   }

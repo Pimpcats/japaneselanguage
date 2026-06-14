@@ -50,17 +50,9 @@
     "いっしょにれんしゅうしよう！|Issho ni renshū shiyou!",
   ];
   const home = document.getElementById("home");
-  let greeted = false;
-  function maybeGreet() {
-    if (!home || home.hidden || greeted) return;
-    greeted = true; // once per visit to home (resets when you leave)
-    react("happy", HELLOS[Math.floor(Math.random() * HELLOS.length)], 2600);
-  }
-  if (home) {
-    new MutationObserver(() => { if (home.hidden) greeted = false; else maybeGreet(); })
-      .observe(home, { attributes: true, attributeFilter: ["hidden"] });
-    setTimeout(maybeGreet, 900); // first load
-  }
+  // (Home greeting removed: the world-map already shows Kōhai standing on your
+  // current stop, so a second floating Kōhai on home was redundant.)
+  void HELLOS;
 
   // combo milestones: the app writes "🔥 N" into #combo on hot streaks
   const combo = document.getElementById("combo");
