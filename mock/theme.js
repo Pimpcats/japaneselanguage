@@ -87,24 +87,53 @@
   }
 
   // ------------------------------------------------------------ pop sound --
-  // Tiny WebAudio blip — no asset, volume kept low. Context unlocks on the
-  // first user gesture (browser autoplay rules).
-  let actx = null;
-  function pop(freq = 660, drop = 0.45) {
-    try {
-      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-      if (actx.state === "suspended") actx.resume();
-      const t = actx.currentTime;
-      const osc = actx.createOscillator();
-      const gain = actx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freq, t);
-      osc.frequency.exponentialRampToValueAtTime(freq * drop, t + 0.09);
-      gain.gain.setValueAtTime(0.06, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
-      osc.connect(gain).connect(actx.destination);
-      osc.start(t); osc.stop(t + 0.13);
-    } catch (e) {}
+  // Tiny WebAudio sounds — no assets. A master gain keeps these UI sounds
+  // gentle and *consistent* with the spoken-sentence playback (which plays at
+  // full volume), so taps no longer feel louder/harsher than the voice.
+  let actx = null, master = null;
+  const UI_VOL = 0.14;
+  function audio() {
+    if (!actx) {
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+      master = actx.createGain(); master.gain.value = UI_VOL; master.connect(actx.destination);
+    }
+    if (actx.state === "suspended") actx.resume();
+    return actx;
+  }
+  // one soft note (triangle = mellow, eased in/out so there's no harsh click)
+  function note(freq, start, dur = 0.12, vol = 1) {
+    const a = audio(), t = a.currentTime + start;
+    const osc = a.createOscillator(), g = a.createGain();
+    osc.type = "triangle"; osc.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g).connect(master);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  }
+  function pop(freq = 560) { try { note(freq, 0, 0.1, 0.55); } catch (e) {} }
+  // rewarding ascending arpeggio for a correct answer
+  function jingle() {
+    try { [[660, 0], [880, 0.09], [1320, 0.18]].forEach(([f, d]) => note(f, d, 0.16, 0.85)); } catch (e) {}
+  }
+
+  // ------------------------------------------------------------- confetti --
+  const COLORS = ["#ef6fa7", "#f8a8c6", "#f2be45", "#79c8ec", "#3e8e41", "#fff"];
+  function confetti(n = 26) {
+    let layer = document.getElementById("confetti-layer");
+    if (!layer) { layer = document.createElement("div"); layer.id = "confetti-layer"; document.body.appendChild(layer); }
+    for (let i = 0; i < n; i++) {
+      const star = i % 6 === 0;
+      const c = document.createElement("div");
+      c.className = "cf" + (star ? " star" : "");
+      c.style.left = Math.random() * 100 + "%";
+      const dur = 1.1 + Math.random() * 1.1;
+      c.style.animationDuration = dur + "s";
+      if (star) c.style.background = "url(" + A + "star_stamp.png) center/contain no-repeat";
+      else c.style.background = COLORS[i % COLORS.length];
+      layer.appendChild(c);
+      setTimeout(() => c.remove(), dur * 1000 + 80);
+    }
   }
 
   // ------------------------------------------------- stamp press & flip ----
@@ -130,7 +159,8 @@
       const g = +grade.dataset.grade;
       const [pose, say] = GRADE_REACT[g] || GRADE_REACT[1];
       react(pose, say);
-      if (g === 2) { stampCard(); pop(880, 0.6); } else pop(g === 0 ? 320 : 520);
+      if (g === 2) { stampCard(); jingle(); confetti(); }     // got it → reward!
+      else pop(g === 0 ? 300 : 480);
       return;
     }
     if (e.target.closest("#reveal-btn")) { flipCard(); pop(740); return; }
@@ -143,9 +173,13 @@
   if (buildAnswer) {
     new MutationObserver((muts) => {
       for (const m of muts) {
-        if ([...m.addedNodes].some((n) => n.nodeType === 1)) pop(820, 0.7);
+        if ([...m.addedNodes].some((n) => n.nodeType === 1)) pop(820);
       }
-      if (buildAnswer.classList.contains("solved")) { stampCard(); react("cheer", "かんせい！|Kansei!"); }
+      if (buildAnswer.classList.contains("solved") && !buildAnswer.dataset.cheered) {
+        buildAnswer.dataset.cheered = "1";
+        stampCard(); jingle(); confetti(); react("cheer", "かんせい！|Kansei!");
+      }
+      if (!buildAnswer.classList.contains("solved")) delete buildAnswer.dataset.cheered;
     }).observe(buildAnswer, { childList: true, attributes: true, attributeFilter: ["class"] });
   }
 
@@ -170,6 +204,14 @@
   if (map) {
     emblemize(map);
     new MutationObserver(() => emblemize(map)).observe(map, { childList: true, subtree: true });
+  }
+
+  // lesson-complete screen → big celebration
+  const done = document.getElementById("lesson-done");
+  if (done) {
+    new MutationObserver(() => {
+      if (!done.hidden) { confetti(40); jingle(); setTimeout(() => confetti(24), 380); }
+    }).observe(done, { attributes: true, attributeFilter: ["hidden"] });
   }
 
   // ------------------------------------------------- painted home header ---

@@ -324,7 +324,7 @@
     intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
     lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"), buildBtn: $("build-btn"),
     buildArea: $("build-area"), buildAnswer: $("build-answer"), buildBank: $("build-bank"), buildReset: $("build-reset"),
-    drill: $("drill"), progressFill: $("progress-fill"), combo: $("combo"),
+    drill: $("drill"), progressFill: $("progress-fill"), combo: $("combo"), cardCounter: $("card-counter"),
     retireBtn: $("retire-btn"), buildHardBtn: $("build-hard-btn"),
     promptLabel: $("prompt-label"), revealLabel: $("reveal-label"),
     promptEn: $("prompt-en"), answerKana: $("answer-kana"), answerRomaji: $("answer-romaji"),
@@ -1320,6 +1320,7 @@
     current.dir = cardDirection();
     renderCard();
     el.progressFill.style.width = Math.round((session.cleared / session.total) * 100) + "%";
+    el.cardCounter.textContent = Math.min(session.cleared + 1, session.total) + " / " + session.total;
   }
 
   function renderCard() {

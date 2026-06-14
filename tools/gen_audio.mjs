@@ -47,7 +47,13 @@ const want = (text, slow) => {
   tasks.set(text, t);
 };
 for (const L of LESSONS) {
-  for (const s of L.sentences) want(s.jp, true);
+  for (const s of L.sentences) {
+    want(s.jp, true);
+    // Each word/particle chip in the breakdown is tappable — give every one its
+    // own clip so taps use the same VOICEVOX voice as the sentence, not the
+    // device's TTS fallback (which sounded "old" on bare particles like に/を).
+    for (const w of (s.words || [])) want(w.jp, false);
+  }
   for (const w of L.vocab) want(w.jp, false);
 }
 // Verb form families surfaced via the "⚡ forms of …" toggle — give every

@@ -65,13 +65,13 @@ button.grade.got { background: color-mix(in srgb, var(--sky) 22%, #fff); }
 .review-chip { border: 2.5px solid var(--ink); box-shadow: var(--shadow-sm); background: #fff; }
 
 /* ---- 5. cards, tiles, panels: white with ink outline + hard shadow ---- */
-#card, .stat-tile, button.lesson-tile, .setting-group, .howit, .imm-card,
+.stat-tile, button.lesson-tile, .setting-group, .howit, .imm-card,
 .mine-item, .tier-head, .reader-text, .reader-pop, .sw-update, .level-tab {
   border: 2.5px solid var(--ink) !important;
   box-shadow: var(--shadow) !important;
   background: var(--card);
 }
-button.lesson-tile, #card { border-width: 3px !important; border-radius: var(--radius); }
+button.lesson-tile { border-width: 3px !important; border-radius: var(--radius); }
 .tier-head { background: linear-gradient(120deg, var(--card-2), #fff); }
 .tier-count, .tile-badge, .imm-streak, .mine-add, .ip1-badge, .combo, .lesson-grammar {
   border: 2px solid var(--ink); color: var(--ink); font-family: var(--display); font-size: 0.62rem;
@@ -95,17 +95,18 @@ button.lesson-tile, #card { border-width: 3px !important; border-radius: var(--r
    tall card on a phone never lets text slide under the painted border.
    Slice thicknesses (relative to width): top 21.8%, bottom 16.2%, sides 14%. */
 #card {
-  background:
-    url("assets/frame-top.png") top center / 100% auto no-repeat,
-    url("assets/frame-bottom.png") bottom center / 100% auto no-repeat,
-    url("assets/frame-left.png") left top / 14% auto repeat-y,
-    url("assets/frame-right.png") right top / 14% auto repeat-y,
-    #fffdf6;
-  border: none !important; border-radius: 30px;
+  background: #fffdf6 !important;
+  background-clip: padding-box;           /* keep the cream inside the painted border only */
+  border-style: solid !important;
+  border-color: transparent !important;
+  border-width: 58px 42px 48px 42px !important;   /* visual thickness of each painted edge */
+  border-image: url("assets/frame.png") 245 157 182 157 fill round !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
   filter: drop-shadow(0 6px 0 rgba(74, 51, 40, 0.16));
-  padding: 24% 17% 19%;
+  padding: 0.4rem 0.6rem 0.7rem;
 }
+@media (max-width: 430px) { #card { border-width: 46px 34px 40px 34px !important; } }
 #prompt-en { color: var(--ink); font-weight: 900; }
 #answer-kana { line-height: 1.6; }
 /* keep the app's POS word colors exactly as-is — do NOT override .ck / .pos-* */
@@ -118,6 +119,15 @@ button.lesson-tile, #card { border-width: 3px !important; border-radius: var(--r
 /* build-the-sentence chips */
 .build-chip { border: 2.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
 .build-answer { border: 2.5px dashed var(--accent); background: var(--card-2); }
+
+/* sentence counter beside the progress bar during practice */
+#progress-row { display: flex; align-items: center; gap: 0.6rem; }
+#progress-row #progress-bar { flex: 1; }
+.card-counter {
+  font-family: var(--display); font-size: 0.8rem; color: var(--ink);
+  background: #fff; border: 2.5px solid var(--ink); border-radius: 999px;
+  padding: 0.1rem 0.6rem; box-shadow: 0 3px 0 rgba(74, 51, 40, 0.16); white-space: nowrap;
+}
 
 /* ---- tidy: even vocab rows (no wrapping → uniform height) + outlined ---- */
 button.vocab-row {
@@ -134,6 +144,33 @@ button.vocab-row {
 .vocab-row .v-en { text-align: right; }
 body.no-romaji button.vocab-row { grid-template-columns: 7.2rem 1fr; }
 .vocab-row .v-en { justify-self: end; }
+
+/* ---- level selector: no more left-right scroll — tidy wrapping grid ---- */
+.level-tabs {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem; overflow: visible !important; margin-bottom: 0 !important;
+}
+.level-tab {
+  border: 2.5px solid var(--ink) !important; border-radius: var(--radius-sm) !important;
+  background: #fff !important; box-shadow: 0 3px 0 rgba(74, 51, 40, 0.16);
+  flex: initial !important;
+}
+.level-tab.active { background: var(--gold) !important; }
+.level-tab-name { font-family: var(--display); color: var(--ink) !important; }
+.level-tab-title { white-space: normal !important; color: var(--ink); }
+
+/* confetti burst (theme.js) for correct answers + celebrations */
+#confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 60; }
+#confetti-layer .cf {
+  position: absolute; top: -8%; width: 12px; height: 16px; border-radius: 2px;
+  will-change: transform, opacity; animation: cf-fall linear forwards;
+}
+#confetti-layer .cf.star { width: 26px; height: 26px; border-radius: 0; }
+@keyframes cf-fall {
+  0% { transform: translateY(0) rotate(0); opacity: 1; }
+  100% { transform: translateY(112vh) rotate(720deg); opacity: 0.9; }
+}
 
 /* ---- 7. lesson complete: drop in cheering Kōhai ---- */
 #lesson-done .done-emoji { display: none; }
