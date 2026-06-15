@@ -57,8 +57,13 @@ button.primary:active, button.secondary:active { transform: translateY(4px); box
 button.small { border-width: 2.5px; box-shadow: 0 3px 0 var(--ink); }
 button.link { color: var(--accent); font-weight: 700; }
 
-/* grade + review-sub chips */
-button.grade { border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink); background: #fff; }
+/* grade + review-sub chips — compact height, all three stay on one row */
+#grade .grade-row { flex-wrap: nowrap; }
+button.grade {
+  border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink); background: #fff;
+  padding: 0.45rem 0.4rem; line-height: 1.1;
+}
+button.grade .grade-days { font-size: 0.55rem; margin-top: 0.02rem; }
 button.grade.nope { background: color-mix(in srgb, var(--bad) 16%, #fff); }
 button.grade.kinda { background: color-mix(in srgb, var(--gold) 22%, #fff); }
 button.grade.got { background: color-mix(in srgb, var(--sky) 22%, #fff); }

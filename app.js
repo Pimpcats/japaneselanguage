@@ -330,8 +330,7 @@
     promptEn: $("prompt-en"), answerKana: $("answer-kana"), answerRomaji: $("answer-romaji"),
     wordBreakdown: $("word-breakdown"), revealArea: $("reveal-area"),
     hintRow: $("hint-row"), showHintBtn: $("show-hint-btn"), hint: $("hint"),
-    revealBtn: $("reveal-btn"), replayBtn: $("replay-btn"), slowBtn: $("slow-btn"),
-    mineThisBtn: $("mine-this-btn"),
+    revealBtn: $("reveal-btn"), replayBtn: $("replay-btn"),
     grade: $("grade"),
     done: $("lesson-done"), doneSummary: $("done-summary"), restartBtn: $("restart-btn"), doneHomeBtn: $("done-home-btn"),
     voiceWarn: $("voice-warn"), syncBtn: $("sync-btn"),
@@ -1051,16 +1050,14 @@
     el.stats.hidden = true;
     el.stats.innerHTML = "";
 
-    // Review section (button + Nope/Kinda buckets) is hidden for now. Cards
-    // still schedule and come due — the rendering below is kept for an easy
-    // restore.
-    el.reviewBtn.hidden = true;
+    // One review bucket: every card you graded Nope/Kinda that's due to come
+    // back (focusCards). They reappear on their SRS schedule; grading "Got it"
+    // in review is the only way out — it graduates the card back to its lesson.
+    const reviewN = reviewCards().length;
+    el.reviewBtn.hidden = reviewN === 0;
+    el.reviewBtn.textContent = `⚡ Review ${reviewN} card${reviewN === 1 ? "" : "s"}`;
     el.reviewSub.hidden = true;
-
-    // Focus section: weak cards (last graded nope / kind of) that are due today.
-    const weak = focusCards().length;
-    el.focusBtn.hidden = weak === 0;
-    el.focusBtn.textContent = `🎯 Review ${weak} weak card${weak === 1 ? "" : "s"}`;
+    el.focusBtn.hidden = true;     // merged into the single Review bucket above
 
     // My sentences (mining) is hidden for now, like the immersion card —
     // renderMining() stays for an easy restore. Mined cards still review.
@@ -1351,8 +1348,12 @@
     const cards = CARDS.filter((c) => c.lessonId === L.id);
     startSession(cards, "lesson", L.id, opts);
   }
+  // The unified review bucket = cards last graded Nope/Kinda that are due
+  // (same set focusCards() computes). Surfaced on SRS schedule; "Got it"
+  // graduates a card out of the bucket and back to its lesson.
+  function reviewCards() { return focusCards(); }
   function startReview() {
-    const cards = dueCards();
+    const cards = reviewCards();
     if (!cards.length) return;
     startSession(cards, "review", null);
   }
@@ -1473,8 +1474,6 @@
     el.showHintBtn.hidden = false;
     el.revealArea.hidden = true;
     el.replayBtn.hidden = true;
-    el.slowBtn.hidden = true;
-    el.mineThisBtn.hidden = true;
     el.retireBtn.hidden = true;
     el.grade.hidden = true;
     el.revealBtn.disabled = false;
@@ -1667,13 +1666,6 @@
   function reveal() {
     el.revealArea.hidden = false;
     el.replayBtn.hidden = false;
-    el.slowBtn.hidden = false;
-    if (!current.mined) {
-      const already = prog.mined.some((m) => m.jp === current.s.jp && m.en === current.s.en);
-      el.mineThisBtn.hidden = false;
-      el.mineThisBtn.disabled = already;
-      el.mineThisBtn.textContent = already ? "✓ mined" : "★ mine";
-    }
     // In a review, a card can be retired — sent back to its lesson as new.
     el.retireBtn.hidden = !(session.mode === "review" && !current.mined);
     // Show when each grade would bring this card back. In focus mode it's a
@@ -1689,24 +1681,6 @@
     el.grade.hidden = false;
     el.revealBtn.disabled = true;
     speak(current.s.jp, { lang: "ja-JP" });
-  }
-
-  function mineCurrent() {
-    const s = current.s;
-    if (!prog.mined.some((m) => m.jp === s.jp && m.en === s.en)) {
-      prog.mined.unshift({
-        id: "m" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-        jp: s.jp, en: s.en,
-        romaji: s.romaji || "",
-        hint: s.hint || "",
-        words: s.words ? JSON.parse(JSON.stringify(s.words)) : undefined,
-        added: Date.now(),
-      });
-      rebuildMined();
-      save();
-    }
-    el.mineThisBtn.disabled = true;
-    el.mineThisBtn.textContent = "✓ mined";
   }
 
   function grade(g) {
@@ -1817,8 +1791,6 @@
 
   el.revealBtn.addEventListener("click", reveal);
   el.replayBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP" }));
-  el.slowBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP", rate: 0.7 }));
-  el.mineThisBtn.addEventListener("click", mineCurrent);
   el.promptEn.addEventListener("click", () => {
     if (current && current.doBuild && session.hard) speak(current.s.jp, { lang: "ja-JP" });
   });
@@ -1861,7 +1833,6 @@
     else if (e.key === "2") grade(1);
     else if (e.key === "3") grade(2);
     else if (e.key.toLowerCase() === "r") { if (!el.replayBtn.hidden) speak(current.s.jp, { lang: "ja-JP" }); }
-    else if (e.key.toLowerCase() === "s") { if (!el.slowBtn.hidden) speak(current.s.jp, { lang: "ja-JP", rate: 0.7 }); }
   });
 
   applyRomaji();
