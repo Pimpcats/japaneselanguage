@@ -1093,8 +1093,7 @@
       el.lessonMap.appendChild(Object.assign(document.createElement("div"),
         { className: "level-blurb", textContent: level.blurb }));
 
-    renderJourney(el.lessonMap, level);        // world-map view (below)
-    if (false) for (const tier of level.tiers) {   // legacy list view — kept for easy rollback
+    for (const tier of level.tiers) {   // themed lesson list (journey/map view parked for now)
       const tierLessons = window.LESSONS.filter((L) => tier.themes.includes(L.section));
 
       const tierBlock = document.createElement("div");
