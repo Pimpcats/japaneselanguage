@@ -1041,56 +1041,84 @@
   }
 
   // ---- Home ----------------------------------------------------------------
+  // Two views: a short level overview (just the level cards), and a per-level
+  // page with that level's tiers/lessons. openLevelId === null → overview.
+  let openLevelId = null;
+  const levelHasLessons = (lv) => window.LESSONS.some((L) => lv.tiers.some((t) => t.themes.includes(L.section)));
+
   function renderHome() {
     renderDailyRing();
     renderMastery();
-    const due = dueCards().length;
-    // Stats tiles (streak / cards learned / total reviews) are hidden for now;
-    // the Mastery bar above stays. Code kept for an easy restore.
     el.stats.hidden = true;
     el.stats.innerHTML = "";
 
-    // One review bucket: every card you graded Nope/Kinda that's due to come
-    // back (focusCards). They reappear on their SRS schedule; grading "Got it"
-    // in review is the only way out — it graduates the card back to its lesson.
     const reviewN = reviewCards().length;
-    el.reviewBtn.hidden = reviewN === 0;
-    el.reviewBtn.textContent = `⚡ Review ${reviewN} card${reviewN === 1 ? "" : "s"}`;
     el.reviewSub.hidden = true;
-    el.focusBtn.hidden = true;     // merged into the single Review bucket above
+    el.focusBtn.hidden = true;
+    const howit = document.getElementById("howit");
+    const structure = document.getElementById("structure");
 
-    // My sentences (mining) is hidden for now, like the immersion card —
-    // renderMining() stays for an easy restore. Mined cards still review.
-
+    if (!window.LEVELS.some((l) => l.id === settings.activeLevel)) settings.activeLevel = window.LEVELS[0].id;
     el.lessonMap.innerHTML = "";
 
-    // Level tabs — each level nests its own difficulty tiers.
-    const levelLessons = (lv) =>
-      window.LESSONS.filter((L) => lv.tiers.some((t) => t.themes.includes(L.section)));
-    if (!window.LEVELS.some((l) => l.id === settings.activeLevel))
-      settings.activeLevel = window.LEVELS[0].id;
+    if (openLevelId == null) {
+      // ---- Level overview: just the level cards (short, no long scroll) ----
+      if (howit) howit.hidden = false;
+      if (structure) structure.hidden = false;
+      el.reviewBtn.hidden = reviewN === 0;
+      el.reviewBtn.textContent = `⚡ Review ${reviewN} card${reviewN === 1 ? "" : "s"}`;
 
-    const tabs = document.createElement("div");
-    tabs.className = "level-tabs";
-    for (const lv of window.LEVELS) {
-      const tab = document.createElement("button");
-      tab.className = "level-tab" + (lv.id === settings.activeLevel ? " active" : "");
-      tab.appendChild(span("level-tab-name", lv.name));
-      tab.appendChild(span("level-tab-title", lv.title));
-      if (!levelLessons(lv).length) tab.appendChild(span("level-tab-soon", "soon"));
-      tab.addEventListener("click", () => {
-        settings.activeLevel = lv.id; saveSettings(); renderHome();
+      const grid = document.createElement("div");
+      grid.className = "level-grid";
+      window.LEVELS.forEach((lv, i) => {
+        const lessons = window.LESSONS.filter((L) => lv.tiers.some((t) => t.themes.includes(L.section)));
+        const card = document.createElement("button");
+        card.className = "level-card lv-" + (i % 5) + (lessons.length ? "" : " soon");
+        card.appendChild(span("level-card-name", lv.name));
+        card.appendChild(span("level-card-title", lv.title));
+        if (lessons.length) {
+          const done = lessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
+          card.appendChild(span("level-card-count", done + " / " + lessons.length + " lessons"));
+          card.addEventListener("click", () => {
+            openLevelId = lv.id; settings.activeLevel = lv.id; saveSettings();
+            renderHome(); window.scrollTo(0, 0);
+          });
+        } else {
+          card.appendChild(span("level-card-soon", "coming soon"));
+          card.disabled = true;
+        }
+        grid.appendChild(card);
       });
-      tabs.appendChild(tab);
+      el.lessonMap.appendChild(grid);
+      show(el.home);
+      return;
     }
-    el.lessonMap.appendChild(tabs);
 
-    const level = window.LEVELS.find((l) => l.id === settings.activeLevel);
-    if (level.blurb)
-      el.lessonMap.appendChild(Object.assign(document.createElement("div"),
-        { className: "level-blurb", textContent: level.blurb }));
+    // ---- Level detail: the chosen level's tiers/lessons + a back button ----
+    if (howit) howit.hidden = true;
+    if (structure) structure.hidden = true;
+    el.reviewBtn.hidden = true;
 
-    for (const tier of level.tiers) {   // themed lesson list (journey/map view parked for now)
+    const level = window.LEVELS.find((l) => l.id === openLevelId) || window.LEVELS[0];
+    const back = document.createElement("button");
+    back.className = "level-back";
+    back.textContent = "← All levels";
+    back.addEventListener("click", () => { openLevelId = null; renderHome(); window.scrollTo(0, 0); });
+    el.lessonMap.appendChild(back);
+
+    const head = document.createElement("div");
+    head.className = "level-detail-head";
+    head.appendChild(Object.assign(document.createElement("h2"), { className: "level-detail-title", textContent: level.name + " · " + level.title }));
+    if (level.blurb) head.appendChild(Object.assign(document.createElement("div"), { className: "level-blurb", textContent: level.blurb }));
+    el.lessonMap.appendChild(head);
+
+    renderLevelLessons(level);
+    show(el.home);
+  }
+
+  // The tier → theme → lesson list for one level (used by the level detail).
+  function renderLevelLessons(level) {
+    for (const tier of level.tiers) {
       const tierLessons = window.LESSONS.filter((L) => tier.themes.includes(L.section));
 
       const tierBlock = document.createElement("div");
@@ -1179,7 +1207,6 @@
       tierBlock.appendChild(body);
       el.lessonMap.appendChild(tierBlock);
     }
-    show(el.home);
   }
 
   // ---- World-map journey view ----------------------------------------------

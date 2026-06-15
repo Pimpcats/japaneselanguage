@@ -150,7 +150,38 @@ button.vocab-row {
 body.no-romaji button.vocab-row { grid-template-columns: 7.2rem 1fr; }
 .vocab-row .v-en { justify-self: end; }
 
-/* ---- level selector: no more left-right scroll — tidy wrapping grid ---- */
+/* ---- level overview: tappable level cards (each opens its own page) ---- */
+.level-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.7rem; }
+.level-card {
+  display: flex; flex-direction: column; gap: 0.15rem; text-align: left; cursor: pointer;
+  background: #fff; color: var(--ink); border: 3px solid var(--ink); border-radius: var(--radius);
+  padding: 0.85rem 0.9rem 0.9rem; box-shadow: 0 5px 0 rgba(74, 51, 40, 0.16);
+  border-top-width: 8px; transition: transform 0.08s, box-shadow 0.08s; min-height: 96px;
+}
+.level-card:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(74, 51, 40, 0.16); }
+.level-card.soon { opacity: 0.6; cursor: default; }
+.level-card.lv-0 { border-top-color: #ef6fa7; }
+.level-card.lv-1 { border-top-color: #2e5bcf; }
+.level-card.lv-2 { border-top-color: #3e8e41; }
+.level-card.lv-3 { border-top-color: #e0772e; }
+.level-card.lv-4 { border-top-color: #8a5cd0; }
+.level-card-name { font-family: var(--display); font-size: 0.66rem; color: var(--accent); letter-spacing: 0.04em; }
+.level-card-title { font-weight: 900; font-size: 0.98rem; line-height: 1.15; }
+.level-card-count { margin-top: auto; font-size: 0.66rem; font-weight: 800; color: var(--muted); }
+.level-card-soon { margin-top: auto; font-family: var(--display); font-size: 0.62rem; color: var(--muted); }
+
+/* level detail page: back button + header */
+.level-back {
+  align-self: flex-start; font: inherit; font-weight: 900; color: var(--ink); cursor: pointer;
+  background: #fff; border: 2.5px solid var(--ink); border-radius: 999px; padding: 0.4rem 0.9rem;
+  box-shadow: 0 3px 0 var(--ink); margin-bottom: 0.6rem;
+}
+.level-back:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+.level-detail-head { margin-bottom: 0.4rem; }
+.level-detail-title { font-family: var(--display); color: var(--accent); font-size: 1.25rem; margin: 0 0 0.2rem; }
+.level-detail-head .level-blurb { margin: 0 !important; font-size: 0.8rem; color: var(--muted); }
+
+/* ---- (legacy level-tabs styling, unused now that overview uses cards) ---- */
 .level-tabs {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr);
