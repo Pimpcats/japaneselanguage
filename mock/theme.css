@@ -131,6 +131,13 @@ button.grade .grade-days { font-size: 0.55rem; margin-top: 0.02rem; }
 button.grade.nope { background: color-mix(in srgb, var(--bad) 16%, #fff); }
 button.grade.kinda { background: color-mix(in srgb, var(--gold) 22%, #fff); }
 button.grade.got { background: color-mix(in srgb, var(--sky) 22%, #fff); }
+/* drill action buttons (reveal & hear / again / lesson) sized to match the
+   nope·kinda·got-it grade buttons — equal width, same compact height */
+#drill #controls { gap: 0.5rem; }
+#drill #controls button.primary,
+#drill #controls button.secondary {
+  flex: 1; min-width: 0; padding: 0.7rem 0.6rem; font-size: 0.98rem; line-height: 1.1;
+}
 .review-chip { border: 2.5px solid var(--ink); box-shadow: var(--shadow-sm); background: #fff; }
 
 /* ---- 5. cards, tiles, panels: white with ink outline + hard shadow ---- */
