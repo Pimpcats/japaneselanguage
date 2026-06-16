@@ -1480,7 +1480,7 @@
     current.dir = cardDirection();
     renderCard();
     el.progressFill.style.width = Math.round((session.cleared / session.total) * 100) + "%";
-    el.cardCounter.textContent = Math.min(session.cleared + 1, session.total) + " / " + session.total;
+    el.cardCounter.textContent = Math.min(session.cleared + 1, session.total) + "/" + session.total;
   }
 
   function renderCard() {

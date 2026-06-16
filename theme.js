@@ -258,6 +258,17 @@
     new MutationObserver(() => emblemize(map)).observe(map, { childList: true, subtree: true });
   }
 
+  // progress circle: fill the counter ring from its "X/N" text
+  const counter = document.getElementById("card-counter");
+  if (counter) {
+    const syncRing = () => {
+      const m = (counter.textContent || "").match(/(\d+)\s*\/\s*(\d+)/);
+      if (m && +m[2]) counter.style.setProperty("--p", Math.round((+m[1] / +m[2]) * 100));
+    };
+    new MutationObserver(syncRing).observe(counter, { childList: true, characterData: true, subtree: true });
+    syncRing();
+  }
+
   // lesson-complete screen → big celebration
   const done = document.getElementById("lesson-done");
   if (done) {
