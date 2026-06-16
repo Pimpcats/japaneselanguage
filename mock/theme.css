@@ -5,7 +5,7 @@
 /* ---- 1. palette + fonts: the app reads these vars everywhere, so redefining
    them recolors buttons, bars, badges, tiles, chips, rings… in one move. ---- */
 :root {
-  --bg: #fff7ea; --fg: #4a3328; --muted: #9a7d63;
+  --bg: #fff7ea; --fg: #4a3328; --muted: #6b5847;   /* darkened for readability on the bg */
   --accent: #ef6fa7; --accent-2: #f8a8c6; --on-accent: #5a1f3a;
   --card: #ffffff; --card-2: #fff3f7; --line: #f3d3df;
   --good: #3e8e41; --mid: #c98a00; --bad: #d8567f;
@@ -31,7 +31,11 @@ body::before {
 #app-title, .settings-h, #lesson-title, .tier-name, .stat-num, #answer-kana,
 #lesson-done h2, .mastery-pct { font-family: var(--display); }
 #app-title { color: var(--accent); letter-spacing: 0.06em; white-space: nowrap; }
-.label, .mastery-tag, .section-title { color: var(--accent); }
+/* darker pink labels + dark prose so text sitting on the street bg reads well */
+.label, .mastery-tag, .section-title { color: color-mix(in srgb, var(--accent) 70%, var(--ink)) !important; }
+.lesson-note { color: var(--ink) !important; font-weight: 600; }
+.tap-hint { opacity: 1 !important; color: var(--accent) !important; }
+.lesson-grammar { color: var(--ink); }
 
 /* sticky header: decorative sign banner on top, control bar (back/home/1·6/
    settings) below it — the controls live off the sign, grouped with the 1/6. */
