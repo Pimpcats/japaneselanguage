@@ -20,10 +20,10 @@ window.LEVELS = [
     id: "L1", name: "Level 1", title: "Foundations",
     blurb: "Survival Japanese — greetings, shopping & daily life · N5",
     tiers: [
-      { name: "Beginner",     blurb: "First words & survival phrases", themes: ["First contact", "Getting things"] },
-      { name: "Intermediate", blurb: "Verbs & everyday actions",       themes: ["Doing things", "Daily life"] },
-      { name: "Advanced",     blurb: "The past, wants & plans",        themes: ["The past", "Wants & plans"] },
-      { name: "Describing",   blurb: "Adjectives & description",       themes: ["Describing things"] },
+      { name: "First steps",        blurb: "First words & survival phrases", themes: ["First contact", "Getting things"] },
+      { name: "Everyday actions",    blurb: "Verbs & everyday actions",       themes: ["Doing things", "Daily life"] },
+      { name: "Past, wants & plans", blurb: "The past, wants & plans",        themes: ["The past", "Wants & plans"] },
+      { name: "Describing",          blurb: "Adjectives & description",       themes: ["Describing things"] },
     ],
   },
   {
