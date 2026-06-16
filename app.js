@@ -238,12 +238,17 @@
   }
 
   function openSettings() {
+    // gear is a toggle: if we're already on settings, resume the page we left
+    if (!el.settings.hidden) {
+      show(visibleScreen || el.home, { back: visibleBack });
+      return;
+    }
     el.romajiToggle.checked = settings.romaji;
     el.goalSelect.value = String(settings.dailyGoal);
     el.directionSelect.value = settings.direction;
     populateVoiceSelect();
     renderSyncSettings();
-    show(el.settings, { back: true });
+    show(el.settings, { back: false });
   }
 
   const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -532,14 +537,21 @@
 
   // ---- Navigation ----------------------------------------------------------
   const screens = [el.home, el.intro, el.drill, el.done, el.settings, el.mineForm, el.importForm, el.reader];
+  // last non-settings screen, so the gear can toggle back to exactly where you were
+  let visibleScreen = el.home, visibleBack = false;
   function show(screen, { back = false } = {}) {
     speechSynthesis.cancel();
     stopAudio();
     screens.forEach((s) => (s.hidden = s !== screen));
     if (el.readerPop) el.readerPop.hidden = true;
     el.backBtn.hidden = !back;
-    if (el.settingsBtn) el.settingsBtn.hidden = screen === el.settings;
+    // the gear is always visible now — it toggles settings on/off
+    if (el.settingsBtn) {
+      el.settingsBtn.hidden = false;
+      el.settingsBtn.classList.toggle("active", screen === el.settings);
+    }
     el.mastery.hidden = !(screen === el.home || screen === el.intro);
+    if (screen !== el.settings) { visibleScreen = screen; visibleBack = back; }
   }
 
   const reviewsToday = () => (prog.daily.day === todayStr() ? prog.daily.count : 0);

@@ -54,7 +54,7 @@ body::before {
   position: relative; width: 100%; height: clamp(70px, 20vw, 90px);
 }
 .ab-text {
-  position: absolute; left: 9%; right: 9%; top: 16%; bottom: 30%;
+  position: absolute; left: 9%; right: 9%; top: 34%; bottom: 24%;
   display: grid; place-items: center; text-align: center; z-index: 3; overflow: hidden;
   font-family: var(--display); color: var(--accent);
   font-size: clamp(0.82rem, 3.5vw, 1.18rem); line-height: 1.1;
@@ -77,6 +77,7 @@ body::before {
   box-shadow: 0 3px 0 var(--ink); transition: transform 0.08s, box-shadow 0.08s;
 }
 #ctrl-bar .icon-btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+#ctrl-bar #settings-btn.active { background: var(--gold) !important; }
 #ctrl-bar #back-btn { font-size: 1.3rem; }
 #ctrl-bar #home-btn { font-size: 1.1rem; }
 /* mastery bar lives in the control bar's middle (between back/home and gear) */
