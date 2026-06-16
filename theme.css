@@ -33,35 +33,38 @@ body::before {
 #app-title { color: var(--accent); letter-spacing: 0.06em; white-space: nowrap; }
 .label, .mastery-tag, .section-title { color: var(--accent); }
 
-/* persistent painted header (sign + awning) on every screen — it carries the
-   controls and reads the current level/lesson, replacing the old top strip. */
+/* sticky header: decorative sign banner on top, control bar (back/home/1·6/
+   settings) below it — the controls live off the sign, grouped with the 1/6. */
 #app { position: relative; }
-#topbar { display: none !important; }   /* its buttons were moved into the banner */
+#topbar { display: none !important; }
+#app-header { position: sticky; top: 0; z-index: 8; margin: 0 0 0.5rem; }
 #app-banner {
-  position: sticky; top: 0; z-index: 8; width: 100%;
-  height: clamp(98px, 27vw, 118px); margin: 0 0 0.5rem;
+  position: relative; width: 100%; height: clamp(78px, 22vw, 98px);
   background: url("assets/sign.png") center / 100% 100% no-repeat;
   filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
 }
-/* title sits in its own band BELOW the corner controls and ABOVE the awning */
 .ab-text {
-  position: absolute; left: 8%; right: 8%; top: 34%; bottom: 30%;
+  position: absolute; left: 9%; right: 9%; top: 16%; bottom: 30%;
   display: grid; place-items: center; text-align: center; z-index: 3; overflow: hidden;
   font-family: var(--display); color: var(--accent);
-  font-size: clamp(0.78rem, 3.3vw, 1.08rem); line-height: 1.08;
+  font-size: clamp(0.82rem, 3.5vw, 1.18rem); line-height: 1.1;
   text-shadow: 0 2px 0 rgba(239, 111, 167, 0.2);
 }
-/* striped awning squished into a thin valance along the banner's lower edge */
 .ab-awning {
-  position: absolute; left: 0; width: 100%; height: 32px; bottom: -6px; z-index: 2;
+  position: absolute; left: 0; width: 100%; height: 28px; bottom: -5px; z-index: 2;
   object-fit: fill; pointer-events: none;
   filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.1));
 }
-#app-banner #back-btn { position: absolute; top: 8px; left: 2px; z-index: 5; width: 2.4rem; height: 2.4rem; font-size: 1.3rem; }
-#app-banner #home-btn { position: absolute; top: 8px; left: 2.9rem; z-index: 5; width: 2.3rem; height: 2.3rem; font-size: 1.1rem; }
-#app-banner #topbar-right { position: absolute; top: 9px; right: 6px; z-index: 5; display: flex; gap: 0.3rem; align-items: center; }
-#app-banner #topbar-right .icon-btn { width: 2.05rem; height: 2.05rem; }
-#app-banner #topbar-right .daily-ring { width: 2.05rem; height: 2.05rem; }
+/* control bar */
+#ctrl-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.45rem 0; }
+#ctrl-bar .cb-left { display: flex; gap: 0.4rem; align-items: center; }
+#ctrl-bar .cb-mid { flex: 1; display: flex; justify-content: center; align-items: center; }
+#ctrl-bar .cb-right { display: flex; gap: 0.4rem; align-items: center; }
+#ctrl-bar .icon-btn { width: 2.3rem; height: 2.3rem; }
+#ctrl-bar #back-btn { font-size: 1.3rem; }
+#ctrl-bar #home-btn { font-size: 1.1rem; }
+/* the 1/6 counter moved into the control bar, so hide the empty drill row */
+#progress-row { display: none !important; }
 
 /* daily goal removed — hide the ring and its settings option */
 #daily-ring { display: none !important; }
@@ -144,17 +147,16 @@ button.lesson-tile { border-width: 3px !important; border-radius: var(--radius);
    Slice thicknesses (relative to width): top 21.8%, bottom 16.2%, sides 14%. */
 #card {
   position: relative;
-  /* The card BACKGROUND paints UNDER the border-image, so the cream truly sits
-     behind the painted frame (flush, never poking past the inner edge).
-     border-box fills the whole box so the frame's inner edge always rests on
-     cream — no translucent ring, no fade. */
+  /* The card BACKGROUND paints UNDER the border-image. padding-box clips it to
+     the area INSIDE the border, so the cream sits behind the painted frame and
+     can never bleed out past it, while still filling the whole opening. */
   background-color: #fffdf6 !important;
-  background-clip: border-box !important;
+  background-clip: padding-box !important;
   border-style: solid !important;
   border-color: transparent !important;
   border-width: 58px 42px 48px 42px !important;   /* visual thickness of each painted edge */
   border-image: url("assets/frame.png") 245 157 182 157 round !important;
-  border-radius: 34px !important;                  /* round to the frame's outer corners (hides cream corners) */
+  border-radius: 8px !important;
   box-shadow: none !important;
   filter: drop-shadow(0 5px 0 rgba(74, 51, 40, 0.14));
   padding: 0.4rem 0.6rem 0.7rem;
@@ -523,3 +525,6 @@ footer { font-family: var(--display); color: var(--muted); }
   box-shadow: 0 4px 0 var(--ink) !important;
 }
 .sw-update-btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink) !important; }
+
+/* nested How-it-works sub-sections (structure + colours) */
+.howit-sub { margin-top: 0.5rem; }

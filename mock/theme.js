@@ -288,25 +288,48 @@
     banner.innerHTML =
       '<span class="ab-text"></span>' +
       '<img class="ab-awning" src="' + A + 'awning.png" alt="">';
-    appEl.insertBefore(banner, appEl.firstChild);
 
-    // move the existing controls into the banner (keeps their listeners)
+    // Control bar under the banner — Back / Home / the 1/6 counter / Settings
+    // all live together here (off the decorative sign).
+    const ctrl = document.createElement("div");
+    ctrl.id = "ctrl-bar";
+    const cbLeft = document.createElement("div"); cbLeft.className = "cb-left";
+    const cbMid = document.createElement("div"); cbMid.className = "cb-mid";
+    const cbRight = document.createElement("div"); cbRight.className = "cb-right";
+    ctrl.append(cbLeft, cbMid, cbRight);
+
+    const homeScreen = document.getElementById("home");
+    const drillScreen = document.getElementById("drill");
     const back = document.getElementById("back-btn");
     const right = document.getElementById("topbar-right");
-    if (back) banner.appendChild(back);
-    if (right) banner.appendChild(right);
+    const counter = document.getElementById("card-counter");
 
-    // Home button next to Back — lessons go a few layers deep, so offer a
-    // one-tap jump to the level overview as well as step-back.
-    const homeScreen = document.getElementById("home");
     const homeBtn = document.createElement("button");
     homeBtn.id = "home-btn"; homeBtn.className = "icon-btn"; homeBtn.setAttribute("aria-label", "Home");
     homeBtn.textContent = "🏠";
     homeBtn.addEventListener("click", () => { if (window.__hanaGoHome) window.__hanaGoHome(); });
-    banner.appendChild(homeBtn);
+
+    if (back) cbLeft.appendChild(back);
+    cbLeft.appendChild(homeBtn);
+    if (counter) cbMid.appendChild(counter);   // the 1/6 progress circle
+    if (right) cbRight.appendChild(right);
+
+    // wrap banner + control bar in one sticky header
+    const header = document.createElement("div");
+    header.id = "app-header";
+    header.append(banner, ctrl);
+    appEl.insertBefore(header, appEl.firstChild);
+
     const toggleNav = () => { homeBtn.style.display = (homeScreen && homeScreen.hidden) ? "" : "none"; };
-    if (homeScreen) { new MutationObserver(toggleNav).observe(homeScreen, { attributes: true, attributeFilter: ["hidden"] }); }
+    if (homeScreen) new MutationObserver(toggleNav).observe(homeScreen, { attributes: true, attributeFilter: ["hidden"] });
     toggleNav();
+
+    // the 1/6 counter only applies during a drill
+    if (counter && drillScreen) {
+      const toggleCounter = () => { counter.style.display = drillScreen.hidden ? "none" : ""; };
+      new MutationObserver(toggleCounter).observe(drillScreen, { attributes: true, attributeFilter: ["hidden"] });
+      toggleCounter();
+    }
 
     const abText = banner.querySelector(".ab-text");
     const isVis = (id) => { const e = document.getElementById(id); return e && !e.hidden; };
