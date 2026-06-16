@@ -41,11 +41,17 @@ body::before {
    settings) below it — the controls live off the sign, grouped with the 1/6. */
 #app { position: relative; }
 #topbar { display: none !important; }
-#app-header { position: static; z-index: 8; margin: 0 0 0.5rem; }
-#app-banner {
-  position: relative; width: 100%; height: clamp(78px, 22vw, 98px);
+/* the painted sign spans the WHOLE header now, so the buttons + progress bar
+   sit inside it: text region up top, awning as a divider, controls in the
+   lower band of the sign. */
+#app-header {
+  position: static; z-index: 8; margin: 0 0 0.5rem;
   background: url("assets/sign.png") center / 100% 100% no-repeat;
   filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
+  padding-bottom: 0.6rem;
+}
+#app-banner {
+  position: relative; width: 100%; height: clamp(70px, 20vw, 90px);
 }
 .ab-text {
   position: absolute; left: 9%; right: 9%; top: 16%; bottom: 30%;
@@ -59,12 +65,18 @@ body::before {
   object-fit: fill; pointer-events: none;
   filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.1));
 }
-/* control bar */
-#ctrl-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.45rem 0; }
+/* control bar — inset so the buttons sit inside the sign's side borders */
+#ctrl-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.1rem 8% 0; }
 #ctrl-bar .cb-left { display: flex; gap: 0.4rem; align-items: center; }
 #ctrl-bar .cb-mid { flex: 1; display: flex; justify-content: center; align-items: center; }
 #ctrl-bar .cb-right { display: flex; gap: 0.4rem; align-items: center; }
-#ctrl-bar .icon-btn { width: 2.3rem; height: 2.3rem; }
+/* same chunky ink outline + hard drop-shadow as the rest of the buttons */
+#ctrl-bar .icon-btn {
+  width: 2.3rem; height: 2.3rem;
+  border: 2.5px solid var(--ink) !important; background: #fff !important; color: var(--ink) !important;
+  box-shadow: 0 3px 0 var(--ink); transition: transform 0.08s, box-shadow 0.08s;
+}
+#ctrl-bar .icon-btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
 #ctrl-bar #back-btn { font-size: 1.3rem; }
 #ctrl-bar #home-btn { font-size: 1.1rem; }
 /* mastery bar lives in the control bar's middle (between back/home and gear) */
