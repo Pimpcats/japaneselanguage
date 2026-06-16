@@ -33,17 +33,38 @@ body::before {
 #app-title { color: var(--accent); letter-spacing: 0.06em; white-space: nowrap; }
 .label, .mastery-tag, .section-title { color: var(--accent); }
 
-/* painted shop-sign + awning header (injected into #home by theme.js) */
-#topbar { background: linear-gradient(var(--bg) 70%, transparent); }
-#home-banner { display: flex; flex-direction: column; align-items: center; margin: 0.2rem 0 0.4rem; }
-.hb-sign { position: relative; width: 100%; }
-.hb-sign img { width: 100%; display: block; filter: drop-shadow(0 5px 0 rgba(74, 51, 40, 0.14)); }
-.hb-sign span {
-  position: absolute; inset: 0 0 6% 0; display: grid; place-items: center;
-  font-family: var(--display); color: var(--accent); font-size: clamp(1.6rem, 7vw, 2.4rem);
-  text-shadow: 0 3px 0 rgba(239, 111, 167, 0.22);
+/* persistent painted header (sign + awning) on every screen — it carries the
+   controls and reads the current level/lesson, replacing the old top strip. */
+#app { position: relative; }
+#topbar { display: none !important; }   /* its buttons were moved into the banner */
+#app-banner {
+  position: sticky; top: 0; z-index: 8; width: 100%;
+  height: clamp(98px, 27vw, 118px); margin: 0 0 0.5rem;
+  background: url("assets/sign.png") center / 100% 100% no-repeat;
+  filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
 }
-.hb-awning { width: 86%; margin-top: -6px; filter: drop-shadow(0 6px 0 rgba(74, 51, 40, 0.14)); }
+/* title sits in its own band BELOW the corner controls and ABOVE the awning */
+.ab-text {
+  position: absolute; left: 8%; right: 8%; top: 34%; bottom: 30%;
+  display: grid; place-items: center; text-align: center; z-index: 3; overflow: hidden;
+  font-family: var(--display); color: var(--accent);
+  font-size: clamp(0.78rem, 3.3vw, 1.08rem); line-height: 1.08;
+  text-shadow: 0 2px 0 rgba(239, 111, 167, 0.2);
+}
+/* striped awning squished into a thin valance along the banner's lower edge */
+.ab-awning {
+  position: absolute; left: 0; width: 100%; height: 32px; bottom: -6px; z-index: 2;
+  object-fit: fill; pointer-events: none;
+  filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.1));
+}
+#app-banner #back-btn { position: absolute; top: 7px; left: 7px; z-index: 5; width: 2rem; height: 2rem; }
+#app-banner #topbar-right { position: absolute; top: 7px; right: 7px; z-index: 5; display: flex; gap: 0.35rem; align-items: center; }
+#app-banner .icon-btn { width: 2rem; height: 2rem; }
+
+/* the banner shows the level/lesson now, so drop the in-content duplicates */
+#lesson-intro #lesson-title { display: none; }
+.level-detail-title { display: none; }
+.level-detail-head { margin-bottom: 0.2rem; }
 
 /* ---- 4. signature chunky "pop" buttons (ink outline + hard drop-shadow) ---- */
 button.primary, button.secondary {
@@ -107,18 +128,29 @@ button.lesson-tile { border-width: 3px !important; border-radius: var(--radius);
    tall card on a phone never lets text slide under the painted border.
    Slice thicknesses (relative to width): top 21.8%, bottom 16.2%, sides 14%. */
 #card {
-  background-color: #fffdf6 !important;       /* longhand so the clip below sticks */
-  background-clip: padding-box !important;     /* white only inside the frame opening, never behind the art */
+  position: relative;
+  background: transparent !important;
   border-style: solid !important;
   border-color: transparent !important;
   border-width: 58px 42px 48px 42px !important;   /* visual thickness of each painted edge */
   border-image: url("assets/frame.png") 245 157 182 157 round !important;
-  border-radius: 26px !important;              /* round the white panel to the frame's inner opening */
+  border-radius: 0 !important;
   box-shadow: none !important;
   filter: drop-shadow(0 5px 0 rgba(74, 51, 40, 0.14));
   padding: 0.4rem 0.6rem 0.7rem;
 }
-@media (max-width: 430px) { #card { border-width: 46px 34px 40px 34px !important; } }
+/* cream panel sits BEHIND the painted border (z-index:-1). It extends well
+   UNDER the painted edge (about half the border thickness) so it fully fills
+   the opening AND its corners are hidden under the frame — no sharp white,
+   no gaps, no outer halo (it stops short of the frame's transparent edge). */
+#card::before {
+  content: ""; position: absolute; z-index: -1; inset: 26px 18px 22px 18px;
+  background: #fffdf6; border-radius: 8px;
+}
+@media (max-width: 430px) {
+  #card { border-width: 46px 34px 40px 34px !important; }
+  #card::before { inset: 20px 14px 18px 14px; }
+}
 #prompt-en { color: var(--ink); font-weight: 900; }
 #answer-kana { line-height: 1.6; }
 /* keep the app's POS word colors exactly as-is — do NOT override .ck / .pos-* */

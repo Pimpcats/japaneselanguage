@@ -266,14 +266,58 @@
     }).observe(done, { attributes: true, attributeFilter: ["hidden"] });
   }
 
-  // ------------------------------------------------- painted home header ---
-  if (home && !document.getElementById("home-banner")) {
+  // ---------------------------- painted header on every screen -------------
+  // Persistent banner (sign + awning overlay) at the very top that reads the
+  // current level / lesson in English. The top-bar controls are moved into it
+  // so it doubles as the title bar (saves the separate strip below).
+  const appEl = document.getElementById("app");
+  if (appEl && !document.getElementById("app-banner")) {
     const banner = document.createElement("div");
-    banner.id = "home-banner";
+    banner.id = "app-banner";
     banner.innerHTML =
-      '<div class="hb-sign"><img src="' + A + 'sign.png" alt=""><span>はなそう！</span></div>' +
-      '<img class="hb-awning" src="' + A + 'awning.png" alt="">';
-    home.prepend(banner);
+      '<span class="ab-text"></span>' +
+      '<img class="ab-awning" src="' + A + 'awning.png" alt="">';
+    appEl.insertBefore(banner, appEl.firstChild);
+
+    // move the existing controls into the banner (keeps their listeners)
+    const back = document.getElementById("back-btn");
+    const right = document.getElementById("topbar-right");
+    if (back) banner.appendChild(back);
+    if (right) banner.appendChild(right);
+
+    const abText = banner.querySelector(".ab-text");
+    const isVis = (id) => { const e = document.getElementById(id); return e && !e.hidden; };
+    const levelOf = (title) => {
+      const L = (window.LESSONS || []).find((x) => x.title === title);
+      if (!L) return "";
+      const lv = (window.LEVELS || []).find((v) => v.tiers.some((t) => t.themes.includes(L.section)));
+      return lv ? lv.name : "";
+    };
+    let lastLesson = "";
+    function bannerText() {
+      if (isVis("settings")) return "Settings";
+      if (isVis("reader")) return "Reader";
+      if (isVis("mine-form")) return "Add a sentence";
+      if (isVis("import-form")) return "Import sentences";
+      if (isVis("lesson-done")) return "Lesson complete!";
+      if (isVis("lesson-intro") || isVis("drill")) {
+        const cur = (document.getElementById("lesson-title") || {}).textContent || "";
+        if (cur) lastLesson = cur;
+        const lv = levelOf(lastLesson);
+        return (lv ? lv + " · " : "") + (lastLesson || "Practice");
+      }
+      if (isVis("home")) {
+        const det = document.querySelector(".level-detail-title");
+        return det ? det.textContent : "Choose a level";
+      }
+      return "はなそう";
+    }
+    const updateBanner = () => { abText.textContent = bannerText(); };
+    updateBanner();
+    const mo = new MutationObserver(updateBanner);
+    document.querySelectorAll(".screen").forEach((s) => mo.observe(s, { attributes: true, attributeFilter: ["hidden"] }));
+    const lt = document.getElementById("lesson-title"); if (lt) mo.observe(lt, { childList: true, characterData: true, subtree: true });
+    const lm = document.getElementById("lesson-map"); if (lm) mo.observe(lm, { childList: true, subtree: true });
   }
 
   // expose the juicy effects so collection.js (and anything else) can reuse them
