@@ -148,6 +148,27 @@
     } catch (e) {}
   }
 
+  // ---- recorded reward sounds (mp3 assets) with synth fallback ------------
+  // Real produced sounds the user drops into assets/. If a file is missing or
+  // can't play (offline before first fetch), we fall back to the synth jingle.
+  const SFX = {
+    correct:  { url: A + "sfx-correct.mp3",         vol: 0.6 },
+    complete: { url: A + "sfx-lesson-complete.mp3", vol: 0.65 },
+  };
+  function playSample(spec, fallback) {
+    let fell = false;
+    const fb = () => { if (fell) return; fell = true; if (fallback) fallback(); };
+    try {
+      const a = new Audio(spec.url);
+      a.volume = spec.vol;
+      a.addEventListener("error", fb, { once: true });
+      const pr = a.play();
+      if (pr && pr.catch) pr.catch(fb);
+    } catch (e) { fb(); }
+  }
+  const playCorrect  = () => playSample(SFX.correct, jingle);
+  const playComplete = () => playSample(SFX.complete, jingle);
+
   // ------------------------------------------------------------- confetti --
   const COLORS = ["#ef6fa7", "#f8a8c6", "#f2be45", "#79c8ec", "#3e8e41", "#fff"];
   function confetti(n = 26) {
@@ -190,7 +211,7 @@
       const g = +grade.dataset.grade;
       const [pose, say] = GRADE_REACT[g] || GRADE_REACT[1];
       react(pose, say);
-      if (g === 2) { stampCard(); jingle(); confetti(); }     // got it → reward!
+      if (g === 2) { stampCard(); playCorrect(); confetti(); }   // got it → upgrade sound
       else pop(g === 0 ? 300 : 480);
       return;
     }
@@ -208,7 +229,7 @@
       }
       if (buildAnswer.classList.contains("solved") && !buildAnswer.dataset.cheered) {
         buildAnswer.dataset.cheered = "1";
-        stampCard(); jingle(); confetti(); react("cheer", "かんせい！|Kansei!");
+        stampCard(); playCorrect(); confetti(); react("cheer", "かんせい！|Kansei!");
       }
       if (!buildAnswer.classList.contains("solved")) delete buildAnswer.dataset.cheered;
     }).observe(buildAnswer, { childList: true, attributes: true, attributeFilter: ["class"] });
@@ -241,7 +262,7 @@
   const done = document.getElementById("lesson-done");
   if (done) {
     new MutationObserver(() => {
-      if (!done.hidden) { confetti(40); jingle(); setTimeout(() => confetti(24), 380); }
+      if (!done.hidden) { confetti(40); playComplete(); setTimeout(() => confetti(24), 380); }
     }).observe(done, { attributes: true, attributeFilter: ["hidden"] });
   }
 
