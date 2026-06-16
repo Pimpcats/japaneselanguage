@@ -200,6 +200,13 @@
     right.insertBefore(btn, right.firstChild);
     badgeEl = btn.querySelector(".col-badge");
     refreshBadge();
+    // Collection lives on the Home screen only.
+    const homeEl = document.getElementById("home");
+    if (homeEl) {
+      const tog = () => { btn.style.display = homeEl.hidden ? "none" : ""; };
+      new MutationObserver(tog).observe(homeEl, { attributes: true, attributeFilter: ["hidden"] });
+      tog();
+    }
   }
   mountButton();
 })();

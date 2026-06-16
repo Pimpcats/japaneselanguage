@@ -1045,6 +1045,8 @@
   // page with that level's tiers/lessons. openLevelId === null → overview.
   let openLevelId = null;
   const levelHasLessons = (lv) => window.LESSONS.some((L) => lv.tiers.some((t) => t.themes.includes(L.section)));
+  // Jump straight to the level overview (used by the banner Home button).
+  window.__hanaGoHome = function () { openLevelId = null; renderHome(); window.scrollTo(0, 0); };
 
   function renderHome() {
     renderDailyRing();

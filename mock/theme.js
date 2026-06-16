@@ -296,6 +296,18 @@
     if (back) banner.appendChild(back);
     if (right) banner.appendChild(right);
 
+    // Home button next to Back — lessons go a few layers deep, so offer a
+    // one-tap jump to the level overview as well as step-back.
+    const homeScreen = document.getElementById("home");
+    const homeBtn = document.createElement("button");
+    homeBtn.id = "home-btn"; homeBtn.className = "icon-btn"; homeBtn.setAttribute("aria-label", "Home");
+    homeBtn.textContent = "🏠";
+    homeBtn.addEventListener("click", () => { if (window.__hanaGoHome) window.__hanaGoHome(); });
+    banner.appendChild(homeBtn);
+    const toggleNav = () => { homeBtn.style.display = (homeScreen && homeScreen.hidden) ? "" : "none"; };
+    if (homeScreen) { new MutationObserver(toggleNav).observe(homeScreen, { attributes: true, attributeFilter: ["hidden"] }); }
+    toggleNav();
+
     const abText = banner.querySelector(".ab-text");
     const isVis = (id) => { const e = document.getElementById(id); return e && !e.hidden; };
     const levelOf = (title) => {
