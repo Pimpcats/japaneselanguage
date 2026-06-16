@@ -51,7 +51,7 @@ body::before {
   padding-bottom: 1.15rem;
 }
 #app-banner {
-  position: relative; width: 100%; height: clamp(70px, 20vw, 90px);
+  position: relative; width: 100%; height: clamp(96px, 27vw, 124px);
 }
 .ab-text {
   position: absolute; left: 9%; right: 9%; top: 34%; bottom: 24%;
