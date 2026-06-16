@@ -66,7 +66,7 @@ body::before {
   filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.1));
 }
 /* control bar — inset so the buttons sit inside the sign's side borders */
-#ctrl-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 8% 0; }
+#ctrl-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 8% 0; min-height: 2.4rem; }
 #ctrl-bar .cb-left { display: flex; gap: 0.4rem; align-items: center; }
 #ctrl-bar .cb-mid { flex: 1; display: flex; justify-content: center; align-items: center; }
 #ctrl-bar .cb-right { display: flex; gap: 0.4rem; align-items: center; }
@@ -78,6 +78,8 @@ body::before {
 }
 #ctrl-bar .icon-btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
 #ctrl-bar #settings-btn.active { background: var(--gold) !important; }
+/* the 1/6 ring rides in the same band as the icons, so keep it their height */
+#ctrl-bar .card-counter { width: 2.4rem; height: 2.4rem; font-size: 0.58rem; box-shadow: 0 3px 0 var(--ink); }
 #ctrl-bar #back-btn { font-size: 1.3rem; }
 #ctrl-bar #home-btn { font-size: 1.1rem; }
 /* mastery bar lives in the control bar's middle (between back/home and gear) */
