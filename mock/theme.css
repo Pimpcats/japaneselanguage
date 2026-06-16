@@ -54,7 +54,7 @@ body::before {
   position: relative; width: 100%; height: clamp(96px, 27vw, 124px);
 }
 .ab-text {
-  position: absolute; left: 9%; right: 9%; top: 34%; bottom: 24%;
+  position: absolute; left: 9%; right: 9%; top: 44%; bottom: 22%;
   display: grid; place-items: center; text-align: center; z-index: 3; overflow: hidden;
   font-family: var(--display); color: var(--accent);
   font-size: clamp(0.82rem, 3.5vw, 1.18rem); line-height: 1.1;
