@@ -1882,21 +1882,28 @@ if ("serviceWorker" in navigator) {
       reloading = true;
       window.location.reload();
     });
-    navigator.serviceWorker.register("sw.js").then((reg) => {
+    // updateViaCache:"none" forces a fresh network fetch of sw.js on every
+    // update check, so a new deploy is noticed on the very next open instead
+    // of waiting for the browser's HTTP cache of sw.js to expire (which made
+    // the reload prompt take a couple of reopens to show up).
+    navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((reg) => {
       const notify = (worker) => {
         if (worker && navigator.serviceWorker.controller) showUpdateBanner(worker);
       };
+      const track = (worker) => {
+        if (!worker) return;
+        if (worker.state === "installed") notify(worker);
+        else worker.addEventListener("statechange", () => { if (worker.state === "installed") notify(worker); });
+      };
       if (reg.waiting) notify(reg.waiting);
-      reg.addEventListener("updatefound", () => {
-        const nw = reg.installing;
-        if (nw) nw.addEventListener("statechange", () => { if (nw.state === "installed") notify(nw); });
-      });
-      // Check for a new deploy whenever the app regains focus (e.g. you reopen
-      // it on mobile) — not just on full reload — so updates surface promptly.
+      track(reg.installing);                                  // an update may already be in flight
+      reg.addEventListener("updatefound", () => track(reg.installing));
+      reg.update().catch(() => {});                           // check right now, on every open
+      // Re-check whenever the app regains focus (e.g. you reopen it on mobile).
       document.addEventListener("visibilitychange", () => {
         if (document.visibilityState === "visible") reg.update().catch(() => {});
       });
-      setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+      setInterval(() => reg.update().catch(() => {}), 15 * 60 * 1000);
     }).catch(() => {});
   });
 }
