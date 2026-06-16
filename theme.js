@@ -104,9 +104,48 @@
     osc.start(t); osc.stop(t + dur + 0.02);
   }
   function pop(freq = 560) { try { note(freq, 0, 0.1, 0.55); } catch (e) {} }
-  // rewarding ascending arpeggio for a correct answer
+
+  // A short, soft reverb so the reward chime rings out instead of clicking.
+  let reverb = null;
+  function getReverb() {
+    const a = audio();
+    if (reverb) return reverb;
+    reverb = a.createConvolver();
+    const len = Math.floor(a.sampleRate * 1.0);
+    const buf = a.createBuffer(2, len, a.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf.getChannelData(ch);
+      for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2);
+    }
+    reverb.buffer = buf;
+    const wet = a.createGain(); wet.gain.value = 0.32;
+    reverb.connect(wet).connect(master);
+    return reverb;
+  }
+  // bell-like tone: a stack of sine partials with a smooth exponential decay.
+  function bell(freq, start, dur, vol, bus) {
+    const a = audio(), t = a.currentTime + start;
+    const partials = [[1, 1], [2, 0.45], [3, 0.22], [4.6, 0.1]]; // ratio, gain
+    for (const [ratio, g] of partials) {
+      const osc = a.createOscillator(), env = a.createGain();
+      osc.type = "sine"; osc.frequency.value = freq * ratio;
+      osc.detune.value = (Math.random() - 0.5) * 5;            // tiny warmth
+      env.gain.setValueAtTime(0.0001, t);
+      env.gain.exponentialRampToValueAtTime(vol * g, t + 0.01);
+      env.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(env).connect(bus);
+      osc.start(t); osc.stop(t + dur + 0.05);
+    }
+  }
+  // rewarding bright chime for a correct answer (major arpeggio + sparkle)
   function jingle() {
-    try { [[660, 0], [880, 0.09], [1320, 0.18]].forEach(([f, d]) => note(f, d, 0.16, 0.85)); } catch (e) {}
+    try {
+      const a = audio();
+      const bus = a.createGain(); bus.gain.value = 0.9;
+      bus.connect(master); bus.connect(getReverb());
+      [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => bell(f, i * 0.07, 0.95 - i * 0.07, 0.42, bus));
+      bell(2093, 0.26, 0.5, 0.14, bus);                        // high sparkle
+    } catch (e) {}
   }
 
   // ------------------------------------------------------------- confetti --
