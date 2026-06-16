@@ -1057,6 +1057,7 @@
     el.focusBtn.hidden = true;
     const howit = document.getElementById("howit");
     const structure = document.getElementById("structure");
+    const colors = document.getElementById("colors");
 
     if (!window.LEVELS.some((l) => l.id === settings.activeLevel)) settings.activeLevel = window.LEVELS[0].id;
     el.lessonMap.innerHTML = "";
@@ -1065,6 +1066,7 @@
       // ---- Level overview: just the level cards (short, no long scroll) ----
       if (howit) howit.hidden = false;
       if (structure) structure.hidden = false;
+      if (colors) colors.hidden = false;
       el.reviewBtn.hidden = reviewN === 0;
       el.reviewBtn.textContent = `⚡ Review ${reviewN} card${reviewN === 1 ? "" : "s"}`;
 
@@ -1097,6 +1099,7 @@
     // ---- Level detail: the chosen level's tiers/lessons + a back button ----
     if (howit) howit.hidden = true;
     if (structure) structure.hidden = true;
+    if (colors) colors.hidden = true;
     el.reviewBtn.hidden = true;
 
     const level = window.LEVELS.find((l) => l.id === openLevelId) || window.LEVELS[0];

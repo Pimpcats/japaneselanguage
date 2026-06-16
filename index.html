@@ -16,8 +16,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=54" />
-    <link rel="stylesheet" href="theme.css?v=54" />
+    <link rel="stylesheet" href="styles.css?v=55" />
+    <link rel="stylesheet" href="theme.css?v=55" />
   </head>
   <body>
     <main id="app">
@@ -53,27 +53,42 @@
         <details id="howit" class="howit">
           <summary>How it works <span class="howit-chev">▾</span></summary>
           <div class="howit-body">
-            <p>Each card shows an English line — say it in Japanese, then tap <b>reveal &amp; hear</b> to check against the model answer and audio.</p>
-            <p>Grade yourself honestly: <b>nope</b>, <b>kind of</b>, or <b>got it</b>. That's how the app decides what to show you next.</p>
-            <p>Anything you mark <b>nope</b> or <b>kind of</b> lands in <b>🎯 weak cards</b> and comes back each day until you finally <b>get it</b>.</p>
-            <p>The <b>mastery</b> bar up top tracks how much of the course you've locked in.</p>
+            <p>Each card shows an <b>English line</b> — say it out loud in Japanese, then tap <b>🎌 reveal &amp; hear</b> to check the model answer and hear it spoken.</p>
+            <p>The answer is <b>colour-coded by word role</b>. Below it, every word is a chip — tap one to <b>hear that word</b>, or tap <b>↗</b> to look it up on Jisho.</p>
+            <p>Grade yourself <b>nope</b> / <b>kinda</b> / <b>got it</b>. Anything but “got it” comes back for review on its own schedule; <b>got it</b> locks the card in.</p>
           </div>
         </details>
         <details id="structure" class="howit">
           <summary>Sentence structure <span class="howit-chev">▾</span></summary>
           <div class="howit-body">
-            <p>Japanese sentences are built around one rule: <b>the verb goes last</b>. Everything before it just adds detail, and each detail wears a little tag — a <b>particle</b> — that says what role it plays.</p>
+            <p>One rule: <b>the verb goes last</b>. Everything before it adds detail, and each detail wears a <b>particle</b> tag that says its role.</p>
             <div class="str-diagram">
               <div class="str-row"><span class="str-role">who it's about</span><span class="str-prt">は <small>wa</small></span></div>
               <div class="str-row"><span class="str-role">the thing acted on</span><span class="str-prt">を <small>o</small></span></div>
               <div class="str-row"><span class="str-role">destination / time</span><span class="str-prt">に <small>ni</small></span></div>
-              <div class="str-row"><span class="str-role">where it happens / by what</span><span class="str-prt">で <small>de</small></span></div>
+              <div class="str-row"><span class="str-role">where / by what</span><span class="str-prt">で <small>de</small></span></div>
               <div class="str-row"><span class="str-role">starting point</span><span class="str-prt">から <small>kara</small></span></div>
               <div class="str-row"><span class="str-role">together with</span><span class="str-prt">と <small>to</small></span></div>
               <div class="str-verb">… then the <b>verb</b> 🎯</div>
             </div>
-            <p>For example: <span class="str-ex"><span class="ck pos-n">タロウ</span><span class="ck pos-prt">は</span> <span class="ck pos-n">としょかん</span><span class="ck pos-prt">に</span> <span class="ck pos-v">いきました</span></span> — "Tarō went to the library." <b>は</b> marks who it's about, <b>に</b> marks where to, and the verb closes the sentence.</p>
-            <p>Because the particles carry the meaning, the order of the middle parts is flexible — only the verb's spot is fixed. When you drill cards, the colors in the answer match these roles.</p>
+            <p class="str-eg"><span class="str-ex"><span class="ck pos-n">タロウ</span><span class="ck pos-prt">は</span> <span class="ck pos-n">としょかん</span><span class="ck pos-prt">に</span> <span class="ck pos-v">いきました</span></span> — “Tarō went to the library.”</p>
+          </div>
+        </details>
+        <details id="colors" class="howit">
+          <summary>Word colours <span class="howit-chev">▾</span></summary>
+          <div class="howit-body">
+            <p>In the answer and the word chips, each word is tinted by its job:</p>
+            <div class="color-legend">
+              <span class="ck pos-n">noun</span>
+              <span class="ck pos-v">verb</span>
+              <span class="ck pos-adj">adjective</span>
+              <span class="ck pos-adv">adverb</span>
+              <span class="ck pos-prt">particle</span>
+              <span class="ck pos-aux">auxiliary</span>
+              <span class="ck pos-conj">conjunction</span>
+              <span class="ck pos-expr">expression</span>
+            </div>
+            <p class="color-note">Particles (は・を・に…) and the copula <b>です</b> share the same grey, since they're grammatical glue rather than meaning.</p>
           </div>
         </details>
         <div id="stats" class="stats"></div>
@@ -305,9 +320,9 @@
       </footer>
     </main>
 
-    <script src="lessons.js?v=54"></script>
-    <script src="app.js?v=54"></script>
-    <script src="theme.js?v=54"></script>
-    <script src="collection.js?v=54"></script>
+    <script src="lessons.js?v=55"></script>
+    <script src="app.js?v=55"></script>
+    <script src="theme.js?v=55"></script>
+    <script src="collection.js?v=55"></script>
   </body>
 </html>

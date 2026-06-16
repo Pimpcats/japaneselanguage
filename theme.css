@@ -125,6 +125,20 @@ button.lesson-tile { border-width: 3px !important; border-radius: var(--radius);
 .build-chip { border: 2.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
 .build-answer { border: 2.5px dashed var(--accent); background: var(--card-2); }
 
+/* ---- How-it-works: compact sentence-structure diagram + colour legend ---- */
+#structure .str-diagram { gap: 0.22rem; margin: 0.55rem 0 0.3rem; }
+#structure .str-row { font-size: 0.8rem; }
+#structure .str-prt { padding: 0.05rem 0.5rem; }
+#structure .str-verb { padding: 0.22rem 0.55rem; font-size: 0.82rem; margin-top: 0.2rem; }
+.str-eg { margin: 0.55rem 0 0 !important; font-size: 0.82rem; line-height: 1.5; }
+
+.color-legend { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0 0.2rem; }
+.color-legend .ck {
+  padding: 0.22rem 0.6rem; border-radius: 9px; border: 1.5px solid;
+  font-weight: 800; font-size: 0.82rem; line-height: 1.1;
+}
+.color-note { font-size: 0.76rem !important; opacity: 0.85; margin-top: 0.4rem !important; }
+
 /* sentence counter beside the progress bar during practice */
 #progress-row { display: flex; align-items: center; gap: 0.6rem; }
 #progress-row #progress-bar { flex: 1; }
