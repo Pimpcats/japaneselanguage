@@ -48,7 +48,7 @@ body::before {
   position: static; z-index: 8; margin: 0 0 0.5rem;
   background: url("../assets/sign.png") center / 100% 100% no-repeat;
   filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
-  padding-bottom: 1.15rem;
+  padding-bottom: 1.6rem;
 }
 #app-banner {
   position: relative; width: 100%; height: clamp(96px, 27vw, 124px);
