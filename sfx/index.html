@@ -44,6 +44,8 @@
 
     <script>
     const SOUNDS = [
+      ["shimmer",   "★ Shimmer (rich)", "FM glockenspiel + pad + sparkle + reverb — produced"],
+      ["triumph",   "★ Triumph (rich)", "FM brass fanfare + cymbal + sub + reverb — produced"],
       ["marimba",   "1 · Marimba",   "Warm wooden mallet arpeggio — soft, organic"],
       ["musicbox",  "2 · Music box", "Twinkly high bells with shimmer — cute"],
       ["fanfare",   "3 · Fanfare",   "Brass ta-da! — triumphant, celebratory"],
@@ -75,11 +77,57 @@
     }
     const N = { C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880,B5:987.77,C6:1046.5,E6:1318.5,G6:1568,G4:392,B4:493.88 };
 
+    // ---- richer "produced" voices (FM + layers + reverb + soft clip) ----
+    function fmVoice(dest, freq, t, dur, vol, ratio, index, idxEnd) {
+      const a = ctx(), car = a.createOscillator(), cg = a.createGain(), mod = a.createOscillator(), mg = a.createGain();
+      car.type = "sine"; car.frequency.value = freq; mod.type = "sine"; mod.frequency.value = freq * ratio;
+      mg.gain.setValueAtTime(freq * index, t); mg.gain.exponentialRampToValueAtTime(Math.max(1, freq * idxEnd), t + dur * 0.7);
+      mod.connect(mg).connect(car.frequency);
+      cg.gain.setValueAtTime(0.0001, t); cg.gain.exponentialRampToValueAtTime(vol, t + 0.006); cg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      car.connect(cg).connect(dest); car.start(t); car.stop(t + dur + 0.05); mod.start(t); mod.stop(t + dur + 0.05);
+    }
+    function padVoice(dest, freqs, t, dur, vol) {
+      const a = ctx(), lp = a.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1500; lp.Q.value = 0.6; lp.connect(dest);
+      freqs.forEach(f => [-8, 0, 8].forEach(c => { const o = a.createOscillator(), g = a.createGain(); o.type = "sawtooth"; o.frequency.value = f; o.detune.value = c;
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.14); g.gain.setValueAtTime(vol, t + dur - 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g).connect(lp); o.start(t); o.stop(t + dur + 0.05); }));
+    }
+    function noiseSwell(dest, t, dur, vol, freq) {
+      const a = ctx(), len = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const s = a.createBufferSource(); s.buffer = buf; const bp = a.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = freq; bp.Q.value = 0.6; const g = a.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + dur * 0.25); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(bp).connect(g).connect(dest); s.start(t); s.stop(t + dur);
+    }
+    function subThump(dest, freq, t, dur, vol) { const a = ctx(), o = a.createOscillator(), g = a.createGain(); o.type = "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(dest); o.start(t); o.stop(t + dur + 0.05); }
+
     function play(kind) {
       const a = ctx();
-      const master = a.createGain(); master.gain.value = masterVol; master.connect(a.destination);
+      // master -> soft clip -> destination (glue), for the rich voices
+      const master = a.createGain(); master.gain.value = masterVol; const shaper = a.createWaveShaper();
+      const curve = new Float32Array(2048); for (let i = 0; i < 2048; i++) { const x = (i / 1024) - 1; curve[i] = Math.tanh(1.7 * x); }
+      shaper.curve = curve; shaper.oversample = "2x"; master.connect(shaper).connect(a.destination);
       const bus = a.createGain(); bus.gain.value = 0.9; bus.connect(master);
       const t0 = a.currentTime + 0.03;
+
+      if (kind === "shimmer" || kind === "triumph") {
+        const rev = reverb(master, kind === "shimmer" ? 0.34 : 0.3, kind === "shimmer" ? 1.7 : 1.6); bus.connect(rev);
+        const C4=261.63,E4=329.63,G4=392,C5=523.25,E5=659.25,G5=783.99,C6=1046.5,E6=1318.5,G6=1568,B4=493.88,D5=587.33;
+        if (kind === "shimmer") {
+          subThump(bus,C4/2,t0,0.5,0.22); padVoice(bus,[C4,E4,G4],t0,1.7,0.06);
+          [C5,E5,G5,C6].forEach((f,i)=>fmVoice(bus,f,t0+0.02+i*0.085,1.0-i*0.07,0.36,3.51,5,0.4));
+          [E6,G6,C6*2,E6*2].forEach((f,i)=>fmVoice(rev,f,t0+0.18+i*0.06,0.5,0.07,2.0,3,0.2));
+        } else {
+          subThump(bus,C4/2,t0,0.6,0.26); noiseSwell(rev,t0,1.4,0.05,7000);
+          const brass=(fs,t,dur,v)=>fs.forEach(f=>fmVoice(bus,f,t,dur,v,1.0,2.2,0.6));
+          brass([G4,B4,D5],t0,0.18,0.16); brass([C5,E5,G5,C6],t0+0.22,1.0,0.18);
+          fmVoice(bus,C6,t0+0.22,1.0,0.18,3.51,4,0.4);
+          [E6,G6,C6*2].forEach((f,i)=>fmVoice(rev,f,t0+0.5+i*0.07,0.45,0.06,2.0,3,0.2));
+        }
+        return;
+      }
 
       if (kind === "marimba") {
         bus.connect(reverb(master, 0.16, 1));

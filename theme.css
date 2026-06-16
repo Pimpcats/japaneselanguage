@@ -82,6 +82,13 @@ button.lesson-tile { border-width: 3px !important; border-radius: var(--radius);
   border: 2px solid var(--ink); color: var(--ink); font-family: var(--display); font-size: 0.62rem;
 }
 .lesson-grammar { background: var(--sky); color: var(--ink); }
+/* combo "🔥 N" badge: float it onto the card corner so it no longer takes a
+   whole line above the card (which left an empty gap until you hit a streak). */
+#drill { position: relative; }
+#combo {
+  position: absolute !important; top: 2rem; right: 0; z-index: 6; margin: 0 !important;
+  transform: rotate(4deg);
+}
 .combo { background: var(--gold); }
 
 /* progress + mastery bars: ink-outlined candy fills */
