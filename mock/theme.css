@@ -24,7 +24,7 @@ html, body {
 }
 body::before {
   content: ""; position: fixed; inset: 0; z-index: -1;
-  background: linear-gradient(rgba(255, 247, 234, 0.58), rgba(255, 247, 234, 0.8));
+  background: linear-gradient(rgba(255, 247, 234, 0.74), rgba(255, 247, 234, 0.9));
 }
 
 /* ---- 3. headings + labels in the display face ---- */
@@ -70,7 +70,16 @@ body::before {
 /* the banner shows the level/lesson now, so drop the in-content duplicates */
 #lesson-intro #lesson-title { display: none; }
 .level-detail-title { display: none; }
-.level-detail-head { margin-bottom: 0.2rem; }
+.level-detail-head { margin: 0 !important; }
+
+/* condense the level page (the lesson-map's 2rem gaps wasted a lot of room)
+   and darken text that sits on the translucent street background */
+#home.screen { gap: 0.7rem; }
+#lesson-map { gap: 0.85rem !important; }
+.level-back { margin: 0 !important; }
+.level-blurb { color: var(--ink) !important; font-weight: 700; opacity: 0.8; margin: 0 !important; }
+.mastery-pct { color: var(--ink) !important; }
+.mastery { gap: 0.5rem; }
 
 /* ---- 4. signature chunky "pop" buttons (ink outline + hard drop-shadow) ---- */
 button.primary, button.secondary {
