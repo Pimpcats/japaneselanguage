@@ -62,6 +62,10 @@ body::before {
 #app-banner #topbar-right .icon-btn { width: 2.05rem; height: 2.05rem; }
 #app-banner #topbar-right .daily-ring { width: 2.05rem; height: 2.05rem; }
 
+/* daily goal removed — hide the ring and its settings option */
+#daily-ring { display: none !important; }
+.setting-group:has(#goal-select) { display: none !important; }
+
 /* the banner shows the level/lesson now, so drop the in-content duplicates */
 #lesson-intro #lesson-title { display: none; }
 .level-detail-title { display: none; }

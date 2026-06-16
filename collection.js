@@ -41,7 +41,6 @@
     { id: "combo3",  name: "ノってきた",     en: "On a Roll",      hint: "Get a 3-combo",             art: "star",             test: c => c.combo >= 3 },
     { id: "combo7",  name: "ねっせん",       en: "Hot Streak",     hint: "Get a 7-combo",             art: "fire",             test: c => c.combo >= 7 },
     { id: "combo10", name: "むてき",         en: "Unstoppable",    hint: "Get a 10-combo",            art: "medal",            test: c => c.combo >= 10 },
-    { id: "daily",   name: "まいにち",       en: "Daily Devotion", hint: "Hit your daily goal",       art: "sun",              test: c => c.daily >= 1 },
     { id: "regular", name: "じょうれんさん", en: "Regular",        hint: "Finish 10 practice runs",   art: "star",             test: c => c.sessions >= 10 },
     { id: "region",  name: "せいは",         en: "Region Cleared", hint: "Clear every lesson in a theme", art: "flag",         test: c => c.regionDone },
   ];
