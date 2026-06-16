@@ -311,7 +311,9 @@
 
     if (back) cbLeft.appendChild(back);
     cbLeft.appendChild(homeBtn);
-    if (counter) cbMid.appendChild(counter);   // the 1/6 progress circle
+    if (counter) cbMid.appendChild(counter);   // the 1/6 progress circle (drill)
+    const mastery = document.getElementById("mastery");
+    if (mastery) cbMid.appendChild(mastery);    // the mastery bar (home / intro)
     if (right) cbRight.appendChild(right);
 
     // wrap banner + control bar in one sticky header

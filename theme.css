@@ -67,6 +67,11 @@ body::before {
 #ctrl-bar .icon-btn { width: 2.3rem; height: 2.3rem; }
 #ctrl-bar #back-btn { font-size: 1.3rem; }
 #ctrl-bar #home-btn { font-size: 1.1rem; }
+/* mastery bar lives in the control bar's middle (between back/home and gear) */
+#ctrl-bar #mastery { width: 100%; margin: 0 !important; gap: 0.45rem; align-items: center; }
+#ctrl-bar #mastery .mastery-tag { display: none; }   /* drop the label so the bar fits */
+#ctrl-bar #mastery .mastery-bar { flex: 1; }
+#ctrl-bar #mastery .mastery-pct { font-size: 0.8rem; }
 /* the 1/6 counter moved into the control bar, so hide the empty drill row */
 #progress-row { display: none !important; }
 
