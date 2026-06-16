@@ -81,6 +81,7 @@ body::before {
 
 /* the banner shows the level/lesson now, so drop the in-content duplicates */
 #lesson-intro #lesson-title { display: none; }
+#lesson-grammar { display: none !important; }   /* the grammar note below explains it */
 .level-detail-title { display: none; }
 .level-detail-head { margin: 0 !important; }
 

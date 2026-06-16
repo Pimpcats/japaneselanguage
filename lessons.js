@@ -116,6 +116,7 @@ window.LESSONS = [
       { jp: "こんにちは", romaji: "konnichiwa", en: "hello / good afternoon", pos: "expr" },
       { jp: "こんばんは", romaji: "konbanwa", en: "good evening", pos: "expr" },
       { jp: "ありがとう", romaji: "arigatou", en: "thank you", pos: "expr" },
+      { jp: "ございます", romaji: "gozaimasu", en: "(makes a phrase polite)", pos: "aux" },
       { jp: "すみません", romaji: "sumimasen", en: "excuse me / sorry", pos: "expr" },
       { jp: "さようなら", romaji: "sayounara", en: "goodbye", pos: "expr" },
       { jp: "はい", romaji: "hai", en: "yes", pos: "expr" },
@@ -251,6 +252,7 @@ window.LESSONS = [
       { jp: "せん", romaji: "sen", en: "thousand (1000)", pos: "n" },
       { jp: "えん", romaji: "en", en: "yen (¥)", pos: "n" },
       { jp: "ごひゃく", romaji: "gohyaku", en: "500", pos: "n" },
+      { jp: "さんびゃく", romaji: "sanbyaku", en: "300", pos: "n" },
       { jp: "いくら", romaji: "ikura", en: "how much", pos: "n" },
       { jp: "たかい", romaji: "takai", en: "expensive", pos: "adj" },
       { jp: "やすい", romaji: "yasui", en: "cheap", pos: "adj" },
@@ -1297,6 +1299,8 @@ window.LESSONS = [
       { jp: "ばんせん", romaji: "bansen",  en: "track / platform no.", pos: "n" },
       { jp: "くうこう", romaji: "kuukou",  en: "airport", pos: "n" },
       { jp: "しぶや",   romaji: "shibuya", en: "Shibuya", pos: "n" },
+      { jp: "バス",     romaji: "basu",    en: "bus", pos: "n" },
+      { jp: "でんしゃ", romaji: "densha",  en: "train", pos: "n" },
     ],
     sentences: [
       { en: "Does this bus go to the station?", jp: "この バスは えきに いきますか？", romaji: "kono basu wa eki ni ikimasu ka?",
@@ -1325,6 +1329,7 @@ window.LESSONS = [
       { jp: "ぐらい",     romaji: "gurai",      en: "about / approximately", pos: "prt" },
       { jp: "とおい",     romaji: "tooi",       en: "far", pos: "adj" },
       { jp: "ちかい",     romaji: "chikai",     en: "near / close", pos: "adj" },
+      { jp: "あるいて",   romaji: "aruite",     en: "on foot / walking", pos: "adv" },
     ],
     sentences: [
       { en: "How long does it take to the station?", jp: "えきまで どのくらい かかりますか？", romaji: "eki made dono kurai kakarimasu ka?",
@@ -1353,6 +1358,7 @@ window.LESSONS = [
       { jp: "おうふく", romaji: "oufuku",   en: "round trip", pos: "n" },
       { jp: "かたみち", romaji: "katamichi", en: "one-way", pos: "n" },
       { jp: "かいます", romaji: "kaimasu",  en: "buy  (買う)", pos: "v" },
+      { jp: "おねがいします", romaji: "onegai shimasu", en: "please (request)", pos: "expr" },
     ],
     sentences: [
       { en: "One ticket to Shinjuku, please.", jp: "しんじゅくまで いちまい おねがいします。", romaji: "shinjuku made ichi-mai onegai shimasu.",
@@ -2191,6 +2197,7 @@ window.LESSONS = [
       { jp: "ふゆ",       romaji: "fuyu",       en: "winter  (冬)", pos: "n" },
       { jp: "さんせい",   romaji: "sansei",     en: "agreement / approval  (賛成)", pos: "n" },
       { jp: "たより",     romaji: "tayori",     en: "reliance  (頼り)", pos: "n" },
+      { jp: "あたたかい",  romaji: "atatakai",   en: "warm", pos: "adj" },
     ],
     sentences: [
       { en: "Although I promised, I couldn't go.", jp: "やくそくしたものの、いけなかった。", romaji: "yakusoku shita mono no, ikenakatta.",
