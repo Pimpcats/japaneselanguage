@@ -41,7 +41,7 @@ body::before {
    settings) below it — the controls live off the sign, grouped with the 1/6. */
 #app { position: relative; }
 #topbar { display: none !important; }
-#app-header { position: sticky; top: 0; z-index: 8; margin: 0 0 0.5rem; }
+#app-header { position: static; z-index: 8; margin: 0 0 0.5rem; }
 #app-banner {
   position: relative; width: 100%; height: clamp(78px, 22vw, 98px);
   background: url("../assets/sign.png") center / 100% 100% no-repeat;
