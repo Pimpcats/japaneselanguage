@@ -16,8 +16,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=80" />
-    <link rel="stylesheet" href="theme.css?v=80" />
+    <link rel="stylesheet" href="styles.css?v=81" />
+    <link rel="stylesheet" href="theme.css?v=81" />
     <link rel="preload" as="image" href="assets/frame.png" />
     <link rel="preload" as="image" href="assets/sign.png" />
     <link rel="preload" as="image" href="assets/awning.png" />
@@ -116,8 +116,50 @@
 
         <div class="intro-actions">
           <button id="start-btn" class="primary">Start practice →</button>
+          <button id="quiz-btn" class="secondary">🎤 Speaking quiz</button>
           <button id="build-btn" class="secondary">🧩 Build the sentence</button>
           <button id="build-hard-btn" class="secondary" title="No English — rebuild from audio, with decoy words mixed in">🔥 Build — hard mode</button>
+        </div>
+      </section>
+
+      <!-- ============ SPEAKING QUIZ ============ -->
+      <section id="quiz" class="screen" hidden>
+        <div id="quiz-progress" class="quiz-progress"></div>
+
+        <div id="quiz-card">
+          <div class="label">How do you say…</div>
+          <div id="quiz-en">…</div>
+          <button id="quiz-hint-btn" class="link" hidden>show hint</button>
+          <div id="quiz-hint" class="quiz-hint" hidden></div>
+
+          <div id="quiz-heard" class="quiz-heard" hidden></div>
+          <div id="quiz-verdict" class="quiz-verdict" hidden></div>
+
+          <div id="quiz-answer" class="quiz-answer" hidden>
+            <div class="label">Model answer</div>
+            <div id="quiz-kana"></div>
+            <div id="quiz-romaji"></div>
+          </div>
+        </div>
+
+        <div id="quiz-controls">
+          <button id="quiz-mic-btn" class="primary">🎤 Tap &amp; speak</button>
+          <button id="quiz-play-btn" class="secondary" hidden>🔊 hear it</button>
+          <button id="quiz-reveal-btn" class="secondary">show answer</button>
+          <button id="quiz-skip-btn" class="secondary">skip →</button>
+          <button id="quiz-next-btn" class="primary" hidden>next →</button>
+        </div>
+
+        <p id="quiz-unsupported" class="lesson-note" hidden></p>
+
+        <div id="quiz-summary" class="quiz-summary" hidden>
+          <div class="done-emoji">🎤</div>
+          <h2>Quiz complete</h2>
+          <p id="quiz-score" class="lesson-note"></p>
+          <div class="done-actions">
+            <button id="quiz-back-btn" class="secondary">← lesson</button>
+            <button id="quiz-again-btn" class="primary">quiz again</button>
+          </div>
         </div>
       </section>
 
@@ -314,6 +356,7 @@
         <p id="done-summary" class="lesson-note"></p>
         <div class="done-actions">
           <button id="done-home-btn" class="secondary">← all lessons</button>
+          <button id="done-quiz-btn" class="secondary">🎤 Speaking quiz</button>
           <button id="restart-btn" class="primary">practice again</button>
         </div>
       </section>
@@ -324,9 +367,9 @@
       </footer>
     </main>
 
-    <script src="lessons.js?v=80"></script>
-    <script src="app.js?v=80"></script>
-    <script src="theme.js?v=80"></script>
-    <script src="collection.js?v=80"></script>
+    <script src="lessons.js?v=81"></script>
+    <script src="app.js?v=81"></script>
+    <script src="theme.js?v=81"></script>
+    <script src="collection.js?v=81"></script>
   </body>
 </html>

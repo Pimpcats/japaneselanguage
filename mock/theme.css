@@ -560,3 +560,35 @@ footer { font-family: var(--display); color: var(--muted); }
 
 /* nested How-it-works sub-sections (structure + colours) */
 .howit-sub { margin-top: 0.5rem; }
+
+/* ---- speaking quiz ------------------------------------------------------- */
+#quiz { display: flex; flex-direction: column; gap: 0.7rem; }
+.quiz-progress {
+  align-self: center; font-family: var(--display); font-size: 0.8rem; color: var(--ink);
+  background: #fff; border: 2.5px solid var(--ink); border-radius: 999px;
+  padding: 0.2rem 0.8rem; box-shadow: 0 3px 0 rgba(74, 51, 40, 0.16);
+}
+#quiz-card {
+  background: #fffdf6; border: 2.5px solid var(--ink); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 1.1rem 1rem; text-align: center;
+  display: flex; flex-direction: column; gap: 0.6rem; align-items: center;
+}
+#quiz-en { font-size: 1.4rem; font-weight: 800; color: var(--ink); line-height: 1.25; }
+.quiz-hint { color: var(--muted); font-weight: 600; font-size: 0.9rem; }
+.quiz-heard { font-size: 1rem; color: var(--ink); }
+.quiz-heard b { font-weight: 900; }
+.quiz-verdict {
+  font-family: var(--display); font-weight: 700; font-size: 0.95rem;
+  border: 2.5px solid var(--ink); border-radius: 999px; padding: 0.35rem 0.9rem; box-shadow: 0 3px 0 var(--ink);
+}
+.quiz-verdict.pass  { background: color-mix(in srgb, var(--good) 26%, #fff); color: var(--ink); }
+.quiz-verdict.close { background: color-mix(in srgb, var(--gold) 28%, #fff); color: var(--ink); }
+.quiz-verdict.miss  { background: color-mix(in srgb, var(--bad) 18%, #fff);  color: var(--ink); }
+.quiz-answer { width: 100%; border-top: 2px dashed color-mix(in srgb, var(--ink) 30%, #fff); padding-top: 0.5rem; }
+#quiz-kana { font-size: 1.5rem; font-weight: 800; color: var(--ink); }
+#quiz-romaji { color: var(--muted); font-weight: 600; }
+#quiz-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+#quiz-controls button.primary, #quiz-controls button.secondary { flex: 1; min-width: 0; padding: 0.7rem 0.6rem; font-size: 0.98rem; }
+#quiz-mic-btn.listening { background: var(--bad); color: #fff; animation: quizpulse 1s ease-in-out infinite; }
+@keyframes quizpulse { 0%, 100% { box-shadow: 0 4px 0 var(--ink); } 50% { box-shadow: 0 4px 0 var(--ink), 0 0 0 6px color-mix(in srgb, var(--bad) 35%, transparent); } }
+.quiz-summary { text-align: center; display: flex; flex-direction: column; gap: 0.6rem; align-items: center; padding-top: 1rem; }

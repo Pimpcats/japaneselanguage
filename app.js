@@ -343,6 +343,14 @@
     voiceSelect: $("voice-select"), voiceTestBtn: $("voice-test-btn"),
     syncStatus: $("sync-status"), syncConnectBtn: $("sync-connect-btn"), syncDisconnectBtn: $("sync-disconnect-btn"),
     resetBtn: $("reset-btn"), goalSelect: $("goal-select"), directionSelect: $("direction-select"),
+    quizBtn: $("quiz-btn"), doneQuizBtn: $("done-quiz-btn"), quiz: $("quiz"),
+    quizCard: $("quiz-card"), quizControls: $("quiz-controls"),
+    quizProgress: $("quiz-progress"), quizEn: $("quiz-en"), quizHintBtn: $("quiz-hint-btn"), quizHint: $("quiz-hint"),
+    quizHeard: $("quiz-heard"), quizVerdict: $("quiz-verdict"), quizAnswer: $("quiz-answer"),
+    quizKana: $("quiz-kana"), quizRomaji: $("quiz-romaji"),
+    quizMicBtn: $("quiz-mic-btn"), quizPlayBtn: $("quiz-play-btn"), quizRevealBtn: $("quiz-reveal-btn"),
+    quizSkipBtn: $("quiz-skip-btn"), quizNextBtn: $("quiz-next-btn"), quizUnsupported: $("quiz-unsupported"),
+    quizSummary: $("quiz-summary"), quizScore: $("quiz-score"), quizBackBtn: $("quiz-back-btn"), quizAgainBtn: $("quiz-again-btn"),
   };
 
   function span(cls, text) { const s = document.createElement("span"); s.className = cls; s.textContent = text; return s; }
@@ -536,12 +544,13 @@
   }
 
   // ---- Navigation ----------------------------------------------------------
-  const screens = [el.home, el.intro, el.drill, el.done, el.settings, el.mineForm, el.importForm, el.reader];
+  const screens = [el.home, el.intro, el.drill, el.done, el.quiz, el.settings, el.mineForm, el.importForm, el.reader];
   // last non-settings screen, so the gear can toggle back to exactly where you were
   let visibleScreen = el.home, visibleBack = false;
   function show(screen, { back = false } = {}) {
     speechSynthesis.cancel();
     stopAudio();
+    if (quizRec) { try { quizRec.abort(); } catch (e) {} quizRec = null; if (quiz) quiz.listening = false; }
     screens.forEach((s) => (s.hidden = s !== screen));
     if (el.readerPop) el.readerPop.hidden = true;
     el.backBtn.hidden = !back;
@@ -1780,12 +1789,176 @@
     show(el.done, { back: true });
   }
 
+  // ---- Speaking quiz -------------------------------------------------------
+  // Shows an English prompt; you say the Japanese out loud and the browser's
+  // speech recognition (ja-JP) transcribes it. We compare by READING: both the
+  // target sentence and what you said are reduced to bare hiragana (kanji in the
+  // transcript are read via the kuromoji dictionary), then scored by edit
+  // distance — so "私はトムです" spoken matches "わたしは トムです。" on the card.
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let quiz = null;       // { items, idx, results:[], target, listening }
+  let quizRec = null;    // live SpeechRecognition instance
+
+  // Reduce any Japanese text to a bare-hiragana "reading" for comparison:
+  // katakana → hiragana (reusing kataToHira above), then drop everything that
+  // isn't a hiragana mora (spaces, punctuation, the ー long mark, latin).
+  function normReading(s) { return kataToHira(s).replace(/[^ぁ-ゖ]/g, ""); }
+  function readingOf(text) {
+    if (kuroTok) {
+      try {
+        return normReading(kuroTok.tokenize(text)
+          .map((t) => (t.reading && t.reading !== "*") ? t.reading : t.surface_form).join(""));
+      } catch (e) {}
+    }
+    return normReading(text);
+  }
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    if (!m) return n; if (!n) return m;
+    let prev = Array.from({ length: n + 1 }, (_, i) => i);
+    for (let i = 1; i <= m; i++) {
+      const cur = [i];
+      for (let j = 1; j <= n; j++)
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = cur;
+    }
+    return prev[n];
+  }
+  function similarity(a, b) {
+    const max = Math.max(a.length, b.length);
+    return max ? 1 - levenshtein(a, b) / max : (a === b ? 1 : 0);
+  }
+
+  function startQuiz(L) {
+    if (!L) return;
+    const cards = CARDS.filter((c) => c.lessonId === L.id);
+    if (!cards.length) return;
+    const items = cards.slice();
+    for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [items[i], items[j]] = [items[j], items[i]]; }
+    quiz = { items, idx: 0, results: [], listening: false };
+    loadTokenizer().catch(() => {});   // warm the dict so kanji readings are accurate
+    show(el.quiz, { back: true });
+    renderQuizCard();
+  }
+
+  function setMic(listening) {
+    el.quizMicBtn.classList.toggle("listening", listening);
+    el.quizMicBtn.textContent = listening ? "● listening… (tap to stop)" : "🎤 Tap & speak";
+  }
+
+  function renderQuizCard() {
+    const card = quiz.items[quiz.idx];
+    quiz.target = card.s;
+    el.quizCard.hidden = false; el.quizControls.hidden = false;
+    el.quizProgress.hidden = false; el.quizSummary.hidden = true;
+    el.quizProgress.textContent = (quiz.idx + 1) + " / " + quiz.items.length;
+    el.quizEn.textContent = card.s.en;
+    el.quizHintBtn.hidden = !card.s.hint;
+    el.quizHintBtn.textContent = "show hint";
+    el.quizHint.hidden = true; el.quizHint.textContent = card.s.hint || "";
+    el.quizHeard.hidden = true; el.quizHeard.textContent = "";
+    el.quizVerdict.hidden = true; el.quizVerdict.className = "quiz-verdict";
+    el.quizAnswer.hidden = true; el.quizKana.innerHTML = ""; el.quizRomaji.textContent = "";
+    el.quizMicBtn.hidden = false; el.quizMicBtn.disabled = !SpeechRec; setMic(false);
+    el.quizPlayBtn.hidden = true;
+    el.quizRevealBtn.hidden = false; el.quizSkipBtn.hidden = false; el.quizNextBtn.hidden = true;
+    el.quizUnsupported.hidden = !!SpeechRec;
+    if (!SpeechRec) el.quizUnsupported.textContent =
+      "Speech recognition isn't available here. On iPhone open this in Safari (not an in-app browser); on a computer use Chrome. You can still reveal the answer and hear it.";
+  }
+
+  function startListening() {
+    if (!SpeechRec) return;
+    if (quiz.listening) { try { quizRec && quizRec.stop(); } catch (e) {} return; }
+    try { quizRec = new SpeechRec(); } catch (e) { return; }
+    quizRec.lang = "ja-JP"; quizRec.interimResults = false; quizRec.maxAlternatives = 5; quizRec.continuous = false;
+    quiz.listening = true; setMic(true);
+    el.quizHeard.hidden = true; el.quizVerdict.hidden = true;
+    quizRec.onresult = (e) => {
+      const res = e.results[0], alts = [];
+      for (let i = 0; i < res.length; i++) alts.push(res[i].transcript);
+      gradeSpoken(alts);
+    };
+    quizRec.onerror = (ev) => {
+      quiz.listening = false; setMic(false);
+      let msg;
+      if (ev.error === "not-allowed" || ev.error === "service-not-allowed")
+        msg = "🎤 Microphone is blocked — allow mic access for this site, then tap again.";
+      else if (ev.error === "no-speech") msg = "Didn't catch that — tap and speak a little louder.";
+      else if (ev.error === "audio-capture") msg = "No microphone found on this device.";
+      else msg = "Couldn't hear you — give it another go.";
+      el.quizVerdict.hidden = false; el.quizVerdict.className = "quiz-verdict miss"; el.quizVerdict.textContent = msg;
+    };
+    quizRec.onend = () => { quiz.listening = false; setMic(false); };
+    try { quizRec.start(); } catch (e) { quiz.listening = false; setMic(false); }
+  }
+
+  function gradeSpoken(alts) {
+    const target = readingOf(plainJP(quiz.target.jp));
+    let best = { score: -1, heard: alts[0] || "" };
+    for (const a of alts) {
+      const sc = similarity(readingOf(a), target);
+      if (sc > best.score) best = { score: sc, heard: a };
+    }
+    const pct = Math.max(0, Math.round(best.score * 100));
+    quiz.results[quiz.idx] = Math.max(quiz.results[quiz.idx] || 0, best.score);
+    el.quizHeard.hidden = false;
+    el.quizHeard.innerHTML = "you said: <b>" + escHTML(best.heard) + "</b>";
+    el.quizVerdict.hidden = false;
+    if (best.score >= 0.85) {
+      el.quizVerdict.className = "quiz-verdict pass"; el.quizVerdict.textContent = "✓ Perfect! (" + pct + "% match)";
+      try { window.HanaFX && HanaFX.pop && HanaFX.pop(); } catch (e) {}
+    } else if (best.score >= 0.6) {
+      el.quizVerdict.className = "quiz-verdict close"; el.quizVerdict.textContent = "◐ Close — got the gist (" + pct + "% match)";
+    } else {
+      el.quizVerdict.className = "quiz-verdict miss"; el.quizVerdict.textContent = "✗ Not quite (" + pct + "% match) — try again, or show the answer";
+    }
+    showQuizAnswer();
+  }
+
+  function showQuizAnswer() {
+    el.quizAnswer.hidden = false;
+    el.quizKana.innerHTML = furiganaHTML(quiz.target.jp);
+    if (settings.romaji && quiz.target.romaji) { el.quizRomaji.hidden = false; el.quizRomaji.textContent = quiz.target.romaji; }
+    else el.quizRomaji.hidden = true;
+    el.quizPlayBtn.hidden = false; el.quizRevealBtn.hidden = true; el.quizSkipBtn.hidden = true;
+    el.quizNextBtn.hidden = false;
+    el.quizNextBtn.textContent = (quiz.idx >= quiz.items.length - 1) ? "see results →" : "next →";
+    speak(quiz.target.jp, { lang: "ja-JP" });   // always hear the correct version
+  }
+
+  function quizNext() {
+    if (!quiz) return;
+    if (quiz.idx >= quiz.items.length - 1) { finishQuiz(); return; }
+    quiz.idx += 1; renderQuizCard();
+  }
+
+  function finishQuiz() {
+    el.quizCard.hidden = true; el.quizControls.hidden = true; el.quizProgress.hidden = true;
+    el.quizSummary.hidden = false;
+    const total = quiz.items.length;
+    const passed = quiz.results.filter((s) => s >= 0.6).length;
+    el.quizScore.textContent = `You spoke ${passed} of ${total} sentence${total === 1 ? "" : "s"} clearly. ` +
+      (passed === total ? "Flawless — your pronunciation is landing! 🎉" : "Saying it out loud is what builds confidence — keep at it.");
+    if (passed >= Math.ceil(total * 0.8)) { try { window.HanaFX && HanaFX.confetti && HanaFX.confetti(); } catch (e) {} }
+  }
+
   // ---- Wire up -------------------------------------------------------------
   el.backBtn.addEventListener("click", renderHome);
   el.doneHomeBtn.addEventListener("click", renderHome);
   el.reviewBtn.addEventListener("click", startReview);
   el.focusBtn.addEventListener("click", startFocus);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
+  el.quizBtn.addEventListener("click", () => startQuiz(activeLesson));
+  el.doneQuizBtn.addEventListener("click", () => startQuiz(activeLesson));
+  el.quizMicBtn.addEventListener("click", startListening);
+  el.quizPlayBtn.addEventListener("click", () => { if (quiz && quiz.target) speak(quiz.target.jp, { lang: "ja-JP" }); });
+  el.quizRevealBtn.addEventListener("click", () => { if (!quiz) return; quiz.results[quiz.idx] = quiz.results[quiz.idx] || 0; showQuizAnswer(); });
+  el.quizSkipBtn.addEventListener("click", () => { if (!quiz) return; quiz.results[quiz.idx] = quiz.results[quiz.idx] || 0; quizNext(); });
+  el.quizNextBtn.addEventListener("click", quizNext);
+  el.quizHintBtn.addEventListener("click", () => { el.quizHint.hidden = !el.quizHint.hidden; el.quizHintBtn.textContent = el.quizHint.hidden ? "show hint" : "hide hint"; });
+  el.quizBackBtn.addEventListener("click", () => { if (activeLesson) openIntro(activeLesson); else renderHome(); });
+  el.quizAgainBtn.addEventListener("click", () => startQuiz(activeLesson));
   el.buildBtn.addEventListener("click", () => startLesson(activeLesson, { build: true }));
   el.buildHardBtn.addEventListener("click", () => startLesson(activeLesson, { build: true, hard: true }));
   el.buildReset.addEventListener("click", () => { if (build && !build.solved) startBuild(current.s); });

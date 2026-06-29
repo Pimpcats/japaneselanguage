@@ -348,11 +348,12 @@
       if (isVis("mine-form")) return "Add a sentence";
       if (isVis("import-form")) return "Import sentences";
       if (isVis("lesson-done")) return "Lesson complete!";
-      if (isVis("lesson-intro") || isVis("drill")) {
+      if (isVis("lesson-intro") || isVis("drill") || isVis("quiz")) {
         const cur = (document.getElementById("lesson-title") || {}).textContent || "";
         if (cur) lastLesson = cur;
         const lv = levelOf(lastLesson);
-        return (lv ? lv + " · " : "") + (lastLesson || "Practice");
+        const prefix = isVis("quiz") ? "🎤 " : "";
+        return prefix + (lv ? lv + " · " : "") + (lastLesson || "Practice");
       }
       if (isVis("home")) {
         const det = document.querySelector(".level-detail-title");
