@@ -8,7 +8,7 @@ name: Generate audio
 
 on:
   push:
-    branches: [claude/amazing-cannon-PPvmw]
+    branches: [main, claude/amazing-cannon-PPvmw]
     paths:
       - lessons.js
       - tools/gen_audio.mjs
