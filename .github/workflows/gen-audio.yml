@@ -48,7 +48,7 @@ jobs:
           echo "VOICEVOX did not become ready in time"; docker logs voicevox || true; exit 1
 
       - name: Generate audio
-        run: VOICEVOX=http://127.0.0.1:50021 SPEAKER=2 node tools/gen_audio.mjs
+        run: VOICEVOX=http://127.0.0.1:50021 SPEAKER=20 node tools/gen_audio.mjs
 
       - name: Commit regenerated audio
         run: |

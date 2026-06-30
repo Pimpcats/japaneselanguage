@@ -8,11 +8,13 @@
 // filenames are content hashes, so unchanged strings keep the same file.
 //
 // Usage (needs a running local VOICEVOX ENGINE listening on $VOICEVOX):
-//   VOICEVOX=http://127.0.0.1:50021 SPEAKER=2 node tools/gen_audio.mjs
+//   VOICEVOX=http://127.0.0.1:50021 SPEAKER=20 node tools/gen_audio.mjs
 // Get the engine from https://github.com/VOICEVOX/voicevox_engine/releases
 // (or `docker run -p 50021:50021 voicevox/voicevox_engine`), and ffmpeg on PATH.
 //
-// SPEAKER=2 is Shikoku Metan (ノーマル), a clear neutral female voice.
+// SPEAKER=20 is もち子さん (ノーマル). NOTE: clip filenames hash the TEXT only,
+// not the voice — so to switch voices you must delete audio/*.mp3 first, or the
+// existing clips get reused and the new voice is never synthesized.
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -23,7 +25,7 @@ import { dirname, join } from "node:path";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const AUDIO_DIR = join(ROOT, "audio");
 const BASE = (process.env.VOICEVOX || "http://127.0.0.1:50021").replace(/\/$/, "");
-const SPEAKER = Number(process.env.SPEAKER || 2);
+const SPEAKER = Number(process.env.SPEAKER || 20);
 const SLOW_SCALE = 0.75; // natural-pitch slow playback for the "slow" button
 
 // ---- Load the exact strings the app will look up -------------------------
