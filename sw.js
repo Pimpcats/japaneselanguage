@@ -1,6 +1,6 @@
 // Service worker — offline app shell for the Hanasou PWA.
 // Bump CACHE when the precached shell list changes to evict the old cache.
-const CACHE = "hanasou-v89";
+const CACHE = "hanasou-v90";
 const SHELL = [
   "./",
   "index.html",
@@ -87,10 +87,12 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Navigations: network-first so a fresh deploy is picked up, cache as offline fallback.
+  // Navigations: network-first so a fresh deploy is picked up, cache as offline
+  // fallback. cache:"no-cache" bypasses the HTTP cache (Pages serves index with
+  // max-age=600, which made reopen-right-after-a-deploy show the stale page).
   if (req.mode === "navigate") {
     event.respondWith(
-      fetch(req)
+      fetch(req, { cache: "no-cache" })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put("index.html", copy));
