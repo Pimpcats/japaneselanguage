@@ -667,3 +667,11 @@ footer { font-family: var(--display); color: var(--muted); }
 /* journey nodes ahead of you are waypoints, not locks — they stay tappable */
 .node-locked .node-dot { cursor: pointer; }
 #stats .week-rhythm { flex: 1; }
+
+/* tiny running-version stamp in the sign's white band (top-right, clear of
+   the centered title) — lets the owner see at a glance if they're current */
+.ab-ver {
+  position: absolute; top: 27%; right: 11%; z-index: 3;
+  font-size: 0.52rem; font-weight: 900; letter-spacing: 0.05em;
+  color: color-mix(in srgb, var(--ink) 45%, #fff);
+}

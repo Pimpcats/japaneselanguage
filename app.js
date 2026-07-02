@@ -2304,6 +2304,38 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+// Manual update check — the version comes from the stylesheet's ?v= param so
+// there's no extra place to bump; the button force-fetches the newest deploy
+// when iOS is slow to surface the automatic reload banner.
+(function () {
+  const btn = document.getElementById("update-btn");
+  if (!btn) return;
+  const m = ((document.querySelector('link[href*="theme.css"]') || {}).href || "").match(/v=(\d+)/);
+  const APP_V = m ? "v" + m[1] : "";
+  const label = () => { btn.textContent = "↻ " + (APP_V ? APP_V + " · " : "") + "check for update"; };
+  label();
+  // Expose the running version for the header chip (theme.js renders it).
+  window.HANASOU_VERSION = APP_V;
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    btn.textContent = "↻ checking…";
+    try {
+      const reg = "serviceWorker" in navigator ? await navigator.serviceWorker.getRegistration() : null;
+      if (reg) {
+        await reg.update();
+        if (reg.waiting) {                      // fresh version downloaded → swap in
+          btn.textContent = "↻ updating…";
+          reg.waiting.postMessage({ type: "SKIP_WAITING" });   // controllerchange reloads
+          return;
+        }
+      }
+    } catch (e) {}
+    // No new service worker — plain reload still refetches index.html
+    // network-first, so a stuck page comes back current.
+    setTimeout(() => window.location.reload(), 350);
+  });
+})();
+
 function showUpdateBanner(worker) {
   if (document.getElementById("sw-update")) return;
   const bar = document.createElement("div");

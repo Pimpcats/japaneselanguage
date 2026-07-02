@@ -287,6 +287,7 @@
     banner.id = "app-banner";
     banner.innerHTML =
       '<span class="ab-text"></span>' +
+      '<span class="ab-ver">' + (window.HANASOU_VERSION || "") + "</span>" +
       '<img class="ab-awning" src="' + A + 'awning.png" alt="">';
 
     // Control bar under the banner — Back / Home / the 1/6 counter / Settings
