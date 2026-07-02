@@ -1800,7 +1800,29 @@
   // katakana → hiragana (reusing kataToHira above), then drop everything that
   // isn't a hiragana mora (spaces, punctuation, the ー long mark, latin).
   function normReading(s) { return kataToHira(s).replace(/[^ぁ-ゖ]/g, ""); }
+  // Recognizers write numbers as digits (500円です) while cards are kana
+  // (ごひゃくえんです) — digits carry no kana and would be dropped from the
+  // comparison, tanking the score of a perfectly spoken answer. Spell them
+  // out, with the usual sound changes (さんびゃく, ろっぴゃく, はっせん…).
+  const KANA_DIGITS = ["ぜろ", "いち", "に", "さん", "よん", "ご", "ろく", "なな", "はち", "きゅう"];
+  function kanaNumber(numStr) {
+    const n = parseInt(numStr, 10);
+    if (!isFinite(n)) return numStr;
+    if (n === 0) return "ぜろ";
+    if (n >= 10000) return String(n).split("").map((d) => KANA_DIGITS[+d]).join("");
+    let out = "";
+    const th = Math.floor(n / 1000), hu = Math.floor(n / 100) % 10, te = Math.floor(n / 10) % 10, un = n % 10;
+    if (th) out += (th === 1 ? "" : th === 3 ? "さん" : th === 8 ? "はっ" : KANA_DIGITS[th]) + (th === 3 ? "ぜん" : "せん");
+    if (hu) out += (hu === 1 ? "" : hu === 3 ? "さん" : hu === 6 ? "ろっ" : hu === 8 ? "はっ" : KANA_DIGITS[hu]) + (hu === 3 ? "びゃく" : (hu === 6 || hu === 8) ? "ぴゃく" : "ひゃく");
+    if (te) out += (te === 1 ? "" : KANA_DIGITS[te]) + "じゅう";
+    if (un) out += KANA_DIGITS[un];
+    return out;
+  }
+  const normalizeDigits = (s) => String(s || "")
+    .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+    .replace(/\d+/g, kanaNumber);
   function readingOf(text) {
+    text = normalizeDigits(text);
     if (kuroTok) {
       try {
         return normReading(kuroTok.tokenize(text)
@@ -1953,7 +1975,10 @@
         el.quizHeard.hidden = false;
         el.quizHeard.innerHTML = "hearing: <b>" + escHTML(interim) + "</b>…";
       }
-      if (recFinals.length && !recGraded) { recGraded = true; gradeSpoken(recFinals.slice()); }
+      if (recFinals.length && !recGraded) {
+        recGraded = true;
+        gradeSpoken(recInterim ? recFinals.concat([recInterim]) : recFinals.slice());
+      }
     };
     quizRec.onerror = (ev) => {
       let msg;
@@ -2022,12 +2047,12 @@
       "you said: <b>" + escHTML(best.heard) + "</b>" +
       '<div class="quiz-diff">' + kanaDiffHTML(best.reading, target) + "</div>";
     el.quizVerdict.hidden = false;
-    if (best.score >= 0.85) {
+    if (best.score >= 0.75) {
       const M = window.MOCHIKO;
       const praise = M && M.praise && M.praise.length ? M.praise[Math.floor(Math.random() * M.praise.length)].jp + " " : "";
       el.quizVerdict.className = "quiz-verdict pass"; el.quizVerdict.textContent = "✓ " + praise + "Perfect! (" + pct + "% match)";
       try { window.HanaFX && HanaFX.pop && HanaFX.pop(); } catch (e) {}
-    } else if (best.score >= 0.6) {
+    } else if (best.score >= 0.5) {
       el.quizVerdict.className = "quiz-verdict close"; el.quizVerdict.textContent = "◐ Close — got the gist (" + pct + "% match)";
     } else {
       el.quizVerdict.className = "quiz-verdict miss"; el.quizVerdict.textContent = "✗ Not quite (" + pct + "% match) — try again, or show the answer";
@@ -2086,14 +2111,14 @@
     if (quiz.scene) {
       // Only your lines count — もち子さん's don't grade you.
       const yourLines = quiz.steps.filter((s) => s.who === "you").length;
-      const passed = quiz.results.filter((s) => s >= 0.6).length;
+      const passed = quiz.results.filter((s) => s >= 0.5).length;
       el.quizScore.textContent = `Scene played through — you spoke ${passed} of ${yourLines} line${yourLines === 1 ? "" : "s"} clearly. ` +
         (passed === yourLines ? "もち子さん is delighted! 🎉" : "The shop's open every day — come back and run it again.");
       if (passed >= Math.ceil(yourLines * 0.8)) { try { window.HanaFX && HanaFX.confetti && HanaFX.confetti(); } catch (e) {} }
       return;
     }
     const total = quiz.items.length;
-    const passed = quiz.results.filter((s) => s >= 0.6).length;
+    const passed = quiz.results.filter((s) => s >= 0.5).length;
     el.quizScore.textContent = `You spoke ${passed} of ${total} sentence${total === 1 ? "" : "s"} clearly. ` +
       (passed === total ? "Flawless — your pronunciation is landing! 🎉" : "Saying it out loud is what builds confidence — keep at it.");
     if (passed >= Math.ceil(total * 0.8)) { try { window.HanaFX && HanaFX.confetti && HanaFX.confetti(); } catch (e) {} }

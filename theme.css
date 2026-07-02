@@ -468,9 +468,12 @@ footer { font-family: var(--display); color: var(--muted); }
   background: repeating-linear-gradient(180deg, color-mix(in srgb, var(--map-accent) 55%, var(--ink)) 0 11px, transparent 11px 22px);
   opacity: 0.55; border-radius: 3px;
 }
-.map-node { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 64px; }
+/* Each stop is a dot with its name directly beneath it — the label can never
+   read as belonging to a neighbouring node (labels used to alternate sides of
+   the road, which paired them ambiguously once titles wrapped). */
+.map-node { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.28rem; padding: 0.45rem 0; }
 .node-dot {
-  grid-column: 2; width: 54px; height: 54px; border-radius: 50%; cursor: pointer; z-index: 1;
+  width: 54px; height: 54px; border-radius: 50%; cursor: pointer; z-index: 1;
   border: 3px solid var(--ink); background: #fff; color: var(--ink); font-family: var(--display); font-size: 1rem;
   box-shadow: 0 4px 0 var(--ink); display: grid; place-items: center; transition: transform 0.08s, box-shadow 0.08s;
 }
@@ -483,14 +486,13 @@ footer { font-family: var(--display); color: var(--muted); }
   50% { box-shadow: 0 4px 0 var(--ink), 0 0 0 7px color-mix(in srgb, var(--map-accent) 32%, transparent); }
 }
 .node-todo .node-dot { color: color-mix(in srgb, var(--ink) 55%, #fff); border-style: dashed; }
-.node-me { position: absolute; grid-column: 2; justify-self: center; bottom: 44px; width: 60px; z-index: 3;
+.node-me { position: absolute; left: calc(50% + 32px); top: 0.2rem; width: 54px; z-index: 3;
   filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.18)); pointer-events: none; animation: bob 3s ease-in-out infinite; }
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 
-.node-side { display: flex; flex-direction: column; gap: 0.18rem; }
-.map-node:nth-child(odd) .node-side { grid-column: 1; align-items: flex-end; text-align: right; padding-right: 0.7rem; }
-.map-node:nth-child(even) .node-side { grid-column: 3; align-items: flex-start; text-align: left; padding-left: 0.7rem; }
-.node-label { font-weight: 900; font-size: 0.82rem; color: var(--ink); line-height: 1.15; }
+.node-side { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.18rem; max-width: 78%; }
+.node-side .node-label { background: color-mix(in srgb, #fff 78%, transparent); border-radius: 8px; padding: 0 0.35rem; }
+.node-label { font-weight: 900; font-size: 0.8rem; color: var(--ink); line-height: 1.15; }
 .node-todo .node-label { color: color-mix(in srgb, var(--ink) 65%, #fff); }
 .node-badge { font-family: var(--display); font-size: 0.56rem; border: 2px solid var(--ink); border-radius: 999px; padding: 0.04rem 0.45rem; }
 .node-badge.done { background: var(--good); color: #fff; }

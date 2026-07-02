@@ -137,7 +137,9 @@ the clip, falling back to device `speechSynthesis` if missing.
 
 English prompt → Web Speech API (`ja-JP`) transcription → compare by READING:
 both sides reduced to bare hiragana (kanji read via the vendored kuromoji
-tokenizer), scored by edit distance. Thresholds: ≥85% pass, ≥60% close. Quiz is
+tokenizer, digits spelled out to kana — 500円→ごひゃくえん), scored by edit
+distance. Thresholds: ≥75% pass, ≥50% close — deliberately forgiving, the
+recognizer mishears a mora or two even on clean speech. Quiz is
 pure practice — it must NEVER touch SRS scheduling (owner decision).
 Speech recognition needs real Safari/Chrome (not webviews); the quiz degrades
 to reveal-and-listen when unavailable.
@@ -163,8 +165,13 @@ to reveal-and-listen when unavailable.
   New scene lines for her need clips; reuse existing lesson sentences for the
   learner's lines so their clips already exist.
 - **The Japan-map journey** is the level page: cartoon-Japan SVG + pins, themes
-  as regions, lessons as road nodes. "Ahead" nodes are styling only — every
-  lesson stays tappable (no artificial scarcity, ever).
+  as regions, lessons as road nodes (label sits directly UNDER its dot — never
+  beside, it misreads). "Ahead" nodes are styling only — every lesson stays
+  tappable (no artificial scarcity, ever).
+- **Planned: Donkey-Kong-style map** — nodes hopping between scenic spots
+  (cities, forests, shrines) on illustrated terrain. The OWNER is producing the
+  art; keep the node/trail DOM structure stable so scene art can slot in behind
+  it. Don't generate placeholder scenery art unprompted.
 - **Real-world missions** (`window.MISSIONS`, shown on lesson complete) and the
   **weekly rhythm dots** (7 forgiving days, `prog.practice`) replace
   streak-guilt. Do not add streak pressure back.
