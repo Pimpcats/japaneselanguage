@@ -16,7 +16,7 @@
 // not the voice — so to switch voices you must delete audio/*.mp3 first, or the
 // existing clips get reused and the new voice is never synthesized.
 
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -105,10 +105,21 @@ async function synth(text, speedScale) {
 
 const sha = (s) => createHash("sha1").update(s, "utf8").digest("hex").slice(0, 16);
 
+// Peak-normalize to -1.5 dB while encoding — raw VOICEVOX output leaves
+// 6-18 dB of headroom, which played back far too quiet on phones. Keeping
+// every clip at the same peak means no client-side volume knob is needed.
 function toMp3(wav, outPath) {
   const tmp = outPath + ".wav";
   writeFileSync(tmp, wav);
-  execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", tmp, "-codec:a", "libmp3lame", "-q:a", "4", outPath]);
+  let gainArgs = [];
+  // volumedetect prints its report on stderr (ffmpeg exits 0)
+  const probe = spawnSync("ffmpeg", ["-y", "-i", tmp, "-af", "volumedetect", "-f", "null", "-"], { encoding: "utf8" });
+  const m = /max_volume:\s*(-?[\d.]+)\s*dB/.exec(probe.stderr || "");
+  if (m) {
+    const gain = -1.5 - parseFloat(m[1]);
+    if (Math.abs(gain) >= 1) gainArgs = ["-af", `volume=${gain.toFixed(1)}dB`];
+  }
+  execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", tmp, ...gainArgs, "-codec:a", "libmp3lame", "-q:a", "4", outPath]);
   rmSync(tmp);
 }
 

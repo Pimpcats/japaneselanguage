@@ -479,7 +479,9 @@ footer { font-family: var(--display); color: var(--muted); }
 }
 .node-dot:active { transform: translateY(4px); box-shadow: 0 0 0 var(--ink); }
 .node-dot img { width: 34px; height: 34px; transform: rotate(-8deg); }
-.node-done .node-dot { background: var(--gold); }
+/* done = cream dot so the gold stamp reads clearly (gold-on-gold was faint) */
+.node-done .node-dot { background: #fffdf6; }
+.node-done .node-dot img { width: 42px; height: 42px; filter: drop-shadow(0 1px 1px rgba(74, 51, 40, 0.35)); }
 .node-current .node-dot { background: var(--map-accent); color: #fff; animation: node-pulse 1.7s ease-in-out infinite; }
 @keyframes node-pulse {
   0%, 100% { box-shadow: 0 4px 0 var(--ink); }

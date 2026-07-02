@@ -1277,6 +1277,7 @@
 
         const dot = document.createElement("button");
         dot.className = "node-dot";
+        dot.dataset.lesson = L.id;          // so Back can scroll home to this node
         dot.setAttribute("aria-label", L.title);
         if (isDone) dot.innerHTML = '<img src="assets/star_stamp.png" alt="">';
         else if (current) dot.textContent = "▶";
@@ -1818,8 +1819,17 @@
     if (un) out += KANA_DIGITS[un];
     return out;
   }
+  // Counter words read irregularly — 4つ is よっつ, not よん+つ. Handle the
+  // families the lessons use (〜つ, 時, 分, 人) before the generic digits pass.
+  const NATIVE_COUNT = ["", "ひとつ", "ふたつ", "みっつ", "よっつ", "いつつ", "むっつ", "ななつ", "やっつ", "ここのつ", "とお"];
+  const HOUR_KANA = { 4: "よ", 7: "しち", 9: "く" };
+  const MIN_KANA = { 1: "いっぷん", 3: "さんぷん", 4: "よんぷん", 6: "ろっぷん", 8: "はっぷん", 10: "じゅっぷん" };
   const normalizeDigits = (s) => String(s || "")
     .replace(/[０-９]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+    .replace(/(10|[1-9])つ/g, (m, d) => NATIVE_COUNT[+d] || m)
+    .replace(/(\d+)時/g, (m, d) => (HOUR_KANA[+d] || kanaNumber(d)) + "じ")
+    .replace(/(\d+)分/g, (m, d) => MIN_KANA[+d] || (kanaNumber(d) + "ふん"))
+    .replace(/(\d+)人/g, (m, d) => +d === 1 ? "ひとり" : +d === 2 ? "ふたり" : kanaNumber(d) + "にん")
     .replace(/\d+/g, kanaNumber);
   function readingOf(text) {
     text = normalizeDigits(text);
@@ -2124,9 +2134,21 @@
     if (passed >= Math.ceil(total * 0.8)) { try { window.HanaFX && HanaFX.confetti && HanaFX.confetti(); } catch (e) {} }
   }
 
+  // Back from a lesson (intro / drill / quiz / done) lands on the level map
+  // scrolled to that lesson's node — not the top of the page.
+  function backToMap() {
+    renderHome();
+    if (openLevelId && activeLesson) {
+      requestAnimationFrame(() => {
+        const dot = document.querySelector('.node-dot[data-lesson="' + activeLesson.id + '"]');
+        if (dot) dot.scrollIntoView({ block: "center" });
+      });
+    }
+  }
+
   // ---- Wire up -------------------------------------------------------------
-  el.backBtn.addEventListener("click", renderHome);
-  el.doneHomeBtn.addEventListener("click", renderHome);
+  el.backBtn.addEventListener("click", backToMap);
+  el.doneHomeBtn.addEventListener("click", backToMap);
   el.reviewBtn.addEventListener("click", startReview);
   el.focusBtn.addEventListener("click", startFocus);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
