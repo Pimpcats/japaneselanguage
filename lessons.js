@@ -2329,6 +2329,45 @@ window.SCENES = [
       { who: "m", jp: "また きてくださいね！", en: "Come again!" },
     ],
   },
+  {
+    id: "cafe-first", lesson: "cafe", title: "きっさてんで",
+    en: "At the café",
+    steps: [
+      { who: "m", jp: "いらっしゃいませ！", en: "Welcome in!" },
+      { who: "you", ctx: "Ask for the menu.", en: "The menu, please.", jp: "メニューを おねがいします。", romaji: "menyuu o onegai shimasu." },
+      { who: "m", jp: "はい、どうぞ！", en: "Here you go!" },
+      { who: "you", ctx: "Order a coffee and a tea.", en: "A coffee and a tea, please.", jp: "コーヒーと おちゃを ください。", romaji: "koohii to ocha o kudasai." },
+      { who: "m", jp: "かしこまりました！", en: "Certainly!" },
+      { who: "you", ctx: "Ask how much the cake is.", en: "How much is the cake?", jp: "ケーキは いくらですか？", romaji: "keeki wa ikura desu ka?" },
+      { who: "m", jp: "さんびゃくえんです。", en: "It's 300 yen." },
+      { who: "you", ctx: "Thank her.", en: "Thank you very much.", jp: "ありがとう ございます。", romaji: "arigatou gozaimasu." },
+      { who: "m", jp: "ごゆっくり どうぞ！", en: "Take your time!" },
+    ],
+  },
+  {
+    id: "intro-first", lesson: "intro", title: "はじめまして",
+    en: "Meeting もち子さん",
+    steps: [
+      { who: "m", jp: "こんにちは。", en: "Hello." },
+      { who: "you", ctx: "It's your first time meeting — greet her properly.", en: "Nice to meet you.", jp: "はじめまして。", romaji: "hajimemashite." },
+      { who: "m", jp: "わたしは もちこです。", en: "I'm Mochiko." },
+      { who: "m", jp: "おなまえは なんですか？", en: "What's your name?" },
+      { who: "you", ctx: "Tell her your name (Tom stands in for yours).", en: "I'm Tom.", jp: "わたしは トムです。", romaji: "watashi wa Tomu desu." },
+      { who: "m", jp: "よろしく おねがいします！", en: "Great to meet you!" },
+    ],
+  },
+  {
+    id: "where-station", lesson: "where", title: "えきは どこ？",
+    en: "Finding the station",
+    steps: [
+      { who: "you", ctx: "You're lost — ask her where the station is.", en: "Where is the station?", jp: "えきは どこですか？", romaji: "eki wa doko desu ka?" },
+      { who: "m", jp: "あそこです。", en: "It's over there." },
+      { who: "you", ctx: "One more thing — ask where the restroom is.", en: "Where is the restroom?", jp: "トイレは どこですか？", romaji: "toire wa doko desu ka?" },
+      { who: "m", jp: "ここです。", en: "It's right here." },
+      { who: "you", ctx: "Thank her.", en: "Thank you very much.", jp: "ありがとう ございます。", romaji: "arigatou gozaimasu." },
+      { who: "m", jp: "きをつけて！", en: "Take care!" },
+    ],
+  },
 ];
 
 // ---- Real-world missions ----------------------------------------------------

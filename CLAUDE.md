@@ -69,6 +69,10 @@ sync makes the design preview drift.
   private (owner has Pro).
 - Legacy branches `claude/*` are being retired; `claude/amazing-cannon-PPvmw`
   was the old Pages/deploy branch. Don't create new long-lived branches.
+- The "art assets" commits on `claude/inspiring-carson-712EI` are CORRUPTED
+  (binaries pushed through a text pipeline — every high byte is EF BF BD, same
+  pixel dimensions as current art). Verified 2026-07-02: nothing mergeable;
+  the branch is safe to delete.
 - Live URL: https://pimpcats.github.io/japaneselanguage/
 - The GitHub MCP/API in cloud sessions can't delete branches or change repo
   settings — those are owner dashboard actions. Say so instead of retrying.
@@ -163,15 +167,20 @@ to reveal-and-listen when unavailable.
   praises perfect spoken answers, and stars in **conversation scenes**
   (`window.SCENES` — her lines play aloud, your lines run the quiz mic flow).
   New scene lines for her need clips; reuse existing lesson sentences for the
-  learner's lines so their clips already exist.
+  learner's lines so their clips already exist. Scenes so far: shop, café,
+  introductions, station.
+- **Listening mode** (`startQuiz(L, {listen:true})`, 👂 on lesson intros): no
+  text shown — she speaks the sentence, the learner says it back, the reveal
+  shows the meaning. Same mic flow and scoring as the speaking quiz.
 - **The Japan-map journey** is the level page: cartoon-Japan SVG + pins, themes
   as regions, lessons as road nodes (label sits directly UNDER its dot — never
   beside, it misreads). "Ahead" nodes are styling only — every lesson stays
   tappable (no artificial scarcity, ever).
-- **Planned: Donkey-Kong-style map** — nodes hopping between scenic spots
-  (cities, forests, shrines) on illustrated terrain. The OWNER is producing the
-  art; keep the node/trail DOM structure stable so scene art can slot in behind
-  it. Don't generate placeholder scenery art unprompted.
+- **Planned: Donkey-Kong-style map** — nodes hopping between scenic spots on
+  illustrated terrain. The OWNER is producing the art to `docs/ART_ROADMAP.md`
+  (17 location panels, one per theme, spec + paint-briefs inside; panels land
+  in `assets/map/`). Keep the node/trail DOM structure stable so panels can
+  slot in behind it. Don't generate placeholder scenery art unprompted.
 - **Real-world missions** (`window.MISSIONS`, shown on lesson complete) and the
   **weekly rhythm dots** (7 forgiving days, `prog.practice`) replace
   streak-guilt. Do not add streak pressure back.

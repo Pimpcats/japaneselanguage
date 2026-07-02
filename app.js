@@ -347,7 +347,7 @@
     voiceSelect: $("voice-select"), voiceTestBtn: $("voice-test-btn"),
     syncStatus: $("sync-status"), syncConnectBtn: $("sync-connect-btn"), syncDisconnectBtn: $("sync-disconnect-btn"),
     resetBtn: $("reset-btn"), goalSelect: $("goal-select"), directionSelect: $("direction-select"),
-    quizBtn: $("quiz-btn"), doneQuizBtn: $("done-quiz-btn"), quiz: $("quiz"),
+    quizBtn: $("quiz-btn"), doneQuizBtn: $("done-quiz-btn"), quiz: $("quiz"), listenBtn: $("listen-btn"),
     quizCard: $("quiz-card"), quizControls: $("quiz-controls"), quizLabel: $("quiz-label"),
     quizMochiko: $("quiz-mochiko"), quizMochikoJp: $("quiz-mochiko-jp"), quizMochikoEn: $("quiz-mochiko-en"),
     doneMission: $("done-mission"),
@@ -1858,13 +1858,13 @@
     return max ? 1 - levenshtein(a, b) / max : (a === b ? 1 : 0);
   }
 
-  function startQuiz(L) {
+  function startQuiz(L, opts) {
     if (!L) return;
     const cards = CARDS.filter((c) => c.lessonId === L.id);
     if (!cards.length) return;
     const items = cards.slice();
     for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [items[i], items[j]] = [items[j], items[i]]; }
-    quiz = { items, idx: 0, results: [], listening: false };
+    quiz = { items, idx: 0, results: [], listening: false, listen: !!(opts && opts.listen) };
     loadTokenizer().catch(() => {});   // warm the dict so kanji readings are accurate
     show(el.quiz, { back: true });
     renderQuizCard();
@@ -1902,6 +1902,15 @@
     quiz.target = card.s;
     resetQuizCard();
     el.quizProgress.textContent = (quiz.idx + 1) + " / " + quiz.items.length;
+    if (quiz.listen) {
+      // Listening mode: no text at all — hear もち子さん, then say it back.
+      el.quizLabel.textContent = "👂 Listen… then say it back";
+      el.quizEn.hidden = true; el.quizEn.textContent = "";
+      el.quizPlayBtn.hidden = false;         // replay as often as you like
+      showMicControls();
+      speak(card.s.jp, { lang: "ja-JP" });   // entered via a tap, so audio is allowed
+      return;
+    }
     el.quizLabel.textContent = "もち子さん asks — how do you say…";
     el.quizEn.hidden = false;
     el.quizEn.textContent = card.s.en;
@@ -2126,6 +2135,7 @@
 
   function showQuizAnswer() {
     el.quizAnswer.hidden = false;
+    if (quiz.listen && quiz.target.en) { el.quizEn.hidden = false; el.quizEn.textContent = quiz.target.en; }
     el.quizKana.innerHTML = furiganaHTML(quiz.target.jp);
     if (settings.romaji && quiz.target.romaji) { el.quizRomaji.hidden = false; el.quizRomaji.textContent = quiz.target.romaji; }
     else el.quizRomaji.hidden = true;
@@ -2182,6 +2192,7 @@
   el.focusBtn.addEventListener("click", startFocus);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
   el.quizBtn.addEventListener("click", () => startQuiz(activeLesson));
+  el.listenBtn.addEventListener("click", () => startQuiz(activeLesson, { listen: true }));
   el.doneQuizBtn.addEventListener("click", () => startQuiz(activeLesson));
   el.quizMicBtn.addEventListener("click", startListening);
   el.quizPlayBtn.addEventListener("click", () => { if (quiz && quiz.target) speak(quiz.target.jp, { lang: "ja-JP" }); });
@@ -2191,7 +2202,8 @@
   el.quizHintBtn.addEventListener("click", () => { el.quizHint.hidden = !el.quizHint.hidden; el.quizHintBtn.textContent = el.quizHint.hidden ? "show hint" : "hide hint"; });
   el.quizBackBtn.addEventListener("click", () => { if (activeLesson) openIntro(activeLesson); else renderHome(); });
   el.quizAgainBtn.addEventListener("click", () => {
-    if (quiz && quiz.scene) startScene(quiz.scene); else startQuiz(activeLesson);
+    if (quiz && quiz.scene) startScene(quiz.scene);
+    else startQuiz(activeLesson, { listen: !!(quiz && quiz.listen) });
   });
   el.quizMochiko.addEventListener("click", () => {   // tap her bubble to hear it again
     const st = quiz && quiz.scene && quiz.steps[quiz.idx];
