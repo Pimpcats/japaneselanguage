@@ -1872,7 +1872,7 @@
 
   function setMic(listening) {
     el.quizMicBtn.classList.toggle("listening", listening);
-    el.quizMicBtn.textContent = listening ? "● listening… (tap to stop)" : "🎤 Tap & speak";
+    el.quizMicBtn.textContent = listening ? "● listening — tap to check ✓" : "🎤 Tap & speak";
   }
 
   // Shared per-card reset for both quiz cards and scene steps.
@@ -1945,7 +1945,9 @@
     }
   }
 
-  let recStopTimer = 0, recMaxTimer = 0, recInterim = "", recFinals = [], recGraded = false;
+  let recStopTimer = 0, recMaxTimer = 0, recGraded = false;
+  let recDoneText = "", recSessFinal = "", recInterim = "", recAlts = [];
+  let recWantStop = false, recRestarts = 0;
   const standalone = () => window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
 
   // iOS only lets audio auto-play after a user-gesture play. The mic tap IS a
@@ -1962,57 +1964,78 @@
 
   function startListening() {
     if (!SpeechRec) return;
-    if (quiz.listening) { stopListening(false); return; }   // tap again = stop
-    try { quizRec = new SpeechRec(); } catch (e) { return; }
-    recInterim = ""; recFinals = []; recGraded = false;
-    quizRec.lang = "ja-JP"; quizRec.maxAlternatives = 5; quizRec.continuous = false;
-    // iOS Safari often only surfaces speech through interim results, and its
-    // final result may arrive only after stop() — collect everything.
-    quizRec.interimResults = true;
+    if (quiz.listening) { stopListening(false); return; }   // tap again = submit & check
+    recDoneText = ""; recSessFinal = ""; recInterim = ""; recAlts = [];
+    recGraded = false; recWantStop = false; recRestarts = 0;
     quiz.listening = true; setMic(true);
     unlockAudio();
     el.quizHeard.hidden = true; el.quizVerdict.hidden = true;
+    beginRec();
+    // Generous cap — it's submit-to-check now, but never record forever.
+    clearTimeout(recMaxTimer);
+    recMaxTimer = setTimeout(() => stopListening(false), 30000);
+  }
+
+  // One engine session. iOS ends the session at every pause, which used to
+  // grade you mid-stumble — so on a self-end we silently start a fresh session
+  // and keep collecting. Nothing is checked until YOU tap the mic again.
+  function beginRec() {
+    try { quizRec = new SpeechRec(); } catch (e) { quizRec = null; recDone(); return; }
+    quizRec.lang = "ja-JP"; quizRec.maxAlternatives = 5;
+    quizRec.continuous = true;        // don't finalize the attempt at the first pause
+    quizRec.interimResults = true;    // live feedback + iOS surfaces speech here
     quizRec.onresult = (e) => {
-      let interim = "";
+      let fin = "", interim = "";
       for (let i = 0; i < e.results.length; i++) {
         const res = e.results[i];
-        if (res.isFinal) { for (let j = 0; j < res.length; j++) recFinals.push(res[j].transcript); }
+        if (res.isFinal) { if (res[0]) fin += res[0].transcript; }
         else if (res[0]) interim += res[0].transcript;
       }
-      if (interim) {
-        recInterim = interim;
-        // live feedback so the quiz never feels dead while you speak
+      // Recognizer alternatives only line up when the whole attempt is one
+      // final segment — keep them for that case, drop them otherwise.
+      if (!recDoneText && e.results.length === 1 && e.results[0].isFinal) {
+        recAlts = [];
+        for (let j = 1; j < e.results[0].length; j++) recAlts.push(e.results[0][j].transcript);
+      } else if (fin || interim) recAlts = recDoneText ? [] : recAlts;
+      recSessFinal = fin; recInterim = interim;
+      const soFar = recDoneText + fin + interim;
+      if (soFar) {
         el.quizHeard.hidden = false;
-        el.quizHeard.innerHTML = "hearing: <b>" + escHTML(interim) + "</b>…";
-      }
-      if (recFinals.length && !recGraded) {
-        recGraded = true;
-        gradeSpoken(recInterim ? recFinals.concat([recInterim]) : recFinals.slice());
+        el.quizHeard.innerHTML = "hearing: <b>" + escHTML(soFar) + "</b>…";
       }
     };
     quizRec.onerror = (ev) => {
-      let msg;
-      if (ev.error === "not-allowed" || ev.error === "service-not-allowed")
-        msg = standalone()
-          ? "🎤 The installed home-screen app can't use speech recognition on iPhone — open the site in Safari itself to quiz."
-          : "🎤 Microphone is blocked — allow mic access for this site, then tap again.";
-      else if (ev.error === "no-speech") msg = "Didn't catch that — tap and speak a little louder.";
-      else if (ev.error === "audio-capture") msg = "No microphone found on this device.";
-      else if (ev.error === "aborted") msg = "";           // user cancelled — stay quiet
-      else msg = "Couldn't hear you — give it another go.";
-      if (msg) { el.quizVerdict.hidden = false; el.quizVerdict.className = "quiz-verdict miss"; el.quizVerdict.textContent = msg; }
+      // Hard failures stop the attempt; pauses/aborts are normal while
+      // accumulating and are handled by onend (resume or finish).
+      if (ev.error === "not-allowed" || ev.error === "service-not-allowed" || ev.error === "audio-capture") {
+        recWantStop = true;
+        const msg = ev.error === "audio-capture"
+          ? "No microphone found on this device."
+          : standalone()
+            ? "🎤 The installed home-screen app can't use speech recognition on iPhone — open the site in Safari itself to quiz."
+            : "🎤 Microphone is blocked — allow mic access for this site, then tap again.";
+        el.quizVerdict.hidden = false; el.quizVerdict.className = "quiz-verdict miss"; el.quizVerdict.textContent = msg;
+      }
+    };
+    quizRec.onend = () => {
+      recDoneText += recSessFinal + recInterim;   // fold this session's text in
+      recSessFinal = ""; recInterim = "";
+      // The engine gave up (pause, hiccup) but the learner didn't tap check —
+      // resume seamlessly so a rough start is never a dead stop.
+      if (!recWantStop && quiz && quiz.listening && !el.quiz.hidden && recRestarts < 6) {
+        recRestarts += 1;
+        beginRec();
+        return;
+      }
       recDone();
     };
-    quizRec.onend = recDone;
-    // Hard cap — some engines never auto-stop on silence; never record forever.
-    clearTimeout(recMaxTimer);
-    recMaxTimer = setTimeout(() => stopListening(false), 12000);
     try { quizRec.start(); } catch (e) { recDone(); }
   }
 
   // Ask the engine to stop; if its onend never fires (a real iOS Safari bug),
   // force-abort so the UI can never stay stuck on "listening…".
   function stopListening(force) {
+    recWantStop = true;
     const rec = quizRec;
     if (!rec) { recDone(); return; }
     try { force ? rec.abort() : rec.stop(); } catch (e) {}
@@ -2022,20 +2045,26 @@
     }, force ? 300 : 1500);
   }
 
-  // Single idempotent teardown — every path (result, error, end, watchdog,
+  // Single idempotent teardown — every path (submit, error, end, watchdog,
   // navigation) funnels here, so the mic state can't get stuck.
   function recDone() {
     clearTimeout(recStopTimer); clearTimeout(recMaxTimer);
     quizRec = null;
     if (quiz) quiz.listening = false;
     setMic(false);
-    // The engine sometimes ends with only interim text and no final result
-    // (common on iOS). Grade what we heard rather than dropping it.
     if (!recGraded && quiz && !el.quiz.hidden) {
-      const heard = recFinals.length ? recFinals.slice() : (recInterim ? [recInterim] : null);
-      if (heard) { recGraded = true; gradeSpoken(heard); }
+      const full = recDoneText + recSessFinal + recInterim;
+      if (full) {
+        recGraded = true;
+        const cands = [full];
+        if (recAlts.length) cands.push(...recAlts);
+        gradeSpoken(cands);
+      } else if (recWantStop) {
+        el.quizVerdict.hidden = false; el.quizVerdict.className = "quiz-verdict miss";
+        el.quizVerdict.textContent = "Didn't catch anything — tap the mic and try again.";
+      }
     }
-    recInterim = ""; recFinals = [];
+    recDoneText = ""; recSessFinal = ""; recInterim = ""; recAlts = []; recRestarts = 0;
   }
 
   async function gradeSpoken(alts) {
