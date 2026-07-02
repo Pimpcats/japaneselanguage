@@ -1971,9 +1971,9 @@
     unlockAudio();
     el.quizHeard.hidden = true; el.quizVerdict.hidden = true;
     beginRec();
-    // Generous cap — it's submit-to-check now, but never record forever.
+    // Cap an attempt at 10s — plenty for a sentence, then auto-check.
     clearTimeout(recMaxTimer);
-    recMaxTimer = setTimeout(() => stopListening(false), 30000);
+    recMaxTimer = setTimeout(() => stopListening(false), 10000);
   }
 
   // One engine session. iOS ends the session at every pause, which used to
