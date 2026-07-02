@@ -592,3 +592,74 @@ footer { font-family: var(--display); color: var(--muted); }
 #quiz-mic-btn.listening { background: var(--bad); color: #fff; animation: quizpulse 1s ease-in-out infinite; }
 @keyframes quizpulse { 0%, 100% { box-shadow: 0 4px 0 var(--ink); } 50% { box-shadow: 0 4px 0 var(--ink), 0 0 0 6px color-mix(in srgb, var(--bad) 35%, transparent); } }
 .quiz-summary { text-align: center; display: flex; flex-direction: column; gap: 0.6rem; align-items: center; padding-top: 1rem; }
+
+/* ---- POS teaching labels: the word's role written out under its meaning,
+   tinted like its chip, so the colour coding actually teaches ---- */
+.wc-pos {
+  display: block; font-size: 0.52rem; font-weight: 900; letter-spacing: 0.06em;
+  text-transform: uppercase; margin-top: 0.1rem; opacity: 0.75;
+}
+.vocab-row .v-en { display: flex; flex-direction: column; align-items: flex-end; gap: 0.05rem; }
+.vocab-row .v-pos {
+  font-size: 0.52rem; font-weight: 900; letter-spacing: 0.06em;
+  text-transform: uppercase; opacity: 0.7;
+}
+
+/* ---- speaking-quiz kana match: each target kana lights up if you said it ---- */
+.quiz-diff { margin-top: 0.35rem; line-height: 1.9; }
+.qd-label { font-size: 0.62rem; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.qd-ch {
+  display: inline-block; min-width: 1.25em; text-align: center; margin: 0 1px;
+  border-radius: 6px; font-weight: 800; font-size: 1.05rem; padding: 0 2px;
+}
+.qd-ok  { background: color-mix(in srgb, var(--good) 22%, #fff); color: var(--ink); border: 1.5px solid color-mix(in srgb, var(--good) 60%, var(--ink)); }
+.qd-bad { background: color-mix(in srgb, var(--bad) 16%, #fff); color: var(--ink); border: 1.5px dashed color-mix(in srgb, var(--bad) 55%, var(--ink)); }
+
+/* ---- もち子さん greeting bubble on lesson intros ---- */
+#mochiko-intro {
+  display: flex; align-items: flex-end; gap: 0.5rem; text-align: left;
+  background: none; border: none; padding: 0; cursor: pointer; width: 100%;
+}
+#mochiko-intro .mb-art { width: 64px; height: auto; flex: 0 0 auto; filter: drop-shadow(0 3px 0 rgba(74,51,40,0.15)); }
+#mochiko-intro .mb-bubble, .qm-bubble {
+  position: relative; flex: 1; background: #fff; border: 2.5px solid var(--ink);
+  border-radius: 14px; box-shadow: 0 3px 0 var(--ink); padding: 0.5rem 0.7rem;
+  display: flex; flex-direction: column; gap: 0.1rem;
+}
+#mochiko-intro .mb-bubble::before, .qm-bubble::before {
+  content: ""; position: absolute; left: -9px; bottom: 12px;
+  width: 14px; height: 14px; background: #fff;
+  border-left: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink);
+  transform: rotate(45deg); border-bottom-left-radius: 4px;
+}
+#mochiko-intro .mb-jp, .qm-bubble b { font-size: 1rem; font-weight: 800; color: var(--ink); }
+#mochiko-intro .mb-en, .qm-bubble small { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+
+/* ---- scene mode: her speech bubble inside the quiz card ---- */
+#quiz-mochiko {
+  display: flex; align-items: flex-end; gap: 0.5rem; width: 100%; text-align: left; cursor: pointer;
+}
+#quiz-mochiko img { width: 72px; height: auto; flex: 0 0 auto; filter: drop-shadow(0 3px 0 rgba(74,51,40,0.15)); }
+#quiz-mochiko .qm-bubble b { font-size: 1.25rem; }
+
+/* ---- real-world mission on lesson complete ---- */
+.done-mission {
+  background: color-mix(in srgb, var(--good) 12%, #fff); border: 2.5px solid var(--ink);
+  border-radius: var(--radius-sm); box-shadow: 0 3px 0 var(--ink);
+  padding: 0.6rem 0.8rem; font-weight: 700; color: var(--ink) !important;
+}
+
+/* ---- weekly rhythm: seven forgiving dots, never a guilt streak ---- */
+.week-rhythm { display: flex; align-items: center; gap: 0.3rem; justify-content: center; padding: 0.1rem 0; }
+.wr-dot {
+  width: 0.72rem; height: 0.72rem; border-radius: 50%;
+  border: 2px solid var(--ink); background: #fff; opacity: 0.55;
+}
+.wr-dot.on { background: var(--gold); opacity: 1; }
+.wr-dot.today { box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--accent) 45%, transparent); }
+.wr-text { margin-left: 0.35rem; font-size: 0.74rem; font-weight: 800; color: var(--ink); }
+#stats.stats { border: none !important; box-shadow: none !important; background: none; padding: 0; }
+
+/* journey nodes ahead of you are waypoints, not locks — they stay tappable */
+.node-locked .node-dot { cursor: pointer; }
+#stats .week-rhythm { flex: 1; }

@@ -37,7 +37,7 @@ function loadLessons() {
   return window;
 }
 
-const { LESSONS, VERBS } = loadLessons();
+const { LESSONS, VERBS, MOCHIKO, SCENES } = loadLessons();
 
 // Sentences get a normal + a slow clip; vocab and fixed UI phrases only normal.
 const EXTRA_PHRASES = ["こんにちは。はなしましょう。"]; // voice test / picker preview
@@ -67,6 +67,10 @@ for (const v of (VERBS || [])) {
   for (const f of Object.values(v.forms)) want(f[0], false);
 }
 for (const p of EXTRA_PHRASES) want(p, false);
+// もち子さん's spoken lines: intro greetings, praise, and scene dialogue.
+// Scene "you" lines usually duplicate lesson sentences (deduped by the map).
+if (MOCHIKO) for (const g of [...(MOCHIKO.greetings || []), ...(MOCHIKO.praise || [])]) want(g.jp, false);
+for (const sc of (SCENES || [])) for (const st of (sc.steps || [])) want(st.jp, st.who === "you");
 
 // ---- VOICEVOX synthesis --------------------------------------------------
 async function postJSON(path, params, body) {

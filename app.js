@@ -49,6 +49,7 @@
   prog.immersion = prog.immersion || {};  // {"YYYY-MM-DD": minutes}
   prog.known = prog.known || [];          // [base_form] words marked known
   prog.knownHistory = prog.knownHistory || {}; // {"YYYY-MM-DD": known count}
+  prog.practice = prog.practice || {};    // {"YYYY-MM-DD": reviews that day} — drives the weekly rhythm
   rebuildMined();
   function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
@@ -166,6 +167,7 @@
       immersion: mergeImmersion(local.immersion, remote.immersion),
       known: Array.from(new Set([...(local.known || []), ...(remote.known || [])])),
       knownHistory: mergeImmersion(local.knownHistory, remote.knownHistory),
+      practice: mergeImmersion(local.practice, remote.practice),
     };
     const ids = new Set([...Object.keys(local.cards || {}), ...Object.keys(remote.cards || {})]);
     for (const id of ids) {
@@ -200,6 +202,7 @@
         prog.immersion = merged.immersion;
         prog.known = merged.known;
         prog.knownHistory = merged.knownHistory;
+        prog.practice = merged.practice || {};
         rebuildMined();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
       }
@@ -284,6 +287,7 @@
     const t = todayStr();
     if (prog.daily.day !== t) prog.daily = { day: t, count: 0 };
     prog.daily.count += 1;
+    prog.practice[t] = (prog.practice[t] || 0) + 1;
     bumpStreak();
     save();
   }
@@ -344,7 +348,9 @@
     syncStatus: $("sync-status"), syncConnectBtn: $("sync-connect-btn"), syncDisconnectBtn: $("sync-disconnect-btn"),
     resetBtn: $("reset-btn"), goalSelect: $("goal-select"), directionSelect: $("direction-select"),
     quizBtn: $("quiz-btn"), doneQuizBtn: $("done-quiz-btn"), quiz: $("quiz"),
-    quizCard: $("quiz-card"), quizControls: $("quiz-controls"),
+    quizCard: $("quiz-card"), quizControls: $("quiz-controls"), quizLabel: $("quiz-label"),
+    quizMochiko: $("quiz-mochiko"), quizMochikoJp: $("quiz-mochiko-jp"), quizMochikoEn: $("quiz-mochiko-en"),
+    doneMission: $("done-mission"),
     quizProgress: $("quiz-progress"), quizEn: $("quiz-en"), quizHintBtn: $("quiz-hint-btn"), quizHint: $("quiz-hint"),
     quizHeard: $("quiz-heard"), quizVerdict: $("quiz-verdict"), quizAnswer: $("quiz-answer"),
     quizKana: $("quiz-kana"), quizRomaji: $("quiz-romaji"),
@@ -550,7 +556,7 @@
   function show(screen, { back = false } = {}) {
     speechSynthesis.cancel();
     stopAudio();
-    if (quizRec) { try { quizRec.abort(); } catch (e) {} quizRec = null; if (quiz) quiz.listening = false; }
+    if (quizRec) { recGraded = true; stopListening(true); }   // navigation cancels recording (no late grade)
     screens.forEach((s) => (s.hidden = s !== screen));
     if (el.readerPop) el.readerPop.hidden = true;
     el.backBtn.hidden = !back;
@@ -1093,6 +1099,22 @@
       el.reviewBtn.hidden = reviewN === 0;
       el.reviewBtn.textContent = `⚡ Review ${reviewN} card${reviewN === 1 ? "" : "s"}`;
 
+      // Weekly rhythm — practice as a 7-day pattern, not a streak to break.
+      // A rest day leaves a gap; nothing resets, nothing scolds.
+      let practiced = 0;
+      const dots = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(Date.now() - i * DAY).toISOString().slice(0, 10);
+        const on = (prog.practice[d] || 0) > 0 || (prog.immersion[d] || 0) > 0;
+        if (on) practiced += 1;
+        dots.push('<span class="wr-dot' + (on ? " on" : "") + (i === 0 ? " today" : "") + '"></span>');
+      }
+      el.stats.hidden = false;
+      el.stats.innerHTML = '<div class="week-rhythm">' + dots.join("") +
+        '<span class="wr-text">' + (practiced
+          ? practiced + " day" + (practiced === 1 ? "" : "s") + " of practice this week"
+          : "fresh week — say something today") + "</span></div>";
+
       const grid = document.createElement("div");
       grid.className = "level-grid";
       window.LEVELS.forEach((lv, i) => {
@@ -1138,116 +1160,33 @@
     if (level.blurb) head.appendChild(Object.assign(document.createElement("div"), { className: "level-blurb", textContent: level.blurb }));
     el.lessonMap.appendChild(head);
 
-    renderLevelLessons(level);
+    renderJourney(el.lessonMap, level);
     show(el.home);
-  }
-
-  // The tier → theme → lesson list for one level (used by the level detail).
-  function renderLevelLessons(level) {
-    for (const tier of level.tiers) {
-      const tierLessons = window.LESSONS.filter((L) => tier.themes.includes(L.section));
-
-      const tierBlock = document.createElement("div");
-      tierBlock.className = "tier-block";
-      const tHead = document.createElement("div");
-      tHead.className = "tier-head";
-      const tText = document.createElement("div"); tText.className = "tier-text";
-      tText.appendChild(Object.assign(document.createElement("h2"), { className: "tier-name", textContent: tier.name }));
-      if (tier.blurb) tText.appendChild(Object.assign(document.createElement("div"), { className: "tier-blurb", textContent: tier.blurb }));
-      tHead.appendChild(tText);
-      if (tierLessons.length) {
-        const done = tierLessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
-        tHead.appendChild(span("tier-count", done + "/" + tierLessons.length));
-      }
-
-      if (!tierLessons.length) {
-        tierBlock.appendChild(tHead);
-        tierBlock.appendChild(Object.assign(document.createElement("div"), { className: "tier-soon", textContent: "Coming soon" }));
-        el.lessonMap.appendChild(tierBlock);
-        continue;
-      }
-
-      const collapsed = !!settings.collapsedTiers[tier.name];
-      tHead.appendChild(span("tier-chevron", "▾"));
-      tHead.setAttribute("role", "button");
-      tHead.tabIndex = 0;
-      tHead.setAttribute("aria-expanded", String(!collapsed));
-      tierBlock.appendChild(tHead);
-
-      const body = document.createElement("div");
-      body.className = "tier-body";
-      body.hidden = collapsed;
-      tierBlock.classList.toggle("collapsed", collapsed);
-
-      const toggleTier = () => {
-        const now = !settings.collapsedTiers[tier.name];
-        settings.collapsedTiers[tier.name] = now;
-        saveSettings();
-        body.hidden = now;
-        tierBlock.classList.toggle("collapsed", now);
-        tHead.setAttribute("aria-expanded", String(!now));
-      };
-      tHead.addEventListener("click", toggleTier);
-      tHead.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleTier(); }
-      });
-
-      for (const theme of tier.themes) {
-        const lessons = window.LESSONS.filter((L) => L.section === theme);
-        if (!lessons.length) continue;
-        const block = document.createElement("div");
-        block.className = "section-block";
-        const head = document.createElement("div");
-        head.className = "section-head";
-        head.appendChild(Object.assign(document.createElement("h3"), { className: "section-title", textContent: theme }));
-        const rule = document.createElement("div"); rule.className = "section-rule"; head.appendChild(rule);
-        block.appendChild(head);
-
-        for (const L of lessons) {
-          const st = lessonStats(L);
-          const tile = document.createElement("button");
-          tile.className = "lesson-tile";
-          const top = document.createElement("div"); top.className = "tile-top";
-          const left = document.createElement("div");
-          left.appendChild(Object.assign(document.createElement("div"), { className: "tile-title", textContent: L.title }));
-          left.appendChild(Object.assign(document.createElement("div"), { className: "tile-grammar", textContent: L.grammar }));
-          top.appendChild(left);
-
-          const badge = document.createElement("span");
-          if (st.passed >= st.total) { badge.className = "tile-badge badge-done"; badge.textContent = "✓ done"; }
-          else if (st.due > 0) { badge.className = "tile-badge badge-due"; badge.textContent = st.due + " due"; }
-          else if (st.fresh === st.total) { badge.className = "tile-badge badge-new"; badge.textContent = "new"; }
-          else { badge.className = "tile-badge badge-due"; badge.textContent = st.passed + "/" + st.total; }
-          top.appendChild(badge);
-          tile.appendChild(top);
-
-          const bar = document.createElement("div"); bar.className = "tile-bar";
-          const fill = document.createElement("i"); fill.style.width = Math.round(st.pct * 100) + "%";
-          bar.appendChild(fill); tile.appendChild(bar);
-
-          tile.addEventListener("click", () => openIntro(L));
-          block.appendChild(tile);
-        }
-        body.appendChild(block);
-      }
-      tierBlock.appendChild(body);
-      el.lessonMap.appendChild(tierBlock);
-    }
   }
 
   // ---- World-map journey view ----------------------------------------------
   // Each theme is a "stop" on the road; each lesson is a node you travel to.
   // Reuses the real lessonStats() + openIntro() so behaviour is unchanged.
   const REGION_ICONS = ["⛩️", "🏯", "🗻", "🌸", "🏮", "🍵", "🚉", "🌊", "🦊", "🎋", "🏔️", "🛤️"];
-  // Pin positions (% of the map box) tracing the archipelago NE → SW.
-  const PIN_SLOTS = [[74, 25], [67, 36], [59, 44], [51, 51], [44, 58], [37, 64], [31, 71], [43, 75], [60, 30], [34, 81]];
+  // Pin stops trace the archipelago NE → SW (Hokkaidō → Tōhoku → Kantō →
+  // Chūbu → Kansai → Chūgoku → Shikoku → Kyūshū → Okinawa), matching the
+  // landmasses drawn below (coords are % of the 200×240 map box).
+  const PIN_SLOTS = [[77, 17], [70, 27], [73, 36], [73, 45], [62, 51], [53, 55], [40, 59], [44, 68], [27, 75], [10, 94]];
+  // Cartoon Japan — stylised but recognisable: Hokkaidō, Honshū (with the
+  // Noto, Bōsō and Kii peninsulas drawn in), Shikoku, Kyūshū and Okinawa.
   const JAPAN_SVG =
     '<svg viewBox="0 0 200 240" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
-    '<g fill="#cfe6c4" stroke="#4a3328" stroke-width="3" stroke-linejoin="round">' +
-    '<path d="M150 24 q24 -4 28 16 q3 18 -16 23 q-21 5 -27 -13 q-5 -21 15 -26 Z"/>' +
-    '<path d="M150 60 C152 86 128 104 110 121 C90 140 73 154 56 172 C70 170 84 163 98 150 C118 132 136 116 151 97 C163 83 169 73 162 61 Q156 54 150 60 Z"/>' +
-    '<path d="M86 178 q14 0 14 13 q0 13 -14 13 q-13 0 -13 -13 q0 -13 13 -13 Z"/>' +
-    '<path d="M52 182 q-17 3 -17 22 q0 19 19 19 q16 0 16 -19 q0 -19 -18 -22 Z"/>' +
+    '<g fill="#cfe6c4" stroke="#4a3328" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">' +
+    // Hokkaidō
+    '<path d="M148 22 c10 -6 24 -2 28 8 c4 9 0 16 -8 20 c-4 2 -6 6 -10 7 c-3 1 -5 -2 -9 -1 c-6 2 -12 -1 -14 -7 c-2 -7 1 -13 6 -16 c3 -2 4 -8 7 -11 Z"/>' +
+    // Honshū (clockwise from the northern tip; Bōsō notch, Kii dip, Noto spur)
+    '<path d="M140 62 C146 68 150 76 150 86 C150 96 154 102 152 108 C151 111 147 110 146 112 C147 116 152 114 150 118 C144 126 136 126 128 128 C120 130 116 138 112 146 C110 150 106 148 105 143 C104 139 106 134 102 133 C94 132 86 140 78 146 C70 151 62 156 56 158 C52 159 50 155 52 151 C58 146 64 142 70 138 C78 133 84 128 88 120 C92 112 96 104 100 97 C101 93 103 88 106 89 C108 90 107 95 108 98 C112 94 118 90 124 84 C129 79 134 70 140 62 Z"/>' +
+    // Shikoku
+    '<path d="M84 158 c8 -3 18 -2 22 4 c3 5 -2 10 -10 11 c-8 1 -16 -1 -18 -6 c-2 -5 2 -8 6 -9 Z"/>' +
+    // Kyūshū
+    '<path d="M52 168 c8 -2 16 2 18 9 c2 6 -2 12 -6 17 c-3 4 -8 3 -10 -1 c-1 -3 -5 -3 -7 -6 c-4 -6 -2 -16 5 -19 Z"/>' +
+    // Okinawa
+    '<path d="M18 222 q4 -3 7 0 q-2 4 -5 6 q-4 -2 -2 -6 Z"/>' +
     "</g></svg>";
 
   function buildJapanMap(regionList, currentIdx, scrollToRegion) {
@@ -1323,7 +1262,9 @@
         const st = lessonStats(L);
         const isDone = st.passed >= st.total;
         const current = !isDone && L.id === frontierId;
-        const locked = !isDone && !current;
+        // "ahead" is a waypoint you haven't reached, NOT a lock — every lesson
+        // stays tappable (no artificial scarcity), the styling just shows
+        // where you are on the road.
         const status = isDone ? "done" : current ? "current" : "locked";
 
         const node = document.createElement("div");
@@ -1339,11 +1280,8 @@
         dot.setAttribute("aria-label", L.title);
         if (isDone) dot.innerHTML = '<img src="assets/star_stamp.png" alt="">';
         else if (current) dot.textContent = "▶";
-        else dot.textContent = "🔒";
-        dot.addEventListener("click", () => {
-          if (locked) { node.classList.remove("shake"); void node.offsetWidth; node.classList.add("shake"); return; }
-          openIntro(L);
-        });
+        else dot.textContent = "○";
+        dot.addEventListener("click", () => openIntro(L));
         node.appendChild(dot);
 
         const side = document.createElement("div");
@@ -1352,7 +1290,7 @@
         const sb = document.createElement("span");
         if (isDone) { sb.className = "node-badge done"; sb.textContent = "✓ done"; }
         else if (current) { sb.className = "node-badge due"; sb.textContent = st.due > 0 ? st.due + " due" : "start →"; }
-        else { sb.className = "node-badge locked"; sb.textContent = "🔒 locked"; }
+        else { sb.className = "node-badge locked"; sb.textContent = "up ahead"; }
         side.appendChild(sb);
         node.appendChild(side);
 
@@ -1366,8 +1304,49 @@
 
   // ---- Lesson intro --------------------------------------------------------
   let activeLesson = null;
+
+  // もち子さん greets you at the door — tap the bubble to hear her say it.
+  // The line rotates by lesson and day so she doesn't repeat herself.
+  function renderMochikoGreeting(L) {
+    const M = window.MOCHIKO;
+    let bubble = document.getElementById("mochiko-intro");
+    if (!M || !M.greetings || !M.greetings.length) { if (bubble) bubble.hidden = true; return; }
+    if (!bubble) {
+      bubble = document.createElement("button");
+      bubble.id = "mochiko-intro";
+      bubble.innerHTML =
+        '<img class="mb-art" src="assets/chibi_cheer.png" alt="もち子さん" />' +
+        '<span class="mb-bubble"><b class="mb-jp"></b><small class="mb-en"></small></span>';
+      bubble.addEventListener("click", () => { if (bubble.dataset.jp) speak(bubble.dataset.jp, { lang: "ja-JP" }); });
+      el.intro.insertBefore(bubble, el.intro.firstChild);
+    }
+    bubble.hidden = false;
+    const idx = (Math.max(0, window.LESSONS.findIndex((x) => x.id === L.id)) + new Date().getDate()) % M.greetings.length;
+    const g = M.greetings[idx];
+    bubble.dataset.jp = g.jp;
+    bubble.querySelector(".mb-jp").textContent = g.jp;
+    bubble.querySelector(".mb-en").textContent = g.en;
+  }
+
   function openIntro(L) {
     activeLesson = L;
+    renderMochikoGreeting(L);
+    // Lessons with a scene get a "talk with もち子さん" entry next to the drills.
+    const scene = (window.SCENES || []).find((s) => s.lesson === L.id);
+    let sceneBtn = document.getElementById("scene-btn");
+    if (!sceneBtn) {
+      sceneBtn = document.createElement("button");
+      sceneBtn.id = "scene-btn";
+      sceneBtn.className = "secondary";
+      const actions = document.querySelector(".intro-actions");
+      actions.insertBefore(sceneBtn, document.getElementById("build-btn"));
+      sceneBtn.addEventListener("click", () => {
+        const sc = (window.SCENES || []).find((s) => s.lesson === activeLesson.id);
+        if (sc) startScene(sc);
+      });
+    }
+    sceneBtn.hidden = !scene;
+    if (scene) sceneBtn.textContent = "🎭 " + scene.title + " — talk with もち子さん";
     el.lessonTitle.textContent = L.title;
     el.lessonGrammar.textContent = L.grammar;
     el.lessonNote.textContent = L.grammarNote || "";
@@ -1377,7 +1356,11 @@
       row.className = "vocab-row pos-" + (w.pos || "n");
       row.appendChild(span("v-jp", w.jp));
       row.appendChild(span("v-romaji", w.romaji));
-      row.appendChild(span("v-en", w.en));
+      const en = document.createElement("span");
+      en.className = "v-en";
+      en.appendChild(span("v-en-text", w.en));
+      if (POS_NAME[w.pos]) en.appendChild(span("v-pos", POS_NAME[w.pos]));
+      row.appendChild(en);
       row.addEventListener("click", () => speak(w.jp, { lang: "ja-JP" }));
       el.vocabList.appendChild(row);
     }
@@ -1404,26 +1387,25 @@
   // The unified review bucket = cards last graded Nope/Kinda that are due
   // (same set focusCards() computes). Surfaced on SRS schedule; "Got it"
   // graduates a card out of the bucket and back to its lesson.
-  function reviewCards() { return focusCards(); }
+  function reviewCards() {
+    // Freshly mined sentences have no grade history yet, so focusCards()
+    // skips them — include them here or they'd never surface anywhere.
+    const freshMined = CARDS.filter((c) => {
+      const p = prog.cards[c.id];
+      return c.mined && (!p || (!p.reps && !p.lapses));
+    });
+    return focusCards().concat(freshMined);
+  }
   function startReview() {
     const cards = reviewCards();
     if (!cards.length) return;
     startSession(cards, "review", null);
   }
-  // How a due card last went, so we can split review into Nope / Kinda buckets.
-  // Older cards predate the stored grade, so infer: reps only reset to 0 on a
-  // nope, otherwise assume it was previously passed.
   function lastGradeOf(p) {
     if (!p) return 0;
     if (typeof p.lastGrade === "number") return p.lastGrade;
     return p.reps ? 2 : 0;
   }
-  function reviewBucket(grade) {
-    const cards = dueCards().filter((c) => lastGradeOf(prog.cards[c.id]) === grade);
-    if (!cards.length) return;
-    startSession(cards, "review", null);
-  }
-
   // ---- Focus: weak cards (last graded nope / kind of) ----------------------
   // Cards you last missed live here until you nail them. Due ones surface today;
   // grading "nope" or "kind of" reschedules for tomorrow (stays in the section),
@@ -1454,6 +1436,7 @@
     const t = todayStr();
     if (prog.daily.day !== t) prog.daily = { day: t, count: 0 };
     prog.daily.count += 1;
+    prog.practice[t] = (prog.practice[t] || 0) + 1;
     bumpStreak();
     save();
   }
@@ -1632,6 +1615,9 @@
     save();
   }
   const POS_MAP = { "名詞": "n", "動詞": "v", "形容詞": "adj", "副詞": "adv", "助詞": "prt", "助動詞": "aux", "接続詞": "conj", "連体詞": "adj", "感動詞": "expr" };
+  // Written-out role names, so the colour coding actually teaches: every word
+  // shows its category under the translation until the colours sink in.
+  const POS_NAME = { n: "noun", v: "verb", adj: "adjective", adv: "adverb", prt: "particle", cop: "copula", aux: "auxiliary", conj: "conjunction", expr: "expression" };
   function makeWordChip({ jp, reading, gloss, pos, term }) {
     const chip = document.createElement("div");
     chip.className = "word-chip pos-" + (pos || "n");
@@ -1640,6 +1626,7 @@
     main.appendChild(span("wc-jp", jp));
     if (reading && reading !== jp) main.appendChild(span("wc-read", reading));
     if (gloss) main.appendChild(span("wc-en", gloss));
+    if (POS_NAME[pos]) main.appendChild(span("wc-pos", POS_NAME[pos]));
     main.title = "Hear this word";
     main.addEventListener("click", () => speak(jp, { lang: "ja-JP" }));
     chip.appendChild(main);
@@ -1779,6 +1766,16 @@
     }
     if (session.bestCombo >= 3) msg += ` Best streak: 🔥 ${session.bestCombo} in a row.`;
     el.doneSummary.textContent = msg;
+    // Real-world mission — a tiny transfer task, because the point is using
+    // Japanese out in your day, not in the app.
+    let mission = "";
+    if (session.mode === "lesson" && session.lessonId && window.MISSIONS) {
+      const MM = window.MISSIONS;
+      mission = MM[session.lessonId] ||
+        (MM._generic ? MM._generic[[...session.lessonId].reduce((a, c) => a + c.charCodeAt(0), 0) % MM._generic.length] : "");
+    }
+    el.doneMission.hidden = !mission;
+    if (mission) el.doneMission.textContent = "🌱 Real-world mission: " + mission;
     // Let add-on layers (sticker/stamp collection) award rewards for this run.
     try {
       window.dispatchEvent(new CustomEvent("hanasou:finish", { detail: {
@@ -1846,67 +1843,189 @@
     el.quizMicBtn.textContent = listening ? "● listening… (tap to stop)" : "🎤 Tap & speak";
   }
 
-  function renderQuizCard() {
-    const card = quiz.items[quiz.idx];
-    quiz.target = card.s;
+  // Shared per-card reset for both quiz cards and scene steps.
+  function resetQuizCard() {
     el.quizCard.hidden = false; el.quizControls.hidden = false;
     el.quizProgress.hidden = false; el.quizSummary.hidden = true;
-    el.quizProgress.textContent = (quiz.idx + 1) + " / " + quiz.items.length;
-    el.quizEn.textContent = card.s.en;
-    el.quizHintBtn.hidden = !card.s.hint;
-    el.quizHintBtn.textContent = "show hint";
-    el.quizHint.hidden = true; el.quizHint.textContent = card.s.hint || "";
+    el.quizMochiko.hidden = true;
+    el.quizHintBtn.hidden = true; el.quizHint.hidden = true;
     el.quizHeard.hidden = true; el.quizHeard.textContent = "";
     el.quizVerdict.hidden = true; el.quizVerdict.className = "quiz-verdict";
     el.quizAnswer.hidden = true; el.quizKana.innerHTML = ""; el.quizRomaji.textContent = "";
-    el.quizMicBtn.hidden = false; el.quizMicBtn.disabled = !SpeechRec; setMic(false);
-    el.quizPlayBtn.hidden = true;
-    el.quizRevealBtn.hidden = false; el.quizSkipBtn.hidden = false; el.quizNextBtn.hidden = true;
+    el.quizPlayBtn.hidden = true; el.quizNextBtn.hidden = true;
+    el.quizUnsupported.hidden = true;
+    setMic(false);
+  }
+
+  function showMicControls() {
+    el.quizMicBtn.hidden = false; el.quizMicBtn.disabled = !SpeechRec;
+    el.quizRevealBtn.hidden = false; el.quizSkipBtn.hidden = false;
     el.quizUnsupported.hidden = !!SpeechRec;
     if (!SpeechRec) el.quizUnsupported.textContent =
       "Speech recognition isn't available here. On iPhone open this in Safari (not an in-app browser); on a computer use Chrome. You can still reveal the answer and hear it.";
   }
 
-  function startListening() {
-    if (!SpeechRec) return;
-    if (quiz.listening) { try { quizRec && quizRec.stop(); } catch (e) {} return; }
-    try { quizRec = new SpeechRec(); } catch (e) { return; }
-    quizRec.lang = "ja-JP"; quizRec.interimResults = false; quizRec.maxAlternatives = 5; quizRec.continuous = false;
-    quiz.listening = true; setMic(true);
-    el.quizHeard.hidden = true; el.quizVerdict.hidden = true;
-    quizRec.onresult = (e) => {
-      const res = e.results[0], alts = [];
-      for (let i = 0; i < res.length; i++) alts.push(res[i].transcript);
-      gradeSpoken(alts);
-    };
-    quizRec.onerror = (ev) => {
-      quiz.listening = false; setMic(false);
-      let msg;
-      if (ev.error === "not-allowed" || ev.error === "service-not-allowed")
-        msg = "🎤 Microphone is blocked — allow mic access for this site, then tap again.";
-      else if (ev.error === "no-speech") msg = "Didn't catch that — tap and speak a little louder.";
-      else if (ev.error === "audio-capture") msg = "No microphone found on this device.";
-      else msg = "Couldn't hear you — give it another go.";
-      el.quizVerdict.hidden = false; el.quizVerdict.className = "quiz-verdict miss"; el.quizVerdict.textContent = msg;
-    };
-    quizRec.onend = () => { quiz.listening = false; setMic(false); };
-    try { quizRec.start(); } catch (e) { quiz.listening = false; setMic(false); }
+  function renderQuizCard() {
+    const card = quiz.items[quiz.idx];
+    quiz.target = card.s;
+    resetQuizCard();
+    el.quizProgress.textContent = (quiz.idx + 1) + " / " + quiz.items.length;
+    el.quizLabel.textContent = "もち子さん asks — how do you say…";
+    el.quizEn.hidden = false;
+    el.quizEn.textContent = card.s.en;
+    el.quizHintBtn.hidden = !card.s.hint;
+    el.quizHintBtn.textContent = "show hint";
+    el.quizHint.textContent = card.s.hint || "";
+    showMicControls();
   }
 
-  function gradeSpoken(alts) {
+  // ---- Conversation scenes (もち子さん dialogues) ---------------------------
+  // Same speak-and-match mechanics as the quiz, strung into a little story:
+  // her lines play aloud, your lines run the mic flow.
+  function startScene(sc) {
+    quiz = { scene: sc, steps: sc.steps, idx: 0, results: [], listening: false };
+    loadTokenizer().catch(() => {});
+    show(el.quiz, { back: true });
+    renderSceneStep();
+  }
+
+  function renderSceneStep() {
+    const st = quiz.steps[quiz.idx];
+    resetQuizCard();
+    el.quizProgress.textContent = (quiz.idx + 1) + " / " + quiz.steps.length;
+    if (st.who === "m") {                       // もち子さん speaks
+      quiz.target = null;
+      el.quizLabel.textContent = "もち子さん:";
+      el.quizEn.hidden = true; el.quizEn.textContent = "";
+      el.quizMochiko.hidden = false;
+      el.quizMochikoJp.textContent = st.jp;
+      el.quizMochikoEn.textContent = st.en || "";
+      el.quizMicBtn.hidden = true;
+      el.quizNextBtn.hidden = false;
+      el.quizNextBtn.textContent = (quiz.idx >= quiz.steps.length - 1) ? "finish →" : "reply →";
+      speak(st.jp, { lang: "ja-JP" });          // reached via a tap, so audio is allowed
+    } else {                                    // your line
+      quiz.target = st;
+      el.quizLabel.textContent = st.ctx || "Your turn — say it in Japanese";
+      el.quizEn.hidden = false;
+      el.quizEn.textContent = st.en;
+      showMicControls();
+    }
+  }
+
+  let recStopTimer = 0, recMaxTimer = 0, recInterim = "", recFinals = [], recGraded = false;
+  const standalone = () => window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+
+  // iOS only lets audio auto-play after a user-gesture play. The mic tap IS a
+  // gesture — play a silent wav then so the graded answer can speak later.
+  let audioUnlocked = false;
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    try {
+      const a = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=");
+      a.volume = 0;
+      a.play().then(() => { audioUnlocked = true; }).catch(() => {});
+    } catch (e) {}
+  }
+
+  function startListening() {
+    if (!SpeechRec) return;
+    if (quiz.listening) { stopListening(false); return; }   // tap again = stop
+    try { quizRec = new SpeechRec(); } catch (e) { return; }
+    recInterim = ""; recFinals = []; recGraded = false;
+    quizRec.lang = "ja-JP"; quizRec.maxAlternatives = 5; quizRec.continuous = false;
+    // iOS Safari often only surfaces speech through interim results, and its
+    // final result may arrive only after stop() — collect everything.
+    quizRec.interimResults = true;
+    quiz.listening = true; setMic(true);
+    unlockAudio();
+    el.quizHeard.hidden = true; el.quizVerdict.hidden = true;
+    quizRec.onresult = (e) => {
+      let interim = "";
+      for (let i = 0; i < e.results.length; i++) {
+        const res = e.results[i];
+        if (res.isFinal) { for (let j = 0; j < res.length; j++) recFinals.push(res[j].transcript); }
+        else if (res[0]) interim += res[0].transcript;
+      }
+      if (interim) {
+        recInterim = interim;
+        // live feedback so the quiz never feels dead while you speak
+        el.quizHeard.hidden = false;
+        el.quizHeard.innerHTML = "hearing: <b>" + escHTML(interim) + "</b>…";
+      }
+      if (recFinals.length && !recGraded) { recGraded = true; gradeSpoken(recFinals.slice()); }
+    };
+    quizRec.onerror = (ev) => {
+      let msg;
+      if (ev.error === "not-allowed" || ev.error === "service-not-allowed")
+        msg = standalone()
+          ? "🎤 The installed home-screen app can't use speech recognition on iPhone — open the site in Safari itself to quiz."
+          : "🎤 Microphone is blocked — allow mic access for this site, then tap again.";
+      else if (ev.error === "no-speech") msg = "Didn't catch that — tap and speak a little louder.";
+      else if (ev.error === "audio-capture") msg = "No microphone found on this device.";
+      else if (ev.error === "aborted") msg = "";           // user cancelled — stay quiet
+      else msg = "Couldn't hear you — give it another go.";
+      if (msg) { el.quizVerdict.hidden = false; el.quizVerdict.className = "quiz-verdict miss"; el.quizVerdict.textContent = msg; }
+      recDone();
+    };
+    quizRec.onend = recDone;
+    // Hard cap — some engines never auto-stop on silence; never record forever.
+    clearTimeout(recMaxTimer);
+    recMaxTimer = setTimeout(() => stopListening(false), 12000);
+    try { quizRec.start(); } catch (e) { recDone(); }
+  }
+
+  // Ask the engine to stop; if its onend never fires (a real iOS Safari bug),
+  // force-abort so the UI can never stay stuck on "listening…".
+  function stopListening(force) {
+    const rec = quizRec;
+    if (!rec) { recDone(); return; }
+    try { force ? rec.abort() : rec.stop(); } catch (e) {}
+    clearTimeout(recStopTimer);
+    recStopTimer = setTimeout(() => {
+      if (quizRec === rec) { try { rec.abort(); } catch (e) {} recDone(); }
+    }, force ? 300 : 1500);
+  }
+
+  // Single idempotent teardown — every path (result, error, end, watchdog,
+  // navigation) funnels here, so the mic state can't get stuck.
+  function recDone() {
+    clearTimeout(recStopTimer); clearTimeout(recMaxTimer);
+    quizRec = null;
+    if (quiz) quiz.listening = false;
+    setMic(false);
+    // The engine sometimes ends with only interim text and no final result
+    // (common on iOS). Grade what we heard rather than dropping it.
+    if (!recGraded && quiz && !el.quiz.hidden) {
+      const heard = recFinals.length ? recFinals.slice() : (recInterim ? [recInterim] : null);
+      if (heard) { recGraded = true; gradeSpoken(heard); }
+    }
+    recInterim = ""; recFinals = [];
+  }
+
+  async function gradeSpoken(alts) {
+    // Recognizers return kanji (私はトムです) while cards are kana — reading
+    // them needs the tokenizer. Load it before scoring kanji output, or 私
+    // would be dropped from the comparison and tank the score.
+    if (!kuroTok && alts.some((a) => hasKanji(a))) { try { await loadTokenizer(); } catch (e) {} }
     const target = readingOf(plainJP(quiz.target.jp));
-    let best = { score: -1, heard: alts[0] || "" };
+    let best = { score: -1, heard: alts[0] || "", reading: "" };
     for (const a of alts) {
-      const sc = similarity(readingOf(a), target);
-      if (sc > best.score) best = { score: sc, heard: a };
+      const r = readingOf(a);
+      const sc = similarity(r, target);
+      if (sc > best.score) best = { score: sc, heard: a, reading: r };
     }
     const pct = Math.max(0, Math.round(best.score * 100));
     quiz.results[quiz.idx] = Math.max(quiz.results[quiz.idx] || 0, best.score);
     el.quizHeard.hidden = false;
-    el.quizHeard.innerHTML = "you said: <b>" + escHTML(best.heard) + "</b>";
+    el.quizHeard.innerHTML =
+      "you said: <b>" + escHTML(best.heard) + "</b>" +
+      '<div class="quiz-diff">' + kanaDiffHTML(best.reading, target) + "</div>";
     el.quizVerdict.hidden = false;
     if (best.score >= 0.85) {
-      el.quizVerdict.className = "quiz-verdict pass"; el.quizVerdict.textContent = "✓ Perfect! (" + pct + "% match)";
+      const M = window.MOCHIKO;
+      const praise = M && M.praise && M.praise.length ? M.praise[Math.floor(Math.random() * M.praise.length)].jp + " " : "";
+      el.quizVerdict.className = "quiz-verdict pass"; el.quizVerdict.textContent = "✓ " + praise + "Perfect! (" + pct + "% match)";
       try { window.HanaFX && HanaFX.pop && HanaFX.pop(); } catch (e) {}
     } else if (best.score >= 0.6) {
       el.quizVerdict.className = "quiz-verdict close"; el.quizVerdict.textContent = "◐ Close — got the gist (" + pct + "% match)";
@@ -1916,6 +2035,31 @@
     showQuizAnswer();
   }
 
+  // Character-level alignment of what you said against the target kana, so
+  // the check is visible: each target kana lights green if you produced it.
+  function kanaDiffHTML(said, target) {
+    if (!target) return "";
+    const m = said.length, n = target.length;
+    const d = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) d[i][0] = i;
+    for (let j = 0; j <= n; j++) d[0][j] = j;
+    for (let i = 1; i <= m; i++)
+      for (let j = 1; j <= n; j++)
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (said[i - 1] === target[j - 1] ? 0 : 1));
+    const marks = new Array(n).fill(false);
+    let i = m, j = n;
+    while (i > 0 && j > 0) {
+      if (said[i - 1] === target[j - 1] && d[i][j] === d[i - 1][j - 1]) { marks[j - 1] = true; i--; j--; }
+      else if (d[i][j] === d[i - 1][j - 1] + 1) { i--; j--; }
+      else if (d[i][j] === d[i][j - 1] + 1) j--;
+      else i--;
+    }
+    let out = '<span class="qd-label">match:</span> ';
+    for (let k = 0; k < n; k++)
+      out += '<span class="qd-ch ' + (marks[k] ? "qd-ok" : "qd-bad") + '">' + escHTML(target[k]) + "</span>";
+    return out;
+  }
+
   function showQuizAnswer() {
     el.quizAnswer.hidden = false;
     el.quizKana.innerHTML = furiganaHTML(quiz.target.jp);
@@ -1923,19 +2067,31 @@
     else el.quizRomaji.hidden = true;
     el.quizPlayBtn.hidden = false; el.quizRevealBtn.hidden = true; el.quizSkipBtn.hidden = true;
     el.quizNextBtn.hidden = false;
-    el.quizNextBtn.textContent = (quiz.idx >= quiz.items.length - 1) ? "see results →" : "next →";
+    const last = quiz.scene ? quiz.steps.length - 1 : quiz.items.length - 1;
+    el.quizNextBtn.textContent = (quiz.idx >= last) ? "see results →" : "next →";
     speak(quiz.target.jp, { lang: "ja-JP" });   // always hear the correct version
   }
 
   function quizNext() {
     if (!quiz) return;
-    if (quiz.idx >= quiz.items.length - 1) { finishQuiz(); return; }
-    quiz.idx += 1; renderQuizCard();
+    const last = quiz.scene ? quiz.steps.length - 1 : quiz.items.length - 1;
+    if (quiz.idx >= last) { finishQuiz(); return; }
+    quiz.idx += 1;
+    if (quiz.scene) renderSceneStep(); else renderQuizCard();
   }
 
   function finishQuiz() {
     el.quizCard.hidden = true; el.quizControls.hidden = true; el.quizProgress.hidden = true;
     el.quizSummary.hidden = false;
+    if (quiz.scene) {
+      // Only your lines count — もち子さん's don't grade you.
+      const yourLines = quiz.steps.filter((s) => s.who === "you").length;
+      const passed = quiz.results.filter((s) => s >= 0.6).length;
+      el.quizScore.textContent = `Scene played through — you spoke ${passed} of ${yourLines} line${yourLines === 1 ? "" : "s"} clearly. ` +
+        (passed === yourLines ? "もち子さん is delighted! 🎉" : "The shop's open every day — come back and run it again.");
+      if (passed >= Math.ceil(yourLines * 0.8)) { try { window.HanaFX && HanaFX.confetti && HanaFX.confetti(); } catch (e) {} }
+      return;
+    }
     const total = quiz.items.length;
     const passed = quiz.results.filter((s) => s >= 0.6).length;
     el.quizScore.textContent = `You spoke ${passed} of ${total} sentence${total === 1 ? "" : "s"} clearly. ` +
@@ -1958,7 +2114,13 @@
   el.quizNextBtn.addEventListener("click", quizNext);
   el.quizHintBtn.addEventListener("click", () => { el.quizHint.hidden = !el.quizHint.hidden; el.quizHintBtn.textContent = el.quizHint.hidden ? "show hint" : "hide hint"; });
   el.quizBackBtn.addEventListener("click", () => { if (activeLesson) openIntro(activeLesson); else renderHome(); });
-  el.quizAgainBtn.addEventListener("click", () => startQuiz(activeLesson));
+  el.quizAgainBtn.addEventListener("click", () => {
+    if (quiz && quiz.scene) startScene(quiz.scene); else startQuiz(activeLesson);
+  });
+  el.quizMochiko.addEventListener("click", () => {   // tap her bubble to hear it again
+    const st = quiz && quiz.scene && quiz.steps[quiz.idx];
+    if (st && st.who === "m") speak(st.jp, { lang: "ja-JP" });
+  });
   el.buildBtn.addEventListener("click", () => startLesson(activeLesson, { build: true }));
   el.buildHardBtn.addEventListener("click", () => startLesson(activeLesson, { build: true, hard: true }));
   el.buildReset.addEventListener("click", () => { if (build && !build.solved) startBuild(current.s); });

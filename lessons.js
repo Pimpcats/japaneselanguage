@@ -2289,3 +2289,64 @@ window.VERBS = [
     forms: { masen: ["かえりません","kaerimasen"], mashita: ["かえりました","kaerimashita"], masendeshita: ["かえりませんでした","kaerimasen deshita"],
       te: ["かえって","kaette"], plain: ["かえる","kaeru"], nai: ["かえらない","kaeranai"], ta: ["かえった","kaetta"] } },
 ];
+
+// ---- もち子さん — your shopkeeper companion --------------------------------
+// She greets you on lesson intros, cheers a perfect spoken answer, and stars
+// in the conversation scenes below. Her lines get VOICEVOX clips like any
+// other string (tools/gen_audio.mjs collects them).
+window.MOCHIKO = {
+  greetings: [
+    { jp: "いらっしゃいませ！", en: "Welcome in!" },
+    { jp: "こんにちは！ きょうも がんばりましょう！", en: "Hello! Let's do our best today too!" },
+    { jp: "いっしょに れんしゅうしましょう！", en: "Let's practice together!" },
+    { jp: "ゆっくりで いいですよ。", en: "Take your time — no rush." },
+    { jp: "きょうは なにを はなしましょうか。", en: "What shall we talk about today?" },
+  ],
+  praise: [
+    { jp: "すごい！", en: "Amazing!" },
+    { jp: "じょうずですね！", en: "You're getting good!" },
+    { jp: "その ちょうし！", en: "That's the spirit!" },
+  ],
+};
+
+// ---- Conversation scenes ---------------------------------------------------
+// A few speaking-quiz prompts strung into a tiny story with もち子さん.
+// `who:"m"` steps are her lines (played aloud); `who:"you"` steps run the
+// normal speak-and-match flow. Your lines reuse existing lesson sentences,
+// so their audio clips already exist.
+window.SCENES = [
+  {
+    id: "shop-first", lesson: "shop", title: "はじめての おみせ",
+    en: "Your first shop visit",
+    steps: [
+      { who: "m", jp: "いらっしゃいませ！", en: "Welcome in!" },
+      { who: "you", ctx: "Greet her.", en: "Hello.", jp: "こんにちは。", romaji: "konnichiwa." },
+      { who: "you", ctx: "Point at something on the shelf.", en: "How much is this?", jp: "これは いくらですか？", romaji: "kore wa ikura desu ka?" },
+      { who: "m", jp: "ごひゃくえんです。", en: "It's 500 yen." },
+      { who: "you", ctx: "You'll take it.", en: "This one, please.", jp: "これを ください。", romaji: "kore o kudasai." },
+      { who: "m", jp: "はい、どうぞ！", en: "Here you go!" },
+      { who: "you", ctx: "Thank her.", en: "Thank you very much.", jp: "ありがとう ございます。", romaji: "arigatou gozaimasu." },
+      { who: "m", jp: "また きてくださいね！", en: "Come again!" },
+    ],
+  },
+];
+
+// ---- Real-world missions ----------------------------------------------------
+// Tiny transfer tasks shown when a lesson run finishes — the point is using
+// Japanese out in your day, which no app screen can do for you.
+window.MISSIONS = {
+  greetings: "Say こんにちは out loud to the next person you greet today — even under your breath counts.",
+  intro: "Introduce yourself to the mirror tonight: わたしは ___ です。",
+  shop: "Next time you buy anything, whisper これを ください。 as you put it down.",
+  money: "Find one price tag today and say the number in Japanese.",
+  cafe: "Order (or imagine ordering) your next drink in Japanese: ___を ください。",
+  routine: "Narrate one thing you do tonight: ばんごはんを たべます。",
+  "coming-going": "When you leave home say いきます！ — when you're back, かえりました！",
+  adjectives: "Pick three things around you right now and call them たかい・やすい・おおきい out loud.",
+  _generic: [
+    "Say this lesson's sentences out loud once more tonight — from memory if you can.",
+    "Teach one of these sentences to someone (a pet counts).",
+    "Label one thing near you with its Japanese word.",
+    "Whisper one of these sentences the next time the moment fits.",
+  ],
+};

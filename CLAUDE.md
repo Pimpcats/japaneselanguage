@@ -154,15 +154,29 @@ to reveal-and-listen when unavailable.
 - The owner's stack outside this repo: GitHub Pages + a local VOICEVOX for
   auditioning voices. Keep everything runnable without Node build tooling.
 
+## The character & journey layer (owner-approved direction)
+
+- **もち子さん is a character, not just a voice**: she greets on lesson intros
+  (`window.MOCHIKO.greetings`, bubble in `openIntro`), asks the quiz prompts,
+  praises perfect spoken answers, and stars in **conversation scenes**
+  (`window.SCENES` — her lines play aloud, your lines run the quiz mic flow).
+  New scene lines for her need clips; reuse existing lesson sentences for the
+  learner's lines so their clips already exist.
+- **The Japan-map journey** is the level page: cartoon-Japan SVG + pins, themes
+  as regions, lessons as road nodes. "Ahead" nodes are styling only — every
+  lesson stays tappable (no artificial scarcity, ever).
+- **Real-world missions** (`window.MISSIONS`, shown on lesson complete) and the
+  **weekly rhythm dots** (7 forgiving days, `prog.practice`) replace
+  streak-guilt. Do not add streak pressure back.
+- Rewards-as-content (unlockable voice styles / scenes) is the approved future
+  direction for rewards — never points or XP.
+
 ## Known debt / open items (keep this list honest)
 
-- Fresh mined sentences don't enter the Review queue (`reviewCards()` =
-  `focusCards()` excludes cards with no grade history) — regression from the
-  single-review-bucket change.
-- Dead code in app.js: the world-map journey view (`renderJourney`,
-  `buildJapanMap`, `JAPAN_SVG`, pins), `reviewBucket()`, daily-goal ring
-  leftovers (feature removed from UI).
 - The three 〜ざるを得ない sentences contain the kanji 得 without furigana.
+- `resetProgress` says "erase all progress" but keeps mined/immersion/known.
+- Speech recognition is unavailable in the installed iOS home-screen app
+  (WebKit limitation) — the quiz explains this and degrades gracefully.
 - Legacy `claude/*` branches await owner deletion; higher-res art sits unmerged
   on `claude/inspiring-carson-712EI` (owner hasn't decided).
 - `_headers` is Cloudflare-only (harmless on Pages).

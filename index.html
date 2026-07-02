@@ -16,8 +16,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=81" />
-    <link rel="stylesheet" href="theme.css?v=81" />
+    <link rel="stylesheet" href="styles.css?v=83" />
+    <link rel="stylesheet" href="theme.css?v=83" />
     <link rel="preload" as="image" href="assets/frame.png" />
     <link rel="preload" as="image" href="assets/sign.png" />
     <link rel="preload" as="image" href="assets/awning.png" />
@@ -127,7 +127,11 @@
         <div id="quiz-progress" class="quiz-progress"></div>
 
         <div id="quiz-card">
-          <div class="label">How do you say…</div>
+          <div id="quiz-mochiko" hidden>
+            <img src="assets/chibi_cheer.png" alt="もち子さん" />
+            <span class="qm-bubble"><b id="quiz-mochiko-jp"></b><small id="quiz-mochiko-en"></small></span>
+          </div>
+          <div id="quiz-label" class="label">How do you say…</div>
           <div id="quiz-en">…</div>
           <button id="quiz-hint-btn" class="link" hidden>show hint</button>
           <div id="quiz-hint" class="quiz-hint" hidden></div>
@@ -354,6 +358,7 @@
         <div class="done-emoji">🎉</div>
         <h2>Lesson complete</h2>
         <p id="done-summary" class="lesson-note"></p>
+        <p id="done-mission" class="done-mission" hidden></p>
         <div class="done-actions">
           <button id="done-home-btn" class="secondary">← all lessons</button>
           <button id="done-quiz-btn" class="secondary">🎤 Speaking quiz</button>
@@ -367,9 +372,9 @@
       </footer>
     </main>
 
-    <script src="lessons.js?v=81"></script>
-    <script src="app.js?v=81"></script>
-    <script src="theme.js?v=81"></script>
-    <script src="collection.js?v=81"></script>
+    <script src="lessons.js?v=83"></script>
+    <script src="app.js?v=83"></script>
+    <script src="theme.js?v=83"></script>
+    <script src="collection.js?v=83"></script>
   </body>
 </html>
