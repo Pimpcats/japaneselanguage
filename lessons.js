@@ -2307,6 +2307,17 @@ window.MOCHIKO = {
     { jp: "じょうずですね！", en: "You're getting good!" },
     { jp: "その ちょうし！", en: "That's the spirit!" },
   ],
+  // Short reactions she drops between your lines in a conversation.
+  reactions: [
+    { jp: "そうですか！", en: "I see!" },
+    { jp: "いいですね！", en: "Nice!" },
+    { jp: "なるほど！", en: "Gotcha!" },
+    { jp: "へえ、すごい！", en: "Wow, great!" },
+  ],
+  closings: [
+    { jp: "きょうは ここまで。またね！", en: "That's it for today — see you!" },
+    { jp: "たのしかった！ またね！", en: "That was fun! See you!" },
+  ],
 };
 
 // ---- Conversation scenes ---------------------------------------------------

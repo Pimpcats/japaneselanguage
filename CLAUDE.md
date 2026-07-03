@@ -137,7 +137,15 @@ the clip, falling back to device `speechSynthesis` if missing.
   `assets/sfx-lesson-complete.mp3`) with a synth fallback in theme.js. Don't
   replace them with pure synthesis — it was tried and sounded cheap.
 
-## Speaking quiz (app.js)
+## Speaking practice = "Talk with もち子さん" (app.js)
+
+The 🎭 talk button on EVERY lesson intro (and lesson-complete) is the single
+speaking entry point — the standalone speaking-quiz and listen-and-repeat
+buttons were removed at the owner's request (2026-07). Hand-written
+`window.SCENES` override; every other lesson auto-builds a conversation
+(`buildAutoScene`): her greeting → each lesson sentence as your line, with her
+reactions (`MOCHIKO.reactions`) between → a closing. Under the hood it's the
+same speech engine:
 
 English prompt → Web Speech API (`ja-JP`) transcription → compare by READING:
 both sides reduced to bare hiragana (kanji read via the vendored kuromoji
@@ -164,14 +172,11 @@ to reveal-and-listen when unavailable.
 
 - **もち子さん is a character, not just a voice**: she greets on lesson intros
   (`window.MOCHIKO.greetings`, bubble in `openIntro`), asks the quiz prompts,
-  praises perfect spoken answers, and stars in **conversation scenes**
+  praises perfect spoken answers, reacts between your lines, and stars in **conversation scenes**
   (`window.SCENES` — her lines play aloud, your lines run the quiz mic flow).
   New scene lines for her need clips; reuse existing lesson sentences for the
   learner's lines so their clips already exist. Scenes so far: shop, café,
   introductions, station.
-- **Listening mode** (`startQuiz(L, {listen:true})`, 👂 on lesson intros): no
-  text shown — she speaks the sentence, the learner says it back, the reveal
-  shows the meaning. Same mic flow and scoring as the speaking quiz.
 - **The Japan-map journey** is the level page: cartoon-Japan SVG + pins, themes
   as regions, lessons as road nodes (label sits directly UNDER its dot — never
   beside, it misreads). "Ahead" nodes are styling only — every lesson stays

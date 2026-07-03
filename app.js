@@ -347,7 +347,7 @@
     voiceSelect: $("voice-select"), voiceTestBtn: $("voice-test-btn"),
     syncStatus: $("sync-status"), syncConnectBtn: $("sync-connect-btn"), syncDisconnectBtn: $("sync-disconnect-btn"),
     resetBtn: $("reset-btn"), goalSelect: $("goal-select"), directionSelect: $("direction-select"),
-    quizBtn: $("quiz-btn"), doneQuizBtn: $("done-quiz-btn"), quiz: $("quiz"), listenBtn: $("listen-btn"),
+    doneQuizBtn: $("done-quiz-btn"), quiz: $("quiz"),
     quizCard: $("quiz-card"), quizControls: $("quiz-controls"), quizLabel: $("quiz-label"),
     quizMochiko: $("quiz-mochiko"), quizMochikoJp: $("quiz-mochiko-jp"), quizMochikoEn: $("quiz-mochiko-en"),
     doneMission: $("done-mission"),
@@ -1332,7 +1332,8 @@
   function openIntro(L) {
     activeLesson = L;
     renderMochikoGreeting(L);
-    // Lessons with a scene get a "talk with もち子さん" entry next to the drills.
+    // Every lesson is a conversation: a hand-written scene when one exists,
+    // otherwise one auto-built from the lesson's own sentences.
     const scene = (window.SCENES || []).find((s) => s.lesson === L.id);
     let sceneBtn = document.getElementById("scene-btn");
     if (!sceneBtn) {
@@ -1341,13 +1342,12 @@
       sceneBtn.className = "secondary";
       const actions = document.querySelector(".intro-actions");
       actions.insertBefore(sceneBtn, document.getElementById("build-btn"));
-      sceneBtn.addEventListener("click", () => {
-        const sc = (window.SCENES || []).find((s) => s.lesson === activeLesson.id);
-        if (sc) startScene(sc);
-      });
+      sceneBtn.addEventListener("click", () => startTalk(activeLesson));
     }
-    sceneBtn.hidden = !scene;
-    if (scene) sceneBtn.textContent = "🎭 " + scene.title + " — talk with もち子さん";
+    sceneBtn.hidden = false;
+    sceneBtn.textContent = scene
+      ? "🎭 " + scene.title + " — talk with もち子さん"
+      : "🎭 Talk with もち子さん";
     el.lessonTitle.textContent = L.title;
     el.lessonGrammar.textContent = L.grammar;
     el.lessonNote.textContent = L.grammarNote || "";
@@ -1858,16 +1858,35 @@
     return max ? 1 - levenshtein(a, b) / max : (a === b ? 1 : 0);
   }
 
-  function startQuiz(L, opts) {
+  // Every lesson can be talked through: もち子さん greets you, asks for each of
+  // the lesson's sentences (she reacts between your lines), then says goodbye.
+  // Hand-written SCENES override this generated flow for their lessons.
+  function buildAutoScene(L) {
+    const M = window.MOCHIKO || {};
+    const pick = (arr, i) => (arr && arr.length ? arr[i % arr.length] : null);
+    const seed = new Date().getDate() + L.title.length;
+    const steps = [];
+    const g = pick(M.greetings, seed);
+    if (g) steps.push({ who: "m", jp: g.jp, en: g.en });
+    const sentences = L.sentences.slice();
+    for (let i = sentences.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [sentences[i], sentences[j]] = [sentences[j], sentences[i]];
+    }
+    sentences.forEach((s, i) => {
+      steps.push({ who: "you", ctx: "もち子さん asks — how do you say…", en: s.en, jp: s.jp, romaji: s.romaji, hint: s.hint });
+      const r = pick(M.reactions, seed + i);
+      if (r && i < sentences.length - 1) steps.push({ who: "m", jp: r.jp, en: r.en });
+    });
+    const c = pick(M.closings, seed);
+    if (c) steps.push({ who: "m", jp: c.jp, en: c.en });
+    return { id: "auto-" + L.id, lesson: L.id, title: L.title, auto: true, steps };
+  }
+
+  function startTalk(L) {
     if (!L) return;
-    const cards = CARDS.filter((c) => c.lessonId === L.id);
-    if (!cards.length) return;
-    const items = cards.slice();
-    for (let i = items.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [items[i], items[j]] = [items[j], items[i]]; }
-    quiz = { items, idx: 0, results: [], listening: false, listen: !!(opts && opts.listen) };
-    loadTokenizer().catch(() => {});   // warm the dict so kanji readings are accurate
-    show(el.quiz, { back: true });
-    renderQuizCard();
+    const sc = (window.SCENES || []).find((s) => s.lesson === L.id);
+    startScene(sc || buildAutoScene(L));
   }
 
   function setMic(listening) {
@@ -1895,29 +1914,6 @@
     el.quizUnsupported.hidden = !!SpeechRec;
     if (!SpeechRec) el.quizUnsupported.textContent =
       "Speech recognition isn't available here. On iPhone open this in Safari (not an in-app browser); on a computer use Chrome. You can still reveal the answer and hear it.";
-  }
-
-  function renderQuizCard() {
-    const card = quiz.items[quiz.idx];
-    quiz.target = card.s;
-    resetQuizCard();
-    el.quizProgress.textContent = (quiz.idx + 1) + " / " + quiz.items.length;
-    if (quiz.listen) {
-      // Listening mode: no text at all — hear もち子さん, then say it back.
-      el.quizLabel.textContent = "👂 Listen… then say it back";
-      el.quizEn.hidden = true; el.quizEn.textContent = "";
-      el.quizPlayBtn.hidden = false;         // replay as often as you like
-      showMicControls();
-      speak(card.s.jp, { lang: "ja-JP" });   // entered via a tap, so audio is allowed
-      return;
-    }
-    el.quizLabel.textContent = "もち子さん asks — how do you say…";
-    el.quizEn.hidden = false;
-    el.quizEn.textContent = card.s.en;
-    el.quizHintBtn.hidden = !card.s.hint;
-    el.quizHintBtn.textContent = "show hint";
-    el.quizHint.textContent = card.s.hint || "";
-    showMicControls();
   }
 
   // ---- Conversation scenes (もち子さん dialogues) ---------------------------
@@ -1950,6 +1946,11 @@
       el.quizLabel.textContent = st.ctx || "Your turn — say it in Japanese";
       el.quizEn.hidden = false;
       el.quizEn.textContent = st.en;
+      if (st.hint) {
+        el.quizHintBtn.hidden = false;
+        el.quizHintBtn.textContent = "show hint";
+        el.quizHint.textContent = st.hint;
+      }
       showMicControls();
     }
   }
@@ -2135,54 +2136,31 @@
 
   function showQuizAnswer() {
     el.quizAnswer.hidden = false;
-    if (quiz.listen && quiz.target.en) { el.quizEn.hidden = false; el.quizEn.textContent = quiz.target.en; }
     el.quizKana.innerHTML = furiganaHTML(quiz.target.jp);
     if (settings.romaji && quiz.target.romaji) { el.quizRomaji.hidden = false; el.quizRomaji.textContent = quiz.target.romaji; }
     else el.quizRomaji.hidden = true;
     el.quizPlayBtn.hidden = false; el.quizRevealBtn.hidden = true; el.quizSkipBtn.hidden = true;
     el.quizNextBtn.hidden = false;
-    const last = quiz.scene ? quiz.steps.length - 1 : quiz.items.length - 1;
-    el.quizNextBtn.textContent = (quiz.idx >= last) ? "see results →" : "next →";
+    el.quizNextBtn.textContent = (quiz.idx >= quiz.steps.length - 1) ? "see results →" : "next →";
     speak(quiz.target.jp, { lang: "ja-JP" });   // always hear the correct version
   }
 
   function quizNext() {
     if (!quiz) return;
-    const last = quiz.scene ? quiz.steps.length - 1 : quiz.items.length - 1;
-    if (quiz.idx >= last) { finishQuiz(); return; }
+    if (quiz.idx >= quiz.steps.length - 1) { finishQuiz(); return; }
     quiz.idx += 1;
-    if (quiz.scene) renderSceneStep(); else renderQuizCard();
+    renderSceneStep();
   }
 
   function finishQuiz() {
     el.quizCard.hidden = true; el.quizControls.hidden = true; el.quizProgress.hidden = true;
     el.quizSummary.hidden = false;
-    if (quiz.scene) {
-      // Only your lines count — もち子さん's don't grade you.
-      const yourLines = quiz.steps.filter((s) => s.who === "you").length;
-      const passed = quiz.results.filter((s) => s >= 0.5).length;
-      el.quizScore.textContent = `Scene played through — you spoke ${passed} of ${yourLines} line${yourLines === 1 ? "" : "s"} clearly. ` +
-        (passed === yourLines ? "もち子さん is delighted! 🎉" : "The shop's open every day — come back and run it again.");
-      if (passed >= Math.ceil(yourLines * 0.8)) { try { window.HanaFX && HanaFX.confetti && HanaFX.confetti(); } catch (e) {} }
-      return;
-    }
-    const total = quiz.items.length;
+    // Only your lines count — もち子さん's don't grade you.
+    const yourLines = quiz.steps.filter((s) => s.who === "you").length;
     const passed = quiz.results.filter((s) => s >= 0.5).length;
-    el.quizScore.textContent = `You spoke ${passed} of ${total} sentence${total === 1 ? "" : "s"} clearly. ` +
-      (passed === total ? "Flawless — your pronunciation is landing! 🎉" : "Saying it out loud is what builds confidence — keep at it.");
-    if (passed >= Math.ceil(total * 0.8)) { try { window.HanaFX && HanaFX.confetti && HanaFX.confetti(); } catch (e) {} }
-  }
-
-  // Back from a lesson (intro / drill / quiz / done) lands on the level map
-  // scrolled to that lesson's node — not the top of the page.
-  function backToMap() {
-    renderHome();
-    if (openLevelId && activeLesson) {
-      requestAnimationFrame(() => {
-        const dot = document.querySelector('.node-dot[data-lesson="' + activeLesson.id + '"]');
-        if (dot) dot.scrollIntoView({ block: "center" });
-      });
-    }
+    el.quizScore.textContent = `You spoke ${passed} of ${yourLines} line${yourLines === 1 ? "" : "s"} clearly. ` +
+      (passed === yourLines ? "もち子さん is delighted! 🎉" : "She's here every day — talk it through again anytime.");
+    if (passed >= Math.ceil(yourLines * 0.8)) { try { window.HanaFX && HanaFX.confetti && HanaFX.confetti(); } catch (e) {} }
   }
 
   // ---- Wire up -------------------------------------------------------------
@@ -2191,9 +2169,7 @@
   el.reviewBtn.addEventListener("click", startReview);
   el.focusBtn.addEventListener("click", startFocus);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
-  el.quizBtn.addEventListener("click", () => startQuiz(activeLesson));
-  el.listenBtn.addEventListener("click", () => startQuiz(activeLesson, { listen: true }));
-  el.doneQuizBtn.addEventListener("click", () => startQuiz(activeLesson));
+  el.doneQuizBtn.addEventListener("click", () => startTalk(activeLesson));
   el.quizMicBtn.addEventListener("click", startListening);
   el.quizPlayBtn.addEventListener("click", () => { if (quiz && quiz.target) speak(quiz.target.jp, { lang: "ja-JP" }); });
   el.quizRevealBtn.addEventListener("click", () => { if (!quiz) return; quiz.results[quiz.idx] = quiz.results[quiz.idx] || 0; showQuizAnswer(); });
@@ -2202,8 +2178,8 @@
   el.quizHintBtn.addEventListener("click", () => { el.quizHint.hidden = !el.quizHint.hidden; el.quizHintBtn.textContent = el.quizHint.hidden ? "show hint" : "hide hint"; });
   el.quizBackBtn.addEventListener("click", () => { if (activeLesson) openIntro(activeLesson); else renderHome(); });
   el.quizAgainBtn.addEventListener("click", () => {
-    if (quiz && quiz.scene) startScene(quiz.scene);
-    else startQuiz(activeLesson, { listen: !!(quiz && quiz.listen) });
+    if (quiz && quiz.scene && !quiz.scene.auto) startScene(quiz.scene);
+    else startTalk(activeLesson);          // auto-scenes rebuild fresh (reshuffled)
   });
   el.quizMochiko.addEventListener("click", () => {   // tap her bubble to hear it again
     const st = quiz && quiz.scene && quiz.steps[quiz.idx];

@@ -69,7 +69,7 @@ for (const v of (VERBS || [])) {
 for (const p of EXTRA_PHRASES) want(p, false);
 // もち子さん's spoken lines: intro greetings, praise, and scene dialogue.
 // Scene "you" lines usually duplicate lesson sentences (deduped by the map).
-if (MOCHIKO) for (const g of [...(MOCHIKO.greetings || []), ...(MOCHIKO.praise || [])]) want(g.jp, false);
+if (MOCHIKO) for (const g of [...(MOCHIKO.greetings || []), ...(MOCHIKO.praise || []), ...(MOCHIKO.reactions || []), ...(MOCHIKO.closings || [])]) want(g.jp, false);
 for (const sc of (SCENES || [])) for (const st of (sc.steps || [])) want(st.jp, st.who === "you");
 
 // ---- VOICEVOX synthesis --------------------------------------------------
