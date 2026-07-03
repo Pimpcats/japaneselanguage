@@ -154,4 +154,4 @@ clouds, the whole journey's world tiny below. The last stop on the road.
 4. Themes without art yet keep the current trail styling — mixed states are
    fine; nothing blocks on the full set.
 
-17 panels total · 7 for Level 1, 2 each for Levels 2–7 (+2 optional bonus).
+19 panels total (72 path stops) · 7 for Level 1, 2 each for Levels 2–7 (+2 optional bonus).

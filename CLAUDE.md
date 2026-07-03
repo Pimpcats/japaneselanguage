@@ -178,7 +178,7 @@ to reveal-and-listen when unavailable.
   tappable (no artificial scarcity, ever).
 - **Planned: Donkey-Kong-style map** — nodes hopping between scenic spots on
   illustrated terrain. The OWNER is producing the art to `docs/ART_ROADMAP.md`
-  (17 location panels, one per theme, spec + paint-briefs inside; panels land
+  (19 location panels, one per theme, spec + paint-briefs inside; panels land
   in `assets/map/`). Keep the node/trail DOM structure stable so panels can
   slot in behind it. Don't generate placeholder scenery art unprompted.
 - **Real-world missions** (`window.MISSIONS`, shown on lesson complete) and the

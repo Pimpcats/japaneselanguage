@@ -1,6 +1,6 @@
 # はなそう Map Art — Generation Handoff (for Claude chat / ChatGPT)
 
-Copy-paste kit for generating the 17 location panels. Each prompt below is
+Copy-paste kit for generating the 19 location panels. Each prompt below is
 **fully self-contained** — paste one prompt per image, in any order. No prior
 context needed.
 
@@ -30,7 +30,7 @@ otherwise.
 
 ---
 
-## The 17 panels
+## The 19 panels
 
 Filenames are how you should name each download (they map into the app).
 
