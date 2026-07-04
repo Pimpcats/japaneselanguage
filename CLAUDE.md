@@ -69,8 +69,11 @@ sync makes the design preview drift.
 
 ## Branches & hosting
 
-- **`main`** is canonical (site + CI). GitHub Pages serves it; the repo is
-  private (owner has Pro).
+- **`main`** is canonical (site + CI). GitHub Pages publishes via the
+  **test-gated deploy workflow** (`.github/workflows/deploy.yml`): every push
+  to main runs node --check + the jsdom smoke test + the lessons linter, and
+  only publishes if all pass — a broken build leaves the site on the last good
+  version. The repo is private (owner has Pro).
 - Legacy branches `claude/*` are being retired; `claude/amazing-cannon-PPvmw`
   was the old Pages/deploy branch. Don't create new long-lived branches.
 - The "art assets" commits on `claude/inspiring-carson-712EI` are CORRUPTED
@@ -205,5 +208,3 @@ to reveal-and-listen when unavailable.
 - Legacy `claude/*` branches await owner deletion; higher-res art sits unmerged
   on `claude/inspiring-carson-712EI` (owner hasn't decided).
 - `_headers` is Cloudflare-only (harmless on Pages).
-- No automated checks: at minimum `node --check` + a lessons linter (orphan
-  vocab, described-but-untaught words, pos validity) should run in CI.

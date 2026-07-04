@@ -61,7 +61,7 @@ jobs:
             perl -i -pe 's/(hanasou-v)(\d+)/$1 . ($2 + 1)/e' sw.js
             echo "Service worker bumped to: $(grep -o 'hanasou-v[0-9]*' sw.js)"
             git add audio sw.js
-            git commit -m "Regenerate audio clips [skip ci]"
+            git commit -m "Regenerate audio clips"
             git push
           else
             echo "Audio already up to date — nothing to commit."
