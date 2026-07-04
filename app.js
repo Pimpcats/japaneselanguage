@@ -2163,6 +2163,18 @@
     if (passed >= Math.ceil(yourLines * 0.8)) { try { window.HanaFX && HanaFX.confetti && HanaFX.confetti(); } catch (e) {} }
   }
 
+  // Back from a lesson (intro / drill / scene / done) lands on the level map
+  // scrolled to that lesson's node — not the top of the page.
+  function backToMap() {
+    renderHome();
+    if (openLevelId && activeLesson) {
+      requestAnimationFrame(() => {
+        const dot = document.querySelector('.node-dot[data-lesson="' + activeLesson.id + '"]');
+        if (dot && dot.scrollIntoView) dot.scrollIntoView({ block: "center" });
+      });
+    }
+  }
+
   // ---- Wire up -------------------------------------------------------------
   el.backBtn.addEventListener("click", backToMap);
   el.doneHomeBtn.addEventListener("click", backToMap);

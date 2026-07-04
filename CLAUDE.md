@@ -53,7 +53,11 @@ optional token-based blob sync to a VPS at `/api/progress` with field-level merg
 ## The deploy ritual (do all of it, every visual/JS change)
 
 1. Edit `theme.css` / `app.js` / etc.
-2. `node --check app.js` (and any other JS you touched).
+2. `node --check app.js` (and any other JS you touched), AND the runtime smoke
+   test: `npm i --no-save jsdom && node tools/smoke.mjs` — it boots the app in
+   jsdom and clicks through home → lesson → talk. A v93 deploy shipped a
+   ReferenceError that node --check can't catch; the smoke test exists so that
+   never happens again.
 3. Sync the mock: `sed 's#url("assets/#url("../assets/#g' theme.css > mock/theme.css`
 4. Bump the version **everywhere it appears**: `?v=NN` in `index.html` (6 places)
    and `hanasou-vNN` in `sw.js`. They move together.
