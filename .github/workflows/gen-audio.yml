@@ -11,6 +11,7 @@ on:
     branches: [main, claude/amazing-cannon-PPvmw]
     paths:
       - lessons.js
+      - kana.js
       - tools/gen_audio.mjs
       - .github/workflows/gen-audio.yml
   workflow_dispatch: {}

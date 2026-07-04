@@ -675,3 +675,44 @@ footer { font-family: var(--display); color: var(--muted); }
   font-size: 0.52rem; font-weight: 900; letter-spacing: 0.05em;
   color: color-mix(in srgb, var(--ink) 45%, #fff);
 }
+
+/* ---- kana learn & practice ------------------------------------------------ */
+.kana-btn { text-align: center; }
+.kana-tabs { display: flex; gap: 0.5rem; }
+.kana-tab {
+  flex: 1; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff;
+  font-weight: 900; color: var(--ink); padding: 0.55rem 0.4rem; box-shadow: 0 3px 0 var(--ink);
+}
+.kana-tab.active { background: var(--gold); }
+.kana-note { margin: 0; }
+#kana-grid { display: flex; flex-direction: column; gap: 0.4rem; }
+.kana-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.kana-chip {
+  display: flex; flex-direction: column; align-items: center; gap: 0.02rem;
+  min-width: 3rem; padding: 0.3rem 0.4rem;
+  border: 2.5px solid var(--ink); border-radius: 12px; box-shadow: 0 3px 0 rgba(74, 51, 40, 0.2);
+  background: #f2ece0; opacity: 0.72;             /* not met yet: parchment */
+  transition: transform 0.08s;
+}
+.kana-chip:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0,0,0,0); }
+.kana-chip.seen { background: #fff; opacity: 1; } /* met: bright */
+.kana-chip .kc-char { font-family: var(--display); font-size: 1.3rem; color: var(--ink); line-height: 1.15; }
+.kana-chip .kc-romaji { font-size: 0.58rem; font-weight: 900; letter-spacing: 0.04em; color: var(--muted); text-transform: uppercase; }
+.kana-chip-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+/* practice: big letter, four sound choices */
+#kana-quiz { display: flex; flex-direction: column; gap: 0.8rem; align-items: center; padding-top: 0.4rem; }
+#kq-char {
+  font-family: var(--display); font-size: 5rem; line-height: 1.1; color: var(--ink);
+  background: #fffdf6; border: 3px solid var(--ink); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 0.8rem 2rem;
+}
+.kq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; width: 100%; }
+.kq-opt {
+  border: 2.5px solid var(--ink); border-radius: 999px; background: #fff;
+  font-weight: 900; font-size: 1.1rem; color: var(--ink); padding: 0.7rem 0.4rem;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.kq-opt:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+.kq-opt.ok { background: color-mix(in srgb, var(--good) 30%, #fff); }
+.kq-opt.bad { background: color-mix(in srgb, var(--bad) 22%, #fff); }

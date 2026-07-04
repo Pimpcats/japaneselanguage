@@ -16,8 +16,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=94" />
-    <link rel="stylesheet" href="theme.css?v=94" />
+    <link rel="stylesheet" href="styles.css?v=95" />
+    <link rel="stylesheet" href="theme.css?v=95" />
     <link rel="preload" as="image" href="assets/frame.png" />
     <link rel="preload" as="image" href="assets/sign.png" />
     <link rel="preload" as="image" href="assets/awning.png" />
@@ -96,6 +96,7 @@
             </details>
           </div>
         </details>
+        <button id="kana-btn" class="secondary kana-btn">あア Kana — learn &amp; practice the letters</button>
         <div id="stats" class="stats"></div>
         <div id="immersion" hidden></div>
         <button id="review-btn" class="primary review-btn" hidden></button>
@@ -110,6 +111,11 @@
         <h2 id="lesson-title"></h2>
         <div id="lesson-grammar" class="lesson-grammar"></div>
         <p id="lesson-note" class="lesson-note"></p>
+
+        <div id="new-kana" hidden>
+          <div class="label">New sounds in this lesson <span class="tap-hint">tap to hear</span></div>
+          <div id="new-kana-chips" class="kana-chip-row"></div>
+        </div>
 
         <div class="label">Words in this lesson <span class="tap-hint">tap to hear</span></div>
         <div id="vocab-list" class="vocab-list"></div>
@@ -213,16 +219,39 @@
         </div>
       </section>
 
+      <!-- ============ KANA REVIEW ============ -->
+      <section id="kana" class="screen" hidden>
+        <div class="kana-tabs">
+          <button id="kana-tab-h" class="kana-tab active">ひらがな hiragana</button>
+          <button id="kana-tab-k" class="kana-tab">カタカナ katakana</button>
+        </div>
+        <p class="lesson-note kana-note">Tap any letter to hear もち子さん say it. Letters you've met in lessons (or nailed in practice) are bright; the rest are still ahead.</p>
+        <div id="kana-grid"></div>
+        <div id="controls">
+          <button id="kana-practice-btn" class="primary">🎯 Practice these letters</button>
+        </div>
+
+        <div id="kana-quiz" hidden>
+          <div class="label">Which sound is this?</div>
+          <div id="kq-char"></div>
+          <div id="kq-options" class="kq-options"></div>
+          <div id="kq-progress" class="quiz-progress"></div>
+          <button id="kq-stop" class="link">end practice</button>
+        </div>
+      </section>
+
       <!-- ============ SETTINGS ============ -->
       <section id="settings" class="screen" hidden>
         <h2 class="settings-h">Settings</h2>
 
         <div class="setting-group">
           <div class="label">Display</div>
-          <label class="setting-row" for="romaji-toggle">
-            <span class="setting-name">Show romaji<small>Latin reading under the Japanese</small></span>
-            <input type="checkbox" id="romaji-toggle" class="switch" />
-          </label>
+          <span class="setting-name">Romaji<small>Auto fades the Latin reading away as you learn each kana</small></span>
+          <select id="romaji-mode" class="select">
+            <option value="auto">Auto — fade as I learn kana</option>
+            <option value="always">Always show</option>
+            <option value="never">Never show</option>
+          </select>
         </div>
 
         <div class="setting-group">
@@ -372,9 +401,10 @@
       </footer>
     </main>
 
-    <script src="lessons.js?v=94"></script>
-    <script src="app.js?v=94"></script>
-    <script src="theme.js?v=94"></script>
-    <script src="collection.js?v=94"></script>
+    <script src="lessons.js?v=95"></script>
+    <script src="kana.js?v=95"></script>
+    <script src="app.js?v=95"></script>
+    <script src="theme.js?v=95"></script>
+    <script src="collection.js?v=95"></script>
   </body>
 </html>

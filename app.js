@@ -50,6 +50,7 @@
   prog.known = prog.known || [];          // [base_form] words marked known
   prog.knownHistory = prog.knownHistory || {}; // {"YYYY-MM-DD": known count}
   prog.practice = prog.practice || {};    // {"YYYY-MM-DD": reviews that day} — drives the weekly rhythm
+  prog.kana = prog.kana || {};            // {kana char: strength} — introduced/practiced letters (drives romaji fade)
   rebuildMined();
   function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
@@ -64,6 +65,8 @@
   }
   const settings = loadSettings();
   if (settings.romaji === undefined) settings.romaji = true;
+  // Romaji modes: auto (fade per word as its kana are learned) / always / never.
+  if (!settings.kanaMode) settings.kanaMode = settings.romaji === false ? "never" : "auto";
   settings.voiceURI = settings.voiceURI || "";
   if (!settings.dailyGoal) settings.dailyGoal = 20;
   settings.collapsedTiers = settings.collapsedTiers || {};
@@ -79,7 +82,7 @@
   settings.activeLevel = settings.activeLevel || (window.LEVELS[0] && window.LEVELS[0].id);
   settings.direction = settings.direction || "produce";   // produce | recognize | both
   function saveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }
-  function applyRomaji() { document.body.classList.toggle("no-romaji", !settings.romaji); }
+  function applyRomaji() { document.body.classList.toggle("no-romaji", settings.kanaMode === "never"); }
 
   // ---- Optional cross-device sync (VPS API) --------------------------------
   // Local-only until a token is entered; then GET/PUT a single progress blob.
@@ -168,6 +171,7 @@
       known: Array.from(new Set([...(local.known || []), ...(remote.known || [])])),
       knownHistory: mergeImmersion(local.knownHistory, remote.knownHistory),
       practice: mergeImmersion(local.practice, remote.practice),
+      kana: mergeImmersion(local.kana, remote.kana),
     };
     const ids = new Set([...Object.keys(local.cards || {}), ...Object.keys(remote.cards || {})]);
     for (const id of ids) {
@@ -203,6 +207,7 @@
         prog.known = merged.known;
         prog.knownHistory = merged.knownHistory;
         prog.practice = merged.practice || {};
+        prog.kana = merged.kana || {};
         rebuildMined();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
       }
@@ -246,7 +251,7 @@
       show(visibleScreen || el.home, { back: visibleBack });
       return;
     }
-    el.romajiToggle.checked = settings.romaji;
+    el.romajiMode.value = settings.kanaMode;
     el.goalSelect.value = String(settings.dailyGoal);
     el.directionSelect.value = settings.direction;
     populateVoiceSelect();
@@ -313,6 +318,66 @@
     });
   }
 
+  // ---- Kana: introduction order, seen-tracking, romaji fade ----------------
+  // Each lesson "introduces" the kana its vocab/sentences use for the first
+  // time (curriculum order). Once every kana in a word has been introduced —
+  // by finishing lessons or nailing them in Kana practice — that word's romaji
+  // quietly stops rendering (settings.kanaMode === "auto").
+  const KANA_INDEX = new Map();   // char -> { romaji, script: "h"|"k" }
+  (function () {
+    for (const row of (window.KANA && window.KANA.rows) || []) {
+      for (let i = 0; i < row.r.length; i++) {
+        KANA_INDEX.set(row.h[i], { romaji: row.r[i], script: "h" });
+        KANA_INDEX.set(row.k[i], { romaji: row.r[i], script: "k" });
+      }
+    }
+  })();
+  // Small forms count as their base letter for reading purposes.
+  const SMALL_KANA = { "ゃ": "や", "ゅ": "ゆ", "ょ": "よ", "っ": "つ", "ぁ": "あ", "ぃ": "い", "ぅ": "う", "ぇ": "え", "ぉ": "お",
+                       "ャ": "ヤ", "ュ": "ユ", "ョ": "ヨ", "ッ": "ツ", "ァ": "ア", "ィ": "イ", "ゥ": "ウ", "ェ": "エ", "ォ": "オ" };
+  function kanaChars(text) {
+    const out = [];
+    for (const ch of String(text || "")) {
+      const c = SMALL_KANA[ch] || ch;
+      if (KANA_INDEX.has(c)) out.push(c);
+    }
+    return out;
+  }
+  const kanaSeen = (ch) => (prog.kana[ch] || 0) > 0;
+  function markKanaSeen(ch, strength) {
+    prog.kana[ch] = Math.max(prog.kana[ch] || 0, strength || 1);
+  }
+  // Show romaji for this text? auto → only while it contains unlearned kana.
+  function needRomaji(text) {
+    if (settings.kanaMode === "always") return true;
+    if (settings.kanaMode === "never") return false;
+    return kanaChars(text).some((ch) => !kanaSeen(ch));
+  }
+  // Which kana does each lesson introduce (not seen in any earlier lesson)?
+  const LESSON_NEW_KANA = {};
+  const LESSON_ALL_KANA = {};
+  (function () {
+    const seen = new Set();
+    for (const L of window.LESSONS) {
+      const all = new Set();
+      for (const w of L.vocab || []) for (const c of kanaChars(w.jp)) all.add(c);
+      for (const s of L.sentences || []) for (const c of kanaChars(s.jp)) all.add(c);
+      LESSON_ALL_KANA[L.id] = [...all];
+      LESSON_NEW_KANA[L.id] = [...all].filter((c) => !seen.has(c));
+      for (const c of all) seen.add(c);
+    }
+  })();
+  function markLessonKanaSeen(lessonId) {
+    for (const c of LESSON_ALL_KANA[lessonId] || []) markKanaSeen(c, 1);
+  }
+  // Backfill: lessons you already worked through introduced their kana.
+  (function () {
+    for (const c of CARDS) {
+      const p = prog.cards[c.id];
+      if (p && (p.reps || p.lapses)) markLessonKanaSeen(c.lessonId);
+    }
+  })();
+
   // ---- Elements ------------------------------------------------------------
   const $ = (id) => document.getElementById(id);
   const el = {
@@ -347,6 +412,10 @@
     voiceSelect: $("voice-select"), voiceTestBtn: $("voice-test-btn"),
     syncStatus: $("sync-status"), syncConnectBtn: $("sync-connect-btn"), syncDisconnectBtn: $("sync-disconnect-btn"),
     resetBtn: $("reset-btn"), goalSelect: $("goal-select"), directionSelect: $("direction-select"),
+    kanaBtn: $("kana-btn"), kana: $("kana"), kanaTabH: $("kana-tab-h"), kanaTabK: $("kana-tab-k"),
+    kanaGrid: $("kana-grid"), kanaPracticeBtn: $("kana-practice-btn"), kanaQuiz: $("kana-quiz"),
+    kqChar: $("kq-char"), kqOptions: $("kq-options"), kqProgress: $("kq-progress"), kqStop: $("kq-stop"),
+    newKana: $("new-kana"), newKanaChips: $("new-kana-chips"), romajiMode: $("romaji-mode"),
     doneQuizBtn: $("done-quiz-btn"), quiz: $("quiz"),
     quizCard: $("quiz-card"), quizControls: $("quiz-controls"), quizLabel: $("quiz-label"),
     quizMochiko: $("quiz-mochiko"), quizMochikoJp: $("quiz-mochiko-jp"), quizMochikoEn: $("quiz-mochiko-en"),
@@ -550,7 +619,7 @@
   }
 
   // ---- Navigation ----------------------------------------------------------
-  const screens = [el.home, el.intro, el.drill, el.done, el.quiz, el.settings, el.mineForm, el.importForm, el.reader];
+  const screens = [el.home, el.intro, el.drill, el.done, el.quiz, el.kana, el.settings, el.mineForm, el.importForm, el.reader];
   // last non-settings screen, so the gear can toggle back to exactly where you were
   let visibleScreen = el.home, visibleBack = false;
   function show(screen, { back = false } = {}) {
@@ -1093,6 +1162,7 @@
 
     if (openLevelId == null) {
       // ---- Level overview: just the level cards (short, no long scroll) ----
+      el.kanaBtn.hidden = false;
       if (howit) howit.hidden = false;
       if (structure) structure.hidden = false;
       if (colors) colors.hidden = false;
@@ -1142,6 +1212,7 @@
     }
 
     // ---- Level detail: the chosen level's tiers/lessons + a back button ----
+    el.kanaBtn.hidden = true;
     if (howit) howit.hidden = true;
     if (structure) structure.hidden = true;
     if (colors) colors.hidden = true;
@@ -1329,9 +1400,29 @@
     bubble.querySelector(".mb-en").textContent = g.en;
   }
 
+  function renderNewKana(L) {
+    const chars = LESSON_NEW_KANA[L.id] || [];
+    el.newKana.hidden = !chars.length;
+    el.newKanaChips.innerHTML = "";
+    for (const ch of chars) {
+      const info = KANA_INDEX.get(ch);
+      const chip = document.createElement("button");
+      chip.className = "kana-chip" + (kanaSeen(ch) ? " seen" : "");
+      chip.appendChild(span("kc-char", ch));
+      chip.appendChild(span("kc-romaji", info ? info.romaji : ""));
+      chip.addEventListener("click", () => {
+        speak(ch, { lang: "ja-JP" });
+        markKanaSeen(ch, 1); save();          // hearing it counts as meeting it
+        chip.classList.add("seen");
+      });
+      el.newKanaChips.appendChild(chip);
+    }
+  }
+
   function openIntro(L) {
     activeLesson = L;
     renderMochikoGreeting(L);
+    renderNewKana(L);
     // Every lesson is a conversation: a hand-written scene when one exists,
     // otherwise one auto-built from the lesson's own sentences.
     const scene = (window.SCENES || []).find((s) => s.lesson === L.id);
@@ -1356,7 +1447,7 @@
       const row = document.createElement("button");
       row.className = "vocab-row pos-" + (w.pos || "n");
       row.appendChild(span("v-jp", w.jp));
-      row.appendChild(span("v-romaji", w.romaji));
+      row.appendChild(span("v-romaji", needRomaji(w.jp) ? w.romaji : ""));
       const en = document.createElement("span");
       en.className = "v-en";
       en.appendChild(span("v-en-text", w.en));
@@ -1504,7 +1595,7 @@
     el.revealLabel.textContent = recognize ? "Meaning" : "Model answer";
     if (recognize) el.answerKana.textContent = s.en;
     else el.answerKana.innerHTML = coloredFuriganaHTML(s.jp, s.words);
-    el.answerRomaji.textContent = s.romaji;
+    el.answerRomaji.textContent = needRomaji(s.jp) ? s.romaji : "";
     el.hint.textContent = s.hint || "";
     el.hintRow.hidden = !s.hint;
     el.hint.hidden = true;
@@ -1766,6 +1857,8 @@
       msg = due > 0 ? `You've got ${due} card${due === 1 ? "" : "s"} due across all lessons.` : "Every sentence drilled. Come back tomorrow to lock it in.";
     }
     if (session.bestCombo >= 3) msg += ` Best streak: 🔥 ${session.bestCombo} in a row.`;
+    // Finishing a lesson introduces its kana — romaji for them fades from here on.
+    if (session.mode === "lesson" && session.lessonId) { markLessonKanaSeen(session.lessonId); save(); }
     el.doneSummary.textContent = msg;
     // Real-world mission — a tiny transfer task, because the point is using
     // Japanese out in your day, not in the app.
@@ -2137,7 +2230,7 @@
   function showQuizAnswer() {
     el.quizAnswer.hidden = false;
     el.quizKana.innerHTML = furiganaHTML(quiz.target.jp);
-    if (settings.romaji && quiz.target.romaji) { el.quizRomaji.hidden = false; el.quizRomaji.textContent = quiz.target.romaji; }
+    if (quiz.target.romaji && needRomaji(quiz.target.jp)) { el.quizRomaji.hidden = false; el.quizRomaji.textContent = quiz.target.romaji; }
     else el.quizRomaji.hidden = true;
     el.quizPlayBtn.hidden = false; el.quizRevealBtn.hidden = true; el.quizSkipBtn.hidden = true;
     el.quizNextBtn.hidden = false;
@@ -2175,6 +2268,114 @@
     }
   }
 
+  // ---- Kana review & practice ----------------------------------------------
+  // Browse the full gojūon in either script (tap = hear + counts as met), and
+  // a practice drill: see the letter, pick its sound from four choices.
+  // Correct answers raise that letter's strength, which also fades romaji.
+  let kanaScript = "h";
+  let kq = null;   // { queue, idx, right }
+
+  function kanaList(script) {
+    const out = [];
+    for (const row of (window.KANA && window.KANA.rows) || [])
+      for (let i = 0; i < row.r.length; i++) out.push({ ch: row[script][i], romaji: row.r[i] });
+    return out;
+  }
+
+  function renderKanaGrid() {
+    el.kanaTabH.classList.toggle("active", kanaScript === "h");
+    el.kanaTabK.classList.toggle("active", kanaScript === "k");
+    el.kanaGrid.innerHTML = "";
+    for (const row of (window.KANA && window.KANA.rows) || []) {
+      const line = document.createElement("div");
+      line.className = "kana-row";
+      for (let i = 0; i < row.r.length; i++) {
+        const ch = row[kanaScript][i];
+        const chip = document.createElement("button");
+        chip.className = "kana-chip" + (kanaSeen(ch) ? " seen" : "");
+        chip.appendChild(span("kc-char", ch));
+        chip.appendChild(span("kc-romaji", row.r[i]));
+        chip.addEventListener("click", () => {
+          speak(ch, { lang: "ja-JP" });
+          markKanaSeen(ch, 1); save();
+          chip.classList.add("seen");
+        });
+        line.appendChild(chip);
+      }
+      el.kanaGrid.appendChild(line);
+    }
+  }
+
+  function openKana() {
+    el.kanaQuiz.hidden = true;
+    el.kanaGrid.hidden = false;
+    el.kanaPracticeBtn.hidden = false;
+    renderKanaGrid();
+    show(el.kana, { back: true });
+  }
+
+  function startKanaPractice() {
+    // Weight unmet letters heaviest, shaky ones next, solid ones lightest.
+    const pool = kanaList(kanaScript);
+    const weighted = [];
+    for (const item of pool) {
+      const s = prog.kana[item.ch] || 0;
+      const w = s === 0 ? 4 : s === 1 ? 2 : 1;
+      for (let i = 0; i < w; i++) weighted.push(item);
+    }
+    const queue = [];
+    const used = new Set();
+    while (queue.length < 10 && used.size < pool.length) {
+      const pick = weighted[Math.floor(Math.random() * weighted.length)];
+      if (!used.has(pick.ch)) { used.add(pick.ch); queue.push(pick); }
+    }
+    kq = { queue, idx: 0, right: 0 };
+    el.kanaGrid.hidden = true;
+    el.kanaPracticeBtn.hidden = true;
+    el.kanaQuiz.hidden = false;
+    renderKanaQuestion();
+  }
+
+  function renderKanaQuestion() {
+    const q = kq.queue[kq.idx];
+    el.kqProgress.textContent = (kq.idx + 1) + " / " + kq.queue.length;
+    el.kqChar.textContent = q.ch;
+    // Four sound choices: the answer + three other romaji from this script.
+    const pool = kanaList(kanaScript).map((x) => x.romaji).filter((r) => r !== q.romaji);
+    const opts = [q.romaji];
+    while (opts.length < 4 && pool.length) {
+      const r = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+      if (!opts.includes(r)) opts.push(r);
+    }
+    for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
+    el.kqOptions.innerHTML = "";
+    let answered = false;
+    for (const r of opts) {
+      const b = document.createElement("button");
+      b.className = "kq-opt";
+      b.textContent = r;
+      b.addEventListener("click", () => {
+        if (answered) return;
+        answered = true;
+        speak(q.ch, { lang: "ja-JP" });        // hear it the moment you answer
+        const ok = r === q.romaji;
+        b.classList.add(ok ? "ok" : "bad");
+        if (!ok) [...el.kqOptions.children].find((x) => x.textContent === q.romaji).classList.add("ok");
+        if (ok) { kq.right += 1; markKanaSeen(q.ch, (prog.kana[q.ch] || 0) + 1); }
+        else prog.kana[q.ch] = Math.min(prog.kana[q.ch] || 0, 1);   // shaky again
+        save();
+        setTimeout(() => {
+          kq.idx += 1;
+          if (kq.idx >= kq.queue.length) {
+            if (kq.right >= 8) { try { window.HanaFX && HanaFX.pop && HanaFX.pop(); } catch (e) {} }
+            openKana();                        // back to the grid, tints refreshed
+          } else renderKanaQuestion();
+        }, ok ? 650 : 1400);
+      });
+      el.kqOptions.appendChild(b);
+    }
+  }
+
   // ---- Wire up -------------------------------------------------------------
   el.backBtn.addEventListener("click", backToMap);
   el.doneHomeBtn.addEventListener("click", backToMap);
@@ -2182,6 +2383,11 @@
   el.focusBtn.addEventListener("click", startFocus);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
   el.doneQuizBtn.addEventListener("click", () => startTalk(activeLesson));
+  el.kanaBtn.addEventListener("click", openKana);
+  el.kanaTabH.addEventListener("click", () => { kanaScript = "h"; el.kanaQuiz.hidden = true; el.kanaGrid.hidden = false; el.kanaPracticeBtn.hidden = false; renderKanaGrid(); });
+  el.kanaTabK.addEventListener("click", () => { kanaScript = "k"; el.kanaQuiz.hidden = true; el.kanaGrid.hidden = false; el.kanaPracticeBtn.hidden = false; renderKanaGrid(); });
+  el.kanaPracticeBtn.addEventListener("click", startKanaPractice);
+  el.kqStop.addEventListener("click", openKana);
   el.quizMicBtn.addEventListener("click", startListening);
   el.quizPlayBtn.addEventListener("click", () => { if (quiz && quiz.target) speak(quiz.target.jp, { lang: "ja-JP" }); });
   el.quizRevealBtn.addEventListener("click", () => { if (!quiz) return; quiz.results[quiz.idx] = quiz.results[quiz.idx] || 0; showQuizAnswer(); });
@@ -2255,8 +2461,9 @@
 
   el.settingsBtn.addEventListener("click", openSettings);
   el.dailyRing.addEventListener("click", renderHome);
-  el.romajiToggle.addEventListener("change", () => {
-    settings.romaji = el.romajiToggle.checked;
+  el.romajiMode.addEventListener("change", () => {
+    settings.kanaMode = el.romajiMode.value || "auto";
+    settings.romaji = settings.kanaMode !== "never";   // legacy flag, kept in sync
     saveSettings();
     applyRomaji();
   });

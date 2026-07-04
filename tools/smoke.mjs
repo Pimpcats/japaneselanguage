@@ -23,7 +23,7 @@ window.Audio = function () { return { play() { return Promise.resolve(); }, paus
 let failed = 0;
 const check = (name, cond) => { console.log((cond ? "ok  " : "FAIL"), name); if (!cond) failed++; };
 
-for (const f of ["lessons.js", "app.js", "theme.js", "collection.js"]) {
+for (const f of ["lessons.js", "kana.js", "app.js", "theme.js", "collection.js"]) {
   try { window.eval(readFileSync(f, "utf8")); check("load " + f, true); }
   catch (e) { check("load " + f + " — " + e.message, false); }
 }
@@ -39,5 +39,18 @@ click(document.getElementById("scene-btn"));
 check("conversation screen opens", !document.getElementById("quiz").hidden);
 click(document.getElementById("back-btn"));
 check("back returns home", !document.getElementById("home").hidden);
+
+// Kana section: grid renders both scripts, practice round accepts an answer.
+click(document.getElementById("kana-btn"));
+check("kana screen opens", !document.getElementById("kana").hidden);
+check("kana grid renders 71 letters", document.querySelectorAll("#kana-grid .kana-chip").length === 71);
+click(document.getElementById("kana-tab-k"));
+check("katakana tab renders 71 letters", document.querySelectorAll("#kana-grid .kana-chip").length === 71);
+click(document.getElementById("kana-practice-btn"));
+check("kana practice starts", !document.getElementById("kana-quiz").hidden);
+check("four sound choices", document.querySelectorAll(".kq-opt").length === 4);
+click(document.querySelector(".kq-opt"));
+await new Promise((r) => setTimeout(r, 1600));
+check("practice advances after answering", document.getElementById("kq-progress").textContent.startsWith("2") || !document.getElementById("kana-quiz").hidden);
 
 process.exit(failed ? 1 : 0);

@@ -31,13 +31,13 @@ const SLOW_SCALE = 0.75; // natural-pitch slow playback for the "slow" button
 // ---- Load the exact strings the app will look up -------------------------
 // lessons.js assigns to window.*, so evaluate it with a window stub.
 function loadLessons() {
-  const src = readFileSync(join(ROOT, "lessons.js"), "utf8");
   const window = {};
-  new Function("window", src)(window);
+  new Function("window", readFileSync(join(ROOT, "lessons.js"), "utf8"))(window);
+  new Function("window", readFileSync(join(ROOT, "kana.js"), "utf8"))(window);
   return window;
 }
 
-const { LESSONS, VERBS, MOCHIKO, SCENES } = loadLessons();
+const { LESSONS, VERBS, MOCHIKO, SCENES, KANA } = loadLessons();
 
 // Sentences get a normal + a slow clip; vocab and fixed UI phrases only normal.
 const EXTRA_PHRASES = ["こんにちは。はなしましょう。"]; // voice test / picker preview
@@ -71,6 +71,12 @@ for (const p of EXTRA_PHRASES) want(p, false);
 // Scene "you" lines usually duplicate lesson sentences (deduped by the map).
 if (MOCHIKO) for (const g of [...(MOCHIKO.greetings || []), ...(MOCHIKO.praise || []), ...(MOCHIKO.reactions || []), ...(MOCHIKO.closings || [])]) want(g.jp, false);
 for (const sc of (SCENES || [])) for (const st of (sc.steps || [])) want(st.jp, st.who === "you");
+// Single-kana clips for the "New sounds" strips and the Kana practice grid —
+// every hiragana and katakana letter is tappable and speaks solo.
+for (const row of (KANA && KANA.rows) || []) {
+  for (const ch of row.h) want(ch, false);
+  for (const ch of row.k) want(ch, false);
+}
 
 // ---- VOICEVOX synthesis --------------------------------------------------
 async function postJSON(path, params, body) {

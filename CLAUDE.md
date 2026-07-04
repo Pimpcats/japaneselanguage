@@ -106,6 +106,21 @@ the clip, falling back to device `speechSynthesis` if missing.
   robotic device voice. New sentences must come with `words:[]` breakdowns.
 - English is NEVER spoken aloud. Japanese audio only.
 
+## Kana & the beginner road (kana.js + app.js)
+
+- `kana.js` holds the full gojūon (hiragana + katakana + dakuten rows) with
+  romaji; every letter has its own もち子さん clip.
+- Each lesson INTRODUCES the kana its content uses for the first time
+  (computed from curriculum order, never hand-authored) — shown as a tappable
+  "New sounds" strip on the lesson intro.
+- `prog.kana` tracks letter strength: finishing a lesson (or tapping/answering
+  in Kana practice) marks its letters seen.
+- **Romaji fades automatically** (settings.kanaMode = "auto", the default): a
+  word shows romaji only while it contains a letter the learner hasn't met.
+  "always"/"never" override. Never remove this weaning mechanic.
+- The あア Kana section (Home) has the browse grid (tap to hear) and a
+  practice drill (letter → pick the sound, weak letters weighted heavier).
+
 ## Content rules (lessons.js)
 
 - Shape: `{ id, section, title, grammar, grammarNote, vocab:[{jp,romaji,en,pos}],

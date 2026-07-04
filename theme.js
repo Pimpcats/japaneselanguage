@@ -344,6 +344,7 @@
     };
     let lastLesson = "";
     function bannerText() {
+      if (isVis("kana")) return "あア Kana practice";
       if (isVis("settings")) return "Settings";
       if (isVis("reader")) return "Reader";
       if (isVis("mine-form")) return "Add a sentence";
