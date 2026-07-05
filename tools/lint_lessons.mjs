@@ -34,8 +34,13 @@ for (const L of LESSONS) {
 }
 
 // -- scenes / character content ----------------------------------------------
+const allSentenceJP = new Set(LESSONS.flatMap((L) => (L.sentences || []).map((s) => s.jp)));
 for (const sc of SCENES || []) {
   if (!ids.has(sc.lesson)) fail(`scene "${sc.id}": lesson "${sc.lesson}" does not exist`);
+  for (const st of sc.steps || []) {
+    if (st.who === "you" && !allSentenceJP.has(st.jp))
+      fail(`scene "${sc.id}": learner line "${st.jp}" is not an existing lesson sentence (no clip, never drilled)`);
+  }
   for (const st of sc.steps || []) {
     if (!st.jp) fail(`scene "${sc.id}": step missing jp`);
     if (st.who !== "m" && st.who !== "you") fail(`scene "${sc.id}": step has who="${st.who}"`);

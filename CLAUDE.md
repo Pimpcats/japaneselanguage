@@ -197,8 +197,12 @@ to reveal-and-listen when unavailable.
   praises perfect spoken answers, reacts between your lines, and stars in **conversation scenes**
   (`window.SCENES` — her lines play aloud, your lines run the quiz mic flow).
   New scene lines for her need clips; reuse existing lesson sentences for the
-  learner's lines so their clips already exist. Scenes so far: shop, café,
-  introductions, station.
+  learner's lines so their clips already exist (the lint enforces learner lines
+  are real lesson sentences). ALL of Level 1 (29 lessons) has hand-written
+  scenes — her lines genuinely respond (she answers prices, reacts to news,
+  asks follow-ups). Levels 2-7 still use the auto-built flow; converting them
+  is the standing direction: reinforce what was learned through natural
+  conversation.
 - **The Japan-map journey** is the level page: cartoon-Japan SVG + pins, themes
   as regions, lessons as road nodes (label sits directly UNDER its dot — never
   beside, it misreads). "Ahead" nodes are styling only — every lesson stays
