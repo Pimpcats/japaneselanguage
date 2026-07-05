@@ -1456,6 +1456,7 @@
       const info = KANA_INDEX.get(ch);
       const chip = document.createElement("button");
       chip.className = "kana-chip" + (kanaSeen(ch) ? " seen" : "");
+      chip.dataset.kana = ch;
       chip.appendChild(span("kc-char", ch));
       chip.appendChild(span("kc-romaji", info ? info.romaji : ""));
       chip.addEventListener("click", () => {
@@ -1464,6 +1465,15 @@
         chip.classList.add("seen");
       });
       el.newKanaChips.appendChild(chip);
+    }
+  }
+
+  // Tapping a vocab word lights up its letters in the New-sounds strip —
+  // tapping the next word clears the old highlights and lights the new ones.
+  function highlightWordKana(jp) {
+    const chars = new Set(kanaChars(jp));
+    for (const chip of el.newKanaChips.children) {
+      chip.classList.toggle("hl", chars.has(chip.dataset.kana));
     }
   }
 
@@ -1501,7 +1511,7 @@
       en.appendChild(span("v-en-text", w.en));
       if (POS_NAME[w.pos]) en.appendChild(span("v-pos", POS_NAME[w.pos]));
       row.appendChild(en);
-      row.addEventListener("click", () => speak(w.jp, { lang: "ja-JP" }));
+      row.addEventListener("click", () => { speak(w.jp, { lang: "ja-JP" }); highlightWordKana(w.jp); });
       el.vocabList.appendChild(row);
     }
     show(el.intro, { back: true });

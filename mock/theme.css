@@ -723,3 +723,11 @@ footer { font-family: var(--display); color: var(--muted); }
   font-size: 0.52em; font-weight: 800; color: var(--muted);
   letter-spacing: 0.02em; opacity: 0.9;
 }
+
+/* letters light up when you tap a word that uses them */
+.kana-chip.hl {
+  background: var(--gold); opacity: 1;
+  border-color: var(--ink); box-shadow: 0 3px 0 var(--ink);
+  transform: translateY(-2px);
+  transition: transform 0.12s, background 0.12s;
+}
