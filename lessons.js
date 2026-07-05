@@ -80,7 +80,7 @@ window.LESSONS = [
     title: "Hello & introductions",
     grammar: "X は Y です  ·  か",
     grammarNote:
-      "は marks the topic (what you're talking about); です means is/am. Add か at the very end to turn a statement into a question.",
+      "は marks the topic (what you're talking about) — written は (ha) but always SAID wa. です means is/am. Add か at the very end to turn a statement into a question.",
     vocab: [
       { jp: "わたし", romaji: "watashi", en: "I / me", pos: "n" },
       { jp: "がくせい", romaji: "gakusei", en: "student", pos: "n" },

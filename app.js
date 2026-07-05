@@ -400,6 +400,7 @@
         continue;
       }
       if (SMALL_V[ch]) { out = out.replace(/[aeiou]$/, "") + SMALL_V[ch]; continue; }
+      if (ch === "は" && i === chars.length - 1 && chars.length > 1) { out += out ? " wa" : "wa"; continue; }
       const info = KANA_INDEX.get(ch);
       out += info ? info.romaji : ch;
     }
@@ -1716,7 +1717,7 @@
       if (full) cls += item.tok === build.correct[idx] ? " ok" : " bad";
       const chip = buildChip(item, cls);
       chip.addEventListener("click", () => {
-        speak(item.tok, { lang: "ja-JP" });
+        speakWord(item.tok, item.pos);
         if (!build.solved) { build.bank.push(build.placed.splice(idx, 1)[0]); renderBuild(); }
       });
       el.buildAnswer.appendChild(chip);
@@ -1726,7 +1727,7 @@
     build.bank.forEach((item) => {
       const chip = buildChip(item, "bank");
       chip.addEventListener("click", () => {
-        speak(item.tok, { lang: "ja-JP" });
+        speakWord(item.tok, item.pos);
         if (build.solved) return;        // leftover (decoy) chips just speak after solving
         build.bank.splice(build.bank.indexOf(item), 1);
         build.placed.push(item);
@@ -1757,6 +1758,11 @@
   // Written-out role names, so the colour coding actually teaches: every word
   // shows its category under the translation until the colours sink in.
   const POS_NAME = { n: "noun", v: "verb", adj: "adjective", adv: "adverb", prt: "particle", cop: "copula", aux: "auxiliary", conj: "conjunction", expr: "expression" };
+  // は as the topic particle is written "ha" but pronounced "wa" (へ → "e").
+  // Chips must SAY the real pronunciation, not the letter reading.
+  const PRT_SOUND = { "は": "わ", "へ": "え" };
+  const speakWord = (jp, pos) => speak(pos === "prt" && PRT_SOUND[jp] ? PRT_SOUND[jp] : jp, { lang: "ja-JP" });
+
   function makeWordChip({ jp, reading, gloss, pos, term }) {
     const chip = document.createElement("div");
     chip.className = "word-chip pos-" + (pos || "n");
@@ -1767,7 +1773,7 @@
     if (gloss) main.appendChild(span("wc-en", gloss));
     if (POS_NAME[pos]) main.appendChild(span("wc-pos", POS_NAME[pos]));
     main.title = "Hear this word";
-    main.addEventListener("click", () => speak(jp, { lang: "ja-JP" }));
+    main.addEventListener("click", () => speakWord(jp, pos));
     chip.appendChild(main);
     const jisho = document.createElement("a");
     jisho.className = "wc-jisho"; jisho.textContent = "↗";
@@ -1825,7 +1831,7 @@
   function renderWordChips(s) {
     el.wordBreakdown.innerHTML = "";
     if (s.words && s.words.length) {
-      for (const w of s.words) el.wordBreakdown.appendChild(makeWordChip({ jp: w.jp, gloss: w.en, pos: w.pos, term: w.jp }));
+      for (const w of s.words) el.wordBreakdown.appendChild(makeWordChip({ jp: w.jp, reading: w.pos === "prt" && w.jp === "は" ? "wa" : undefined, gloss: w.en, pos: w.pos, term: w.jp }));
       renderVerbForms(s);
       return;
     }
