@@ -1477,7 +1477,7 @@
       chip.appendChild(span("kc-char", ch));
       chip.appendChild(span("kc-romaji", info ? info.romaji : ""));
       chip.addEventListener("click", () => {
-        speak(ch, { lang: "ja-JP" });
+        speakLetter(ch);
         markKanaSeen(ch, 1); save();          // hearing it counts as meeting it
         chip.classList.add("seen");
       });
@@ -1888,7 +1888,16 @@
   // は as the topic particle is written "ha" but pronounced "wa" (へ → "e").
   // Chips must SAY the real pronunciation, not the letter reading.
   const PRT_SOUND = { "は": "わ", "へ": "え" };
-  const speakWord = (jp, pos) => speak(pos === "prt" && PRT_SOUND[jp] ? PRT_SOUND[jp] : jp, { lang: "ja-JP" });
+  // The reverse trap: VOICEVOX reads a LONE hiragana は as the particle ("wa"),
+  // so letter contexts (grid, strips, spelling) play the katakana twin, which
+  // reads as the plain letter sound ("ha" / "he").
+  const LETTER_ALIAS = { "は": "ハ", "へ": "ヘ" };
+  const speakLetter = (ch) => speak(LETTER_ALIAS[ch] || ch, { lang: "ja-JP" });
+  const speakWord = (jp, pos) => {
+    if (pos === "prt" && PRT_SOUND[jp]) return speak(PRT_SOUND[jp], { lang: "ja-JP" });
+    if (jp.length === 1 && LETTER_ALIAS[jp]) return speakLetter(jp);   // spell-it letter chips
+    speak(jp, { lang: "ja-JP" });
+  };
 
   function makeWordChip({ jp, reading, gloss, pos, term }) {
     const chip = document.createElement("div");
@@ -2485,7 +2494,7 @@
         chip.appendChild(span("kc-char", ch));
         chip.appendChild(span("kc-romaji", row.r[i]));
         chip.addEventListener("click", () => {
-          speak(ch, { lang: "ja-JP" });
+          speakLetter(ch);
           markKanaSeen(ch, 1); save();
           chip.classList.add("seen");
         });
@@ -2546,7 +2555,7 @@
       b.addEventListener("click", () => {
         if (answered) return;
         answered = true;
-        speak(q.ch, { lang: "ja-JP" });        // hear it the moment you answer
+        speakLetter(q.ch);                    // hear it the moment you answer
         const ok = r === q.romaji;
         b.classList.add(ok ? "ok" : "bad");
         if (!ok) [...el.kqOptions.children].find((x) => x.textContent === q.romaji).classList.add("ok");
