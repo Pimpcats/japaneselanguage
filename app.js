@@ -2197,7 +2197,7 @@
       recSessFinal = ""; recInterim = "";
       // The engine gave up (pause, hiccup) but the learner didn't tap check —
       // resume seamlessly so a rough start is never a dead stop.
-      if (!recWantStop && quiz && quiz.listening && !el.quiz.hidden && recRestarts < 6) {
+      if (!recWantStop && quiz && quiz.listening && !el.quiz.hidden && recRestarts < 12) {
         recRestarts += 1;
         beginRec();
         return;
@@ -2261,12 +2261,12 @@
       "you said: <b>" + escHTML(best.heard) + "</b>" +
       '<div class="quiz-diff">' + kanaDiffHTML(best.reading, target) + "</div>";
     el.quizVerdict.hidden = false;
-    if (best.score >= 0.75) {
+    if (best.score >= 0.7) {
       const M = window.MOCHIKO;
       const praise = M && M.praise && M.praise.length ? M.praise[Math.floor(Math.random() * M.praise.length)].jp + " " : "";
       el.quizVerdict.className = "quiz-verdict pass"; el.quizVerdict.textContent = "✓ " + praise + "Perfect! (" + pct + "% match)";
       try { window.HanaFX && HanaFX.pop && HanaFX.pop(); } catch (e) {}
-    } else if (best.score >= 0.5) {
+    } else if (best.score >= 0.45) {
       el.quizVerdict.className = "quiz-verdict close"; el.quizVerdict.textContent = "◐ Close — got the gist (" + pct + "% match)";
     } else {
       el.quizVerdict.className = "quiz-verdict miss"; el.quizVerdict.textContent = "✗ Not quite (" + pct + "% match) — try again, or show the answer";
@@ -2322,7 +2322,7 @@
     el.quizSummary.hidden = false;
     // Only your lines count — もち子さん's don't grade you.
     const yourLines = quiz.steps.filter((s) => s.who === "you").length;
-    const passed = quiz.results.filter((s) => s >= 0.5).length;
+    const passed = quiz.results.filter((s) => s >= 0.45).length;
     el.quizScore.textContent = `You spoke ${passed} of ${yourLines} line${yourLines === 1 ? "" : "s"} clearly. ` +
       (passed === yourLines ? "もち子さん is delighted! 🎉" : "She's here every day — talk it through again anytime.");
     if (passed >= Math.ceil(yourLines * 0.8)) { try { window.HanaFX && HanaFX.confetti && HanaFX.confetti(); } catch (e) {} }

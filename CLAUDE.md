@@ -172,7 +172,7 @@ same speech engine:
 English prompt → Web Speech API (`ja-JP`) transcription → compare by READING:
 both sides reduced to bare hiragana (kanji read via the vendored kuromoji
 tokenizer, digits spelled out to kana — 500円→ごひゃくえん), scored by edit
-distance. Thresholds: ≥75% pass, ≥50% close — deliberately forgiving, the
+distance. Thresholds: ≥70% pass, ≥45% close — deliberately forgiving, the
 recognizer mishears a mora or two even on clean speech. Quiz is
 pure practice — it must NEVER touch SRS scheduling (owner decision).
 Speech recognition needs real Safari/Chrome (not webviews); the quiz degrades
