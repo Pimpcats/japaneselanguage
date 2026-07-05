@@ -63,7 +63,13 @@ jobs:
             echo "Service worker bumped to: $(grep -o 'hanasou-v[0-9]*' sw.js)"
             git add audio sw.js
             git commit -m "Regenerate audio clips"
-            git push
+            # The synth takes minutes — the branch often moves underneath us.
+            # Rebase our clip commit on whatever landed and retry, instead of
+            # dying and throwing away the synthesized audio.
+            for i in 1 2 3 4; do
+              git push && break
+              git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+            done
           else
             echo "Audio already up to date — nothing to commit."
           fi
