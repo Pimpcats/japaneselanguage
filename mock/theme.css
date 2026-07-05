@@ -767,11 +767,13 @@ footer { font-family: var(--display); color: var(--muted); }
 #new-kana .kana-chip-row { gap: 0.28rem; }
 #new-kana .tap-hint { display: none; }   /* the hint line was half the height */
 
-/* known letters ignore highlighting entirely — a word tap golds ONLY the
-   new letters; carried-over ones stay exactly as grey as before */
+/* known letters still light up GOLD when they belong to the tapped word —
+   but at their greyed-out opacity, so they participate quietly while the
+   NEW letters pop at full strength */
 .kana-chip.kold.hl,
 #new-kana .kana-chip.kold.hl {
-  opacity: 0.38 !important; filter: saturate(0.4) !important;
-  background: #f2ece0 !important; transform: none !important;
+  background: var(--gold) !important;
+  opacity: 0.38 !important; filter: none !important;
+  transform: none !important;
   box-shadow: 0 2px 0 rgba(74, 51, 40, 0.2) !important;
 }
