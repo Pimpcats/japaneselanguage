@@ -367,6 +367,17 @@
       for (const c of all) seen.add(c);
     }
   })();
+  // Which vocab does each lesson teach for the FIRST time? Review words that
+  // earlier lessons already taught don't repeat in the intro's word list.
+  const LESSON_NEW_VOCAB = {};
+  (function () {
+    const taught = new Set();
+    for (const L of window.LESSONS) {
+      LESSON_NEW_VOCAB[L.id] = (L.vocab || []).filter((w) => !taught.has(w.jp));
+      for (const w of L.vocab || []) taught.add(w.jp);
+    }
+  })();
+
   function markLessonKanaSeen(lessonId) {
     for (const c of LESSON_ALL_KANA[lessonId] || []) markKanaSeen(c, 1);
   }
@@ -464,7 +475,7 @@
     kanaGrid: $("kana-grid"), kanaPracticeBtn: $("kana-practice-btn"), kanaQuiz: $("kana-quiz"),
     kqChar: $("kq-char"), kqOptions: $("kq-options"), kqProgress: $("kq-progress"), kqStop: $("kq-stop"),
     newKana: $("new-kana"), newKanaChips: $("new-kana-chips"), romajiMode: $("romaji-mode"),
-    sentenceList: $("sentence-list"),
+    sentenceList: $("sentence-list"), vocabLabel: $("vocab-label"), sentenceLabel: $("sentence-label"),
     doneQuizBtn: $("done-quiz-btn"), quiz: $("quiz"),
     quizCard: $("quiz-card"), quizControls: $("quiz-controls"), quizLabel: $("quiz-label"),
     quizMochiko: $("quiz-mochiko"), quizMochikoJp: $("quiz-mochiko-jp"), quizMochikoEn: $("quiz-mochiko-en"),
@@ -1507,7 +1518,9 @@
     el.lessonGrammar.textContent = L.grammar;
     renderAnnotated(el.lessonNote, L.grammarNote || "");
     el.vocabList.innerHTML = "";
-    for (const w of L.vocab) {
+    const newVocab = LESSON_NEW_VOCAB[L.id] || L.vocab;
+    el.vocabLabel.hidden = !newVocab.length;
+    for (const w of newVocab) {
       const row = document.createElement("button");
       row.className = "vocab-row pos-" + (w.pos || "n");
       row.appendChild(span("v-jp", w.jp));
@@ -1523,7 +1536,12 @@
     // The lesson's sentences, right here on the intro — tap one to hear it
     // and light up every letter it uses in the (sticky) sound strip above.
     el.sentenceList.innerHTML = "";
-    for (const s of L.sentences) {
+    // A "sentence" that is just one vocab word (たべます。) would duplicate the
+    // word row above — skip those; real sentences only.
+    const vocabJP = new Set((L.vocab || []).map((w) => w.jp));
+    const realSentences = L.sentences.filter((s) => !vocabJP.has(plainJP(s.jp).replace(/[。！？\s]/g, "")));
+    el.sentenceLabel.hidden = !realSentences.length;
+    for (const s of realSentences) {
       const row = document.createElement("button");
       row.className = "sentence-row";
       const jp = document.createElement("span");
