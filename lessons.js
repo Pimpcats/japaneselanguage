@@ -2310,20 +2310,29 @@ window.MOCHIKO = {
   // Reactions she drops between your lines — picked to FIT what you said:
   // upbeat after neutral/positive lines, sympathetic after troubles and
   // negatives, and thinking-noises after you ask her a question.
+  // Not everything gets a cheer — neutral acknowledgements and negative-toned
+  // reactions are welcome as long as they FIT the line they follow.
   reactions: [
     { jp: "そうですか！", en: "I see!" },
     { jp: "いいですね！", en: "Nice!" },
     { jp: "なるほど！", en: "Gotcha!" },
     { jp: "へえ、すごい！", en: "Wow, great!" },
+    { jp: "ふーん、そうなんだ。", en: "Hm, is that so." },
+    { jp: "ほんとうですか？", en: "Really?" },
+    { jp: "そっか、そっか。", en: "Right, right." },
   ],
   sympathy: [
     { jp: "そうなんですね。", en: "Ah, is that so…" },
     { jp: "たいへんですね。", en: "That's rough." },
     { jp: "だいじょうぶですか？", en: "Are you okay?" },
+    { jp: "ええ〜、ざんねんです。", en: "Aww, what a shame." },
+    { jp: "それは こまりますね。", en: "That IS a problem…" },
   ],
   ponder: [
     { jp: "うーん、そうですね。", en: "Hmm, let's see…" },
     { jp: "いい しつもんですね！", en: "Good question!" },
+    { jp: "ひみつです！", en: "That's a secret!" },
+    { jp: "えっとね…", en: "Well, you see…" },
   ],
   closings: [
     { jp: "きょうは ここまで。またね！", en: "That's it for today — see you!" },
