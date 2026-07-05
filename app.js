@@ -1702,6 +1702,7 @@
 
   let current = null;
   function nextCard() {
+    if (kanaNextBtn) kanaNextBtn.hidden = true;
     if (session.cleared >= session.total || session.queue.length === 0) { finish(); return; }
     current = session.queue.shift();
     current.dir = cardDirection();
@@ -1785,12 +1786,30 @@
     renderBuild();
   }
 
+  // The learner advances the spell-it card themselves — no auto-jump.
+  let kanaNextBtn = null;
+  function ensureKanaNextBtn() {
+    if (kanaNextBtn) return kanaNextBtn;
+    kanaNextBtn = document.createElement("button");
+    kanaNextBtn.id = "kana-next-btn";
+    kanaNextBtn.className = "primary";
+    kanaNextBtn.textContent = "next →";
+    kanaNextBtn.hidden = true;
+    document.getElementById("controls").appendChild(kanaNextBtn);
+    kanaNextBtn.addEventListener("click", () => {
+      kanaNextBtn.hidden = true;
+      session.cleared += 1;
+      nextCard();
+    });
+    return kanaNextBtn;
+  }
+
   function kanaBuildSolved() {
     for (const ch of build.correct) markKanaSeen(ch, (prog.kana[ch] || 0) + 1);
     save();
     speak(current.word.jp, { lang: "ja-JP" });
     try { window.HanaFX && HanaFX.pop && HanaFX.pop(); } catch (e) {}
-    setTimeout(() => { session.cleared += 1; nextCard(); }, 1100);
+    ensureKanaNextBtn().hidden = false;   // admire the finished word, move on when ready
   }
 
   // ---- Build-the-sentence mode --------------------------------------------
