@@ -1569,9 +1569,41 @@
     nextCard();
   }
 
+  // Learning a sentence and its alphabet hand in hand: after each sentence in
+  // a lesson run, a quick "spell it" — tap the hiragana/katakana of a word you
+  // just used, in order. Only appears while the word still contains letters
+  // the learner hasn't mastered (strength < 2), so it naturally phases out as
+  // kana strengthens — no level cutoff needed.
+  function pickSpellWord(s) {
+    const seen = new Set();
+    const cands = (s.words || []).filter((w) => {
+      if (["prt", "cop", "aux"].includes(w.pos)) return false;
+      if (seen.has(w.jp)) return false;
+      seen.add(w.jp);
+      const chars = [...w.jp];
+      if (chars.length < 2 || chars.length > 6) return false;
+      if (!chars.every((c) => KANA_INDEX.has(c))) return false;   // clean kana only
+      return chars.some((c) => (prog.kana[c] || 0) < 2);          // still learning it
+    });
+    if (!cands.length) return null;
+    // most unlearned letters first, longer words break ties
+    const unlearned = (w) => [...w.jp].filter((c) => (prog.kana[c] || 0) < 2).length;
+    cands.sort((a, b) => unlearned(b) - unlearned(a) || b.jp.length - a.jp.length);
+    return cands[0];
+  }
+
   function startLesson(L, opts) {
     const cards = CARDS.filter((c) => c.lessonId === L.id);
-    startSession(cards, "lesson", L.id, opts);
+    let queue = cards;
+    if (!(opts && opts.build)) {
+      queue = [];
+      for (const c of cards) {
+        queue.push(c);
+        const w = pickSpellWord(c.s);
+        if (w) queue.push({ id: c.id + "~kana", lessonId: L.id, kanaBuild: true, word: w });
+      }
+    }
+    startSession(queue, "lesson", L.id, opts);
   }
   // The unified review bucket = cards last graded Nope/Kinda that are due
   // (same set focusCards() computes). Surfaced on SRS schedule; "Got it"
@@ -1679,6 +1711,7 @@
   }
 
   function renderCard() {
+    if (current.kanaBuild) { renderKanaBuildCard(); return; }
     const s = current.s;
     // Build mode needs at least one word chip; single-word set phrases just get
     // tapped into place so every card in a build session behaves the same way.
@@ -1713,6 +1746,51 @@
     }
     renderWordChips(s);
     if (doBuild) startBuild(s);
+  }
+
+  // Spell-it interlude: assemble the word letter by letter from a small bank
+  // (its letters + two decoys from this lesson's kana), tapping in order.
+  function renderKanaBuildCard() {
+    const w = current.word;
+    current.doBuild = true;                    // keyboard/space guards
+    el.promptLabel.textContent = "🔤 Spell what you just said";
+    el.promptEn.textContent = w.en + " · " + kanaToRomaji(w.jp);
+    el.promptEn.classList.remove("jp");
+    el.promptEn.classList.add("tap-replay");
+    el.promptEn.title = "Tap to hear the word";
+    el.hintRow.hidden = true;
+    el.revealArea.hidden = true;
+    el.replayBtn.hidden = true;
+    el.retireBtn.hidden = true;
+    el.grade.hidden = true;
+    el.revealBtn.hidden = true;
+    el.buildArea.hidden = false;
+    el.wordBreakdown.innerHTML = "";
+    const letters = [...w.jp];
+    const items = letters.map((ch, i) => ({ tok: ch, pos: "expr", uid: i }));
+    const pool = (LESSON_ALL_KANA[current.lessonId] || []).filter((c) => !letters.includes(c));
+    for (let d = 0; d < 2 && pool.length; d++) {
+      const j = Math.floor(Math.random() * pool.length);
+      items.push({ tok: pool.splice(j, 1)[0], pos: "expr", uid: "d" + d });
+    }
+    let bank = items.slice();
+    for (let tries = 0; tries < 12; tries++) {
+      for (let i = bank.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bank[i], bank[j]] = [bank[j], bank[i]];
+      }
+      if (bank.some((it, i) => it.tok !== letters[i])) break;
+    }
+    build = { correct: letters, placed: [], bank, solved: false };
+    renderBuild();
+  }
+
+  function kanaBuildSolved() {
+    for (const ch of build.correct) markKanaSeen(ch, (prog.kana[ch] || 0) + 1);
+    save();
+    speak(current.word.jp, { lang: "ja-JP" });
+    try { window.HanaFX && HanaFX.pop && HanaFX.pop(); } catch (e) {}
+    setTimeout(() => { session.cleared += 1; nextCard(); }, 1100);
   }
 
   // ---- Build-the-sentence mode --------------------------------------------
@@ -1789,7 +1867,7 @@
     if (allOk && !build.solved) {
       build.solved = true;
       el.buildAnswer.classList.add("solved");
-      reveal();
+      if (current.kanaBuild) kanaBuildSolved(); else reveal();
     } else {
       el.buildAnswer.classList.remove("solved");
     }
@@ -2564,7 +2642,8 @@
   el.revealBtn.addEventListener("click", reveal);
   el.replayBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP" }));
   el.promptEn.addEventListener("click", () => {
-    if (current && current.doBuild && session.hard) speak(current.s.jp, { lang: "ja-JP" });
+    if (current && current.kanaBuild) speak(current.word.jp, { lang: "ja-JP" });
+    else if (current && current.doBuild && session.hard) speak(current.s.jp, { lang: "ja-JP" });
   });
   el.showHintBtn.addEventListener("click", () => { el.hint.hidden = false; el.showHintBtn.hidden = true; });
   document.querySelectorAll("button.grade").forEach((b) => b.addEventListener("click", () => grade(Number(b.dataset.grade))));

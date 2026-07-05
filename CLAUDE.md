@@ -120,6 +120,11 @@ the clip, falling back to device `speechSynthesis` if missing.
   "always"/"never" override. Never remove this weaning mechanic.
 - The あア Kana section (Home) has the browse grid (tap to hear) and a
   practice drill (letter → pick the sound, weak letters weighted heavier).
+- **Spell-it interludes**: in lesson drills, after each sentence card, the
+  learner spells one of its words by tapping kana in order (build-mode UI,
+  letters + 2 decoys). Inserted ONLY while the word contains letters with
+  strength < 2, so they naturally phase out as kana is mastered — keep that
+  self-pacing rule; never make them permanent or level-gated.
 
 ## Content rules (lessons.js)
 
