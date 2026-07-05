@@ -108,6 +108,13 @@ the clip, falling back to device `speechSynthesis` if missing.
 
 ## Kana & the beginner road (kana.js + app.js)
 
+- **Level 0 · First sounds** is the true-beginner on-ramp: 11 micro-lessons,
+  one gojūon row each (5 letters + ≤10 words a day — the owner's pacing rule),
+  every word/sentence spellable with ONLY letters taught so far (a checker
+  enforced this at authoring time — keep the constraint when editing), building
+  letters → words → adjective exclamations → は-sentences → これは とり。 →
+  the てんてん lesson that unlocks です and hands off to Level 1.
+
 - `kana.js` holds the full gojūon (hiragana + katakana + dakuten rows) with
   romaji; every letter has its own もち子さん clip.
 - Each lesson INTRODUCES the kana its content uses for the first time

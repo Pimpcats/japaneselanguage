@@ -25,6 +25,16 @@ SVG Japan overview map.
 
 ---
 
+## Level 0 · First sounds — the schoolhouse
+
+**L0-1 · `first-sounds.jpg` — もち子さん's Little Schoolroom**
+*Teaches:* the whole kana alphabet, row by row, through easy words (11 lessons)
+*Paint:* the cozy back room of her shop turned tiny terakoya schoolroom — low
+wooden desks, floor cushions, a standing blackboard with blank chalk scribbles,
+brush and inkstone, paper charts on the wall (blank), warm lamplight. The path
+weaves between the desks, bottom edge to top edge, low-contrast, room for 11
+snug stops (it may switchback to fit them).
+
 ## Level 1 · Foundations — the home town
 
 **L1-1 · `first-contact.jpg` — もち子さん's Shop Front**
@@ -154,4 +164,4 @@ clouds, the whole journey's world tiny below. The last stop on the road.
 4. Themes without art yet keep the current trail styling — mixed states are
    fine; nothing blocks on the full set.
 
-19 panels total (72 path stops) · 7 for Level 1, 2 each for Levels 2–7 (+2 optional bonus).
+20 panels total (83 path stops) · 1 for Level 0, 7 for Level 1, 2 each for Levels 2–7 (+2 optional bonus).

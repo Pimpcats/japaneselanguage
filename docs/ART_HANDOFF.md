@@ -1,6 +1,6 @@
 # はなそう Map Art — Generation Handoff (for Claude chat / ChatGPT)
 
-Copy-paste kit for generating the 19 location panels. Each prompt below is
+Copy-paste kit for generating the 20 location panels. Each prompt below is
 **fully self-contained** — paste one prompt per image, in any order. No prior
 context needed.
 
@@ -30,9 +30,14 @@ otherwise.
 
 ---
 
-## The 19 panels
+## The 20 panels
 
 Filenames are how you should name each download (they map into the app).
+
+### Level 0 — the schoolhouse (1 panel)
+
+**0. `first-sounds.jpg` · path stops: 11**
+> Kawaii storybook watercolor illustration, portrait 2:3, warm brown ink outlines, palette of cream #fff7ea, pink #ef6fa7, gold #f2be45, ink brown #4a3328. The cozy back room of a little Japanese shop turned tiny schoolroom: low wooden desks with floor cushions, a standing blackboard with blank chalk marks, a brush and inkstone, blank paper charts pinned to the wall, warm lamplight — a gentle place to learn your first letters. A simple winding path weaves between the desks from the bottom edge to the top edge (it may switchback), low-contrast, with room for 11 snug evenly spaced stops. No text, no letters anywhere (all boards and charts blank), no UI.
 
 ### Level 1 — the home town (7 panels)
 

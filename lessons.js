@@ -17,6 +17,13 @@
 // yet renders as "Coming soon".
 window.LEVELS = [
   {
+    id: "L0", name: "Level 0", title: "First sounds",
+    blurb: "The alphabet, five letters and ten words a day — letters → words → short sentences",
+    tiers: [
+      { name: "First sounds", blurb: "Build the alphabet through easy words", themes: ["The sounds"] },
+    ],
+  },
+  {
     id: "L1", name: "Level 1", title: "Foundations",
     blurb: "Survival Japanese — greetings, shopping & daily life · N5",
     tiers: [
@@ -71,6 +78,256 @@ window.LEVELS = [
 ];
 
 window.LESSONS = [
+  {
+    id: "l0-a", section: "The sounds", title: "あ・い・う・え・お — the first five",
+    grammar: "あ い う え お",
+    grammarNote:
+      "Your first five sounds: あ(a) い(i) う(u) え(e) お(o). Every word here uses only these letters — say each one out loud as you spell it.",
+    vocab: [
+      { jp: "いえ", romaji: "ie", en: "house", pos: "n" },
+      { jp: "うえ", romaji: "ue", en: "up / above", pos: "n" },
+      { jp: "あい", romaji: "ai", en: "love", pos: "n" },
+      { jp: "いい", romaji: "ii", en: "good", pos: "adj" },
+      { jp: "あおい", romaji: "aoi", en: "blue", pos: "adj" },
+      { jp: "いいえ", romaji: "iie", en: "no", pos: "expr" },
+    ],
+    sentences: [
+      { en: "What a nice house!", jp: "いい いえ！", romaji: "ii ie!",
+        words: [{jp:"いい",en:"good",pos:"adj"},{jp:"いえ",en:"house",pos:"n"}] },
+      { en: "No.", jp: "いいえ。", romaji: "iie.",
+        words: [{jp:"いいえ",en:"no",pos:"expr"}] },
+    ],
+  },
+  {
+    id: "l0-ka", section: "The sounds", title: "か・き・く・け・こ",
+    grammar: "か き く け こ",
+    grammarNote:
+      "The k-row: か(ka) き(ki) く(ku) け(ke) こ(ko). Ten letters in — real words appear: かお, えき, こえ…",
+    vocab: [
+      { jp: "かお", romaji: "kao", en: "face", pos: "n" },
+      { jp: "えき", romaji: "eki", en: "station", pos: "n" },
+      { jp: "いけ", romaji: "ike", en: "pond", pos: "n" },
+      { jp: "こえ", romaji: "koe", en: "voice", pos: "n" },
+      { jp: "かき", romaji: "kaki", en: "persimmon", pos: "n" },
+      { jp: "あかい", romaji: "akai", en: "red", pos: "adj" },
+      { jp: "おおきい", romaji: "ookii", en: "big", pos: "adj" },
+    ],
+    sentences: [
+      { en: "A big face!", jp: "おおきい かお！", romaji: "ookii kao!",
+        words: [{jp:"おおきい",en:"big",pos:"adj"},{jp:"かお",en:"face",pos:"n"}] },
+      { en: "A red persimmon!", jp: "あかい かき！", romaji: "akai kaki!",
+        words: [{jp:"あかい",en:"red",pos:"adj"},{jp:"かき",en:"persimmon",pos:"n"}] },
+      { en: "What a nice voice!", jp: "いい こえ！", romaji: "ii koe!",
+        words: [{jp:"いい",en:"good",pos:"adj"},{jp:"こえ",en:"voice",pos:"n"}] },
+    ],
+  },
+  {
+    id: "l0-sa", section: "The sounds", title: "さ・し・す・せ・そ",
+    grammar: "さ し す せ そ",
+    grammarNote:
+      "The s-row: さ(sa) し(shi — not si!) す(su) せ(se) そ(so). Now you can spell すし.",
+    vocab: [
+      { jp: "すし", romaji: "sushi", en: "sushi", pos: "n" },
+      { jp: "あさ", romaji: "asa", en: "morning", pos: "n" },
+      { jp: "いす", romaji: "isu", en: "chair", pos: "n" },
+      { jp: "うし", romaji: "ushi", en: "cow", pos: "n" },
+      { jp: "しお", romaji: "shio", en: "salt", pos: "n" },
+      { jp: "あし", romaji: "ashi", en: "foot / leg", pos: "n" },
+      { jp: "おいしい", romaji: "oishii", en: "tasty", pos: "adj" },
+    ],
+    sentences: [
+      { en: "Tasty sushi!", jp: "おいしい すし！", romaji: "oishii sushi!",
+        words: [{jp:"おいしい",en:"tasty",pos:"adj"},{jp:"すし",en:"sushi",pos:"n"}] },
+      { en: "A big cow!", jp: "おおきい うし！", romaji: "ookii ushi!",
+        words: [{jp:"おおきい",en:"big",pos:"adj"},{jp:"うし",en:"cow",pos:"n"}] },
+    ],
+  },
+  {
+    id: "l0-ta", section: "The sounds", title: "た・ち・つ・て・と",
+    grammar: "た ち つ て と",
+    grammarNote:
+      "The t-row: た(ta) ち(chi) つ(tsu) て(te) と(to). つき, とけい — the words get useful fast.",
+    vocab: [
+      { jp: "つき", romaji: "tsuki", en: "moon", pos: "n" },
+      { jp: "とけい", romaji: "tokei", en: "clock", pos: "n" },
+      { jp: "たこ", romaji: "tako", en: "octopus", pos: "n" },
+      { jp: "そと", romaji: "soto", en: "outside", pos: "n" },
+      { jp: "した", romaji: "shita", en: "under / below", pos: "n" },
+      { jp: "いつ", romaji: "itsu", en: "when", pos: "expr" },
+      { jp: "たかい", romaji: "takai", en: "expensive / tall", pos: "adj" },
+      { jp: "ちいさい", romaji: "chiisai", en: "small", pos: "adj" },
+      { jp: "ちかい", romaji: "chikai", en: "near", pos: "adj" },
+    ],
+    sentences: [
+      { en: "An expensive clock!", jp: "たかい とけい！", romaji: "takai tokei!",
+        words: [{jp:"たかい",en:"expensive",pos:"adj"},{jp:"とけい",en:"clock",pos:"n"}] },
+      { en: "A small octopus!", jp: "ちいさい たこ！", romaji: "chiisai tako!",
+        words: [{jp:"ちいさい",en:"small",pos:"adj"},{jp:"たこ",en:"octopus",pos:"n"}] },
+      { en: "When?", jp: "いつ？", romaji: "itsu?",
+        words: [{jp:"いつ",en:"when",pos:"expr"}] },
+    ],
+  },
+  {
+    id: "l0-na", section: "The sounds", title: "な・に・ぬ・ね・の",
+    grammar: "な に ぬ ね の  ·  [A]の[B]",
+    grammarNote:
+      "The n-row: な(na) に(ni) ぬ(nu) ね(ne) の(no). And your first grammar: の links two things — ねこの あし is the cat's foot.",
+    vocab: [
+      { jp: "ねこ", romaji: "neko", en: "cat", pos: "n" },
+      { jp: "いぬ", romaji: "inu", en: "dog", pos: "n" },
+      { jp: "なに", romaji: "nani", en: "what", pos: "expr" },
+      { jp: "なつ", romaji: "natsu", en: "summer", pos: "n" },
+      { jp: "にく", romaji: "niku", en: "meat", pos: "n" },
+      { jp: "おなか", romaji: "onaka", en: "belly / tummy", pos: "n" },
+    ],
+    sentences: [
+      { en: "The cat's foot!", jp: "ねこの あし！", romaji: "neko no ashi!",
+        words: [{jp:"ねこ",en:"cat",pos:"n"},{jp:"の",en:"[of]",pos:"prt"},{jp:"あし",en:"foot",pos:"n"}] },
+      { en: "The dog's face!", jp: "いぬの かお！", romaji: "inu no kao!",
+        words: [{jp:"いぬ",en:"dog",pos:"n"},{jp:"の",en:"[of]",pos:"prt"},{jp:"かお",en:"face",pos:"n"}] },
+      { en: "What?", jp: "なに？", romaji: "nani?",
+        words: [{jp:"なに",en:"what",pos:"expr"}] },
+    ],
+  },
+  {
+    id: "l0-ha", section: "The sounds", title: "は・ひ・ふ・へ・ほ — and は says wa",
+    grammar: "は ひ ふ へ ほ  ·  [A]は [B]",
+    grammarNote:
+      "The h-row: は(ha) ひ(hi) ふ(fu) へ(he) ほ(ho). The star: は — written ha but SAID wa when it marks the topic. はなは あかい — the flower is red. Your first full sentences!",
+    vocab: [
+      { jp: "はい", romaji: "hai", en: "yes", pos: "expr" },
+      { jp: "はな", romaji: "hana", en: "flower / nose", pos: "n" },
+      { jp: "ひと", romaji: "hito", en: "person", pos: "n" },
+      { jp: "ふね", romaji: "fune", en: "boat", pos: "n" },
+      { jp: "ほし", romaji: "hoshi", en: "star", pos: "n" },
+      { jp: "はし", romaji: "hashi", en: "bridge / chopsticks", pos: "n" },
+      { jp: "とおい", romaji: "tooi", en: "far", pos: "adj" },
+    ],
+    sentences: [
+      { en: "The flower is red.", jp: "はなは あかい。", romaji: "hana wa akai.",
+        words: [{jp:"はな",en:"flower",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"あかい",en:"red",pos:"adj"}] },
+      { en: "The boat is big.", jp: "ふねは おおきい。", romaji: "fune wa ookii.",
+        words: [{jp:"ふね",en:"boat",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"おおきい",en:"big",pos:"adj"}] },
+      { en: "The stars are far away.", jp: "ほしは とおい。", romaji: "hoshi wa tooi.",
+        words: [{jp:"ほし",en:"star",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"とおい",en:"far",pos:"adj"}] },
+      { en: "Yes.", jp: "はい。", romaji: "hai.",
+        words: [{jp:"はい",en:"yes",pos:"expr"}] },
+    ],
+  },
+  {
+    id: "l0-ma", section: "The sounds", title: "ま・み・む・め・も",
+    grammar: "ま み む め も",
+    grammarNote:
+      "The m-row: ま(ma) み(mi) む(mu) め(me) も(mo). More は-sentences with everything you own so far.",
+    vocab: [
+      { jp: "みみ", romaji: "mimi", en: "ear", pos: "n" },
+      { jp: "まち", romaji: "machi", en: "town", pos: "n" },
+      { jp: "もも", romaji: "momo", en: "peach", pos: "n" },
+      { jp: "みせ", romaji: "mise", en: "shop", pos: "n" },
+      { jp: "あめ", romaji: "ame", en: "rain / candy", pos: "n" },
+      { jp: "うみ", romaji: "umi", en: "sea", pos: "n" },
+      { jp: "むし", romaji: "mushi", en: "insect", pos: "n" },
+    ],
+    sentences: [
+      { en: "The sea is blue.", jp: "うみは あおい。", romaji: "umi wa aoi.",
+        words: [{jp:"うみ",en:"sea",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"あおい",en:"blue",pos:"adj"}] },
+      { en: "The town is small.", jp: "まちは ちいさい。", romaji: "machi wa chiisai.",
+        words: [{jp:"まち",en:"town",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ちいさい",en:"small",pos:"adj"}] },
+      { en: "The peach is tasty.", jp: "ももは おいしい。", romaji: "momo wa oishii.",
+        words: [{jp:"もも",en:"peach",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"おいしい",en:"tasty",pos:"adj"}] },
+    ],
+  },
+  {
+    id: "l0-ya", section: "The sounds", title: "や・ゆ・よ",
+    grammar: "や ゆ よ",
+    grammarNote:
+      "Just three this time: や(ya) ゆ(yu) よ(yo). A gentle day — enjoy the mountain weather.",
+    vocab: [
+      { jp: "やま", romaji: "yama", en: "mountain", pos: "n" },
+      { jp: "ゆき", romaji: "yuki", en: "snow", pos: "n" },
+      { jp: "ふゆ", romaji: "fuyu", en: "winter", pos: "n" },
+      { jp: "おゆ", romaji: "oyu", en: "hot water", pos: "n" },
+      { jp: "やすい", romaji: "yasui", en: "cheap", pos: "adj" },
+      { jp: "つよい", romaji: "tsuyoi", en: "strong", pos: "adj" },
+      { jp: "さむい", romaji: "samui", en: "cold", pos: "adj" },
+    ],
+    sentences: [
+      { en: "The mountain is tall.", jp: "やまは たかい。", romaji: "yama wa takai.",
+        words: [{jp:"やま",en:"mountain",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"たかい",en:"tall",pos:"adj"}] },
+      { en: "Winter is cold.", jp: "ふゆは さむい。", romaji: "fuyu wa samui.",
+        words: [{jp:"ふゆ",en:"winter",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"さむい",en:"cold",pos:"adj"}] },
+    ],
+  },
+  {
+    id: "l0-ra", section: "The sounds", title: "ら・り・る・れ・ろ — これ・それ・あれ",
+    grammar: "ら り る れ ろ  ·  これ・それ・あれ",
+    grammarNote:
+      "The r-row: ら(ra) り(ri) る(ru) れ(re) ろ(ro) — a soft tap between r and l. It unlocks the pointing words: これ (this), それ (that), あれ (that over there).",
+    vocab: [
+      { jp: "これ", romaji: "kore", en: "this", pos: "n" },
+      { jp: "それ", romaji: "sore", en: "that (by you)", pos: "n" },
+      { jp: "あれ", romaji: "are", en: "that over there", pos: "n" },
+      { jp: "とり", romaji: "tori", en: "bird", pos: "n" },
+      { jp: "くるま", romaji: "kuruma", en: "car", pos: "n" },
+      { jp: "さくら", romaji: "sakura", en: "cherry blossom", pos: "n" },
+      { jp: "はる", romaji: "haru", en: "spring", pos: "n" },
+      { jp: "よる", romaji: "yoru", en: "night", pos: "n" },
+      { jp: "しろい", romaji: "shiroi", en: "white", pos: "adj" },
+      { jp: "ひろい", romaji: "hiroi", en: "wide / spacious", pos: "adj" },
+    ],
+    sentences: [
+      { en: "This is a bird. (casual)", jp: "これは とり。", romaji: "kore wa tori.", hint: "casual style — です arrives in the next lesson",
+        words: [{jp:"これ",en:"this",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"とり",en:"bird",pos:"n"}] },
+      { en: "That is a car. (casual)", jp: "それは くるま。", romaji: "sore wa kuruma.",
+        words: [{jp:"それ",en:"that",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"くるま",en:"car",pos:"n"}] },
+      { en: "The cherry blossoms are white.", jp: "さくらは しろい。", romaji: "sakura wa shiroi.",
+        words: [{jp:"さくら",en:"cherry blossom",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"しろい",en:"white",pos:"adj"}] },
+    ],
+  },
+  {
+    id: "l0-wa", section: "The sounds", title: "わ・を・ん — meet わたし",
+    grammar: "わ を ん",
+    grammarNote:
+      "The last base letters: わ(wa) を(o — the object marker you'll meet later) ん(n — the only letter with no vowel). わたし is you!",
+    vocab: [
+      { jp: "わたし", romaji: "watashi", en: "I / me", pos: "n" },
+      { jp: "ほん", romaji: "hon", en: "book", pos: "n" },
+      { jp: "にほん", romaji: "nihon", en: "Japan", pos: "n" },
+      { jp: "みかん", romaji: "mikan", en: "mandarin orange", pos: "n" },
+      { jp: "かんたん", romaji: "kantan", en: "easy / simple", pos: "n" },
+    ],
+    sentences: [
+      { en: "My book!", jp: "わたしの ほん！", romaji: "watashi no hon!",
+        words: [{jp:"わたし",en:"I",pos:"n"},{jp:"の",en:"[of]",pos:"prt"},{jp:"ほん",en:"book",pos:"n"}] },
+      { en: "My cat is white.", jp: "わたしの ねこは しろい。", romaji: "watashi no neko wa shiroi.",
+        words: [{jp:"わたし",en:"I",pos:"n"},{jp:"の",en:"[of]",pos:"prt"},{jp:"ねこ",en:"cat",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"しろい",en:"white",pos:"adj"}] },
+      { en: "Japan is far away.", jp: "にほんは とおい。", romaji: "nihon wa tooi.",
+        words: [{jp:"にほん",en:"Japan",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"とおい",en:"far",pos:"adj"}] },
+    ],
+  },
+  {
+    id: "l0-dakuten", section: "The sounds", title: "てんてん ゛— new sounds from old",
+    grammar: "か→が  た→だ  は→ば・ぱ  ·  です",
+    grammarNote:
+      "Two little marks make new sounds from letters you know: ゛(てんてん) turns か→が(ga), さ→ざ(za), た→だ(da), は→ば(ba); ゜(まる) makes ぱ(pa). And だ-row gives you で — which unlocks です, the polite is/am you'll use everywhere from now on.",
+    vocab: [
+      { jp: "ともだち", romaji: "tomodachi", en: "friend", pos: "n" },
+      { jp: "だれ", romaji: "dare", en: "who", pos: "expr" },
+      { jp: "でんわ", romaji: "denwa", en: "telephone", pos: "n" },
+      { jp: "えいが", romaji: "eiga", en: "movie", pos: "n" },
+      { jp: "ぱん", romaji: "pan", en: "bread", pos: "n" },
+      { jp: "まど", romaji: "mado", en: "window", pos: "n" },
+      { jp: "たのしい", romaji: "tanoshii", en: "fun", pos: "adj" },
+    ],
+    sentences: [
+      { en: "This is a book.", jp: "これは ほんです。", romaji: "kore wa hon desu.", hint: "your first です — welcome to polite Japanese",
+        words: [{jp:"これ",en:"this",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ほん",en:"book",pos:"n"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "The movie is fun.", jp: "えいがは たのしいです。", romaji: "eiga wa tanoshii desu.",
+        words: [{jp:"えいが",en:"movie",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"たのしい",en:"fun",pos:"adj"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "My friend's telephone.", jp: "ともだちの でんわ。", romaji: "tomodachi no denwa.",
+        words: [{jp:"ともだち",en:"friend",pos:"n"},{jp:"の",en:"[of]",pos:"prt"},{jp:"でんわ",en:"telephone",pos:"n"}] },
+    ],
+  },
   // ============================================================
   // BASICS
   // ============================================================
