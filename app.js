@@ -378,6 +378,53 @@
     }
   })();
 
+  // Transliterate a kana run to romaji (digraphs きゃ→kya/しゃ→sha, っ
+  // gemination, ー long vowels) — powers the romaji-above-Japanese ruby in
+  // lesson notes and hints, so explanations never need hand-written readings.
+  const SMALL_Y = { "ゃ": "ya", "ゅ": "yu", "ょ": "yo", "ャ": "ya", "ュ": "yu", "ョ": "yo" };
+  const SMALL_V = { "ぁ": "a", "ぃ": "i", "ぅ": "u", "ぇ": "e", "ぉ": "o", "ァ": "a", "ィ": "i", "ゥ": "u", "ェ": "e", "ォ": "o" };
+  function kanaToRomaji(run) {
+    let out = "";
+    const chars = [...run];
+    for (let i = 0; i < chars.length; i++) {
+      const ch = chars[i];
+      if (ch === "っ" || ch === "ッ") {
+        const r = i + 1 < chars.length ? (KANA_INDEX.get(chars[i + 1]) || {}).romaji || "" : "";
+        out += r.startsWith("ch") ? "t" : r ? r[0] : "";
+        continue;
+      }
+      if (ch === "ー") { const m = /[aeiou]$/.exec(out); out += m ? m[0] : ""; continue; }
+      if (SMALL_Y[ch]) {
+        out = out.replace(/i$/, "");
+        out += /(sh|ch|j)$/.test(out) ? SMALL_Y[ch].slice(1) : SMALL_Y[ch];
+        continue;
+      }
+      if (SMALL_V[ch]) { out = out.replace(/[aeiou]$/, "") + SMALL_V[ch]; continue; }
+      const info = KANA_INDEX.get(ch);
+      out += info ? info.romaji : ch;
+    }
+    return out;
+  }
+  // Render English teaching text with romaji above any embedded Japanese —
+  // the notes stay readable before the learner can read kana.
+  function renderAnnotated(container, text) {
+    container.textContent = "";
+    const re = /[ぁ-ゖァ-ヶー]+/g;
+    let last = 0, m;
+    text = String(text || "");
+    while ((m = re.exec(text))) {
+      if (m.index > last) container.appendChild(document.createTextNode(text.slice(last, m.index)));
+      const ruby = document.createElement("ruby");
+      ruby.appendChild(document.createTextNode(m[0]));
+      const rt = document.createElement("rt");
+      rt.textContent = kanaToRomaji(m[0]);
+      ruby.appendChild(rt);
+      container.appendChild(ruby);
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) container.appendChild(document.createTextNode(text.slice(last)));
+  }
+
   // ---- Elements ------------------------------------------------------------
   const $ = (id) => document.getElementById(id);
   const el = {
@@ -1441,7 +1488,7 @@
       : "🎭 Talk with もち子さん";
     el.lessonTitle.textContent = L.title;
     el.lessonGrammar.textContent = L.grammar;
-    el.lessonNote.textContent = L.grammarNote || "";
+    renderAnnotated(el.lessonNote, L.grammarNote || "");
     el.vocabList.innerHTML = "";
     for (const w of L.vocab) {
       const row = document.createElement("button");
@@ -1596,7 +1643,7 @@
     if (recognize) el.answerKana.textContent = s.en;
     else el.answerKana.innerHTML = coloredFuriganaHTML(s.jp, s.words);
     el.answerRomaji.textContent = needRomaji(s.jp) ? s.romaji : "";
-    el.hint.textContent = s.hint || "";
+    renderAnnotated(el.hint, s.hint || "");
     el.hintRow.hidden = !s.hint;
     el.hint.hidden = true;
     el.showHintBtn.hidden = false;
@@ -2042,7 +2089,7 @@
       if (st.hint) {
         el.quizHintBtn.hidden = false;
         el.quizHintBtn.textContent = "show hint";
-        el.quizHint.textContent = st.hint;
+        renderAnnotated(el.quizHint, st.hint);
       }
       showMicControls();
     }

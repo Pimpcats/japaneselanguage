@@ -34,6 +34,7 @@ click(document.querySelector(".level-card"));
 check("level page renders journey nodes", document.querySelectorAll(".node-dot").length >= 3);
 click(document.querySelector(".node-dot"));
 check("lesson intro opens", !document.getElementById("lesson-intro").hidden);
+check("note annotates Japanese with romaji", document.querySelectorAll("#lesson-note ruby rt").length > 0);
 check("talk button present on every lesson", !document.getElementById("scene-btn").hidden);
 click(document.getElementById("scene-btn"));
 check("conversation screen opens", !document.getElementById("quiz").hidden);

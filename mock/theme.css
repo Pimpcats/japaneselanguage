@@ -716,3 +716,10 @@ footer { font-family: var(--display); color: var(--muted); }
 .kq-opt:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
 .kq-opt.ok { background: color-mix(in srgb, var(--good) 30%, #fff); }
 .kq-opt.bad { background: color-mix(in srgb, var(--bad) 22%, #fff); }
+
+/* romaji printed above Japanese fragments in teaching text (notes & hints) */
+#lesson-note ruby, #hint ruby, #quiz-hint ruby { ruby-position: over; }
+#lesson-note rt, #hint rt, #quiz-hint rt {
+  font-size: 0.52em; font-weight: 800; color: var(--muted);
+  letter-spacing: 0.02em; opacity: 0.9;
+}
