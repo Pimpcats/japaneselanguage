@@ -1517,7 +1517,7 @@ window.LESSONS = [
         words: [{jp:"くる",en:"come",pos:"v"},{jp:"と",en:"[that]",pos:"prt"},{jp:"おもい",en:"think",pos:"v"},{jp:"ます",en:"[polite]",pos:"aux"}] },
       { en: "I don't think so.", jp: "そう おもわない。", romaji: "sou omowanai.",
         words: [{jp:"そう",en:"so",pos:"adv"},{jp:"おもわない",en:"don't think",pos:"v"}] },
-      { en: "It's probably no use.", jp: "たぶん むりだと おもう。", romaji: "tabun muri da to omou.",
+      { en: "I think it's probably impossible.", jp: "たぶん むりだと おもう。", romaji: "tabun muri da to omou.",
         words: [{jp:"たぶん",en:"probably",pos:"adv"},{jp:"むり",en:"no use",pos:"adj"},{jp:"だ",en:"is",pos:"cop"},{jp:"と",en:"[that]",pos:"prt"},{jp:"おもう",en:"think",pos:"v"}] },
     ],
   },
@@ -1545,7 +1545,7 @@ window.LESSONS = [
         words: [{jp:"これ",en:"this",pos:"n"},{jp:"どういう",en:"what kind of",pos:"adj"},{jp:"いみ",en:"meaning",pos:"n"}] },
       { en: "I said it's fine.", jp: "いいって いった。", romaji: "ii tte itta.",
         words: [{jp:"いい",en:"fine",pos:"adj"},{jp:"って",en:"[that]",pos:"prt"},{jp:"いった",en:"said",pos:"v"}] },
-      { en: "I don't know his name.", jp: "なまえ、しらない。", romaji: "namae, shiranai.",
+      { en: "I don't know their name.", jp: "なまえ、しらない。", romaji: "namae, shiranai.",
         words: [{jp:"なまえ",en:"name",pos:"n"},{jp:"しらない",en:"don't know",pos:"v"}] },
     ],
   },
@@ -2307,12 +2307,23 @@ window.MOCHIKO = {
     { jp: "じょうずですね！", en: "You're getting good!" },
     { jp: "その ちょうし！", en: "That's the spirit!" },
   ],
-  // Short reactions she drops between your lines in a conversation.
+  // Reactions she drops between your lines — picked to FIT what you said:
+  // upbeat after neutral/positive lines, sympathetic after troubles and
+  // negatives, and thinking-noises after you ask her a question.
   reactions: [
     { jp: "そうですか！", en: "I see!" },
     { jp: "いいですね！", en: "Nice!" },
     { jp: "なるほど！", en: "Gotcha!" },
     { jp: "へえ、すごい！", en: "Wow, great!" },
+  ],
+  sympathy: [
+    { jp: "そうなんですね。", en: "Ah, is that so…" },
+    { jp: "たいへんですね。", en: "That's rough." },
+    { jp: "だいじょうぶですか？", en: "Are you okay?" },
+  ],
+  ponder: [
+    { jp: "うーん、そうですね。", en: "Hmm, let's see…" },
+    { jp: "いい しつもんですね！", en: "Good question!" },
   ],
   closings: [
     { jp: "きょうは ここまで。またね！", en: "That's it for today — see you!" },

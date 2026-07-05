@@ -2013,10 +2013,19 @@
       const j = Math.floor(Math.random() * (i + 1));
       [sentences[i], sentences[j]] = [sentences[j], sentences[i]];
     }
+    // React to what was actually said: questions get a thinking noise, bad
+    // news gets sympathy, everything else gets the upbeat pool — so she never
+    // chirps いいですね！ at "I lost my wallet".
+    const isQuestion = (s) => /(か|\?|？)[。！]?\s*$/.test(s.jp);
+    const isTrouble = (s) =>
+      /(ませんでした|ません|なかった|なくし|まよい|のりおくれ|ぬすまれ|おこられ|またされ|やらされ|させられ|こまって|わすれ|ざるを得|むり|だめ|いたい|たすけて|ふられた|きらい|つかれ|おちた)/.test(s.jp) &&
+      !/ほめられ/.test(s.jp);
     sentences.forEach((s, i) => {
       steps.push({ who: "you", ctx: "もち子さん asks — how do you say…", en: s.en, jp: s.jp, romaji: s.romaji, hint: s.hint });
-      const r = pick(M.reactions, seed + i);
-      if (r && i < sentences.length - 1) steps.push({ who: "m", jp: r.jp, en: r.en });
+      if (i >= sentences.length - 1) return;                  // closing follows
+      const pool = isQuestion(s) ? M.ponder : isTrouble(s) ? M.sympathy : M.reactions;
+      const r = pick(pool, seed + i);
+      if (r) steps.push({ who: "m", jp: r.jp, en: r.en });
     });
     const c = pick(M.closings, seed);
     if (c) steps.push({ who: "m", jp: c.jp, en: c.en });

@@ -69,7 +69,7 @@ for (const v of (VERBS || [])) {
 for (const p of EXTRA_PHRASES) want(p, false);
 // もち子さん's spoken lines: intro greetings, praise, and scene dialogue.
 // Scene "you" lines usually duplicate lesson sentences (deduped by the map).
-if (MOCHIKO) for (const g of [...(MOCHIKO.greetings || []), ...(MOCHIKO.praise || []), ...(MOCHIKO.reactions || []), ...(MOCHIKO.closings || [])]) want(g.jp, false);
+if (MOCHIKO) for (const pool of Object.values(MOCHIKO)) if (Array.isArray(pool)) for (const g of pool) if (g && g.jp) want(g.jp, false);
 for (const sc of (SCENES || [])) for (const st of (sc.steps || [])) want(st.jp, st.who === "you");
 // Single-kana clips for the "New sounds" strips and the Kana practice grid —
 // every hiragana and katakana letter is tappable and speaks solo.
