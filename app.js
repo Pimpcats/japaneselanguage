@@ -464,6 +464,7 @@
     kanaGrid: $("kana-grid"), kanaPracticeBtn: $("kana-practice-btn"), kanaQuiz: $("kana-quiz"),
     kqChar: $("kq-char"), kqOptions: $("kq-options"), kqProgress: $("kq-progress"), kqStop: $("kq-stop"),
     newKana: $("new-kana"), newKanaChips: $("new-kana-chips"), romajiMode: $("romaji-mode"),
+    sentenceList: $("sentence-list"),
     doneQuizBtn: $("done-quiz-btn"), quiz: $("quiz"),
     quizCard: $("quiz-card"), quizControls: $("quiz-controls"), quizLabel: $("quiz-label"),
     quizMochiko: $("quiz-mochiko"), quizMochikoJp: $("quiz-mochiko-jp"), quizMochikoEn: $("quiz-mochiko-en"),
@@ -1518,6 +1519,21 @@
       row.appendChild(en);
       row.addEventListener("click", () => { speak(w.jp, { lang: "ja-JP" }); highlightWordKana(w.jp); });
       el.vocabList.appendChild(row);
+    }
+    // The lesson's sentences, right here on the intro — tap one to hear it
+    // and light up every letter it uses in the (sticky) sound strip above.
+    el.sentenceList.innerHTML = "";
+    for (const s of L.sentences) {
+      const row = document.createElement("button");
+      row.className = "sentence-row";
+      const jp = document.createElement("span");
+      jp.className = "sr-jp";
+      jp.innerHTML = furiganaHTML(s.jp);
+      row.appendChild(jp);
+      if (needRomaji(s.jp) && s.romaji) row.appendChild(span("sr-romaji", s.romaji));
+      row.appendChild(span("sr-en", s.en));
+      row.addEventListener("click", () => { speak(s.jp, { lang: "ja-JP" }); highlightWordKana(s.jp); });
+      el.sentenceList.appendChild(row);
     }
     show(el.intro, { back: true });
   }
