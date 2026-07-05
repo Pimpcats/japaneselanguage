@@ -735,7 +735,6 @@ footer { font-family: var(--display); color: var(--muted); }
 /* letters carried over from earlier lessons sit greyed behind the new ones —
    a tapped word's highlight (gold) still overrides the dim */
 .kana-chip.kold { opacity: 0.38; filter: saturate(0.4); }
-.kana-chip.kold.hl { opacity: 1; filter: none; }
 
 /* sound strip stays pinned while you browse words & sentences below it */
 #new-kana {
@@ -768,10 +767,11 @@ footer { font-family: var(--display); color: var(--muted); }
 #new-kana .kana-chip-row { gap: 0.28rem; }
 #new-kana .tap-hint { display: none; }   /* the hint line was half the height */
 
-/* known letters stay greyed even while highlighted — only NEW letters go
-   gold; a faint pink ring on the known ones still traces the word */
+/* known letters ignore highlighting entirely — a word tap golds ONLY the
+   new letters; carried-over ones stay exactly as grey as before */
+.kana-chip.kold.hl,
 #new-kana .kana-chip.kold.hl {
-  opacity: 0.38; filter: saturate(0.4);
-  background: #f2ece0; transform: none;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 55%, transparent);
+  opacity: 0.38 !important; filter: saturate(0.4) !important;
+  background: #f2ece0 !important; transform: none !important;
+  box-shadow: 0 2px 0 rgba(74, 51, 40, 0.2) !important;
 }
