@@ -1449,13 +1449,18 @@
   }
 
   function renderNewKana(L) {
-    const chars = LESSON_NEW_KANA[L.id] || [];
+    // Show every kana the lesson uses: the ones INTRODUCED here come first at
+    // full strength; letters from earlier lessons trail behind, greyed — so
+    // the new sounds stay obvious but tapped words can always fully light up.
+    const newSet = new Set(LESSON_NEW_KANA[L.id] || []);
+    const rest = (LESSON_ALL_KANA[L.id] || []).filter((c) => !newSet.has(c));
+    const chars = [...newSet, ...rest];
     el.newKana.hidden = !chars.length;
     el.newKanaChips.innerHTML = "";
     for (const ch of chars) {
       const info = KANA_INDEX.get(ch);
       const chip = document.createElement("button");
-      chip.className = "kana-chip" + (kanaSeen(ch) ? " seen" : "");
+      chip.className = "kana-chip" + (kanaSeen(ch) ? " seen" : "") + (newSet.has(ch) ? "" : " kold");
       chip.dataset.kana = ch;
       chip.appendChild(span("kc-char", ch));
       chip.appendChild(span("kc-romaji", info ? info.romaji : ""));

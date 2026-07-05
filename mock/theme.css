@@ -731,3 +731,8 @@ footer { font-family: var(--display); color: var(--muted); }
   transform: translateY(-2px);
   transition: transform 0.12s, background 0.12s;
 }
+
+/* letters carried over from earlier lessons sit greyed behind the new ones —
+   a tapped word's highlight (gold) still overrides the dim */
+.kana-chip.kold { opacity: 0.38; filter: saturate(0.4); }
+.kana-chip.kold.hl { opacity: 1; filter: none; }
