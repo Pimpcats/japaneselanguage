@@ -179,7 +179,12 @@ buttons were removed at the owner's request (2026-07). Hand-written
 `window.SCENES` override; every other lesson auto-builds a conversation
 (`buildAutoScene`): her greeting → each lesson sentence as your line, with her
 reactions (`MOCHIKO.reactions`) between → a closing. Under the hood it's the
-same speech engine:
+same speech engine, but scenes are kept LIGHT so they read as dialogue not a
+test: her previous line echoes above your reply prompt, feedback is a warm
+in-character reaction (the % / kana-diff detail is tucked behind a "how did I
+sound?" tap), and her reply is the reward — no full scorecard per turn.
+
+Under the hood:
 
 English prompt → Web Speech API (`ja-JP`) transcription → compare by READING:
 both sides reduced to bare hiragana (kanji read via the vendored kuromoji

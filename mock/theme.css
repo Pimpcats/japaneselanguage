@@ -789,3 +789,12 @@ footer { font-family: var(--display); color: var(--muted); }
   filter: drop-shadow(0 1px 0 rgba(74,51,40,0.3));
 }
 .node-practice .node-badge.new { background: var(--sky); color: var(--ink); }
+
+/* conversation feel: her line echoed above your reply prompt (dimmed, smaller),
+   and lighter feedback so a scene turn reads as dialogue, not a test */
+#quiz-mochiko.echo { opacity: 0.72; }
+#quiz-mochiko.echo img { width: 46px; }
+#quiz-mochiko.echo .qm-bubble b { font-size: 0.98rem; }
+#quiz-mochiko.echo .qm-bubble { background: color-mix(in srgb, var(--sky) 14%, #fff); }
+.scene-detail-toggle { font-size: 0.78rem; }
+.scene-detail { margin-top: 0.35rem; }

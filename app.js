@@ -2228,7 +2228,7 @@
   function resetQuizCard() {
     el.quizCard.hidden = false; el.quizControls.hidden = false;
     el.quizProgress.hidden = false; el.quizSummary.hidden = true;
-    el.quizMochiko.hidden = true;
+    el.quizMochiko.hidden = true; el.quizMochiko.classList.remove("echo");
     el.quizHintBtn.hidden = true; el.quizHint.hidden = true;
     el.quizHeard.hidden = true; el.quizHeard.textContent = "";
     el.quizVerdict.hidden = true; el.quizVerdict.className = "quiz-verdict";
@@ -2273,7 +2273,18 @@
       speak(st.jp, { lang: "ja-JP" });          // reached via a tap, so audio is allowed
     } else {                                    // your line
       quiz.target = st;
-      el.quizLabel.textContent = st.ctx || "Your turn — say it in Japanese";
+      // Echo her last line above your prompt so it reads as a reply, not a
+      // flashcard — the heart of the conversation feel.
+      const prev = quiz.steps[quiz.idx - 1];
+      if (prev && prev.who === "m") {
+        el.quizMochiko.hidden = false;
+        el.quizMochiko.classList.add("echo");
+        el.quizMochikoJp.textContent = prev.jp;
+        el.quizMochikoEn.textContent = prev.en || "";
+      } else {
+        el.quizMochiko.classList.remove("echo");
+      }
+      el.quizLabel.textContent = st.ctx ? "↳ " + st.ctx : "Your turn — reply to her";
       el.quizEn.hidden = false;
       el.quizEn.textContent = st.en;
       if (st.hint) {
@@ -2421,6 +2432,41 @@
     }
     const pct = Math.max(0, Math.round(best.score * 100));
     quiz.results[quiz.idx] = Math.max(quiz.results[quiz.idx] || 0, best.score);
+
+    // In a conversation, keep it light — a warm reaction, her reply as the
+    // reward, and the detailed pronunciation match tucked behind a tap. The
+    // full scorecard is only for standalone drilling.
+    if (quiz.scene) {
+      const M = window.MOCHIKO || {};
+      el.quizVerdict.hidden = false;
+      if (best.score >= 0.6) {
+        const praise = (M.praise && M.praise.length) ? M.praise[Math.floor(Math.random() * M.praise.length)] : { jp: "いいね！", en: "Nice!" };
+        el.quizVerdict.className = "quiz-verdict pass"; el.quizVerdict.textContent = "✓ " + praise.jp + " " + (praise.en || "");
+        try { window.HanaFX && HanaFX.pop && HanaFX.pop(); } catch (e) {}
+      } else if (best.score >= 0.4) {
+        el.quizVerdict.className = "quiz-verdict close"; el.quizVerdict.textContent = "◐ Almost — she caught most of that.";
+      } else {
+        el.quizVerdict.className = "quiz-verdict miss"; el.quizVerdict.textContent = "△ Hmm — say it once more, or tap ▷ to hear it.";
+      }
+      // Optional detail, collapsed by default so it doesn't feel like a test.
+      el.quizHeard.hidden = false;
+      el.quizHeard.innerHTML =
+        '<button class="link scene-detail-toggle" type="button">how did I sound?</button>' +
+        '<div class="scene-detail" hidden>you said: <b>' + escHTML(best.heard) + "</b>" +
+        '<div class="quiz-diff">' + kanaDiffHTML(best.reading, target) + " (" + pct + "%)</div></div>";
+      const tog = el.quizHeard.querySelector(".scene-detail-toggle");
+      const det = el.quizHeard.querySelector(".scene-detail");
+      tog.addEventListener("click", () => { det.hidden = !det.hidden; tog.textContent = det.hidden ? "how did I sound?" : "hide"; });
+      // Controls: hear your line, retry if you want, or move to HER reply.
+      el.quizAnswer.hidden = true;
+      el.quizPlayBtn.hidden = false;
+      el.quizRevealBtn.hidden = true; el.quizSkipBtn.hidden = true;
+      el.quizMicBtn.hidden = false; el.quizMicBtn.disabled = !SpeechRec;   // tap to try again
+      el.quizNextBtn.hidden = false;
+      el.quizNextBtn.textContent = (quiz.idx >= quiz.steps.length - 1) ? "finish →" : "reply →";
+      return;
+    }
+
     el.quizHeard.hidden = false;
     el.quizHeard.innerHTML =
       "you said: <b>" + escHTML(best.heard) + "</b>" +
