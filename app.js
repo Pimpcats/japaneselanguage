@@ -2451,15 +2451,12 @@
       } else {
         el.quizVerdict.className = "quiz-verdict miss"; el.quizVerdict.textContent = "△ Hmm — say it once more, or tap ▷ to hear it.";
       }
-      // Optional detail, collapsed by default so it doesn't feel like a test.
+      // Show the pronunciation match inline — what you said and the kana-by-kana
+      // green/red — so the feedback is right there, not hidden behind a tap.
       el.quizHeard.hidden = false;
       el.quizHeard.innerHTML =
-        '<button class="link scene-detail-toggle" type="button">how did I sound?</button>' +
-        '<div class="scene-detail" hidden>you said: <b>' + escHTML(best.heard) + "</b>" +
-        '<div class="quiz-diff">' + kanaDiffHTML(best.reading, target) + " (" + pct + "%)</div></div>";
-      const tog = el.quizHeard.querySelector(".scene-detail-toggle");
-      const det = el.quizHeard.querySelector(".scene-detail");
-      tog.addEventListener("click", () => { det.hidden = !det.hidden; tog.textContent = det.hidden ? "how did I sound?" : "hide"; });
+        "you said: <b>" + escHTML(best.heard) + "</b>" +
+        '<div class="quiz-diff">' + kanaDiffHTML(best.reading, target) + " (" + pct + "%)</div>";
       // Controls: hear your line, retry if you want, or move to HER reply.
       el.quizAnswer.hidden = true;
       el.quizPlayBtn.hidden = false;
