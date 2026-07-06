@@ -2639,10 +2639,10 @@
   // the practice nodes on the journey. Falls back to the whole current script.
   function practiceLessonKana(chars) {
     show(el.kana, { back: true });
-    startKanaPractice(chars);
+    startKanaPractice(chars, { oneNotch: true });   // a journey stop = at most +1 per letter
   }
 
-  function startKanaPractice(restrictChars) {
+  function startKanaPractice(restrictChars, opts) {
     let pool;
     if (restrictChars && restrictChars.length) {
       // match the distractor script to the letters (Level 0 is all hiragana)
@@ -2670,7 +2670,7 @@
       if (pool.length > 1 && pick.ch === prev) continue;
       queue.push(pick); prev = pick.ch;
     }
-    kq = { queue, idx: 0, right: 0 };
+    kq = { queue, idx: 0, right: 0, oneNotch: !!(opts && opts.oneNotch), notched: new Set() };
     el.kanaGrid.hidden = true;
     el.kanaPracticeBtn.hidden = true;
     el.kanaQuiz.hidden = false;
@@ -2704,9 +2704,14 @@
         if (!ok) [...el.kqOptions.children].find((x) => x.textContent === q.romaji).classList.add("ok");
         if (ok) {
           kq.right += 1;
-          prog.kanaMastery[q.ch] = Math.min(KANA_MAX, (prog.kanaMastery[q.ch] || 0) + 1);
+          // Journey stops grant at most one notch per letter for the whole
+          // stop; the Kana section's own practice notches every correct answer.
+          if (!kq.oneNotch || !kq.notched.has(q.ch)) {
+            prog.kanaMastery[q.ch] = Math.min(KANA_MAX, (prog.kanaMastery[q.ch] || 0) + 1);
+            kq.notched.add(q.ch);
+          }
           markKanaSeen(q.ch, 2);                 // solid enough to fade its romaji
-        } else {
+        } else if (!kq.oneNotch) {
           prog.kanaMastery[q.ch] = Math.max(0, (prog.kanaMastery[q.ch] || 0) - 1);
         }
         save();
