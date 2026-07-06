@@ -51,6 +51,7 @@
   prog.knownHistory = prog.knownHistory || {}; // {"YYYY-MM-DD": known count}
   prog.practice = prog.practice || {};    // {"YYYY-MM-DD": reviews that day} — drives the weekly rhythm
   prog.kana = prog.kana || {};            // {kana char: strength} — introduced/practiced letters (drives romaji fade)
+  prog.kanaMastery = prog.kanaMastery || {}; // {kana char: 0..5} — successful practice answers; drives the per-letter mastery bar
   rebuildMined();
   function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
@@ -172,6 +173,7 @@
       knownHistory: mergeImmersion(local.knownHistory, remote.knownHistory),
       practice: mergeImmersion(local.practice, remote.practice),
       kana: mergeImmersion(local.kana, remote.kana),
+      kanaMastery: mergeImmersion(local.kanaMastery, remote.kanaMastery),
     };
     const ids = new Set([...Object.keys(local.cards || {}), ...Object.keys(remote.cards || {})]);
     for (const id of ids) {
@@ -208,6 +210,7 @@
         prog.knownHistory = merged.knownHistory;
         prog.practice = merged.practice || {};
         prog.kana = merged.kana || {};
+        prog.kanaMastery = merged.kanaMastery || {};
         rebuildMined();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(prog));
       }
@@ -2558,6 +2561,9 @@
   let kanaScript = "h";
   let kq = null;   // { queue, idx, right }
 
+  const KANA_MAX = 5;   // a letter is "mastered" after 5 correct practice answers
+  const kanaMastery = (ch) => Math.min(prog.kanaMastery[ch] || 0, KANA_MAX);
+
   function kanaList(script) {
     const out = [];
     for (const row of (window.KANA && window.KANA.rows) || [])
@@ -2565,19 +2571,50 @@
     return out;
   }
 
+  // A 0/5 mastery bar (five pips) for one letter.
+  function masteryBar(ch) {
+    const wrap = document.createElement("span");
+    wrap.className = "kc-mastery";
+    const m = kanaMastery(ch);
+    for (let i = 0; i < KANA_MAX; i++) {
+      const pip = document.createElement("i");
+      if (i < m) pip.className = "on";
+      wrap.appendChild(pip);
+    }
+    return wrap;
+  }
+
+  // Every gojūon row is its own practice set (5, or fewer for や/わ/ん).
   function renderKanaGrid() {
     el.kanaTabH.classList.toggle("active", kanaScript === "h");
     el.kanaTabK.classList.toggle("active", kanaScript === "k");
     el.kanaGrid.innerHTML = "";
     for (const row of (window.KANA && window.KANA.rows) || []) {
+      const chars = [...row[kanaScript]];
+      const card = document.createElement("div");
+      card.className = "kana-set";
+
+      const head = document.createElement("div");
+      head.className = "kana-set-head";
+      const done = chars.filter((c) => kanaMastery(c) >= KANA_MAX).length;
+      head.appendChild(span("kana-set-name", chars.join("") ));
+      head.appendChild(span("kana-set-count", done + "/" + chars.length + " mastered"));
+      const pb = document.createElement("button");
+      pb.className = "kana-set-practice" + (done >= chars.length ? " done" : "");
+      pb.textContent = done >= chars.length ? "✓ review" : "▶ practice";
+      pb.addEventListener("click", () => startKanaPractice(chars));
+      head.appendChild(pb);
+      card.appendChild(head);
+
       const line = document.createElement("div");
       line.className = "kana-row";
       for (let i = 0; i < row.r.length; i++) {
         const ch = row[kanaScript][i];
         const chip = document.createElement("button");
-        chip.className = "kana-chip" + (kanaSeen(ch) ? " seen" : "");
+        chip.className = "kana-chip" + (kanaSeen(ch) ? " seen" : "") + (kanaMastery(ch) >= KANA_MAX ? " mastered" : "");
         chip.appendChild(span("kc-char", ch));
         chip.appendChild(span("kc-romaji", row.r[i]));
+        chip.appendChild(masteryBar(ch));
         chip.addEventListener("click", () => {
           speakLetter(ch);
           markKanaSeen(ch, 1); save();
@@ -2585,7 +2622,8 @@
         });
         line.appendChild(chip);
       }
-      el.kanaGrid.appendChild(line);
+      card.appendChild(line);
+      el.kanaGrid.appendChild(card);
     }
   }
 
@@ -2615,18 +2653,22 @@
     } else {
       pool = kanaList(kanaScript);
     }
-    // Weight unmet letters heaviest, shaky ones next, solid ones lightest.
+    // Weight by how far each letter is from mastery, so weak letters recur.
     const weighted = [];
     for (const item of pool) {
-      const s = prog.kana[item.ch] || 0;
-      const w = s === 0 ? 4 : s === 1 ? 2 : 1;
+      const w = Math.max(1, KANA_MAX - kanaMastery(item.ch));   // 0/5 → 5×, 4/5 → 1×
       for (let i = 0; i < w; i++) weighted.push(item);
     }
+    // A full round: ~2 questions per letter, min 4, max 12; repeats allowed
+    // (never the same letter twice running) so mastery can climb in one sitting.
+    const N = Math.max(pool.length, Math.min(12, pool.length * 2));
     const queue = [];
-    const used = new Set();
-    while (queue.length < 10 && used.size < pool.length) {
+    let prev = null;
+    let guard = 0;
+    while (queue.length < N && guard++ < 400) {
       const pick = weighted[Math.floor(Math.random() * weighted.length)];
-      if (!used.has(pick.ch)) { used.add(pick.ch); queue.push(pick); }
+      if (pool.length > 1 && pick.ch === prev) continue;
+      queue.push(pick); prev = pick.ch;
     }
     kq = { queue, idx: 0, right: 0 };
     el.kanaGrid.hidden = true;
@@ -2660,8 +2702,13 @@
         const ok = r === q.romaji;
         b.classList.add(ok ? "ok" : "bad");
         if (!ok) [...el.kqOptions.children].find((x) => x.textContent === q.romaji).classList.add("ok");
-        if (ok) { kq.right += 1; markKanaSeen(q.ch, (prog.kana[q.ch] || 0) + 1); }
-        else prog.kana[q.ch] = Math.min(prog.kana[q.ch] || 0, 1);   // shaky again
+        if (ok) {
+          kq.right += 1;
+          prog.kanaMastery[q.ch] = Math.min(KANA_MAX, (prog.kanaMastery[q.ch] || 0) + 1);
+          markKanaSeen(q.ch, 2);                 // solid enough to fade its romaji
+        } else {
+          prog.kanaMastery[q.ch] = Math.max(0, (prog.kanaMastery[q.ch] || 0) - 1);
+        }
         save();
         setTimeout(() => {
           kq.idx += 1;

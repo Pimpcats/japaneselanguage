@@ -798,3 +798,32 @@ footer { font-family: var(--display); color: var(--muted); }
 #quiz-mochiko.echo .qm-bubble { background: color-mix(in srgb, var(--sky) 14%, #fff); }
 .scene-detail-toggle { font-size: 0.78rem; }
 .scene-detail { margin-top: 0.35rem; }
+
+/* ---- kana practice: each gojūon row is its own set, letters show 0/5 ---- */
+.kana-set {
+  border: 2.5px solid var(--ink); border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--bg) 92%, #fff);
+  box-shadow: var(--shadow-sm); padding: 0.4rem 0.5rem 0.5rem; margin-bottom: 0.5rem;
+}
+.kana-set-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+.kana-set-name { font-family: var(--display); font-size: 1rem; color: var(--ink); letter-spacing: 0.04em; }
+.kana-set-count { font-size: 0.6rem; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.kana-set-practice {
+  margin-left: auto; border: 2px solid var(--ink); border-radius: 999px;
+  background: var(--gold); color: var(--ink); font-weight: 900; font-size: 0.72rem;
+  padding: 0.28rem 0.7rem; box-shadow: 0 2px 0 var(--ink); white-space: nowrap;
+}
+.kana-set-practice:active { transform: translateY(2px); box-shadow: 0 0 0 var(--ink); }
+.kana-set-practice.done { background: color-mix(in srgb, var(--good) 30%, #fff); }
+
+/* per-letter 0/5 mastery bar (five pips) */
+.kc-mastery { display: flex; gap: 2px; margin-top: 0.2rem; }
+.kc-mastery i {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 18%, #fff); border: 0.5px solid color-mix(in srgb, var(--ink) 25%, #fff);
+}
+.kc-mastery i.on { background: var(--gold); border-color: var(--ink); }
+.kana-chip.mastered { background: color-mix(in srgb, var(--gold) 26%, #fff); }
+.kana-chip.mastered .kc-mastery i.on { background: var(--good); }
+/* the mastery bar only belongs on the full grid, never the compact lesson strip */
+#new-kana .kc-mastery { display: none; }
