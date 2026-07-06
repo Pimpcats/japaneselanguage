@@ -777,3 +777,15 @@ footer { font-family: var(--display); color: var(--muted); }
   transform: none !important;
   box-shadow: 0 2px 0 rgba(74, 51, 40, 0.2) !important;
 }
+
+/* syllable-practice stops on the journey road */
+.node-practice .node-dot.practice-dot {
+  background: var(--sky); color: var(--ink);
+  font-family: var(--display); font-size: 1.25rem;
+  width: 44px; height: 44px;
+}
+.node-practice .node-dot.practice-dot::after {
+  content: "🔤"; position: absolute; right: -4px; top: -6px; font-size: 0.8rem;
+  filter: drop-shadow(0 1px 0 rgba(74,51,40,0.3));
+}
+.node-practice .node-badge.new { background: var(--sky); color: var(--ink); }

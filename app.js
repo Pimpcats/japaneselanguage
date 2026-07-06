@@ -1427,6 +1427,26 @@
         node.appendChild(side);
 
         path.appendChild(node);
+
+        // After a lesson that introduces new letters, a syllable-practice stop
+        // on the road — drill just those sounds before the next sentence.
+        const newK = LESSON_NEW_KANA[L.id] || [];
+        if (newK.length) {
+          const pn = document.createElement("div");
+          pn.className = "map-node node-practice";
+          const pdot = document.createElement("button");
+          pdot.className = "node-dot practice-dot";
+          pdot.textContent = newK[0];               // a letter it drills, as the icon
+          pdot.setAttribute("aria-label", "Practice these " + newK.length + " sounds");
+          pdot.addEventListener("click", () => practiceLessonKana(newK));
+          pn.appendChild(pdot);
+          const pside = document.createElement("div");
+          pside.className = "node-side";
+          pside.appendChild(Object.assign(document.createElement("div"), { className: "node-label", textContent: "Practice the sounds" }));
+          pside.appendChild(Object.assign(document.createElement("span"), { className: "node-badge new", textContent: newK.length + " letters" }));
+          pn.appendChild(pside);
+          path.appendChild(pn);
+        }
       });
       map.appendChild(path);
       regionIdx++;
@@ -2531,9 +2551,25 @@
     show(el.kana, { back: true });
   }
 
-  function startKanaPractice() {
+  // Practice a specific set of letters (a lesson's new kana), launched from
+  // the practice nodes on the journey. Falls back to the whole current script.
+  function practiceLessonKana(chars) {
+    show(el.kana, { back: true });
+    startKanaPractice(chars);
+  }
+
+  function startKanaPractice(restrictChars) {
+    let pool;
+    if (restrictChars && restrictChars.length) {
+      // match the distractor script to the letters (Level 0 is all hiragana)
+      kanaScript = [...restrictChars][0].charCodeAt(0) >= 0x30a0 ? "k" : "h";
+      pool = restrictChars
+        .map((ch) => ({ ch, romaji: (KANA_INDEX.get(ch) || {}).romaji || "" }))
+        .filter((x) => x.romaji);
+    } else {
+      pool = kanaList(kanaScript);
+    }
     // Weight unmet letters heaviest, shaky ones next, solid ones lightest.
-    const pool = kanaList(kanaScript);
     const weighted = [];
     for (const item of pool) {
       const s = prog.kana[item.ch] || 0;
