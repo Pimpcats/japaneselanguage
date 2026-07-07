@@ -162,7 +162,7 @@
 <body>
 <div class="stage">
   <h1 class="page">夜市 の いっせん — the night-market duel</h1>
-  <p class="page">Tap a card to summon · buff with an adjective · cast a verb by choosing its particle · speak full sentences (🗣) for big hits. Ring the bell to strike.</p>
+  <p class="page">Tap to summon · buff with an adjective · cast a verb on a target · speak full sentences (🗣) for the real Japanese. Ring the bell to strike.</p>
 
   <div class="board">
     <div class="host">
@@ -406,13 +406,11 @@
     });
   }
   function castVerb(lane){
+    // particle + spell-the-verb removed for now — casting is tap verb, tap target
     var v=S.sel.card, idx=S.sel.idx;
     var target=(v.side==='enemy'?S.enemyLanes:S.myLanes)[lane];
-    var fire=function(){ resolveVerb(v, target, lane); S.hand.splice(idx,1); S.sel=null;
-      voice(target.jp+v.part+v.jp); say(pick(REACT.verb)); hint('Ring the bell when ready.'); render(); };
-    var needPart=!partFluent(v.jp), needSpell=!isFluent(v.jp);
-    if(!needPart && !needSpell){ fire(); return; }       // fully known verb → tap target, done
-    openSentence(target, v, fire, needPart, needSpell);
+    resolveVerb(v, target, lane); S.hand.splice(idx,1); S.sel=null;
+    voice(target.jp+v.part+v.jp); say(pick(REACT.verb)); hint('Ring the bell when ready.'); render();
   }
   function resolveVerb(v, target, lane){
     if(v.eff==='damage'){ dealTo(target, v.amt, v.side==='enemy'?S.enemyLanes:S.myLanes, lane); }
@@ -436,40 +434,6 @@
     renderSpell();
     document.getElementById('prodMic').style.display=S.mic?'':'none';
     document.getElementById('micNote').textContent=S.mic?'Or tap “Say it” and speak the word.':'';
-    document.getElementById('overlay').classList.add('on');
-  }
-  // verb sentence: noun + [particle] + verb. needPart/needSpell phase out as the verb is learned.
-  function openSentence(target, verb, onOk, needPart, needSpell){
-    var correct=verb.part;
-    document.getElementById('gloss').textContent=target.en+' — '+verb.en+' ('+PARTS[correct].gloss+' marker)';
-    var pc=document.getElementById('particles');
-    document.getElementById('prodSlots').innerHTML=''; document.getElementById('prodBank').innerHTML='';
-    document.getElementById('prodMic').style.display='none'; document.getElementById('micNote').textContent='';
-    var pslot = needPart ? '<span class="pslot" id="pslot">？</span>' : '<span class="pslot done">'+correct+'</span>';
-    document.getElementById('sentence').innerHTML=
-      '<span class="tw">'+target.jp+'</span> '+pslot+' <span class="vw">'+verb.jp+'</span>';
-    // stage 2: spell the verb (or finish if it's already fluent)
-    var proceedSpell=function(){
-      if(!needSpell){ document.getElementById('overlay').classList.remove('on'); onOk(); return; }
-      prod={ word:verb.jp, target:kana(verb.jp), filled:[], onOk:function(){ var n=bump(verb.jp,'spell'); onOk(); if(n===FLU) celebrate(verb.jp); } };
-      document.getElementById('prodMode').textContent='Now spell the verb';
-      renderSpell(); document.getElementById('prodMic').style.display=S.mic?'':'none';
-    };
-    if(needPart){
-      document.getElementById('prodMode').textContent='Pick the particle'+(needSpell?', then spell the verb':'');
-      pc.style.display='flex'; pc.innerHTML='';
-      shuffle([correct, correct==='を'?'が':'を']).forEach(function(p){
-        var b=document.createElement('button'); b.className='pbtn'; b.innerHTML=p+'<small>'+PARTS[p].ro+'</small>';
-        b.onclick=function(){
-          if(p===correct){ bump(verb.jp,'part');
-            document.getElementById('pslot').textContent=p; document.getElementById('pslot').className='pslot done';
-            pc.style.display='none'; proceedSpell();
-          } else { b.classList.add('bad'); setTimeout(function(){b.classList.remove('bad');},300);
-            say(pick(REACT.badParticle)); document.getElementById('micNote').textContent='が marks who does it · を marks what it is done to.'; }
-        };
-        pc.appendChild(b);
-      });
-    } else { pc.style.display='none'; proceedSpell(); }
     document.getElementById('overlay').classList.add('on');
   }
   function renderSpell(){
