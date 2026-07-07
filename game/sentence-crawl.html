@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>文くずし · sentence-crawl prototype</title>
+<style>
+  :root{
+    --cream:#fff7ea; --ink:#4a3328; --fg:#4a3328; --muted:#6b5847;
+    --accent:#ef6fa7; --accent-2:#f8a8c6; --on-accent:#5a1f3a;
+    --cobalt:#2e5bcf; --gold:#f2be45; --sky:#79c8ec; --matcha:#8fbf6b;
+    --noun:#dbeafe; --noun-bd:#93c5fd; --noun-fg:#1e3a8a;
+    --verb:#fef3c7; --verb-bd:#fbbf24; --verb-fg:#78350f;
+    --adj:#ede9fe;  --adj-bd:#a78bfa;  --adj-fg:#4c1d95;
+    --part:#e6f6dc; --part-bd:#8fbf6b; --part-fg:#2f5321;
+    --shadow:0 4px 0 var(--ink);
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; }
+  body{ background:radial-gradient(120% 80% at 50% -10%, #3a2b4d 0%, #241a2a 60%);
+    color:var(--fg); font-family:ui-rounded,"Hiragino Maru Gothic ProN",system-ui,-apple-system,sans-serif;
+    min-height:100vh; padding:14px; display:flex; justify-content:center; }
+  .stage{ width:100%; max-width:440px; }
+  h1.page{ color:#ffe9c9; font-size:15px; text-align:center; margin:0 0 3px; font-weight:800; }
+  p.page{ color:#d6b8cf; font-size:12px; text-align:center; margin:0 0 12px; }
+
+  .board{ background:var(--cream); border:3px solid var(--ink); border-radius:24px;
+    box-shadow:0 10px 0 rgba(0,0,0,.35); overflow:hidden; position:relative; }
+
+  .host{ display:flex; gap:10px; align-items:center; padding:9px 12px; background:var(--accent-2); border-bottom:3px solid var(--ink); }
+  .mochi{ width:40px; height:40px; border-radius:50%; background:#fff2f7; border:3px solid var(--ink); box-shadow:0 3px 0 var(--ink); position:relative; flex:0 0 auto; }
+  .mochi::before,.mochi::after{ content:""; position:absolute; top:15px; width:5px; height:7px; background:var(--ink); border-radius:50%; }
+  .mochi::before{ left:11px; } .mochi::after{ right:11px; }
+  .mochi .mo{ position:absolute; top:24px; left:50%; transform:translateX(-50%); width:10px; height:5px; border:2px solid var(--ink); border-top:0; border-radius:0 0 8px 8px; }
+  .say{ background:#fff; border:2.5px solid var(--ink); border-radius:12px; padding:5px 10px; box-shadow:0 3px 0 var(--ink); font-weight:700; font-size:13px; flex:1; min-height:32px; display:flex; align-items:center; }
+
+  .status{ display:flex; justify-content:space-between; align-items:center; padding:6px 13px; background:#fff; border-bottom:3px solid var(--ink); }
+  .status .heart{ font-weight:800; color:#b3261e; font-variant-numeric:tabular-nums; font-size:15px; }
+  .status .enc{ font-size:11px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+
+  /* enemy crawl track */
+  .track{ padding:10px 12px 4px; }
+  .foeCard{ display:flex; align-items:center; gap:9px; margin-bottom:8px; }
+  .foeEmoji{ font-size:30px; }
+  .foeInfo{ flex:1; }
+  .foeName{ font-weight:800; font-size:14px; }
+  .hpbar{ height:9px; border:2px solid var(--ink); border-radius:6px; background:#fff; overflow:hidden; margin-top:3px; }
+  .hpbar i{ display:block; height:100%; background:#e0554e; }
+  .armor{ display:inline-block; font-size:10px; font-weight:800; border:2px solid var(--ink); border-radius:7px; padding:0 6px; background:var(--gold); margin-left:6px; }
+  .lane{ display:flex; gap:5px; align-items:center; }
+  .cell{ flex:1; height:34px; border:2px dashed #cbb493; border-radius:9px; display:grid; place-items:center; position:relative; }
+  .cell.frameZone{ border-style:solid; border-color:var(--accent); background:#ffeef5; font-size:10px; font-weight:800; color:var(--accent); }
+  .foeTok{ font-size:22px; animation:bob 1.2s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+  .laneHint{ text-align:center; font-size:10px; color:var(--muted); margin-top:3px; font-weight:700; }
+
+  /* sentence frame */
+  .frameWrap{ padding:6px 12px 4px; }
+  .frameLabel{ font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); text-align:center; margin-bottom:5px; }
+  .frame{ display:flex; gap:6px; justify-content:center; align-items:stretch; flex-wrap:wrap; }
+  .slot{ min-width:62px; min-height:62px; border:2.5px dashed #cbb493; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3px; position:relative; }
+  .slot .slab{ font-size:9px; font-weight:800; color:var(--muted); }
+  .slot.noun{ border-color:var(--noun-bd); } .slot.verb{ border-color:var(--verb-bd); }
+  .slot.adj{ border-color:var(--adj-bd); } .slot.part{ border-color:var(--part-bd); }
+  .slot.filled{ border-style:solid; cursor:pointer; }
+  .wc{ width:100%; border:2.5px solid var(--ink); border-radius:10px; box-shadow:0 3px 0 var(--ink); padding:5px 3px 4px; text-align:center; background:#fff; }
+  .wc.noun{ background:var(--noun); } .wc.verb{ background:var(--verb); } .wc.adj{ background:var(--adj); } .wc.part{ background:var(--part); }
+  .wc .jp{ font-size:16px; font-weight:800; line-height:1; } .wc .ro{ font-size:8px; color:var(--muted); }
+  .wc .pw{ font-size:10px; font-weight:800; color:var(--verb-fg); }
+  .wc .pw.buff{ color:var(--adj-fg); }
+
+  .preview{ text-align:center; margin:8px 0 2px; font-weight:800; font-size:14px; min-height:20px; }
+  .preview .dmg{ color:#b3261e; } .preview .warn{ color:#b9791b; font-size:12px; }
+  .preview .ok{ color:#1a7a3c; }
+
+  .actions{ display:flex; gap:8px; padding:6px 12px 2px; }
+  .btn{ flex:1; font:inherit; font-weight:800; font-size:14px; border:3px solid var(--ink); border-radius:12px; padding:10px; cursor:pointer; box-shadow:var(--shadow); background:#fff; color:var(--ink); transition:transform .1s, box-shadow .1s; }
+  .btn:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
+  .btn.speak{ background:var(--accent); color:var(--on-accent); }
+  .btn.speak:disabled{ background:#eee; color:#aaa; box-shadow:0 4px 0 #ccc; cursor:default; }
+  .btn.redraw{ flex:0 0 auto; color:var(--muted); }
+
+  .handWrap{ background:#fbeecf; border-top:3px solid var(--ink); padding:8px 10px 12px; margin-top:6px; }
+  .handHead{ font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin-bottom:5px; display:flex; justify-content:space-between; }
+  .hand{ display:flex; gap:7px; overflow-x:auto; padding-bottom:3px; }
+  .hand .wc{ width:66px; flex:0 0 auto; cursor:pointer; transition:transform .1s, box-shadow .1s; }
+  .hand .wc:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
+  .hand .wc.dim{ opacity:.34; }
+  .hand .wc .en{ font-size:9px; font-weight:700; }
+  .hand .wc .tp{ font-size:8px; font-weight:800; text-transform:uppercase; color:var(--muted); }
+
+  .float{ position:absolute; font-weight:800; font-size:20px; pointer-events:none; z-index:6; animation:up .8s ease forwards; }
+  @keyframes up{ to{ transform:translateY(-30px); opacity:0 } }
+  .bad{ animation:shake .3s; } @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+
+  .end{ position:absolute; inset:0; background:rgba(36,26,42,.85); display:none; z-index:20; align-items:center; justify-content:center; padding:24px; }
+  .end.on{ display:flex; }
+  .end .c2{ background:var(--cream); border:3px solid var(--ink); border-radius:22px; box-shadow:0 8px 0 var(--ink); padding:22px 20px; text-align:center; max-width:300px; }
+  .end .c2 .big{ font-size:40px; } .end .c2 h3{ margin:6px 0; font-size:22px; } .end .c2 p{ color:var(--muted); font-size:13px; margin:0 0 16px; }
+  @media (prefers-reduced-motion:reduce){ *{ animation:none !important; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1 class="page">文くずし — build the sentence before it reaches you</h1>
+  <p class="page">Tap word-cards into the slots to form a sentence. Bigger, correct sentences hit harder. Some foes only take damage from the right grammar. 🗣 Speak to strike.</p>
+
+  <div class="board">
+    <div class="host">
+      <div class="mochi"><span class="mo"></span></div>
+      <div class="say" id="say"></div>
+    </div>
+    <div class="status"><span class="heart">❤ <span id="heart">10</span></span><span class="enc" id="enc"></span></div>
+
+    <div class="track">
+      <div class="foeCard">
+        <div class="foeEmoji" id="foeEmoji">👾</div>
+        <div class="foeInfo">
+          <div class="foeName"><span id="foeName">スライム</span><span class="armor" id="foeArmor" style="display:none"></span></div>
+          <div class="hpbar"><i id="foeHp"></i></div>
+        </div>
+      </div>
+      <div class="lane" id="lane"></div>
+      <div class="laneHint">◀ it crawls one step toward your sentence each turn</div>
+    </div>
+
+    <div class="frameWrap">
+      <div class="frameLabel" id="frameLabel"></div>
+      <div class="frame" id="frame"></div>
+      <div class="preview" id="preview"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn speak" id="speak" disabled>🗣 Speak</button>
+      <button class="btn redraw" id="redraw">↻ Redraw</button>
+    </div>
+
+    <div class="handWrap">
+      <div class="handHead"><span>Your words</span><span id="deckCount"></span></div>
+      <div class="hand" id="hand"></div>
+    </div>
+
+    <div class="end" id="end"><div class="c2">
+      <div class="big" id="endEmoji">🎉</div>
+      <h3 id="endTitle"></h3>
+      <p id="endText"></p>
+      <button class="btn speak" id="again" style="box-shadow:0 4px 0 var(--ink)">Again</button>
+    </div></div>
+  </div>
+  <p class="page" style="margin-top:12px">Prototype · Stage 1 → Stage 2 · numbers &amp; art are placeholders</p>
+</div>
+
+<script>
+(function(){
+  var TRACK=4;
+  function rand(n){ return Math.floor(Math.random()*n); }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=rand(i+1),t=a[i];a[i]=a[j];a[j]=t;} return a; }
+  function pick(a){ return a[rand(a.length)]; }
+  function say(t){ document.getElementById('say').textContent=t; }
+  function voice(jp){ try{ if(window.speechSynthesis){ var u=new SpeechSynthesisUtterance(jp); u.lang='ja-JP'; u.rate=.95; speechSynthesis.cancel(); speechSynthesis.speak(u);} }catch(e){} }
+
+  // word cards: t=type, pw=power (adj power = the buff it grants a noun)
+  var WORDS = [
+    {jp:'みず', ro:'mizu', en:'water', t:'noun', pw:1},
+    {jp:'くま', ro:'kuma', en:'bear',  t:'noun', pw:4},
+    {jp:'とり', ro:'tori', en:'bird',  t:'noun', pw:2},
+    {jp:'さかな',ro:'sakana',en:'fish', t:'noun', pw:1},
+    {jp:'いぬ', ro:'inu',  en:'dog',   t:'noun', pw:2},
+    {jp:'のむ', ro:'nomu', en:'drink', t:'verb', pw:2},
+    {jp:'たおす',ro:'taosu',en:'defeat',t:'verb', pw:3},
+    {jp:'みる', ro:'miru', en:'see',   t:'verb', pw:1},
+    {jp:'たべる',ro:'taberu',en:'eat', t:'verb', pw:2},
+    {jp:'つめたい',ro:'tsumetai',en:'cold', t:'adj', pw:2},
+    {jp:'つよい', ro:'tsuyoi', en:'strong',t:'adj', pw:3},
+    {jp:'おおきい',ro:'ookii', en:'big',  t:'adj', pw:2},
+    {jp:'あかい', ro:'akai',  en:'red',   t:'adj', pw:1},
+    {jp:'を', ro:'wo', en:'(object)', t:'part', pw:0},
+    {jp:'は', ro:'wa', en:'(topic)',  t:'part', pw:0},
+    {jp:'が', ro:'ga', en:'(subject)',t:'part', pw:0}
+  ];
+  function card(w){ var c={}; for(var k in w) c[k]=w[k]; c.id='c'+rand(1e9); return c; }
+  var TLAB={ noun:'名 noun', verb:'動 verb', adj:'形 adj', part:'助 particle' };
+
+  // slot patterns
+  var S1=[{t:'noun'},{t:'part',need:'を'},{t:'verb'}];
+  var S2=[{t:'adj'},{t:'noun'},{t:'part',need:'を'},{t:'verb'}];
+
+  var ENCOUNTERS=[
+    {slots:S1, foe:{name:'スライム', emoji:'👾', hp:5, power:2, speed:1, armor:null}},
+    {slots:S1, foe:{name:'スライム', emoji:'🟣', hp:6, power:2, speed:1, armor:null}},
+    {slots:S2, foe:{name:'よろい おに', emoji:'👹', hp:9, power:3, speed:1, armor:'adj'}}
+  ];
+
+  var S={};
+  function buildDeck(){ var d=[]; WORDS.forEach(function(w){
+    var n = w.t==='part' ? (w.jp==='を'?3:2) : 2;
+    for(var i=0;i<n;i++) d.push(card(w));
+  }); return shuffle(d); }
+  function newGame(){
+    S={ heart:10, idx:0, frame:[], hand:[], deck:buildDeck(), discard:[], foe:null, over:false };
+    loadEncounter();
+    drawUp();
+    document.getElementById('end').classList.remove('on');
+    say('こんばんは… ふふ、ぶんを くずしに きたね？ 🌙');
+    render();
+  }
+  function loadEncounter(){
+    var e=ENCOUNTERS[S.idx];
+    S.slots=e.slots; S.frame=e.slots.map(function(){return null;});
+    S.foe={ name:e.foe.name, emoji:e.foe.emoji, hp:e.foe.hp, maxhp:e.foe.hp, power:e.foe.power, speed:e.foe.speed, armor:e.foe.armor, pos:TRACK };
+  }
+  function drawUp(){ while(S.hand.length<7){ if(!S.deck.length){ S.deck=shuffle(S.discard); S.discard=[]; } if(!S.deck.length) break; S.hand.push(S.deck.shift()); } }
+
+  /* ---- scoring ---- */
+  function structComplete(){ return S.frame.every(function(c,i){ return c && c.t===S.slots[i].t; }); }
+  function score(){
+    var base=0, particleOk=true, hasAdj=false, hasObj=false;
+    for(var i=0;i<S.slots.length;i++){
+      var c=S.frame[i], t=S.slots[i].t; if(!c) continue;
+      if(t==='noun'){ var buff=(i>0 && S.slots[i-1].t==='adj' && S.frame[i-1])?S.frame[i-1].pw:0; base+=c.pw+buff; }
+      else if(t==='verb'){ base+=c.pw; }
+      else if(t==='adj'){ hasAdj=true; }
+      else if(t==='part'){ if(c.jp!==S.slots[i].need) particleOk=false; if(c.jp==='を') hasObj=true; }
+    }
+    return { base:base, particleOk:particleOk, hasAdj:hasAdj, hasObj:hasObj };
+  }
+  function sentenceStr(){ return S.frame.map(function(c){return c?c.jp:'';}).join(''); }
+
+  /* ---- render ---- */
+  function render(){
+    document.getElementById('heart').textContent=S.heart;
+    document.getElementById('enc').textContent='てき '+(S.idx+1)+' / '+ENCOUNTERS.length;
+    // foe
+    document.getElementById('foeEmoji').textContent=S.foe.emoji;
+    document.getElementById('foeName').textContent=S.foe.name;
+    var ar=document.getElementById('foeArmor');
+    if(S.foe.armor==='adj'){ ar.style.display=''; ar.textContent='🛡 needs 形 adjective'; } else ar.style.display='none';
+    document.getElementById('foeHp').style.width=Math.max(0,100*S.foe.hp/S.foe.maxhp)+'%';
+    // lane
+    var lane=document.getElementById('lane'); lane.innerHTML='';
+    for(var i=0;i<=TRACK;i++){
+      var cell=document.createElement('div'); cell.className='cell'+(i===0?' frameZone':'');
+      if(i===0) cell.textContent='文';
+      if(i===S.foe.pos){ var tok=document.createElement('div'); tok.className='foeTok'; tok.textContent=S.foe.emoji; cell.appendChild(tok); }
+      lane.appendChild(cell);
+    }
+    // frame
+    document.getElementById('frameLabel').textContent=S.slots.map(function(s){return TLAB[s.t].split(' ')[0];}).join(' ＋ ');
+    var fr=document.getElementById('frame'); fr.innerHTML='';
+    S.slots.forEach(function(s,i){
+      var el=document.createElement('div'); el.className='slot '+s.t+(S.frame[i]?' filled':'');
+      if(S.frame[i]){ el.appendChild(wcEl(S.frame[i], s, i, true)); el.onclick=function(){ unplace(i); }; }
+      else { el.innerHTML='<span class="slab">'+TLAB[s.t]+'</span>'; }
+      fr.appendChild(el);
+    });
+    // preview
+    var pv=document.getElementById('preview'), sp=document.getElementById('speak');
+    if(structComplete()){
+      var sc=score(); var msg;
+      if(!sc.particleOk){ msg='<span class="warn">⚠ wrong particle — it will misfire</span>'; }
+      else if(S.foe.armor==='adj' && !sc.hasAdj){ msg='<span class="warn">⚠ this foe needs an adjective — 0 dmg</span>'; }
+      else { msg='<span class="ok">'+sentenceStr()+'</span> → <span class="dmg">⚔ '+sc.base+'</span>'; }
+      pv.innerHTML=msg; sp.disabled=false;
+    } else { pv.innerHTML='<span style="color:var(--muted);font-weight:700;font-size:12px">fill every slot to speak</span>'; sp.disabled=true; }
+    // hand
+    var h=document.getElementById('hand'); h.innerHTML='';
+    var openTypes={}; S.slots.forEach(function(s,i){ if(!S.frame[i]) openTypes[s.t]=true; });
+    S.hand.forEach(function(c,idx){
+      var el=wcEl(c,null,idx,false); if(!openTypes[c.t]) el.classList.add('dim');
+      el.onclick=function(){ place(idx); }; h.appendChild(el);
+    });
+    document.getElementById('deckCount').textContent='やま '+S.deck.length;
+  }
+  function wcEl(c, slot, i, inFrame){
+    var el=document.createElement('div'); el.className='wc '+c.t;
+    var pw='';
+    if(c.t==='verb'||c.t==='noun') pw='<span class="pw">⚔'+c.pw+'</span>';
+    else if(c.t==='adj') pw='<span class="pw buff">+'+c.pw+'</span>';
+    el.innerHTML=(inFrame?'':'<span class="tp">'+({noun:'名',verb:'動',adj:'形',part:'助'})[c.t]+'</span>')+
+      '<span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span>'+
+      (inFrame?'':'<span class="en">'+c.en+'</span>')+pw;
+    return el;
+  }
+
+  /* ---- placing ---- */
+  function place(handIdx){
+    if(S.over) return; var c=S.hand[handIdx];
+    for(var i=0;i<S.slots.length;i++){ if(S.slots[i].t===c.t && !S.frame[i]){ S.frame[i]=c; S.hand.splice(handIdx,1); render(); return; } }
+    say('その ことばは この ぶんに はいらない よ。'); // wrong type / no open slot
+  }
+  function unplace(i){ if(S.over||!S.frame[i]) return; S.hand.push(S.frame[i]); S.frame[i]=null; render(); }
+
+  /* ---- turn ---- */
+  document.getElementById('speak').onclick=function(){
+    if(S.over || !structComplete()) return;
+    var sc=score();
+    if(!sc.particleOk){ say('その 助詞 は ちがう！ を は もくてきご に つく。'); frameShake(); foeAdvance(); return; }
+    if(S.foe.armor==='adj' && !sc.hasAdj){ say('この おに は かたい… 形容詞 で つよく しないと！'); clang(); foeAdvance(); return; }
+    var dmg=sc.base, str=sentenceStr();
+    S.foe.hp-=dmg; voice(str); say('『'+str+'』！ ‑'+dmg);
+    floatFoe('‑'+dmg);
+    // consume placed cards
+    S.frame.forEach(function(c){ if(c) S.discard.push(c); }); S.frame=S.slots.map(function(){return null;});
+    drawUp();
+    if(S.foe.hp<=0){ defeatFoe(); return; }
+    foeAdvance(); render();
+  };
+  document.getElementById('redraw').onclick=function(){
+    if(S.over) return;
+    S.frame.forEach(function(c){ if(c) S.hand.push(c); }); S.frame=S.slots.map(function(){return null;});
+    S.discard=S.discard.concat(S.hand); S.hand=[]; drawUp();
+    say('ひきなおし…'); foeAdvance(); render();
+  };
+  function foeAdvance(){
+    S.foe.pos-=S.foe.speed;
+    if(S.foe.pos<=0){
+      S.heart-=S.foe.power; floatHeart(S.foe.power);
+      var filled=[]; S.frame.forEach(function(c,i){ if(c) filled.push(i); });
+      if(filled.length){ var i=pick(filled); S.hand.push(S.frame[i]); S.frame[i]=null; say('スクランブル！ ことばを ひとつ うばった！'); }
+      else say('やられた！ ‑'+S.foe.power+' ❤');
+      S.foe.pos=TRACK;
+      if(S.heart<=0){ endGame(false); return; }
+    }
+    render();
+    if(S.heart<=0) endGame(false);
+  }
+  function defeatFoe(){
+    say('たおした！ ✨');
+    S.idx++;
+    if(S.idx>=ENCOUNTERS.length){ endGame(true); return; }
+    loadEncounter(); drawUp(); render();
+    if(S.slots===S2) say('つぎは… よろいの おに。 形容詞 が いる よ！');
+  }
+  function endGame(win){
+    S.over=true;
+    document.getElementById('endEmoji').textContent=win?'🏮':'🌸';
+    document.getElementById('endTitle').textContent=win?'クリア！':'まけ… gentle loss';
+    document.getElementById('endText').textContent=win
+      ? 'You crumbled every foe with grammar. Stamp earned 🏮 — the district lights up.'
+      : 'No harm done — the tale resets. What you learned stays with you.';
+    document.getElementById('end').classList.add('on');
+  }
+
+  /* ---- fx ---- */
+  function boardRect(){ return document.querySelector('.board').getBoundingClientRect(); }
+  function spawnFloat(x,y,txt,color){ var f=document.createElement('div'); f.className='float'; f.textContent=txt; f.style.left=x+'px'; f.style.top=y+'px'; f.style.color=color; document.querySelector('.board').appendChild(f); setTimeout(function(){ f.remove(); },800); }
+  function floatFoe(txt){ var el=document.getElementById('foeEmoji').getBoundingClientRect(), p=boardRect(); spawnFloat(el.left-p.left+10, el.top-p.top, txt, '#b3261e'); }
+  function floatHeart(dmg){ var el=document.getElementById('heart').parentNode.getBoundingClientRect(), p=boardRect(); spawnFloat(el.left-p.left, el.top-p.top, '‑'+dmg, '#b3261e'); }
+  function frameShake(){ var f=document.getElementById('frame'); f.classList.add('bad'); setTimeout(function(){ f.classList.remove('bad'); },300); }
+  function clang(){ frameShake(); floatFoe('🛡0'); }
+
+  document.getElementById('again').onclick=newGame;
+  newGame();
+})();
+</script>
+</body>
+</html>
