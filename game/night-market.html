@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>夜市 · night-market card duel</title>
+<style>
+  :root{
+    --cream:#fff7ea; --ink:#4a3328; --fg:#4a3328; --muted:#6b5847;
+    --accent:#ef6fa7; --accent-2:#f8a8c6; --on-accent:#5a1f3a;
+    --cobalt:#2e5bcf; --gold:#f2be45; --sky:#79c8ec; --matcha:#8fbf6b;
+    --n-bg:#dbeafe; --n-bd:#93c5fd; --n-fg:#1e3a8a;
+    --adj-bg:#ede9fe; --adj-bd:#a78bfa; --adj-fg:#4c1d95;
+    --v-bg:#fef3c7; --v-bd:#fbbf24; --v-fg:#78350f;
+    --shadow:0 4px 0 var(--ink);
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; }
+  body{ background:radial-gradient(120% 80% at 50% -10%, #57324d 0%, #2a1d2a 60%);
+    color:var(--fg); font-family:ui-rounded,"Hiragino Maru Gothic ProN",system-ui,-apple-system,sans-serif;
+    min-height:100vh; padding:16px; display:flex; justify-content:center; }
+  .stage{ width:100%; max-width:440px; }
+  h1.page{ color:#ffe9c9; font-size:15px; text-align:center; margin:0 0 3px; font-weight:800; }
+  p.page{ color:#d6b8cf; font-size:12px; text-align:center; margin:0 0 12px; }
+
+  .board{ background:var(--cream); border:3px solid var(--ink); border-radius:26px;
+    box-shadow:0 10px 0 rgba(0,0,0,.35); overflow:hidden; position:relative; }
+
+  .host{ display:flex; gap:10px; align-items:center; padding:10px 12px;
+    background:var(--accent-2); border-bottom:3px solid var(--ink); }
+  .mochi{ width:44px; height:44px; border-radius:50%; background:#fff2f7; border:3px solid var(--ink);
+    box-shadow:0 3px 0 var(--ink); position:relative; flex:0 0 auto; }
+  .mochi::before,.mochi::after{ content:""; position:absolute; top:17px; width:6px; height:8px; background:var(--ink); border-radius:50%; }
+  .mochi::before{ left:12px; } .mochi::after{ right:12px; }
+  .mochi .bl{ position:absolute; top:25px; width:8px; height:5px; border-radius:50%; background:var(--accent-2); }
+  .mochi .bl.l{ left:6px; } .mochi .bl.r{ right:6px; }
+  .mochi .mo{ position:absolute; top:27px; left:50%; transform:translateX(-50%); width:11px; height:6px;
+    border:2px solid var(--ink); border-top:0; border-radius:0 0 9px 9px; }
+  .say{ background:#fff; border:2.5px solid var(--ink); border-radius:13px; padding:6px 11px;
+    box-shadow:0 3px 0 var(--ink); font-weight:700; font-size:14px; flex:1; min-height:34px; display:flex; align-items:center; }
+
+  .hearts{ display:flex; justify-content:space-between; align-items:center; padding:7px 14px;
+    background:#fff; border-bottom:3px solid var(--ink); font-weight:800; }
+  .hearts .side{ display:flex; align-items:center; gap:6px; font-size:14px; }
+  .hearts .hp{ color:#b3261e; font-variant-numeric:tabular-nums; }
+  .hearts .lab{ color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
+
+  .lanes{ padding:10px; }
+  .row{ display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
+  .divider{ height:0; border-top:2px dashed #d8c4a4; margin:11px 2px; }
+  .slot{ height:98px; border:2.5px dashed #cbb493; border-radius:14px; display:grid; place-items:center;
+    position:relative; transition:border-color .15s, background .15s; }
+  .slot.enemy{ background:#faf1f4; } .slot.mine{ background:#f2f7ec; }
+  .slot.targetable{ border-color:var(--accent); border-style:solid; background:#ffeef5; cursor:pointer; }
+  .slot.buffable{ border-color:var(--adj-bd); border-style:solid; cursor:pointer; }
+  .slot.hittable{ border-color:#e0554e; border-style:solid; background:#ffecea; cursor:pointer; }
+  .slot.friend{ border-color:var(--matcha); border-style:solid; background:#eef7e6; cursor:pointer; }
+
+  .creature{ width:100%; height:100%; border:3px solid var(--ink); border-radius:12px; background:#fff;
+    box-shadow:var(--shadow); position:relative; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:1px; padding:4px; }
+  .creature.n{ background:var(--n-bg); }
+  .creature .em{ font-size:26px; line-height:1; }
+  .creature .jp{ font-size:15px; font-weight:800; line-height:1; }
+  .creature .ro{ font-size:9px; color:var(--muted); }
+  .creature .stat{ position:absolute; bottom:-8px; width:22px; height:22px; border-radius:50%;
+    border:2.5px solid var(--ink); display:grid; place-items:center; font-size:12px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .creature .atk{ left:-7px; background:var(--v-bg); color:var(--v-fg); }
+  .creature .def{ right:-7px; background:#ffe1e1; color:#7f1d1d; }
+  .creature.hit{ animation:shake .3s; } .creature.lunge{ animation:lunge .45s; }
+  @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  @keyframes lunge{ 0%{transform:translateY(0)} 45%{transform:translateY(-14px) scale(1.06)} 100%{transform:translateY(0)} }
+  .buffTag{ position:absolute; top:-9px; left:50%; transform:translateX(-50%); font-size:9px; font-weight:800;
+    background:var(--adj-bg); border:2px solid var(--ink); border-radius:7px; padding:0 5px; white-space:nowrap; }
+  .shield{ position:absolute; top:-9px; right:-6px; font-size:14px; filter:drop-shadow(0 1px 0 var(--ink)); }
+
+  .tray{ background:#fbeecf; border-top:3px solid var(--ink); padding:9px 10px 12px; }
+  .trayHead{ display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
+  .trayHead .h{ font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+  .hand{ display:flex; gap:8px; overflow-x:auto; padding-bottom:3px; }
+  .card{ flex:0 0 auto; width:80px; border:3px solid var(--ink); border-radius:12px; background:#fff;
+    box-shadow:var(--shadow); padding:8px 5px 6px; text-align:center; cursor:pointer; user-select:none;
+    transition:transform .12s, box-shadow .12s; }
+  .card:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
+  .card.n{ background:var(--n-bg); } .card.adj{ background:var(--adj-bg); } .card.v{ background:var(--v-bg); }
+  .card.sel{ transform:translateY(-8px); box-shadow:0 8px 0 var(--ink),0 0 0 3px var(--accent); }
+  .card .em{ font-size:22px; line-height:1; }
+  .card .jp{ font-size:15px; font-weight:800; } .card .ro{ font-size:9px; color:var(--muted); }
+  .card .en{ font-size:10px; font-weight:700; }
+  .card .mini{ display:flex; justify-content:center; gap:8px; margin-top:3px; font-size:10px; font-weight:800; }
+  .card .mini .a{ color:var(--v-fg); } .card .mini .d{ color:#7f1d1d; }
+  .card .pos{ display:inline-block; font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.05em;
+    border:1.5px solid var(--ink); border-radius:5px; padding:0 4px; margin-bottom:1px; }
+  .card.adj .pos{ color:var(--adj-fg); } .card.v .pos{ color:var(--v-fg); }
+
+  .actions{ display:flex; gap:8px; margin-top:11px; }
+  .btn{ flex:1; font:inherit; font-weight:800; font-size:14px; border:3px solid var(--ink); border-radius:13px;
+    padding:11px; cursor:pointer; box-shadow:var(--shadow); transition:transform .12s, box-shadow .12s; background:#fff; color:var(--ink); }
+  .btn:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
+  .btn.bell{ background:var(--gold); }
+  .btn.ghost{ flex:0 0 auto; color:var(--muted); }
+  .hint{ text-align:center; font-size:12px; color:var(--muted); margin-top:8px; font-weight:700; min-height:16px; }
+
+  .overlay{ position:absolute; inset:0; background:rgba(42,29,42,.55); display:none;
+    align-items:center; justify-content:center; padding:18px; z-index:10; }
+  .overlay.on{ display:flex; }
+  .produce{ background:var(--cream); border:3px solid var(--ink); border-radius:20px; box-shadow:0 8px 0 var(--ink);
+    padding:16px; width:100%; max-width:330px; text-align:center; }
+  .produce h4{ margin:0 0 6px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+  .sentence{ font-size:24px; font-weight:800; margin-bottom:3px; line-height:1.3; }
+  .sentence .pslot{ display:inline-grid; place-items:center; min-width:34px; height:34px; vertical-align:middle;
+    border:2.5px dashed var(--accent); border-radius:9px; margin:0 2px; color:var(--accent); }
+  .sentence .pslot.done{ border-style:solid; border-color:var(--matcha); color:#173d0f; background:#e7f6dc; }
+  .sentence .tw{ color:var(--n-fg); } .sentence .vw{ color:var(--v-fg); }
+  .gloss{ font-size:13px; color:var(--muted); margin-bottom:12px; }
+  .particles{ display:flex; gap:8px; justify-content:center; margin-bottom:6px; }
+  .pbtn{ min-width:52px; font:inherit; font-size:20px; font-weight:800; border:3px solid var(--ink); border-radius:11px;
+    background:#fff; box-shadow:0 3px 0 var(--ink); padding:7px 10px; cursor:pointer; }
+  .pbtn small{ display:block; font-size:9px; color:var(--muted); font-weight:700; }
+  .pbtn:active{ transform:translateY(3px); box-shadow:0 0 0 var(--ink); }
+  .pbtn.bad{ animation:shake .3s; }
+  .slots2{ display:flex; gap:6px; justify-content:center; margin:4px 0 12px; flex-wrap:wrap; }
+  .kslot{ width:38px; height:44px; border:2.5px solid var(--ink); border-radius:10px; background:#fff;
+    display:grid; place-items:center; font-size:21px; font-weight:800; }
+  .kslot.filled{ background:var(--matcha); color:#173d0f; }
+  .kbank{ display:flex; gap:7px; justify-content:center; flex-wrap:wrap; margin-bottom:8px; }
+  .kbtn{ width:44px; height:48px; border:3px solid var(--ink); border-radius:11px; background:#fff;
+    font:inherit; font-size:22px; font-weight:800; box-shadow:0 3px 0 var(--ink); cursor:pointer; }
+  .kbtn:active{ transform:translateY(3px); box-shadow:0 0 0 var(--ink); }
+  .kbtn.bad{ animation:shake .3s; }
+  .prow{ display:flex; gap:8px; margin-top:6px; }
+  .prow .mic{ background:var(--accent); color:var(--on-accent); }
+  .prow .cancel{ color:var(--muted); }
+  .micNote{ font-size:11px; color:var(--muted); margin-top:8px; min-height:14px; }
+
+  .float{ position:absolute; font-weight:800; font-size:20px; pointer-events:none; z-index:6;
+    animation:up .8s ease forwards; }
+  @keyframes up{ to{ transform:translateY(-34px); opacity:0 } }
+  .end{ position:absolute; inset:0; background:rgba(42,29,42,.82); display:none; z-index:20;
+    align-items:center; justify-content:center; padding:24px; }
+  .end.on{ display:flex; }
+  .end .card2{ background:var(--cream); border:3px solid var(--ink); border-radius:22px; box-shadow:0 8px 0 var(--ink);
+    padding:22px 20px; text-align:center; max-width:300px; }
+  .end .card2 .big{ font-size:40px; } .end .card2 h3{ margin:6px 0; font-size:22px; }
+  .end .card2 p{ color:var(--muted); font-size:14px; margin:0 0 16px; }
+  @media (prefers-reduced-motion:reduce){ *{ animation:none !important; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1 class="page">夜市 の いっせん — the night-market duel</h1>
+  <p class="page">Summon by spelling a word · buff with an adjective · cast a verb by choosing its particle. Ring the bell to strike.</p>
+
+  <div class="board">
+    <div class="host">
+      <div class="mochi"><span class="bl l"></span><span class="bl r"></span><span class="mo"></span></div>
+      <div class="say" id="say"></div>
+    </div>
+    <div class="hearts">
+      <div class="side"><span class="lab">もち子</span> <span class="hp">❤ <span id="enemyHp">12</span></span></div>
+      <div class="side"><span class="hp">❤ <span id="myHp">12</span></span> <span class="lab">you</span></div>
+    </div>
+    <div class="lanes">
+      <div class="row" id="enemyRow"></div>
+      <div class="divider"></div>
+      <div class="row" id="myRow"></div>
+    </div>
+    <div class="tray">
+      <div class="trayHead"><span class="h" id="phaseLabel">Your move</span><span class="h" id="deckCount"></span></div>
+      <div class="hand" id="hand"></div>
+      <div class="actions">
+        <button class="btn bell" id="bell">🔔 Ring the bell</button>
+        <button class="btn ghost" id="micToggle">🎤 off</button>
+      </div>
+      <div class="hint" id="hint"></div>
+    </div>
+
+    <div class="overlay" id="overlay">
+      <div class="produce">
+        <h4 id="prodMode">Spell it</h4>
+        <div class="sentence" id="sentence"></div>
+        <div class="gloss" id="gloss"></div>
+        <div class="particles" id="particles" style="display:none"></div>
+        <div class="slots2" id="prodSlots"></div>
+        <div class="kbank" id="prodBank"></div>
+        <div class="prow">
+          <button class="btn mic" id="prodMic" style="display:none">🎤 Say it</button>
+          <button class="btn cancel" id="prodCancel">Cancel</button>
+        </div>
+        <div class="micNote" id="micNote"></div>
+      </div>
+    </div>
+
+    <div class="end" id="end"><div class="card2">
+      <div class="big" id="endEmoji">🎉</div>
+      <h3 id="endTitle"></h3>
+      <p id="endText"></p>
+      <button class="btn bell" id="again">Again</button>
+    </div></div>
+  </div>
+  <p class="page" style="margin-top:12px">Prototype · numbers &amp; art are placeholders · device voice stands in for もち子さん's clips</p>
+</div>
+
+<script>
+(function(){
+  /* ---------- content ---------- */
+  var NOUNS = [
+    {jp:'ねこ', ro:'neko', en:'cat',  em:'🐈', pow:2, hp:2},
+    {jp:'いぬ', ro:'inu',  en:'dog',  em:'🐕', pow:2, hp:3},
+    {jp:'とり', ro:'tori', en:'bird', em:'🐦', pow:3, hp:1},
+    {jp:'さかな',ro:'sakana',en:'fish',em:'🐟', pow:1, hp:2},
+    {jp:'くま', ro:'kuma', en:'bear', em:'🐻', pow:4, hp:4},
+    {jp:'うま', ro:'uma',  en:'horse',em:'🐴', pow:3, hp:3}
+  ];
+  var ADJS = [
+    {jp:'つよい', ro:'tsuyoi', en:'strong', pow:2, hp:0, tag:'+2 ⚔'},
+    {jp:'おおきい',ro:'ookii', en:'big',    pow:0, hp:2, tag:'+2 ♥'}
+  ];
+  // verbs: part = the correct particle; trans = takes を(object) vs intrans = takes が(subject)
+  var VERBS = [
+    {jp:'たおす', ro:'taosu', en:'defeat',  part:'を', eff:'damage', amt:3, side:'enemy'},
+    {jp:'まもる', ro:'mamoru', en:'protect', part:'を', eff:'shield', amt:2, side:'mine'},
+    {jp:'はしる', ro:'hashiru', en:'run',    part:'が', eff:'haste',  amt:0, side:'mine'}
+  ];
+  var PARTS = {
+    'を':{ro:'wo', gloss:'object'},
+    'が':{ro:'ga', gloss:'subject'}
+  };
+  var KANA_DECOYS = ['な','の','ち','そ','け','む','れ','ろ','ほ','せ','ぬ','ら','め','ふ','き','こ','し','て'];
+
+  var REACT = {
+    summon:['ほう！','いいね！','くる…！','やるね〜'],
+    verb:['やった！','こうげき！','すごい わざ！'],
+    hitEnemy:['いたっ！','うぐ…','まいった…'],
+    hitYou:['えいっ！','がおー','どう？'],
+    win:['まいりました！ じょうず！','あなたの かち！ すごい！'],
+    lose:['ふふ、わたしの かち♪','また あそ ぼうね！'],
+    badParticle:['ちがう particle だよ〜','うーん、ちがう かな？','その particle じゃ ないよ']
+  };
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function say(t){ document.getElementById('say').textContent=t; }
+  function voice(jp){ try{ if(window.speechSynthesis){ var u=new SpeechSynthesisUtterance(jp); u.lang='ja-JP'; u.rate=.95; speechSynthesis.cancel(); speechSynthesis.speak(u);} }catch(e){} }
+
+  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;} return a; }
+  function rid(){ return 'c'+Math.floor(Math.random()*1e9); }
+  function kana(s){ return Array.prototype.filter.call(s,function(c){return c.trim();}); }
+  function mkCard(def,kind){ var c=clone(def); c.kind=kind; c.id=rid(); return c; }
+  function liveCreature(def){ var c=clone(def); c.maxhp=c.hp; c.buff=null; c.shield=0; c.el=null; return c; }
+
+  var S={};
+  function newGame(){
+    S={ enemyHp:12, myHp:12, enemyLanes:[null,null,null], myLanes:[null,null,null],
+        hand:[], deck:[], sel:null, busy:false, over:false, mic:false };
+    var pool=[];
+    NOUNS.forEach(function(n){ pool.push(mkCard(n,'n')); pool.push(mkCard(n,'n')); });
+    ADJS.forEach(function(a){ pool.push(mkCard(a,'adj')); });
+    VERBS.forEach(function(v){ pool.push(mkCard(v,'v')); });
+    pool=shuffle(pool);
+    S.hand=pool.slice(0,5); S.deck=pool.slice(5);
+    S.enemyLanes[1]=liveCreature(pick(NOUNS));
+    document.getElementById('end').classList.remove('on');
+    say('こんばんは！ わたしと しょうぶ しましょう？ 🌙');
+    hint('Tap a card to begin.');
+    render();
+  }
+  function refillDeck(){ var p=[]; NOUNS.forEach(function(n){p.push(mkCard(n,'n'));}); ADJS.forEach(function(a){p.push(mkCard(a,'adj'));}); VERBS.forEach(function(v){p.push(mkCard(v,'v'));}); S.deck=shuffle(p); }
+  function draw(){ if(!S.deck.length) refillDeck(); if(S.deck.length) S.hand.push(S.deck.shift()); }
+
+  /* ---------- render ---------- */
+  function creatureEl(cr){
+    var d=document.createElement('div'); d.className='creature n';
+    d.innerHTML=(cr.buff?'<span class="buffTag">'+cr.buff+'</span>':'')+
+      (cr.shield?'<span class="shield">🛡'+cr.shield+'</span>':'')+
+      '<span class="em">'+cr.em+'</span><span class="jp">'+cr.jp+'</span><span class="ro">'+cr.ro+'</span>'+
+      '<span class="stat atk">'+cr.pow+'</span><span class="stat def">'+cr.hp+'</span>';
+    cr.el=d; return d;
+  }
+  function render(){
+    document.getElementById('enemyHp').textContent=S.enemyHp;
+    document.getElementById('myHp').textContent=S.myHp;
+    document.getElementById('deckCount').textContent='やま '+S.deck.length;
+    var er=document.getElementById('enemyRow'), mr=document.getElementById('myRow');
+    er.innerHTML=''; mr.innerHTML='';
+    for(var i=0;i<3;i++){
+      var es=document.createElement('div'); es.className='slot enemy'; es.dataset.lane=i;
+      if(S.enemyLanes[i]) es.appendChild(creatureEl(S.enemyLanes[i]));
+      er.appendChild(es);
+      var ms=document.createElement('div'); ms.className='slot mine'; ms.dataset.lane=i;
+      if(S.myLanes[i]) ms.appendChild(creatureEl(S.myLanes[i]));
+      mr.appendChild(ms);
+    }
+    applySelectionHighlights();
+    var h=document.getElementById('hand'); h.innerHTML='';
+    S.hand.forEach(function(c,idx){
+      var el=document.createElement('div'); el.className='card '+c.kind+(S.sel&&S.sel.idx===idx?' sel':'');
+      if(c.kind==='n'){
+        el.innerHTML='<span class="em">'+c.em+'</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span>'+
+          '<div class="mini"><span class="a">⚔'+c.pow+'</span><span class="d">♥'+c.hp+'</span></div>';
+      } else if(c.kind==='adj'){
+        el.innerHTML='<span class="pos">adj</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span>'+
+          '<span class="en">'+c.en+'</span><div class="mini">'+c.tag+'</div>';
+      } else {
+        el.innerHTML='<span class="pos">verb</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span>'+
+          '<span class="en">'+c.en+'</span><div class="mini">'+verbBlurb(c)+'</div>';
+      }
+      el.onclick=function(){ selectCard(idx); };
+      h.appendChild(el);
+    });
+  }
+  function verbBlurb(v){ return v.eff==='damage'?('⚔'+v.amt+' 敵'):v.eff==='shield'?('🛡'+v.amt):'⚡ now'; }
+  function forEachSlot(cls,fn){ Array.prototype.forEach.call(document.querySelectorAll('.slot.'+cls),function(el){ fn(el,+el.dataset.lane); }); }
+  function applySelectionHighlights(){
+    if(!S.sel) return;
+    if(S.sel.type==='summon'){ forEachSlot('mine',function(el,i){ if(!S.myLanes[i]){ el.classList.add('targetable'); el.onclick=function(){ trySummon(i); }; } }); }
+    else if(S.sel.type==='buff'){ forEachSlot('mine',function(el,i){ if(S.myLanes[i]){ el.classList.add('buffable'); el.onclick=function(){ tryBuff(i); }; } }); }
+    else if(S.sel.type==='verb'){
+      var v=S.sel.card;
+      if(v.side==='enemy'){ forEachSlot('enemy',function(el,i){ if(S.enemyLanes[i]){ el.classList.add('hittable'); el.onclick=function(){ castVerb(i); }; } }); }
+      else { forEachSlot('mine',function(el,i){ if(S.myLanes[i]){ el.classList.add('friend'); el.onclick=function(){ castVerb(i); }; } }); }
+    }
+  }
+  function hint(t){ document.getElementById('hint').textContent=t; }
+
+  /* ---------- select + plays ---------- */
+  function selectCard(idx){
+    if(S.busy||S.over) return;
+    var c=S.hand[idx];
+    if(S.sel&&S.sel.idx===idx){ S.sel=null; hint(''); render(); return; }
+    if(c.kind==='n'){ S.sel={type:'summon',idx:idx,card:c}; hint('Tap a glowing lane to summon '+c.jp+'.'); }
+    else if(c.kind==='adj'){
+      if(!S.myLanes.some(Boolean)){ hint('Summon a creature first, then buff it.'); S.sel=null; render(); return; }
+      S.sel={type:'buff',idx:idx,card:c}; hint('Tap one of your creatures to make it '+c.en+' ('+c.jp+').');
+    } else {
+      var haveTargets = c.side==='enemy'? S.enemyLanes.some(Boolean) : S.myLanes.some(Boolean);
+      if(!haveTargets){ hint(c.side==='enemy'?'No enemy to target yet.':'Summon a creature first.'); S.sel=null; render(); return; }
+      S.sel={type:'verb',idx:idx,card:c}; hint('Tap a '+(c.side==='enemy'?'red enemy':'green friendly')+' target for '+c.jp+'.');
+    }
+    render();
+  }
+
+  function trySummon(lane){
+    var c=S.sel.card, idx=S.sel.idx;
+    produceWord(c.jp, (c.en?c.en+' · ':'')+c.ro, 'Spell it to summon', function(){
+      S.myLanes[lane]=liveCreature(c); S.hand.splice(idx,1); S.sel=null;
+      voice(c.jp); say(pick(REACT.summon)); flash(S.myLanes[lane],'✦','#1a7a3c');
+      hint('Nice. Play more, or ring the bell.'); render();
+    });
+  }
+  function tryBuff(lane){
+    var adj=S.sel.card, idx=S.sel.idx, cr=S.myLanes[lane], phrase=adj.jp+cr.jp;
+    produceWord(phrase, adj.en+' '+cr.en, 'Spell the phrase', function(){
+      cr.pow+=adj.pow; cr.hp+=adj.hp; cr.maxhp+=adj.hp; cr.buff=(cr.buff?cr.buff+' ':'')+adj.jp;
+      S.hand.splice(idx,1); S.sel=null; voice(phrase); say('つよく なった！'); flash(cr,'↑','#4c1d95');
+      hint('Buffed! Ring the bell when ready.'); render();
+    }, adj.jp);
+  }
+  function castVerb(lane){
+    var v=S.sel.card, idx=S.sel.idx;
+    var target=(v.side==='enemy'?S.enemyLanes:S.myLanes)[lane];
+    // build the sentence with a particle choice, then spell the verb
+    openSentence(target, v, function(){
+      resolveVerb(v, target, lane); S.hand.splice(idx,1); S.sel=null;
+      voice(target.jp+v.part+v.jp); say(pick(REACT.verb)); hint('Ring the bell when ready.'); render();
+    });
+  }
+  function resolveVerb(v, target, lane){
+    if(v.eff==='damage'){ dealTo(target, v.amt, S.sel.card.side==='enemy'?S.enemyLanes:S.myLanes, lane); }
+    else if(v.eff==='shield'){ target.shield=(target.shield||0)+v.amt; flash(target,'🛡','#2e5bcf'); }
+    else if(v.eff==='haste'){ strikeOne(target, lane, true); }
+  }
+  function dealTo(target, amt, lanes, lane){
+    var dmg=amt; if(target.shield){ var a=Math.min(target.shield,dmg); target.shield-=a; dmg-=a; }
+    target.hp-=dmg; if(target.el){ target.el.classList.add('hit'); floatOn(target.el,'-'+amt); }
+    if(target.hp<=0){ lanes[lane]=null; }
+  }
+
+  /* ---------- produce overlay ---------- */
+  var prod={};
+  function produceWord(word, gloss, mode, onOk, highlightSpan){
+    prod={ word:word, target:kana(word), filled:[], onOk:onOk };
+    document.getElementById('prodMode').textContent=mode;
+    document.getElementById('sentence').textContent=word;
+    document.getElementById('gloss').textContent=gloss;
+    document.getElementById('particles').style.display='none';
+    renderSpell();
+    document.getElementById('prodMic').style.display=S.mic?'':'none';
+    document.getElementById('micNote').textContent=S.mic?'Or tap “Say it” and speak the word.':'';
+    document.getElementById('overlay').classList.add('on');
+  }
+  // verb sentence: noun + [particle slot] + verb ; pick particle, then spell the verb
+  function openSentence(target, verb, onOk){
+    var correct=verb.part, decoy=(correct==='を'?'が':'を');
+    var opts=shuffle([correct,decoy]);
+    document.getElementById('prodMode').textContent='Pick the particle, then spell the verb';
+    document.getElementById('gloss').textContent=target.en+' — '+verb.en+' ('+PARTS[correct].gloss+' marker)';
+    document.getElementById('sentence').innerHTML=
+      '<span class="tw">'+target.jp+'</span> <span class="pslot" id="pslot">？</span> <span class="vw">'+verb.jp+'</span>';
+    var pc=document.getElementById('particles'); pc.style.display='flex'; pc.innerHTML='';
+    opts.forEach(function(p){
+      var b=document.createElement('button'); b.className='pbtn'; b.innerHTML=p+'<small>'+PARTS[p].ro+'</small>';
+      b.onclick=function(){
+        if(p===correct){
+          document.getElementById('pslot').textContent=p; document.getElementById('pslot').className='pslot done';
+          pc.style.display='none';
+          prod={ word:verb.jp, target:kana(verb.jp), filled:[], onOk:onOk };
+          document.getElementById('prodMode').textContent='Now spell the verb';
+          renderSpell();
+          document.getElementById('prodMic').style.display=S.mic?'':'none';
+        } else {
+          b.classList.add('bad'); setTimeout(function(){b.classList.remove('bad');},300);
+          say(pick(REACT.badParticle));
+          document.getElementById('micNote').textContent='が marks who does it · を marks what it is done to.';
+        }
+      };
+      pc.appendChild(b);
+    });
+    document.getElementById('prodSlots').innerHTML='';
+    document.getElementById('prodBank').innerHTML='';
+    document.getElementById('prodMic').style.display='none';
+    document.getElementById('micNote').textContent='';
+    document.getElementById('overlay').classList.add('on');
+  }
+  function renderSpell(){
+    var slots=document.getElementById('prodSlots'); slots.innerHTML='';
+    prod.target.forEach(function(k,i){ var s=document.createElement('div'); s.className='kslot'+(i<prod.filled.length?' filled':'');
+      s.textContent=i<prod.filled.length?prod.filled[i]:''; slots.appendChild(s); });
+    var bank=document.getElementById('prodBank'); bank.innerHTML='';
+    shuffle(bankFor(prod.target)).forEach(function(k){ var b=document.createElement('button'); b.className='kbtn'; b.textContent=k;
+      b.onclick=function(){ tapKana(k,b); }; bank.appendChild(b); });
+  }
+  function bankFor(target){ var set={}; target.forEach(function(k){set[k]=1;}); var letters=Object.keys(set);
+    var decoys=shuffle(KANA_DECOYS.filter(function(d){return !set[d];})).slice(0,2); return letters.concat(decoys); }
+  function tapKana(k,btn){
+    if(k===prod.target[prod.filled.length]){ prod.filled.push(k); renderSpell();
+      if(prod.filled.length===prod.target.length) finishProduce();
+    } else { btn.classList.add('bad'); setTimeout(function(){btn.classList.remove('bad');},300); }
+  }
+  function finishProduce(){ document.getElementById('overlay').classList.remove('on'); var cb=prod.onOk; prod={}; if(cb) cb(); }
+  document.getElementById('prodCancel').onclick=function(){ document.getElementById('overlay').classList.remove('on'); prod={}; S.sel=null; render(); };
+
+  document.getElementById('prodMic').onclick=function(){
+    var Rec=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!Rec){ document.getElementById('micNote').textContent='No speech support here — spell it instead.'; return; }
+    var r=new Rec(); r.lang='ja-JP'; r.maxAlternatives=5;
+    document.getElementById('micNote').textContent='🎧 listening…';
+    r.onresult=function(e){ var best=0,heard='';
+      for(var i=0;i<e.results[0].length;i++){ var a=e.results[0][i].transcript.replace(/\s/g,''); var sc=sim(a,prod.word); if(sc>best){best=sc;heard=a;} }
+      document.getElementById('micNote').textContent='heard “'+heard+'” · '+Math.round(best*100)+'%';
+      if(best>=0.6) setTimeout(finishProduce,450);
+    };
+    r.onerror=function(){ document.getElementById('micNote').textContent='couldn’t hear — spell it instead.'; };
+    r.start();
+  };
+  function lev(a,b){ var m=a.length,n=b.length,d=[];for(var i=0;i<=m;i++)d[i]=[i];for(var j=0;j<=n;j++)d[0][j]=j;
+    for(i=1;i<=m;i++)for(j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[m][n]; }
+  function sim(a,b){ var mx=Math.max(a.length,b.length); return mx?1-lev(a,b)/mx:1; }
+
+  /* ---------- combat ---------- */
+  document.getElementById('bell').onclick=function(){
+    if(S.busy||S.over) return; S.sel=null; S.busy=true; hint('');
+    document.getElementById('phaseLabel').textContent='Combat…'; render();
+    resolveSide(true,function(){ if(checkEnd())return; enemyTurn(); });
+  };
+  function strikeOne(cr, lane, mine){
+    var opp=(mine?S.enemyLanes:S.myLanes)[lane];
+    if(cr.el) cr.el.classList.add('lunge');
+    if(opp){ var dmg=cr.pow; if(opp.shield){var a=Math.min(opp.shield,dmg);opp.shield-=a;dmg-=a;} opp.hp-=dmg;
+      if(opp.el){opp.el.classList.add('hit'); floatOn(opp.el,'-'+cr.pow);} if(opp.hp<=0)(mine?S.enemyLanes:S.myLanes)[lane]=null; }
+    else { if(mine)S.enemyHp-=cr.pow; else S.myHp-=cr.pow; floatHeart(mine,cr.pow); }
+    setTimeout(render,260);
+  }
+  function resolveSide(mine, done){
+    var atk=mine?S.myLanes:S.enemyLanes, i=0;
+    (function step(){
+      if(i>=3){ done(); return; }
+      var cr=atk[i]; if(!cr){ i++; return step(); }
+      var opp=(mine?S.enemyLanes:S.myLanes)[i];
+      if(cr.el) cr.el.classList.add('lunge');
+      setTimeout(function(){
+        if(opp){ var dmg=cr.pow; if(opp.shield){var a=Math.min(opp.shield,dmg);opp.shield-=a;dmg-=a;} opp.hp-=dmg;
+          if(opp.el){ opp.el.classList.add('hit'); floatOn(opp.el,'-'+cr.pow); }
+          if(opp.hp<=0)(mine?S.enemyLanes:S.myLanes)[i]=null; say(pick(mine?REACT.hitEnemy:REACT.hitYou));
+        } else { if(mine)S.enemyHp-=cr.pow; else S.myHp-=cr.pow; floatHeart(mine,cr.pow); say(pick(mine?REACT.hitEnemy:REACT.hitYou)); }
+        i++; setTimeout(function(){ render(); step(); },260);
+      },220);
+    })();
+  }
+  function enemyTurn(){
+    document.getElementById('phaseLabel').textContent='もち子 の ばん';
+    var empties=[]; S.enemyLanes.forEach(function(v,i){ if(!v)empties.push(i); });
+    if(empties.length){ var lane=empties[Math.floor(Math.random()*empties.length)]; S.enemyLanes[lane]=liveCreature(pick(NOUNS)); say(pick(REACT.summon)); render(); }
+    setTimeout(function(){ resolveSide(false,function(){ if(checkEnd())return;
+      draw(); S.busy=false; document.getElementById('phaseLabel').textContent='Your move';
+      hint('Tap a card, then a target. Or ring the bell.'); say('つぎは あなた！'); render();
+    }); },700);
+  }
+  function checkEnd(){ if(S.enemyHp<=0){endGame(true);return true;} if(S.myHp<=0){endGame(false);return true;} return false; }
+  function endGame(win){ S.over=true; S.busy=false; render(); say(pick(win?REACT.win:REACT.lose));
+    document.getElementById('endEmoji').textContent=win?'🎉':'🌸';
+    document.getElementById('endTitle').textContent=win?'かち！ You win':'まけ… gentle loss';
+    document.getElementById('endText').textContent=win?'You cleared もち子さん’s stall by building real sentences.':'No harm done — もち子さん resets the tale. What you learned stays with you.';
+    document.getElementById('end').classList.add('on');
+  }
+
+  /* ---------- fx ---------- */
+  function boardRect(){ return document.querySelector('.board').getBoundingClientRect(); }
+  function floatOn(el,txt){ var b=el.getBoundingClientRect(),p=boardRect(); spawnFloat(b.left-p.left+b.width/2-8,b.top-p.top+6,txt,'#b3261e'); }
+  function floatHeart(mine,dmg){ var el=document.getElementById(mine?'enemyHp':'myHp').parentNode, b=el.getBoundingClientRect(),p=boardRect();
+    spawnFloat(b.left-p.left+10,b.top-p.top,'-'+dmg,'#b3261e'); }
+  function flash(cr,txt,color){ if(!cr.el)return; var b=cr.el.getBoundingClientRect(),p=boardRect(); spawnFloat(b.left-p.left+b.width/2-8,b.top-p.top+6,txt,color); }
+  function spawnFloat(x,y,txt,color){ var f=document.createElement('div'); f.className='float'; f.textContent=txt; f.style.left=x+'px'; f.style.top=y+'px'; f.style.color=color;
+    document.querySelector('.board').appendChild(f); setTimeout(function(){ f.remove(); },800); }
+
+  document.getElementById('micToggle').onclick=function(){ S.mic=!S.mic; this.textContent=S.mic?'🎤 on':'🎤 off';
+    this.style.background=S.mic?'var(--accent)':'#fff'; this.style.color=S.mic?'var(--on-accent)':'var(--muted)'; };
+  document.getElementById('again').onclick=newGame;
+  newGame();
+})();
+</script>
+</body>
+</html>
