@@ -162,7 +162,7 @@
 <body>
 <div class="stage">
   <h1 class="page">夜市 の いっせん — the night-market duel</h1>
-  <p class="page">Spell a new word to summon it · buff with an adjective · cast a verb by choosing its particle. Words you know (✓) play with one tap. Ring the bell to strike.</p>
+  <p class="page">Tap a card to summon · buff with an adjective · cast a verb by choosing its particle · speak full sentences (🗣) for big hits. Ring the bell to strike.</p>
 
   <div class="board">
     <div class="host">
@@ -389,14 +389,11 @@
   }
 
   function trySummon(lane){
+    // spell-to-summon removed for now — summoning is a plain tap
     var c=S.sel.card, idx=S.sel.idx;
-    var place=function(){ S.myLanes[lane]=liveCreature(c); S.hand.splice(idx,1); S.sel=null;
-      voice(c.jp); say(pick(REACT.summon)); flash(S.myLanes[lane],'✦','#1a7a3c');
-      hint('Nice. Play more, or ring the bell.'); render(); };
-    if(isFluent(c.jp)){ place(); return; }              // known word → one tap, no spelling
-    produceWord(c.jp, (c.en?c.en+' · ':'')+c.ro, 'Spell it to summon', function(){
-      var n=bump(c.jp,'spell'); place(); if(n===FLU) celebrate(c.jp);
-    });
+    S.myLanes[lane]=liveCreature(c); S.hand.splice(idx,1); S.sel=null;
+    voice(c.jp); say(pick(REACT.summon)); flash(S.myLanes[lane],'✦','#1a7a3c');
+    hint('Nice. Play more, or ring the bell.'); render();
   }
   function tryBuff(lane){
     var adj=S.sel.card, idx=S.sel.idx, cr=S.myLanes[lane], phrase=adj.jp+cr.jp;
