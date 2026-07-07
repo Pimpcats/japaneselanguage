@@ -136,6 +136,16 @@
   .prow .cancel{ color:var(--muted); }
   .micNote{ font-size:11px; color:var(--muted); margin-top:8px; min-height:14px; }
 
+  .sbSlots{ display:flex; gap:6px; justify-content:center; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
+  .sbSlot{ min-width:50px; height:50px; border:2.5px dashed #cbb493; border-radius:11px; display:grid; place-items:center; padding:2px 7px; }
+  .sbSlot .lab{ font-size:10px; color:var(--muted); font-weight:800; } .sbSlot .jp{ font-size:17px; font-weight:800; }
+  .sbSlot.filled{ border-style:solid; border-color:var(--ink); cursor:pointer; }
+  .sbSlot.noun.filled{ background:var(--n-bg); } .sbSlot.adj.filled{ background:var(--adj-bg); }
+  .sbSlot.verb.filled{ background:var(--v-bg); } .sbSlot.part.filled{ background:#e7f6dc; border-color:var(--matcha); }
+  .sbSlot.plus{ min-width:14px; border:0; color:var(--muted); font-weight:800; }
+  .sbParts{ display:flex; gap:8px; justify-content:center; margin-bottom:8px; }
+  .sbHand{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-bottom:10px; }
+  .sbHand .card{ width:62px; padding:6px 4px 5px; }
   .float{ position:absolute; font-weight:800; font-size:20px; pointer-events:none; z-index:6;
     animation:up .8s ease forwards; }
   @keyframes up{ to{ transform:translateY(-34px); opacity:0 } }
@@ -172,7 +182,8 @@
       <div class="trayHead"><span class="h" id="phaseLabel">Your move</span><span class="h" id="deckCount"></span></div>
       <div class="hand" id="hand"></div>
       <div class="actions">
-        <button class="btn bell" id="bell">🔔 Ring the bell</button>
+        <button class="btn bell" id="bell">🔔 Bell</button>
+        <button class="btn ghost" id="sentenceBtn">🗣 Sentence</button>
         <button class="btn ghost" id="micToggle">🎤 off</button>
       </div>
       <div class="hint" id="hint"></div>
@@ -191,6 +202,20 @@
           <button class="btn cancel" id="prodCancel">Cancel</button>
         </div>
         <div class="micNote" id="micNote"></div>
+      </div>
+    </div>
+
+    <div class="overlay" id="builder">
+      <div class="produce">
+        <h4 id="sbTitle">🗣 Speak a full sentence</h4>
+        <div class="sbSlots" id="sbSlots"></div>
+        <div class="sbParts" id="sbParts" style="display:none"></div>
+        <div class="gloss" id="sbGloss">Tap cards: (adj) + noun + particle + verb</div>
+        <div class="sbHand" id="sbHand"></div>
+        <div class="prow">
+          <button class="btn mic" id="sbCast" disabled>Speak it →</button>
+          <button class="btn cancel" id="sbCancel">Cancel</button>
+        </div>
       </div>
     </div>
 
@@ -252,27 +277,39 @@
   function liveCreature(def){ var c=clone(def); c.maxhp=c.hp; c.buff=null; c.shield=0; c.el=null; return c; }
 
   // fluency: you produce a word while it's new; after FLU successes it plays with one tap.
-  var FLU=2;
-  function bump(jp,f){ var e=S.learned[jp]||(S.learned[jp]={spell:0,part:0}); e[f]++; return e[f]; }
-  function isFluent(jp){ var e=S.learned[jp]; return !!(e&&e.spell>=FLU); }
-  function partFluent(jp){ var e=S.learned[jp]; return !!(e&&e.part>=FLU); }
+  // LEARNED persists across fights so a boss after a level keeps what you learned.
+  var FLU=2, LEARNED={};
+  function bump(jp,f){ var e=LEARNED[jp]||(LEARNED[jp]={spell:0,part:0}); e[f]++; return e[f]; }
+  function isFluent(jp){ var e=LEARNED[jp]; return !!(e&&e.spell>=FLU); }
+  function partFluent(jp){ var e=LEARNED[jp]; return !!(e&&e.part>=FLU); }
   function fluentFor(c){ return c.kind==='v' ? (isFluent(c.jp)&&partFluent(c.jp)) : isFluent(c.jp); }
   function celebrate(jp){ say('『'+jp+'』おぼえた！ ✨'); var p=boardRect(); spawnFloat(p.width/2-34,86,'✨ おぼえた','#c8941c'); }
 
   var S={};
-  function newGame(){
-    S={ enemyHp:12, myHp:12, enemyLanes:[null,null,null], myLanes:[null,null,null],
-        hand:[], deck:[], sel:null, busy:false, over:false, mic:false, learned:{} };
-    var pool=[];
+  function freshDeck(){ var pool=[];
     NOUNS.forEach(function(n){ pool.push(mkCard(n,'n')); pool.push(mkCard(n,'n')); });
     ADJS.forEach(function(a){ pool.push(mkCard(a,'adj')); });
     VERBS.forEach(function(v){ pool.push(mkCard(v,'v')); });
-    pool=shuffle(pool);
-    S.hand=pool.slice(0,5); S.deck=pool.slice(5);
+    return shuffle(pool);
+  }
+  function newGame(){
+    S={ enemyHp:12, myHp:12, enemyLanes:[null,null,null], myLanes:[null,null,null],
+        hand:[], deck:[], sel:null, busy:false, over:false, mic:(S&&S.mic)||false, boss:false };
+    var pool=freshDeck(); S.hand=pool.slice(0,5); S.deck=pool.slice(5);
     S.enemyLanes[1]=liveCreature(pick(NOUNS));
     document.getElementById('end').classList.remove('on');
     say('こんばんは！ わたしと しょうぶ しましょう？ 🌙');
     hint('Tap a card to begin.');
+    render();
+  }
+  function newBoss(){
+    S={ enemyHp:16, myHp:12, enemyLanes:[null,null,null], myLanes:[null,null,null],
+        hand:[], deck:[], sel:null, busy:false, over:false, mic:(S&&S.mic)||false, boss:true };
+    var pool=freshDeck(); S.hand=pool.slice(0,5); S.deck=pool.slice(5);
+    S.enemyLanes[1]=liveCreature(pick(NOUNS));
+    document.getElementById('end').classList.remove('on');
+    say('ぐふふ… わたしが 夜市の ぬし。 ぶんを はなして ごらん！');
+    hint('Chip with creatures — but speak full sentences (🗣) to break the ぬし.');
     render();
   }
   function refillDeck(){ var p=[]; NOUNS.forEach(function(n){p.push(mkCard(n,'n'));}); ADJS.forEach(function(a){p.push(mkCard(a,'adj'));}); VERBS.forEach(function(v){p.push(mkCard(v,'v'));}); S.deck=shuffle(p); }
@@ -456,6 +493,78 @@
   function finishProduce(){ document.getElementById('overlay').classList.remove('on'); var cb=prod.onOk; prod={}; if(cb) cb(); }
   document.getElementById('prodCancel').onclick=function(){ document.getElementById('overlay').classList.remove('on'); prod={}; S.sel=null; render(); };
 
+  /* ---------- sentence super-move (the boss capstone) ---------- */
+  var SB=null;
+  function openBuilder(){
+    if(S.busy||S.over) return;
+    if(!S.hand.some(function(c){return c.kind==='n';}) || !S.hand.some(function(c){return c.kind==='v';})){
+      hint('Need a noun and a verb in hand to speak a sentence.'); return; }
+    SB={ adj:null, noun:null, part:null, verb:null };
+    renderBuilder(); document.getElementById('builder').classList.add('on');
+  }
+  function sbSlotEl(kind,lab,card){
+    var d=document.createElement('div'); d.className='sbSlot '+kind+(card?' filled':'');
+    d.innerHTML=card?('<span class="jp">'+card.jp+'</span>'):('<span class="lab">'+lab+'</span>');
+    if(card) d.onclick=function(){ SB[kind]=null; if(kind==='noun'||kind==='verb') SB.part=null; renderBuilder(); };
+    return d;
+  }
+  function plus(){ var d=document.createElement('div'); d.className='sbSlot plus'; d.textContent='＋'; return d; }
+  function placeInBuilder(c){ if(c.kind==='n')SB.noun=c; else if(c.kind==='adj')SB.adj=c; else { SB.verb=c; SB.part=null; } renderBuilder(); }
+  function renderBuilder(){
+    var slots=document.getElementById('sbSlots'); slots.innerHTML='';
+    slots.appendChild(sbSlotEl('adj','形 adj', SB.adj)); slots.appendChild(plus());
+    slots.appendChild(sbSlotEl('noun','名 noun', SB.noun)); slots.appendChild(plus());
+    slots.appendChild(sbSlotEl('part','は', SB.part?{jp:SB.part}:null)); slots.appendChild(plus());
+    slots.appendChild(sbSlotEl('verb','動 verb', SB.verb));
+    var pc=document.getElementById('sbParts');
+    if(SB.noun&&SB.verb&&!SB.part){
+      pc.style.display='flex'; pc.innerHTML=''; var correct=SB.verb.part;
+      shuffle([correct, correct==='を'?'が':'を']).forEach(function(p){
+        var b=document.createElement('button'); b.className='pbtn'; b.innerHTML=p+'<small>'+PARTS[p].ro+'</small>';
+        b.onclick=function(){ if(p===correct){ bump(SB.verb.jp,'part'); SB.part=p; renderBuilder(); }
+          else { b.classList.add('bad'); setTimeout(function(){b.classList.remove('bad');},300); say(pick(REACT.badParticle)); } };
+        pc.appendChild(b);
+      });
+    } else pc.style.display='none';
+    var hh=document.getElementById('sbHand'); hh.innerHTML='';
+    S.hand.forEach(function(c){
+      var placeable=(c.kind==='n'&&!SB.noun)||(c.kind==='adj'&&!SB.adj)||(c.kind==='v'&&!SB.verb);
+      var el=document.createElement('div'); el.className='card '+c.kind; if(!placeable) el.style.opacity=.3;
+      var label=c.kind==='n'?'名':c.kind==='adj'?'形':'動';
+      el.innerHTML='<span class="pos">'+label+'</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span>';
+      if(placeable) el.onclick=function(){ placeInBuilder(c); };
+      hh.appendChild(el);
+    });
+    document.getElementById('sbCast').disabled=!(SB.noun&&SB.part&&SB.verb);
+    document.getElementById('sbGloss').textContent = SB.noun&&SB.verb
+      ? (SB.adj?SB.adj.jp:'')+SB.noun.jp+(SB.part||'…')+SB.verb.jp+'  (＋2 with an adjective)'
+      : 'Tap cards: (adj) + noun + particle + verb';
+  }
+  function produceSequence(words, done){
+    var i=0; (function next(){
+      if(i>=words.length){ done(); return; }
+      var w=words[i++]; if(isFluent(w.jp)) return next();
+      produceWord(w.jp, w.en+' · '+w.ro, 'Spell '+w.jp, function(){ var n=bump(w.jp,'spell'); if(n===FLU) celebrate(w.jp); next(); });
+    })();
+  }
+  document.getElementById('sbCast').onclick=function(){
+    if(!(SB.noun&&SB.part&&SB.verb)) return;
+    document.getElementById('builder').classList.remove('on');
+    var words=[]; if(SB.adj)words.push(SB.adj); words.push(SB.noun); words.push(SB.verb);
+    produceSequence(words, fireSentence);
+  };
+  function fireSentence(){
+    var dmg=5+(SB.adj?2:0);
+    [SB.adj,SB.noun,SB.verb].forEach(function(c){ if(!c)return; var i=S.hand.indexOf(c); if(i>=0)S.hand.splice(i,1); });
+    var sentence=(SB.adj?SB.adj.jp:'')+SB.noun.jp+SB.part+SB.verb.jp;
+    S.enemyHp-=dmg; voice(sentence); say('『'+sentence+'』！ '+pick(REACT.verb));
+    var p=boardRect(); spawnFloat(p.width/2-16,118,'-'+dmg,'#b3261e');
+    SB=null; render(); if(checkEnd()) return;
+    hint('Big hit! Ring the bell or keep going.');
+  }
+  document.getElementById('sbCancel').onclick=function(){ document.getElementById('builder').classList.remove('on'); SB=null; };
+  document.getElementById('sentenceBtn').onclick=openBuilder;
+
   document.getElementById('prodMic').onclick=function(){
     var Rec=window.SpeechRecognition||window.webkitSpeechRecognition;
     if(!Rec){ document.getElementById('micNote').textContent='No speech support here — spell it instead.'; return; }
@@ -514,9 +623,23 @@
   }
   function checkEnd(){ if(S.enemyHp<=0){endGame(true);return true;} if(S.myHp<=0){endGame(false);return true;} return false; }
   function endGame(win){ S.over=true; S.busy=false; render(); say(pick(win?REACT.win:REACT.lose));
-    document.getElementById('endEmoji').textContent=win?'🎉':'🌸';
-    document.getElementById('endTitle').textContent=win?'かち！ You win':'まけ… gentle loss';
-    document.getElementById('endText').textContent=win?'You cleared もち子さん’s stall by building real sentences.':'No harm done — もち子さん resets the tale. What you learned stays with you.';
+    var wasBoss=S.boss, again=document.getElementById('again');
+    if(win&&wasBoss){
+      document.getElementById('endEmoji').textContent='🏮';
+      document.getElementById('endTitle').textContent='ぬしを たおした！';
+      document.getElementById('endText').innerHTML='You cleared the district. <b>Stamp earned 🏮</b> — the street lights up. <span style="opacity:.7">(stamp + next district are stubs for now)</span>';
+      again.textContent='Play again'; again.onclick=newGame;
+    } else if(win){
+      document.getElementById('endEmoji').textContent='🎉';
+      document.getElementById('endTitle').textContent='かち！ You win';
+      document.getElementById('endText').textContent='You cleared the stall. Now the ぬし blocks the way — its big heart falls fastest to full sentences (🗣).';
+      again.textContent='Face the ぬし 👺'; again.onclick=newBoss;
+    } else {
+      document.getElementById('endEmoji').textContent='🌸';
+      document.getElementById('endTitle').textContent='まけ… gentle loss';
+      document.getElementById('endText').textContent='No harm done — もち子さん resets the tale. What you learned stays with you.';
+      again.textContent='Again'; again.onclick=(wasBoss?newBoss:newGame);
+    }
     document.getElementById('end').classList.add('on');
   }
 
