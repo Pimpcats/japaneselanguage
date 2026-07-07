@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>文の陣 · lane sentence-crawl</title>
+<style>
+  :root{
+    --cream:#fff7ea; --ink:#4a3328; --fg:#4a3328; --muted:#6b5847;
+    --accent:#ef6fa7; --accent-2:#f8a8c6; --on-accent:#5a1f3a; --gold:#f2be45; --matcha:#8fbf6b;
+    --noun:#dbeafe; --noun-bd:#93c5fd; --noun-fg:#1e3a8a;
+    --verb:#fef3c7; --verb-bd:#fbbf24; --verb-fg:#78350f;
+    --adj:#ede9fe;  --adj-bd:#a78bfa;  --adj-fg:#4c1d95;
+    --part:#e6f6dc; --part-bd:#8fbf6b; --part-fg:#2f5321;
+    --shadow:0 4px 0 var(--ink);
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; }
+  body{ background:radial-gradient(120% 80% at 50% -10%, #3a2b4d 0%, #241a2a 60%);
+    color:var(--fg); font-family:ui-rounded,"Hiragino Maru Gothic ProN",system-ui,-apple-system,sans-serif;
+    min-height:100vh; padding:14px; display:flex; justify-content:center; }
+  .stage{ width:100%; max-width:440px; }
+  h1.page{ color:#ffe9c9; font-size:15px; text-align:center; margin:0 0 3px; font-weight:800; }
+  p.page{ color:#d6b8cf; font-size:12px; text-align:center; margin:0 0 12px; }
+
+  .board{ background:var(--cream); border:3px solid var(--ink); border-radius:24px; box-shadow:0 10px 0 rgba(0,0,0,.35); overflow:hidden; position:relative; }
+  .host{ display:flex; gap:10px; align-items:center; padding:9px 12px; background:var(--accent-2); border-bottom:3px solid var(--ink); }
+  .mochi{ width:40px; height:40px; border-radius:50%; background:#fff2f7; border:3px solid var(--ink); box-shadow:0 3px 0 var(--ink); position:relative; flex:0 0 auto; }
+  .mochi::before,.mochi::after{ content:""; position:absolute; top:15px; width:5px; height:7px; background:var(--ink); border-radius:50%; }
+  .mochi::before{ left:11px; } .mochi::after{ right:11px; }
+  .mochi .mo{ position:absolute; top:24px; left:50%; transform:translateX(-50%); width:10px; height:5px; border:2px solid var(--ink); border-top:0; border-radius:0 0 8px 8px; }
+  .say{ background:#fff; border:2.5px solid var(--ink); border-radius:12px; padding:5px 10px; box-shadow:0 3px 0 var(--ink); font-weight:700; font-size:13px; flex:1; min-height:32px; display:flex; align-items:center; }
+  .status{ display:flex; justify-content:space-between; align-items:center; padding:6px 13px; background:#fff; border-bottom:3px solid var(--ink); }
+  .status .heart{ font-weight:800; color:#b3261e; font-variant-numeric:tabular-nums; font-size:15px; }
+  .status .enc{ font-size:11px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+
+  /* battlefield grid: rows descend toward you */
+  .field{ padding:8px 10px 4px; }
+  .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .cell{ height:66px; border:2px dashed #d8c4a4; border-radius:11px; position:relative; display:grid; place-items:center; }
+  .enemy{ width:100%; height:100%; border:2.5px solid var(--ink); border-radius:10px; background:#fff; box-shadow:0 3px 0 var(--ink);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; animation:drop .3s; }
+  @keyframes drop{ from{ transform:translateY(-8px); opacity:.4 } }
+  .enemy .em{ font-size:22px; line-height:1; } .enemy .jp{ font-size:12px; font-weight:800; }
+  .enemy .hp{ position:absolute; bottom:-6px; left:6px; right:6px; height:7px; border:2px solid var(--ink); border-radius:5px; background:#fff; overflow:hidden; }
+  .enemy .hp i{ display:block; height:100%; background:#e0554e; }
+  .enemy .pw{ position:absolute; top:-8px; left:-6px; width:18px; height:18px; border-radius:50%; border:2px solid var(--ink); background:#ffe1e1; color:#7f1d1d; font-size:10px; font-weight:800; display:grid; place-items:center; }
+  .enemy .arm{ position:absolute; top:-8px; right:-6px; font-size:13px; }
+  .gateRow{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:6px; }
+  .aim{ font:inherit; font-weight:800; font-size:12px; border:3px solid var(--ink); border-radius:11px; padding:8px 4px; background:#fff; color:var(--muted); box-shadow:0 3px 0 var(--ink); }
+  .aim.live{ background:var(--accent); color:var(--on-accent); cursor:pointer; }
+  .aim.live:active{ transform:translateY(3px); box-shadow:0 0 0 var(--ink); }
+  .aim:disabled{ opacity:.5; }
+  .gateLabel{ text-align:center; font-size:10px; color:var(--muted); font-weight:700; margin-top:4px; }
+
+  .frameWrap{ padding:4px 12px 4px; }
+  .frameLabel{ font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); text-align:center; margin:4px 0; }
+  .frame{ display:flex; gap:6px; justify-content:center; flex-wrap:wrap; }
+  .slot{ min-width:58px; min-height:58px; border:2.5px dashed #cbb493; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3px; }
+  .slot.opt{ border-style:dotted; opacity:.9; }
+  .slot .slab{ font-size:9px; font-weight:800; color:var(--muted); text-align:center; }
+  .slot.noun{ border-color:var(--noun-bd);} .slot.verb{ border-color:var(--verb-bd);} .slot.adj{ border-color:var(--adj-bd);} .slot.part{ border-color:var(--part-bd);}
+  .slot.filled{ border-style:solid; cursor:pointer; }
+  .wc{ width:100%; border:2.5px solid var(--ink); border-radius:10px; box-shadow:0 3px 0 var(--ink); padding:5px 3px 4px; text-align:center; background:#fff; }
+  .wc.noun{ background:var(--noun);} .wc.verb{ background:var(--verb);} .wc.adj{ background:var(--adj);} .wc.part{ background:var(--part);}
+  .wc .jp{ font-size:15px; font-weight:800; line-height:1;} .wc .ro{ font-size:8px; color:var(--muted);}
+  .wc .pw{ font-size:10px; font-weight:800; color:var(--verb-fg);} .wc .pw.buff{ color:var(--adj-fg);}
+  .parts{ display:flex; gap:8px; justify-content:center; margin-top:8px; }
+  .pbtn{ min-width:50px; font:inherit; font-size:18px; font-weight:800; border:3px solid var(--ink); border-radius:11px; background:var(--part); box-shadow:0 3px 0 var(--ink); padding:5px 10px; cursor:pointer; }
+  .pbtn small{ display:block; font-size:9px; color:var(--muted); font-weight:700; }
+  .pbtn:active{ transform:translateY(3px); box-shadow:0 0 0 var(--ink); }
+  .pbtn.on{ background:var(--matcha); color:#173d0f; }
+  .preview{ text-align:center; margin:7px 0 2px; font-weight:800; font-size:13px; min-height:18px; }
+  .preview .dmg{ color:#b3261e;} .preview .warn{ color:#b9791b; font-size:12px;} .preview .ok{ color:#1a7a3c;}
+
+  .actions{ display:flex; gap:8px; padding:2px 12px 2px; }
+  .btn{ flex:1; font:inherit; font-weight:800; font-size:13px; border:3px solid var(--ink); border-radius:12px; padding:9px; cursor:pointer; box-shadow:var(--shadow); background:#fff; color:var(--muted); transition:transform .1s, box-shadow .1s; }
+  .btn:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
+
+  .handWrap{ background:#fbeecf; border-top:3px solid var(--ink); padding:8px 10px 12px; margin-top:6px; }
+  .handHead{ font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); margin-bottom:5px; display:flex; justify-content:space-between; }
+  .hand{ display:flex; gap:7px; overflow-x:auto; padding-bottom:3px; }
+  .hand .wc{ width:64px; flex:0 0 auto; cursor:pointer; } .hand .wc.dim{ opacity:.34; }
+  .hand .wc .en{ font-size:9px; font-weight:700;} .hand .wc .tp{ font-size:8px; font-weight:800; text-transform:uppercase; color:var(--muted);}
+
+  .float{ position:absolute; font-weight:800; font-size:19px; pointer-events:none; z-index:6; animation:up .8s ease forwards; }
+  @keyframes up{ to{ transform:translateY(-28px); opacity:0 } }
+  .bad{ animation:shake .3s;} @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .end{ position:absolute; inset:0; background:rgba(36,26,42,.85); display:none; z-index:20; align-items:center; justify-content:center; padding:24px;}
+  .end.on{ display:flex;}
+  .end .c2{ background:var(--cream); border:3px solid var(--ink); border-radius:22px; box-shadow:0 8px 0 var(--ink); padding:22px 20px; text-align:center; max-width:300px;}
+  .end .c2 .big{ font-size:40px;} .end .c2 h3{ margin:6px 0; font-size:22px;} .end .c2 p{ color:var(--muted); font-size:13px; margin:0 0 16px;}
+  .end .c2 .btn{ background:var(--accent); color:var(--on-accent);}
+  @media (prefers-reduced-motion:reduce){ *{ animation:none !important; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1 class="page">文の陣 — creatures descend; sentences defend</h1>
+  <p class="page">Build a sentence: tap word-cards into slots + tap the right particle (を/は/が), then aim it down a lane. Bigger, correct grammar hits harder — some foes only fall to the right structure. Don't let them reach the bottom.</p>
+
+  <div class="board">
+    <div class="host"><div class="mochi"><span class="mo"></span></div><div class="say" id="say"></div></div>
+    <div class="status"><span class="heart">❤ <span id="heart">12</span></span><span class="enc" id="enc"></span></div>
+
+    <div class="field">
+      <div class="grid" id="grid"></div>
+      <div class="gateRow" id="gateRow"></div>
+      <div class="gateLabel">▲ aim your sentence · foes step down each turn</div>
+    </div>
+
+    <div class="frameWrap">
+      <div class="frameLabel" id="frameLabel"></div>
+      <div class="frame" id="frame"></div>
+      <div class="parts" id="parts"></div>
+      <div class="preview" id="preview"></div>
+    </div>
+    <div class="actions"><button class="btn" id="redraw">↻ Redraw hand (costs a turn)</button></div>
+
+    <div class="handWrap">
+      <div class="handHead"><span>Your words</span><span id="deckCount"></span></div>
+      <div class="hand" id="hand"></div>
+    </div>
+
+    <div class="end" id="end"><div class="c2">
+      <div class="big" id="endEmoji">🎉</div><h3 id="endTitle"></h3><p id="endText"></p>
+      <button class="btn" id="again">Again</button>
+    </div></div>
+  </div>
+  <p class="page" style="margin-top:12px">Prototype · lanes + descending creatures · numbers &amp; art are placeholders</p>
+</div>
+
+<script>
+(function(){
+  var ROWS=3, LANES=3;
+  function rand(n){ return Math.floor(Math.random()*n); }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=rand(i+1),t=a[i];a[i]=a[j];a[j]=t;} return a; }
+  function pick(a){ return a[rand(a.length)]; }
+  function say(t){ document.getElementById('say').textContent=t; }
+  function voice(jp){ try{ if(window.speechSynthesis){ var u=new SpeechSynthesisUtterance(jp); u.lang='ja-JP'; u.rate=.95; speechSynthesis.cancel(); speechSynthesis.speak(u);} }catch(e){} }
+
+  var WORDS=[
+    {jp:'みず',ro:'mizu',en:'water',t:'noun',pw:1},{jp:'くま',ro:'kuma',en:'bear',t:'noun',pw:4},
+    {jp:'とり',ro:'tori',en:'bird',t:'noun',pw:2},{jp:'さかな',ro:'sakana',en:'fish',t:'noun',pw:1},
+    {jp:'いぬ',ro:'inu',en:'dog',t:'noun',pw:2},
+    {jp:'のむ',ro:'nomu',en:'drink',t:'verb',pw:2},{jp:'たおす',ro:'taosu',en:'defeat',t:'verb',pw:3},
+    {jp:'みる',ro:'miru',en:'see',t:'verb',pw:1},{jp:'たべる',ro:'taberu',en:'eat',t:'verb',pw:2},
+    {jp:'つめたい',ro:'tsumetai',en:'cold',t:'adj',pw:2},{jp:'つよい',ro:'tsuyoi',en:'strong',t:'adj',pw:3},
+    {jp:'おおきい',ro:'ookii',en:'big',t:'adj',pw:2},{jp:'あかい',ro:'akai',en:'red',t:'adj',pw:1},
+    {jp:'を',ro:'wo',en:'(object)',t:'part',pw:0},{jp:'は',ro:'wa',en:'(topic)',t:'part',pw:0},{jp:'が',ro:'ga',en:'(subject)',t:'part',pw:0}
+  ];
+  function card(w){ var c={}; for(var k in w)c[k]=w[k]; c.id='c'+rand(1e9); return c; }
+  var TLAB={ noun:'名 noun', verb:'動 verb', adj:'形 adj', part:'助 particle' };
+  // optional adjective slot → you CHOOSE to buff (and to satisfy armored foes)
+  var SLOTS=[{t:'adj',opt:true},{t:'noun'},{t:'part',need:'を'},{t:'verb'}];
+  var PART_I=2;                                    // index of the particle slot
+  var PARTWORDS=WORDS.filter(function(w){return w.t==='part';}); // always-available, never scarce
+
+  var BESTIARY={
+    tori:{jp:'とり',em:'🐦',hp:2,pw:1,armor:null},
+    inu :{jp:'いぬ',em:'🐕',hp:3,pw:2,armor:null},
+    kuma:{jp:'くま',em:'🐻',hp:5,pw:3,armor:null},
+    oni :{jp:'おに',em:'👹',hp:6,pw:3,armor:'adj'}
+  };
+  // spawn order (lane chosen among free lanes at spawn time)
+  var WAVE=['tori','kuma','inu','oni','kuma','oni'];
+
+  var S={};
+  function buildDeck(){ var d=[]; WORDS.forEach(function(w){ if(w.t==='part') return; for(var i=0;i<2;i++)d.push(card(w)); }); return shuffle(d); }
+  function newGame(){
+    S={ heart:12, enemies:[], spawns:WAVE.slice(), frame:SLOTS.map(function(){return null;}), hand:[], deck:buildDeck(), discard:[], over:false, cleared:0 };
+    spawnOne(); spawnOne();
+    drawUp();
+    document.getElementById('end').classList.remove('on');
+    say('ふふ… まちが せめられて いる！ ぶんで まもって。');
+    render();
+  }
+  function mkEnemy(key,lane){ var b=BESTIARY[key]; return { key:key, jp:b.jp, em:b.em, hp:b.hp, maxhp:b.hp, pw:b.pw, armor:b.armor, lane:lane, row:0 }; }
+  function freeLanes(){ var used={}; S.enemies.forEach(function(e){ if(e.row===0) used[e.lane]=true; }); var f=[]; for(var l=0;l<LANES;l++) if(!used[l]) f.push(l); return f; }
+  function spawnOne(){ if(!S.spawns.length) return; var f=freeLanes(); if(!f.length) return; var key=S.spawns.shift(); S.enemies.push(mkEnemy(key, pick(f))); }
+  function drawUp(){ while(S.hand.length<7){ if(!S.deck.length){ S.deck=shuffle(S.discard); S.discard=[]; } if(!S.deck.length) break; S.hand.push(S.deck.shift()); } }
+
+  function structComplete(){ return SLOTS.every(function(s,i){ return s.opt || (S.frame[i] && S.frame[i].t===s.t); }); }
+  function score(){
+    var base=0, particleOk=true, hasAdj=false;
+    for(var i=0;i<SLOTS.length;i++){ var c=S.frame[i], t=SLOTS[i].t; if(!c) continue;
+      if(t==='noun'){ var buff=(i>0&&SLOTS[i-1].t==='adj'&&S.frame[i-1])?S.frame[i-1].pw:0; base+=c.pw+buff; }
+      else if(t==='verb'){ base+=c.pw; }
+      else if(t==='adj'){ hasAdj=true; }
+      else if(t==='part'){ if(c.jp!==SLOTS[i].need) particleOk=false; }
+    }
+    return { base:base, particleOk:particleOk, hasAdj:hasAdj };
+  }
+  function sentenceStr(){ return S.frame.map(function(c){return c?c.jp:'';}).join(''); }
+  function frontEnemy(lane){ var best=null; S.enemies.forEach(function(e){ if(e.lane===lane && (!best||e.row>best.row)) best=e; }); return best; }
+
+  /* ---- render ---- */
+  function render(){
+    document.getElementById('heart').textContent=S.heart;
+    document.getElementById('enc').textContent='のこり '+(S.enemies.length+S.spawns.length);
+    // grid rows 0..ROWS-1 top→bottom
+    var grid=document.getElementById('grid'); grid.innerHTML='';
+    for(var r=0;r<ROWS;r++){ for(var l=0;l<LANES;l++){
+      var cell=document.createElement('div'); cell.className='cell';
+      var e=S.enemies.filter(function(x){return x.row===r&&x.lane===l;})[0];
+      if(e) cell.appendChild(enemyEl(e));
+      grid.appendChild(cell);
+    }}
+    // aim buttons per lane
+    var ready=structComplete(), sc=ready?score():null;
+    var gr=document.getElementById('gateRow'); gr.innerHTML='';
+    for(var l2=0;l2<LANES;l2++){ (function(l){
+      var e=frontEnemy(l); var b=document.createElement('button'); b.className='aim'+((ready&&e)?' live':'');
+      b.textContent=e?('🎯 '+e.jp):'—'; b.disabled=!(ready&&e);
+      b.onclick=function(){ fire(l); }; gr.appendChild(b);
+    })(l2); }
+    // frame
+    document.getElementById('frameLabel').textContent='(形) ＋ 名 ＋ を ＋ 動   — adjective optional';
+    var fr=document.getElementById('frame'); fr.innerHTML='';
+    SLOTS.forEach(function(s,i){ var el=document.createElement('div'); el.className='slot '+s.t+(s.opt?' opt':'')+(S.frame[i]?' filled':'');
+      if(S.frame[i]){ el.appendChild(wcEl(S.frame[i],true)); el.onclick=function(){ unplace(i); }; }
+      else el.innerHTML='<span class="slab">'+TLAB[s.t]+(s.opt?'<br>(opt)':'')+'</span>';
+      fr.appendChild(el);
+    });
+    // particle tray — always available, tap to fill the 助 slot (pick the RIGHT one)
+    var pt=document.getElementById('parts'); pt.innerHTML='';
+    PARTWORDS.forEach(function(pw){ var b=document.createElement('button');
+      b.className='pbtn'+((S.frame[PART_I]&&S.frame[PART_I].jp===pw.jp)?' on':'');
+      b.innerHTML=pw.jp+'<small>'+pw.ro+'</small>';
+      b.onclick=function(){ if(S.over) return; S.frame[PART_I]=card(pw); render(); };
+      pt.appendChild(b);
+    });
+    // preview
+    var pv=document.getElementById('preview');
+    if(ready){ var msg;
+      if(!sc.particleOk) msg='<span class="warn">⚠ wrong particle — misfire</span>';
+      else msg='<span class="ok">'+sentenceStr()+'</span> → <span class="dmg">⚔ '+sc.base+'</span>'+(sc.hasAdj?' <span style="color:var(--adj-fg)">+形</span>':'');
+      pv.innerHTML=msg;
+    } else pv.innerHTML='<span style="color:var(--muted);font-weight:700;font-size:12px">fill 名 ＋ を ＋ 動 to aim</span>';
+    // hand
+    var h=document.getElementById('hand'); h.innerHTML='';
+    var openTypes={}; SLOTS.forEach(function(s,i){ if(!S.frame[i]) openTypes[s.t]=true; });
+    S.hand.forEach(function(c,idx){ var el=wcEl(c,false); if(!openTypes[c.t]) el.classList.add('dim'); el.onclick=function(){ place(idx); }; h.appendChild(el); });
+    document.getElementById('deckCount').textContent='やま '+S.deck.length;
+  }
+  function enemyEl(e){ var d=document.createElement('div'); d.className='enemy'; d.dataset.k=e.key;
+    d.innerHTML='<span class="pw">'+e.pw+'</span>'+(e.armor==='adj'?'<span class="arm">🛡</span>':'')+
+      '<span class="em">'+e.em+'</span><span class="jp">'+e.jp+'</span>'+
+      '<span class="hp"><i style="width:'+Math.max(0,100*e.hp/e.maxhp)+'%"></i></span>';
+    e.el=d; return d;
+  }
+  function wcEl(c,inFrame){ var el=document.createElement('div'); el.className='wc '+c.t;
+    var pw = (c.t==='verb'||c.t==='noun')?'<span class="pw">⚔'+c.pw+'</span>':(c.t==='adj'?'<span class="pw buff">+'+c.pw+'</span>':'');
+    el.innerHTML=(inFrame?'':'<span class="tp">'+({noun:'名',verb:'動',adj:'形',part:'助'})[c.t]+'</span>')+
+      '<span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span>'+(inFrame?'':'<span class="en">'+c.en+'</span>')+pw;
+    return el;
+  }
+
+  function place(idx){ if(S.over) return; var c=S.hand[idx];
+    for(var i=0;i<SLOTS.length;i++){ if(SLOTS[i].t===c.t && !S.frame[i]){ S.frame[i]=c; S.hand.splice(idx,1); render(); return; } }
+    say('その ことばは この ぶんに はいらない よ。'); }
+  function unplace(i){ if(S.over||!S.frame[i]) return; if(S.frame[i].t!=='part') S.hand.push(S.frame[i]); S.frame[i]=null; render(); }
+
+  function fire(lane){
+    if(S.over||!structComplete()) return; var e=frontEnemy(lane); if(!e) return;
+    var sc=score();
+    if(!sc.particleOk){ say('助詞 が ちがう！ を は もくてきご に。'); frameShake(); consumeAndEnd(); return; }
+    if(e.armor==='adj' && !sc.hasAdj){ say('この おに は かたい… 形容詞 が いる！'); frameShake(); floatOn(e.el,'🛡0'); consumeAndEnd(); return; }
+    e.hp-=sc.base; voice(sentenceStr()); say('『'+sentenceStr()+'』！ ‑'+sc.base);
+    if(e.el) floatOn(e.el,'‑'+sc.base);
+    if(e.hp<=0){ S.enemies=S.enemies.filter(function(x){return x!==e;}); S.cleared++; }
+    consumeAndEnd();
+  }
+  function consumeAndEnd(){
+    S.frame.forEach(function(c){ if(c && c.t!=='part') S.discard.push(c); }); S.frame=SLOTS.map(function(){return null;});
+    drawUp(); enemyPhase();
+  }
+  document.getElementById('redraw').onclick=function(){ if(S.over) return;
+    S.frame.forEach(function(c){ if(c && c.t!=='part') S.hand.push(c); }); S.frame=SLOTS.map(function(){return null;});
+    S.discard=S.discard.concat(S.hand); S.hand=[]; drawUp(); say('ひきなおし…'); enemyPhase(); };
+
+  function enemyPhase(){
+    S.enemies.forEach(function(e){ e.row++; });
+    S.enemies=S.enemies.filter(function(e){ if(e.row>=ROWS){ S.heart-=e.pw; floatHeart(e.pw); return false; } return true; });
+    spawnOne();
+    render();
+    if(S.heart<=0){ endGame(false); return; }
+    if(!S.enemies.length && !S.spawns.length){ endGame(true); return; }
+  }
+  function endGame(win){ S.over=true;
+    document.getElementById('endEmoji').textContent=win?'🏮':'🌸';
+    document.getElementById('endTitle').textContent=win?'まもりきった！':'まけ… gentle loss';
+    document.getElementById('endText').textContent=win?'You held the street with grammar. Stamp earned 🏮.':'They broke through — the tale resets. What you learned stays with you.';
+    document.getElementById('end').classList.add('on');
+  }
+
+  function boardRect(){ return document.querySelector('.board').getBoundingClientRect(); }
+  function spawnFloat(x,y,txt,color){ var f=document.createElement('div'); f.className='float'; f.textContent=txt; f.style.left=x+'px'; f.style.top=y+'px'; f.style.color=color; document.querySelector('.board').appendChild(f); setTimeout(function(){ f.remove(); },800); }
+  function floatOn(el,txt){ if(!el) return; var b=el.getBoundingClientRect(),p=boardRect(); spawnFloat(b.left-p.left+b.width/2-8,b.top-p.top+4,txt,'#b3261e'); }
+  function floatHeart(dmg){ var el=document.getElementById('heart').parentNode.getBoundingClientRect(),p=boardRect(); spawnFloat(el.left-p.left,el.top-p.top,'‑'+dmg,'#b3261e'); }
+  function frameShake(){ var f=document.getElementById('frame'); f.classList.add('bad'); setTimeout(function(){ f.classList.remove('bad'); },300); }
+
+  document.getElementById('again').onclick=newGame;
+  newGame();
+})();
+</script>
+</body>
+</html>
