@@ -78,9 +78,12 @@
   .trayHead{ display:flex; justify-content:space-between; align-items:center; margin-bottom:7px; }
   .trayHead .h{ font-weight:800; font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
   .hand{ display:flex; gap:8px; overflow-x:auto; padding-bottom:3px; }
-  .card{ flex:0 0 auto; width:80px; border:3px solid var(--ink); border-radius:12px; background:#fff;
+  .card{ position:relative; flex:0 0 auto; width:80px; border:3px solid var(--ink); border-radius:12px; background:#fff;
     box-shadow:var(--shadow); padding:8px 5px 6px; text-align:center; cursor:pointer; user-select:none;
     transition:transform .12s, box-shadow .12s; }
+  .card .fluent{ position:absolute; top:-7px; right:-7px; width:19px; height:19px; border-radius:50%;
+    background:var(--gold); border:2px solid var(--ink); font-size:11px; font-weight:800;
+    display:grid; place-items:center; box-shadow:0 2px 0 var(--ink); }
   .card:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
   .card.n{ background:var(--n-bg); } .card.adj{ background:var(--adj-bg); } .card.v{ background:var(--v-bg); }
   .card.sel{ transform:translateY(-8px); box-shadow:0 8px 0 var(--ink),0 0 0 3px var(--accent); }
@@ -149,7 +152,7 @@
 <body>
 <div class="stage">
   <h1 class="page">夜市 の いっせん — the night-market duel</h1>
-  <p class="page">Summon by spelling a word · buff with an adjective · cast a verb by choosing its particle. Ring the bell to strike.</p>
+  <p class="page">Spell a new word to summon it · buff with an adjective · cast a verb by choosing its particle. Words you know (✓) play with one tap. Ring the bell to strike.</p>
 
   <div class="board">
     <div class="host">
@@ -248,10 +251,18 @@
   function mkCard(def,kind){ var c=clone(def); c.kind=kind; c.id=rid(); return c; }
   function liveCreature(def){ var c=clone(def); c.maxhp=c.hp; c.buff=null; c.shield=0; c.el=null; return c; }
 
+  // fluency: you produce a word while it's new; after FLU successes it plays with one tap.
+  var FLU=2;
+  function bump(jp,f){ var e=S.learned[jp]||(S.learned[jp]={spell:0,part:0}); e[f]++; return e[f]; }
+  function isFluent(jp){ var e=S.learned[jp]; return !!(e&&e.spell>=FLU); }
+  function partFluent(jp){ var e=S.learned[jp]; return !!(e&&e.part>=FLU); }
+  function fluentFor(c){ return c.kind==='v' ? (isFluent(c.jp)&&partFluent(c.jp)) : isFluent(c.jp); }
+  function celebrate(jp){ say('『'+jp+'』おぼえた！ ✨'); var p=boardRect(); spawnFloat(p.width/2-34,86,'✨ おぼえた','#c8941c'); }
+
   var S={};
   function newGame(){
     S={ enemyHp:12, myHp:12, enemyLanes:[null,null,null], myLanes:[null,null,null],
-        hand:[], deck:[], sel:null, busy:false, over:false, mic:false };
+        hand:[], deck:[], sel:null, busy:false, over:false, mic:false, learned:{} };
     var pool=[];
     NOUNS.forEach(function(n){ pool.push(mkCard(n,'n')); pool.push(mkCard(n,'n')); });
     ADJS.forEach(function(a){ pool.push(mkCard(a,'adj')); });
@@ -304,6 +315,7 @@
         el.innerHTML='<span class="pos">verb</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span>'+
           '<span class="en">'+c.en+'</span><div class="mini">'+verbBlurb(c)+'</div>';
       }
+      if(fluentFor(c)) el.insertAdjacentHTML('afterbegin','<span class="fluent" title="fluent — plays with one tap">✓</span>');
       el.onclick=function(){ selectCard(idx); };
       h.appendChild(el);
     });
@@ -341,31 +353,35 @@
 
   function trySummon(lane){
     var c=S.sel.card, idx=S.sel.idx;
-    produceWord(c.jp, (c.en?c.en+' · ':'')+c.ro, 'Spell it to summon', function(){
-      S.myLanes[lane]=liveCreature(c); S.hand.splice(idx,1); S.sel=null;
+    var place=function(){ S.myLanes[lane]=liveCreature(c); S.hand.splice(idx,1); S.sel=null;
       voice(c.jp); say(pick(REACT.summon)); flash(S.myLanes[lane],'✦','#1a7a3c');
-      hint('Nice. Play more, or ring the bell.'); render();
+      hint('Nice. Play more, or ring the bell.'); render(); };
+    if(isFluent(c.jp)){ place(); return; }              // known word → one tap, no spelling
+    produceWord(c.jp, (c.en?c.en+' · ':'')+c.ro, 'Spell it to summon', function(){
+      var n=bump(c.jp,'spell'); place(); if(n===FLU) celebrate(c.jp);
     });
   }
   function tryBuff(lane){
     var adj=S.sel.card, idx=S.sel.idx, cr=S.myLanes[lane], phrase=adj.jp+cr.jp;
-    produceWord(phrase, adj.en+' '+cr.en, 'Spell the phrase', function(){
-      cr.pow+=adj.pow; cr.hp+=adj.hp; cr.maxhp+=adj.hp; cr.buff=(cr.buff?cr.buff+' ':'')+adj.jp;
+    var apply=function(){ cr.pow+=adj.pow; cr.hp+=adj.hp; cr.maxhp+=adj.hp; cr.buff=(cr.buff?cr.buff+' ':'')+adj.jp;
       S.hand.splice(idx,1); S.sel=null; voice(phrase); say('つよく なった！'); flash(cr,'↑','#4c1d95');
-      hint('Buffed! Ring the bell when ready.'); render();
-    }, adj.jp);
+      hint('Buffed! Ring the bell when ready.'); render(); };
+    if(isFluent(adj.jp)){ apply(); return; }             // known adjective → attach with one tap
+    produceWord(phrase, adj.en+' '+cr.en, 'Spell the phrase', function(){
+      var n=bump(adj.jp,'spell'); apply(); if(n===FLU) celebrate(adj.jp);
+    });
   }
   function castVerb(lane){
     var v=S.sel.card, idx=S.sel.idx;
     var target=(v.side==='enemy'?S.enemyLanes:S.myLanes)[lane];
-    // build the sentence with a particle choice, then spell the verb
-    openSentence(target, v, function(){
-      resolveVerb(v, target, lane); S.hand.splice(idx,1); S.sel=null;
-      voice(target.jp+v.part+v.jp); say(pick(REACT.verb)); hint('Ring the bell when ready.'); render();
-    });
+    var fire=function(){ resolveVerb(v, target, lane); S.hand.splice(idx,1); S.sel=null;
+      voice(target.jp+v.part+v.jp); say(pick(REACT.verb)); hint('Ring the bell when ready.'); render(); };
+    var needPart=!partFluent(v.jp), needSpell=!isFluent(v.jp);
+    if(!needPart && !needSpell){ fire(); return; }       // fully known verb → tap target, done
+    openSentence(target, v, fire, needPart, needSpell);
   }
   function resolveVerb(v, target, lane){
-    if(v.eff==='damage'){ dealTo(target, v.amt, S.sel.card.side==='enemy'?S.enemyLanes:S.myLanes, lane); }
+    if(v.eff==='damage'){ dealTo(target, v.amt, v.side==='enemy'?S.enemyLanes:S.myLanes, lane); }
     else if(v.eff==='shield'){ target.shield=(target.shield||0)+v.amt; flash(target,'🛡','#2e5bcf'); }
     else if(v.eff==='haste'){ strikeOne(target, lane, true); }
   }
@@ -388,37 +404,38 @@
     document.getElementById('micNote').textContent=S.mic?'Or tap “Say it” and speak the word.':'';
     document.getElementById('overlay').classList.add('on');
   }
-  // verb sentence: noun + [particle slot] + verb ; pick particle, then spell the verb
-  function openSentence(target, verb, onOk){
-    var correct=verb.part, decoy=(correct==='を'?'が':'を');
-    var opts=shuffle([correct,decoy]);
-    document.getElementById('prodMode').textContent='Pick the particle, then spell the verb';
+  // verb sentence: noun + [particle] + verb. needPart/needSpell phase out as the verb is learned.
+  function openSentence(target, verb, onOk, needPart, needSpell){
+    var correct=verb.part;
     document.getElementById('gloss').textContent=target.en+' — '+verb.en+' ('+PARTS[correct].gloss+' marker)';
+    var pc=document.getElementById('particles');
+    document.getElementById('prodSlots').innerHTML=''; document.getElementById('prodBank').innerHTML='';
+    document.getElementById('prodMic').style.display='none'; document.getElementById('micNote').textContent='';
+    var pslot = needPart ? '<span class="pslot" id="pslot">？</span>' : '<span class="pslot done">'+correct+'</span>';
     document.getElementById('sentence').innerHTML=
-      '<span class="tw">'+target.jp+'</span> <span class="pslot" id="pslot">？</span> <span class="vw">'+verb.jp+'</span>';
-    var pc=document.getElementById('particles'); pc.style.display='flex'; pc.innerHTML='';
-    opts.forEach(function(p){
-      var b=document.createElement('button'); b.className='pbtn'; b.innerHTML=p+'<small>'+PARTS[p].ro+'</small>';
-      b.onclick=function(){
-        if(p===correct){
-          document.getElementById('pslot').textContent=p; document.getElementById('pslot').className='pslot done';
-          pc.style.display='none';
-          prod={ word:verb.jp, target:kana(verb.jp), filled:[], onOk:onOk };
-          document.getElementById('prodMode').textContent='Now spell the verb';
-          renderSpell();
-          document.getElementById('prodMic').style.display=S.mic?'':'none';
-        } else {
-          b.classList.add('bad'); setTimeout(function(){b.classList.remove('bad');},300);
-          say(pick(REACT.badParticle));
-          document.getElementById('micNote').textContent='が marks who does it · を marks what it is done to.';
-        }
-      };
-      pc.appendChild(b);
-    });
-    document.getElementById('prodSlots').innerHTML='';
-    document.getElementById('prodBank').innerHTML='';
-    document.getElementById('prodMic').style.display='none';
-    document.getElementById('micNote').textContent='';
+      '<span class="tw">'+target.jp+'</span> '+pslot+' <span class="vw">'+verb.jp+'</span>';
+    // stage 2: spell the verb (or finish if it's already fluent)
+    var proceedSpell=function(){
+      if(!needSpell){ document.getElementById('overlay').classList.remove('on'); onOk(); return; }
+      prod={ word:verb.jp, target:kana(verb.jp), filled:[], onOk:function(){ var n=bump(verb.jp,'spell'); onOk(); if(n===FLU) celebrate(verb.jp); } };
+      document.getElementById('prodMode').textContent='Now spell the verb';
+      renderSpell(); document.getElementById('prodMic').style.display=S.mic?'':'none';
+    };
+    if(needPart){
+      document.getElementById('prodMode').textContent='Pick the particle'+(needSpell?', then spell the verb':'');
+      pc.style.display='flex'; pc.innerHTML='';
+      shuffle([correct, correct==='を'?'が':'を']).forEach(function(p){
+        var b=document.createElement('button'); b.className='pbtn'; b.innerHTML=p+'<small>'+PARTS[p].ro+'</small>';
+        b.onclick=function(){
+          if(p===correct){ bump(verb.jp,'part');
+            document.getElementById('pslot').textContent=p; document.getElementById('pslot').className='pslot done';
+            pc.style.display='none'; proceedSpell();
+          } else { b.classList.add('bad'); setTimeout(function(){b.classList.remove('bad');},300);
+            say(pick(REACT.badParticle)); document.getElementById('micNote').textContent='が marks who does it · を marks what it is done to.'; }
+        };
+        pc.appendChild(b);
+      });
+    } else { pc.style.display='none'; proceedSpell(); }
     document.getElementById('overlay').classList.add('on');
   }
   function renderSpell(){
