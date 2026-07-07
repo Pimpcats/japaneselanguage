@@ -327,13 +327,12 @@
     render();
   }
   function trySummon(lane){
+    // spell-to-summon removed — summoning is a plain tap
     var c=S.sel.card, idx=S.sel.idx;
-    produce(c, function(){
-      var cr=liveCreature(c); S.myLanes[lane]=cr;
-      S.hand.splice(idx,1); S.sel=null;
-      voice(c.jp); say(pick(REACT.summon)); flashAt(cr, '✦', '#1a7a3c');
-      hint('Nice. Summon more, buff, or ring the bell.'); render();
-    });
+    var cr=liveCreature(c); S.myLanes[lane]=cr;
+    S.hand.splice(idx,1); S.sel=null;
+    voice(c.jp); say(pick(REACT.summon)); flashAt(cr, '✦', '#1a7a3c');
+    hint('Nice. Summon more, buff, or ring the bell.'); render();
   }
   function tryBuff(lane){
     var adj=S.sel.card, idx=S.sel.idx, cr=S.myLanes[lane];
