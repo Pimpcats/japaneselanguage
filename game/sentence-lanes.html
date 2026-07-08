@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ことば陣 · the lane is the sentence</title>
+<style>
+  :root{
+    --cream:#fff7ea; --ink:#4a3328; --fg:#4a3328; --muted:#6b5847;
+    --accent:#ef6fa7; --accent-2:#f8a8c6; --on-accent:#5a1f3a; --gold:#f2be45; --matcha:#8fbf6b;
+    --n-bg:#dbeafe; --n-bd:#93c5fd; --n-fg:#1e3a8a;
+    --v-bg:#fef3c7; --v-bd:#fbbf24; --v-fg:#78350f;
+    --adj-bg:#ede9fe; --adj-bd:#a78bfa; --adj-fg:#4c1d95;
+    --part-fg:#2f5321;
+    --shadow:0 4px 0 var(--ink);
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; }
+  body{ background:radial-gradient(120% 80% at 50% -10%, #57324d 0%, #2a1d2a 60%); color:var(--fg);
+    font-family:ui-rounded,"Hiragino Maru Gothic ProN",system-ui,-apple-system,sans-serif;
+    min-height:100vh; padding:14px; display:flex; justify-content:center; }
+  .stage{ width:100%; max-width:440px; }
+  h1.page{ color:#ffe9c9; font-size:15px; text-align:center; margin:0 0 3px; font-weight:800; }
+  p.page{ color:#d6b8cf; font-size:12px; text-align:center; margin:0 0 12px; }
+
+  .board{ background:var(--cream); border:3px solid var(--ink); border-radius:24px; box-shadow:0 10px 0 rgba(0,0,0,.35); overflow:hidden; position:relative; }
+  .host{ display:flex; gap:10px; align-items:center; padding:9px 12px; background:var(--accent-2); border-bottom:3px solid var(--ink); }
+  .mochi{ width:42px; height:42px; border-radius:50%; background:#fff2f7; border:3px solid var(--ink); box-shadow:0 3px 0 var(--ink); position:relative; flex:0 0 auto; }
+  .mochi::before,.mochi::after{ content:""; position:absolute; top:16px; width:6px; height:8px; background:var(--ink); border-radius:50%; }
+  .mochi::before{ left:11px; } .mochi::after{ right:11px; }
+  .mochi .mo{ position:absolute; top:25px; left:50%; transform:translateX(-50%); width:11px; height:6px; border:2px solid var(--ink); border-top:0; border-radius:0 0 9px 9px; }
+  .say{ background:#fff; border:2.5px solid var(--ink); border-radius:13px; padding:6px 11px; box-shadow:0 3px 0 var(--ink); font-weight:700; font-size:13px; flex:1; min-height:34px; display:flex; align-items:center; }
+
+  .hearts{ display:flex; justify-content:space-between; align-items:center; padding:7px 14px; background:#fff; border-bottom:3px solid var(--ink); font-weight:800; }
+  .hearts .side{ display:flex; align-items:center; gap:6px; font-size:14px; }
+  .hearts .hp{ color:#b3261e; font-variant-numeric:tabular-nums; } .hearts .sh{ color:var(--part-fg); }
+  .hearts .lab{ color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
+
+  .lanes{ padding:10px; }
+  .row{ display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
+  .divider{ height:0; border-top:2px dashed #d8c4a4; margin:10px 2px; }
+  .slot{ min-height:88px; border:2.5px dashed #cbb493; border-radius:14px; display:grid; place-items:center; position:relative; transition:border-color .15s, background .15s; }
+  .slot.enemy{ background:#faf1f4; } .slot.mine{ background:#f2f7ec; }
+  .slot.targetable{ border-color:var(--accent); border-style:solid; background:#ffeef5; cursor:pointer; }
+  .slot.attach{ border-color:var(--adj-bd); border-style:solid; background:#f4f0ff; cursor:pointer; }
+
+  .creature{ width:100%; height:100%; border:3px solid var(--ink); border-radius:12px; background:#fff; box-shadow:var(--shadow);
+    position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; padding:4px; }
+  .creature.n{ background:var(--n-bg); } .creature.full{ box-shadow:0 4px 0 var(--ink),0 0 0 3px var(--gold) inset; }
+  .creature .em{ font-size:24px; line-height:1; } .creature .nm{ font-size:13px; font-weight:800; }
+  .creature .stat{ position:absolute; bottom:-8px; width:22px; height:22px; border-radius:50%; border:2.5px solid var(--ink); display:grid; place-items:center; font-size:12px; font-weight:800; }
+  .creature .atk{ left:-7px; background:var(--v-bg); color:var(--v-fg); } .creature .def{ right:-7px; background:#ffe1e1; color:#7f1d1d; }
+  .creature.hit{ animation:shake .3s; } .creature.lunge{ animation:lunge .45s; }
+  @keyframes shake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  @keyframes lunge{ 0%{transform:translateY(0)} 45%{transform:translateY(-14px) scale(1.06)} 100%{transform:translateY(0)} }
+
+  /* the sentence strip — the teaching surface */
+  .sentRow{ display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:14px; }
+  .strip{ min-height:40px; border:2.5px solid var(--ink); border-radius:11px; background:#fff; box-shadow:0 3px 0 var(--ink);
+    padding:5px 4px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .strip.empty{ border-style:dashed; box-shadow:none; background:transparent; color:var(--muted); font-size:10px; font-weight:700; }
+  .strip.speaking{ background:#fff7d6; box-shadow:0 3px 0 var(--ink),0 0 0 3px var(--gold); }
+  .strip .jp{ font-size:14px; font-weight:800; line-height:1.15; }
+  .strip .jp .adj{ color:var(--adj-fg); } .strip .jp .noun{ color:var(--n-fg); } .strip .jp .prt{ color:var(--part-fg); } .strip .jp .vb{ color:var(--v-fg); }
+  .strip .ro{ font-size:9px; color:var(--muted); margin-top:1px; }
+  .strip .need{ font-size:9px; color:var(--muted); font-weight:700; }
+
+  .tray{ background:#fbeecf; border-top:3px solid var(--ink); padding:9px 10px 12px; margin-top:10px; }
+  .trayHead{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .trayHead .h{ font-weight:800; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); }
+  .hand{ display:flex; gap:8px; overflow-x:auto; padding-bottom:3px; }
+  .card{ flex:0 0 auto; width:74px; border:3px solid var(--ink); border-radius:12px; background:#fff; box-shadow:var(--shadow);
+    padding:7px 4px 6px; text-align:center; cursor:pointer; user-select:none; transition:transform .12s, box-shadow .12s; position:relative; }
+  .card:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
+  .card.n{ background:var(--n-bg); } .card.adj{ background:var(--adj-bg); } .card.v{ background:var(--v-bg); }
+  .card.sel{ transform:translateY(-7px); box-shadow:0 8px 0 var(--ink),0 0 0 3px var(--accent); }
+  .card .pos{ font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+  .card .em{ font-size:20px; line-height:1; } .card .jp{ font-size:14px; font-weight:800; } .card .ro{ font-size:8px; color:var(--muted); }
+  .card .en{ font-size:9px; font-weight:700; } .card .mini{ font-size:10px; font-weight:800; margin-top:2px; }
+  .card.n .mini .a{ color:var(--v-fg); } .card.n .mini .d{ color:#7f1d1d; } .card.adj .mini{ color:var(--adj-fg); } .card.v .mini{ color:var(--v-fg); }
+
+  .actions{ display:flex; gap:8px; margin-top:10px; }
+  .btn{ flex:1; font:inherit; font-weight:800; font-size:14px; border:3px solid var(--ink); border-radius:13px; padding:11px; cursor:pointer; box-shadow:var(--shadow); transition:transform .12s, box-shadow .12s; background:#fff; color:var(--ink); }
+  .btn:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
+  .btn.bell{ background:var(--gold); } .btn.ghost{ flex:0 0 auto; color:var(--muted); }
+  .hint{ text-align:center; font-size:12px; color:var(--muted); margin-top:8px; font-weight:700; min-height:16px; }
+
+  .float{ position:absolute; font-weight:800; font-size:19px; pointer-events:none; z-index:6; animation:up .8s ease forwards; }
+  @keyframes up{ to{ transform:translateY(-28px); opacity:0 } }
+  .end{ position:absolute; inset:0; background:rgba(42,29,42,.85); display:none; z-index:20; align-items:center; justify-content:center; padding:24px; }
+  .end.on{ display:flex; } .end .c2{ background:var(--cream); border:3px solid var(--ink); border-radius:22px; box-shadow:0 8px 0 var(--ink); padding:22px 20px; text-align:center; max-width:300px; }
+  .end .c2 .big{ font-size:40px; } .end .c2 h3{ margin:6px 0; font-size:22px; } .end .c2 p{ color:var(--muted); font-size:13px; margin:0 0 16px; }
+  .end .c2 .btn{ background:var(--accent); color:var(--on-accent); }
+  @media (prefers-reduced-motion:reduce){ *{ animation:none !important; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1 class="page">ことば陣 — every lane is a sentence</h1>
+  <p class="page">Play a creature, tap an adjective onto it, tap a verb onto it. The lane becomes a Japanese sentence — particles appear on their own. Ring the bell: もち子さん reads each sentence and it strikes.</p>
+
+  <div class="board">
+    <div class="host"><div class="mochi"><span class="mo"></span></div><div class="say" id="say"></div></div>
+    <div class="hearts">
+      <div class="side"><span class="lab">もち子</span> <span class="hp">❤ <span id="enemyHp">12</span></span></div>
+      <div class="side"><span class="hp">❤ <span id="myHp">12</span></span><span class="sh" id="myShieldWrap" style="display:none"> 🛡<span id="myShield">0</span></span> <span class="lab">you</span></div>
+    </div>
+    <div class="lanes">
+      <div class="row" id="enemyRow"></div>
+      <div class="divider"></div>
+      <div class="row" id="myRow"></div>
+      <div class="sentRow" id="sentRow"></div>
+    </div>
+    <div class="tray">
+      <div class="trayHead"><span class="h" id="phase">Your move</span><span class="h" id="deckCount"></span></div>
+      <div class="hand" id="hand"></div>
+      <div class="actions"><button class="btn bell" id="bell">🔔 Ring the bell</button><button class="btn ghost" id="mic">🎤 off</button></div>
+      <div class="hint" id="hint"></div>
+    </div>
+    <div class="end" id="end"><div class="c2"><div class="big" id="endEmoji">🎉</div><h3 id="endTitle"></h3><p id="endText"></p><button class="btn" id="again">Again</button></div></div>
+  </div>
+  <p class="page" style="margin-top:12px">Prototype · subject sentences (形 名 が 動) · object/adverb slots are the next lane-growth step</p>
+</div>
+
+<script>
+(function(){
+  function rand(n){ return Math.floor(Math.random()*n); }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=rand(i+1),t=a[i];a[i]=a[j];a[j]=t;} return a; }
+  function pick(a){ return a[rand(a.length)]; }
+  function say(t){ document.getElementById('say').textContent=t; }
+  function voice(jp){ try{ if(window.speechSynthesis){ var u=new SpeechSynthesisUtterance(jp); u.lang='ja-JP'; u.rate=.95; speechSynthesis.cancel(); speechSynthesis.speak(u);} }catch(e){} }
+
+  var NOUNS=[
+    {jp:'くま',ro:'kuma',en:'bear',em:'🐻',pow:4,hp:4},{jp:'いぬ',ro:'inu',en:'dog',em:'🐕',pow:2,hp:3},
+    {jp:'とり',ro:'tori',en:'bird',em:'🐦',pow:3,hp:1},{jp:'さかな',ro:'sakana',en:'fish',em:'🐟',pow:1,hp:2},
+    {jp:'ねこ',ro:'neko',en:'cat',em:'🐈',pow:2,hp:2}
+  ];
+  var ADJS=[
+    {jp:'つよい',ro:'tsuyoi',en:'strong',pw:2,hpb:0},{jp:'おおきい',ro:'ookii',en:'big',pw:0,hpb:2},
+    {jp:'はやい',ro:'hayai',en:'fast',pw:1,hpb:0},{jp:'あかい',ro:'akai',en:'red',pw:1,hpb:0}
+  ];
+  // verbs attach into the lane = the predicate. eff: attack (+bonus dmg) or guard (shield, no attack)
+  var VERBS=[
+    {jp:'たべる',ro:'taberu',en:'eats',eff:'attack',bonus:1},{jp:'たおす',ro:'taosu',en:'defeats',eff:'attack',bonus:2},
+    {jp:'のむ',ro:'nomu',en:'drinks',eff:'attack',bonus:0},{jp:'みる',ro:'miru',en:'sees',eff:'attack',bonus:0},
+    {jp:'まもる',ro:'mamoru',en:'guards',eff:'guard',bonus:0}
+  ];
+  function card(w,kind){ var c={}; for(var k in w)c[k]=w[k]; c.kind=kind; c.id='c'+rand(1e9); return c; }
+  var REACT={ summon:['ほう！','いいね！','やるね〜'], read:['すてき！','じょうず！','いいぶん！'], hitYou:['えいっ！','がおー'], win:['まいりました！ じょうず！'], lose:['ふふ、わたしの かち♪'] };
+
+  var S={};
+  function freshDeck(){ var d=[];
+    NOUNS.forEach(function(n){ d.push(card(n,'n')); d.push(card(n,'n')); });
+    ADJS.forEach(function(a){ d.push(card(a,'adj')); });
+    VERBS.forEach(function(v){ d.push(card(v,'v')); });
+    return shuffle(d);
+  }
+  function newGame(){
+    S={ enemyHp:12, myHp:12, myShield:0, myLanes:[null,null,null], enemyLanes:[null,null,null], hand:[], deck:freshDeck(), sel:null, busy:false, over:false, mic:false };
+    S.hand=S.deck.splice(0,5);
+    S.enemyLanes[1]=liveCreature(pick(NOUNS));
+    document.getElementById('end').classList.remove('on');
+    say('こんばんは！ ぶんを つくって みせて？ 🌙'); hint('Tap a creature, then an empty lane.');
+    render();
+  }
+  function liveCreature(def){ var c={jp:def.jp,ro:def.ro,en:def.en,em:def.em,pow:def.pow,hp:def.hp,maxhp:def.hp,adj:null,verb:null,el:null}; return c; }
+  function draw(){ if(!S.deck.length) S.deck=freshDeck(); if(S.deck.length) S.hand.push(S.deck.shift()); }
+
+  /* sentence assembly — particles auto-inserted */
+  function sentenceHTML(cr){
+    var h=''; if(cr.adj) h+='<span class="adj">'+cr.adj.jp+'</span> ';
+    h+='<span class="noun">'+cr.jp+'</span>';
+    if(cr.verb){ h+=' <span class="prt">が</span> <span class="vb">'+cr.verb.jp+'</span>'; }
+    return h;
+  }
+  function sentencePlain(cr){ return (cr.adj?cr.adj.jp:'')+cr.jp+(cr.verb?('が'+cr.verb.jp):''); }
+  function sentenceRomaji(cr){ return (cr.adj?cr.adj.ro+' ':'')+cr.ro+(cr.verb?(' ga '+cr.verb.ro):''); }
+
+  /* ---------- render ---------- */
+  function creatureEl(cr){
+    var d=document.createElement('div'); d.className='creature n'+(cr.verb?' full':'');
+    d.innerHTML='<span class="em">'+cr.em+'</span><span class="nm">'+cr.jp+'</span>'+
+      '<span class="stat atk">'+cr.pow+'</span><span class="stat def">'+cr.hp+'</span>';
+    cr.el=d; return d;
+  }
+  function render(){
+    document.getElementById('enemyHp').textContent=S.enemyHp;
+    document.getElementById('myHp').textContent=S.myHp;
+    document.getElementById('myShield').textContent=S.myShield;
+    document.getElementById('myShieldWrap').style.display=S.myShield>0?'':'none';
+    document.getElementById('deckCount').textContent='やま '+S.deck.length;
+    var er=document.getElementById('enemyRow'), mr=document.getElementById('myRow'), sr=document.getElementById('sentRow');
+    er.innerHTML=''; mr.innerHTML=''; sr.innerHTML='';
+    for(var i=0;i<3;i++){
+      var es=document.createElement('div'); es.className='slot enemy'; es.dataset.lane=i;
+      if(S.enemyLanes[i]) es.appendChild(creatureEl(S.enemyLanes[i])); er.appendChild(es);
+      var ms=document.createElement('div'); ms.className='slot mine'; ms.dataset.lane=i;
+      if(S.myLanes[i]) ms.appendChild(creatureEl(S.myLanes[i])); mr.appendChild(ms);
+      // sentence strip
+      var st=document.createElement('div'); var cr=S.myLanes[i];
+      if(cr){ st.className='strip'; st.id='strip'+i;
+        st.innerHTML='<span class="jp">'+sentenceHTML(cr)+'</span><span class="ro">'+sentenceRomaji(cr)+'</span>'+
+          (cr.verb?'':'<span class="need">＋ verb = full sentence</span>');
+      } else { st.className='strip empty'; st.textContent='—'; }
+      sr.appendChild(st);
+    }
+    applyHighlights();
+    // hand
+    var h=document.getElementById('hand'); h.innerHTML='';
+    S.hand.forEach(function(c,idx){
+      var el=document.createElement('div'); el.className='card '+c.kind+(S.sel&&S.sel.idx===idx?' sel':'');
+      if(c.kind==='n') el.innerHTML='<span class="pos">名 noun</span><span class="em">'+c.em+'</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span><div class="mini"><span class="a">⚔'+c.pow+'</span> <span class="d">♥'+c.hp+'</span></div>';
+      else if(c.kind==='adj') el.innerHTML='<span class="pos">形 adj</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span><span class="en">'+c.en+'</span><div class="mini">'+(c.pw?'+⚔'+c.pw:'')+(c.hpb?' +♥'+c.hpb:'')+'</div>';
+      else el.innerHTML='<span class="pos">動 verb</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span><span class="en">'+c.en+'</span><div class="mini">'+(c.eff==='guard'?'🛡 guard':'⚔ act'+(c.bonus?' +'+c.bonus:''))+'</div>';
+      el.onclick=function(){ selectCard(idx); }; h.appendChild(el);
+    });
+  }
+  function forEachSlot(cls,fn){ Array.prototype.forEach.call(document.querySelectorAll('.slot.'+cls),function(el){ fn(el,+el.dataset.lane); }); }
+  function applyHighlights(){
+    if(!S.sel) return;
+    if(S.sel.type==='summon'){ forEachSlot('mine',function(el,i){ if(!S.myLanes[i]){ el.classList.add('targetable'); el.onclick=function(){ trySummon(i); }; } }); }
+    else { forEachSlot('mine',function(el,i){ if(S.myLanes[i]){ el.classList.add('attach'); el.onclick=function(){ tryAttach(i); }; } }); }
+  }
+  function hint(t){ document.getElementById('hint').textContent=t; }
+
+  /* ---------- plays (all tap, no interruption) ---------- */
+  function selectCard(idx){
+    if(S.busy||S.over) return; var c=S.hand[idx];
+    if(S.sel&&S.sel.idx===idx){ S.sel=null; hint(''); render(); return; }
+    if(c.kind==='n'){ S.sel={type:'summon',idx:idx,card:c}; hint('Tap an empty lane to place '+c.jp+'.'); }
+    else if(c.kind==='adj'){ if(!S.myLanes.some(Boolean)){ hint('Place a creature first.'); S.sel=null; render(); return; } S.sel={type:'adj',idx:idx,card:c}; hint('Tap your creature to make it '+c.en+' ('+c.jp+').'); }
+    else { if(!S.myLanes.some(Boolean)){ hint('Place a creature first.'); S.sel=null; render(); return; } S.sel={type:'verb',idx:idx,card:c}; hint('Tap your creature — it will '+c.en+' ('+c.jp+').'); }
+    render();
+  }
+  function trySummon(lane){ var c=S.sel.card, idx=S.sel.idx;
+    S.myLanes[lane]=liveCreature(c); S.hand.splice(idx,1); S.sel=null;
+    voice(c.jp); say(pick(REACT.summon)); hint('Add an adjective or a verb — or ring the bell.'); render();
+  }
+  function tryAttach(lane){ var c=S.sel.card, idx=S.sel.idx, cr=S.myLanes[lane];
+    if(c.kind==='adj'){ if(cr.adj){ hint(cr.jp+' already has an adjective.'); return; }
+      cr.adj=c; cr.pow+=c.pw; cr.hp+=c.hpb; cr.maxhp+=c.hpb; }
+    else { if(cr.verb){ hint(cr.jp+' already has a verb.'); return; } cr.verb=c; }
+    S.hand.splice(idx,1); S.sel=null;
+    voice(sentencePlain(cr)); say(pick(REACT.read)); hint(cr.verb?'A full sentence! Ring the bell.':'Now add a verb for a full sentence.'); render();
+  }
+
+  /* ---------- resolve ---------- */
+  document.getElementById('bell').onclick=function(){
+    if(S.busy||S.over) return; S.sel=null; S.busy=true; hint('');
+    document.getElementById('phase').textContent='Reading your sentences…'; render();
+    resolveMine(0);
+  };
+  function resolveMine(i){
+    if(i>=3){ enemyTurn(); return; }
+    var cr=S.myLanes[i]; if(!cr){ return resolveMine(i+1); }
+    var strip=document.getElementById('strip'+i); if(strip) strip.classList.add('speaking');
+    voice(sentencePlain(cr)); say('『'+sentencePlain(cr)+'』');
+    setTimeout(function(){
+      if(cr.verb && cr.verb.eff==='guard'){ S.myShield+=2; floatAt(cr.el,'🛡+2','#2f5321'); }
+      else {
+        var dmg=cr.pow + (cr.verb?cr.verb.bonus:0);           // full sentence = verb bonus
+        if(cr.el) cr.el.classList.add('lunge');
+        var opp=S.enemyLanes[i];
+        if(opp){ opp.hp-=dmg; if(opp.el){opp.el.classList.add('hit'); floatAt(opp.el,'-'+dmg,'#b3261e');} if(opp.hp<=0)S.enemyLanes[i]=null; }
+        else { S.enemyHp-=dmg; floatHeart(true,dmg); }
+      }
+      if(strip) strip.classList.remove('speaking');
+      render();
+      if(S.enemyHp<=0){ endGame(true); return; }
+      setTimeout(function(){ resolveMine(i+1); }, 240);
+    }, 620);
+  }
+  function enemyTurn(){
+    if(S.over) return;
+    document.getElementById('phase').textContent='もち子 の ばん';
+    var empties=[]; S.enemyLanes.forEach(function(v,i){ if(!v)empties.push(i); });
+    if(empties.length){ var lane=pick(empties); var cr=liveCreature(pick(NOUNS)); if(rand(2)) { var a=pick(ADJS); cr.adj=a; cr.pow+=a.pw; cr.hp+=a.hpb; cr.maxhp+=a.hpb; } S.enemyLanes[lane]=cr; say(pick(REACT.summon)); render(); }
+    setTimeout(function(){ enemyResolve(0); }, 620);
+  }
+  function enemyResolve(i){
+    if(i>=3){ // end enemy turn
+      draw(); S.busy=false; S.myShield=0; document.getElementById('phase').textContent='Your move';
+      hint('Tap a creature, adjective, or verb.'); say('つぎは あなた！'); render(); return;
+    }
+    var cr=S.enemyLanes[i]; if(!cr){ return enemyResolve(i+1); }
+    if(cr.el) cr.el.classList.add('lunge');
+    setTimeout(function(){
+      var opp=S.myLanes[i];
+      if(opp){ opp.hp-=cr.pow; if(opp.el){opp.el.classList.add('hit'); floatAt(opp.el,'-'+cr.pow,'#b3261e');} if(opp.hp<=0)S.myLanes[i]=null; }
+      else { var d=cr.pow; if(S.myShield>0){ var a=Math.min(S.myShield,d); S.myShield-=a; d-=a; } S.myHp-=d; floatHeart(false,cr.pow); }
+      say(pick(REACT.hitYou)); render();
+      if(S.myHp<=0){ endGame(false); return; }
+      setTimeout(function(){ enemyResolve(i+1); }, 220);
+    }, 220);
+  }
+  function endGame(win){ S.over=true; S.busy=false; render(); say(pick(win?REACT.win:REACT.lose));
+    document.getElementById('endEmoji').textContent=win?'🎉':'🌸';
+    document.getElementById('endTitle').textContent=win?'かち！ You win':'まけ… gentle loss';
+    document.getElementById('endText').textContent=win?'You spoke もち子さん down with full sentences.':'No harm done — the tale resets. What you learned stays with you.';
+    document.getElementById('end').classList.add('on');
+  }
+
+  function boardRect(){ return document.querySelector('.board').getBoundingClientRect(); }
+  function floatAt(el,txt,color){ if(!el) return; var b=el.getBoundingClientRect(),p=boardRect(); spawnFloat(b.left-p.left+b.width/2-8,b.top-p.top+4,txt,color); }
+  function floatHeart(enemy,dmg){ var el=document.getElementById(enemy?'enemyHp':'myHp').parentNode.getBoundingClientRect(),p=boardRect(); spawnFloat(el.left-p.left,el.top-p.top,'-'+dmg,'#b3261e'); }
+  function spawnFloat(x,y,txt,color){ var f=document.createElement('div'); f.className='float'; f.textContent=txt; f.style.left=x+'px'; f.style.top=y+'px'; f.style.color=color; document.querySelector('.board').appendChild(f); setTimeout(function(){ f.remove(); },800); }
+
+  document.getElementById('mic').onclick=function(){ S.mic=!S.mic; this.textContent=S.mic?'🎤 on':'🎤 off'; };
+  document.getElementById('again').onclick=newGame;
+  newGame();
+})();
+</script>
+</body>
+</html>
