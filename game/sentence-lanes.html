@@ -61,6 +61,7 @@
     padding:5px 4px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
   .strip.empty{ border-style:dashed; box-shadow:none; background:transparent; color:var(--muted); font-size:10px; font-weight:700; }
   .strip.speaking{ background:#fff7d6; box-shadow:0 3px 0 var(--ink),0 0 0 3px var(--gold); }
+  .strip.enemyStrip{ background:#fff0f5; } .strip.enemyStrip.speaking{ background:#ffe3ef; }
   .strip .jp{ font-size:14px; font-weight:800; line-height:1.15; }
   .strip .jp .adj{ color:var(--adj-fg); } .strip .jp .noun{ color:var(--n-fg); } .strip .jp .prt{ color:var(--part-fg); } .strip .jp .vb{ color:var(--v-fg); }
   .strip .ro{ font-size:9px; color:var(--muted); margin-top:1px; }
@@ -104,10 +105,11 @@
   <div class="board">
     <div class="host"><div class="mochi"><span class="mo"></span></div><div class="say" id="say"></div></div>
     <div class="hearts">
-      <div class="side"><span class="lab">もち子</span> <span class="hp">❤ <span id="enemyHp">12</span></span></div>
+      <div class="side"><span class="lab">もち子</span> <span class="hp">❤ <span id="enemyHp">12</span></span><span class="sh" id="enemyShieldWrap" style="display:none"> 🛡<span id="enemyShield">0</span></span></div>
       <div class="side"><span class="hp">❤ <span id="myHp">12</span></span><span class="sh" id="myShieldWrap" style="display:none"> 🛡<span id="myShield">0</span></span> <span class="lab">you</span></div>
     </div>
     <div class="lanes">
+      <div class="sentRow" id="sentRowEnemy"></div>
       <div class="row" id="enemyRow"></div>
       <div class="divider"></div>
       <div class="row" id="myRow"></div>
@@ -158,7 +160,7 @@
     return shuffle(d);
   }
   function newGame(){
-    S={ enemyHp:12, myHp:12, myShield:0, myLanes:[null,null,null], enemyLanes:[null,null,null], hand:[], deck:freshDeck(), sel:null, busy:false, over:false, mic:false };
+    S={ enemyHp:12, myHp:12, myShield:0, enemyShield:0, myLanes:[null,null,null], enemyLanes:[null,null,null], hand:[], deck:freshDeck(), sel:null, busy:false, over:false, mic:false };
     S.hand=S.deck.splice(0,5);
     S.enemyLanes[1]=liveCreature(pick(NOUNS));
     document.getElementById('end').classList.remove('on');
@@ -193,9 +195,17 @@
     document.getElementById('myShield').textContent=S.myShield;
     document.getElementById('myShieldWrap').style.display=S.myShield>0?'':'none';
     document.getElementById('deckCount').textContent='やま '+S.deck.length;
-    var er=document.getElementById('enemyRow'), mr=document.getElementById('myRow'), sr=document.getElementById('sentRow');
-    er.innerHTML=''; mr.innerHTML=''; sr.innerHTML='';
+    document.getElementById('enemyShield').textContent=S.enemyShield;
+    document.getElementById('enemyShieldWrap').style.display=S.enemyShield>0?'':'none';
+    var er=document.getElementById('enemyRow'), mr=document.getElementById('myRow'), sr=document.getElementById('sentRow'), sre=document.getElementById('sentRowEnemy');
+    er.innerHTML=''; mr.innerHTML=''; sr.innerHTML=''; sre.innerHTML='';
     for(var i=0;i<3;i++){
+      // enemy sentence strip (her creatures build sentences too — reading them is comprehension)
+      var ecr=S.enemyLanes[i]; var est=document.createElement('div');
+      if(ecr){ est.className='strip enemyStrip'; est.id='estrip'+i;
+        est.innerHTML='<span class="jp">'+sentenceHTML(ecr)+'</span><span class="ro">'+sentenceRomaji(ecr)+'</span><span class="gl">'+sentenceEnglish(ecr)+'</span>';
+      } else { est.className='strip empty'; est.textContent='—'; }
+      sre.appendChild(est);
       var es=document.createElement('div'); es.className='slot enemy'; es.dataset.lane=i;
       if(S.enemyLanes[i]) es.appendChild(creatureEl(S.enemyLanes[i])); er.appendChild(es);
       var ms=document.createElement('div'); ms.className='slot mine'; ms.dataset.lane=i;
@@ -267,7 +277,7 @@
         if(cr.el) cr.el.classList.add('lunge');
         var opp=S.enemyLanes[i];
         if(opp){ opp.hp-=dmg; if(opp.el){opp.el.classList.add('hit'); floatAt(opp.el,'-'+dmg,'#b3261e');} if(opp.hp<=0)S.enemyLanes[i]=null; }
-        else { S.enemyHp-=dmg; floatHeart(true,dmg); }
+        else { var hd=dmg; if(S.enemyShield>0){ var ea=Math.min(S.enemyShield,hd); S.enemyShield-=ea; hd-=ea; } S.enemyHp-=hd; floatHeart(true,dmg); }
       }
       if(strip) strip.classList.remove('speaking');
       render();
@@ -277,9 +287,15 @@
   }
   function enemyTurn(){
     if(S.over) return;
+    S.enemyShield=0;                                   // her guard lasts until your next bell
     document.getElementById('phase').textContent='もち子 の ばん';
+    // she summons and BUILDS a sentence — an adjective and (often) a verb — for you to read
     var empties=[]; S.enemyLanes.forEach(function(v,i){ if(!v)empties.push(i); });
-    if(empties.length){ var lane=pick(empties); var cr=liveCreature(pick(NOUNS)); if(rand(2)) { var a=pick(ADJS); cr.adj=a; cr.pow+=a.pw; cr.hp+=a.hpb; cr.maxhp+=a.hpb; } S.enemyLanes[lane]=cr; say(pick(REACT.summon)); render(); }
+    if(empties.length){ var lane=pick(empties); var cr=liveCreature(pick(NOUNS));
+      if(rand(10)<5){ var a=pick(ADJS); cr.adj=a; cr.pow+=a.pw; cr.hp+=a.hpb; cr.maxhp+=a.hpb; }
+      if(rand(10)<7){ cr.verb=pick(VERBS); }
+      S.enemyLanes[lane]=cr; say(pick(REACT.summon)); render();
+    }
     setTimeout(function(){ enemyResolve(0); }, 620);
   }
   function enemyResolve(i){
@@ -288,15 +304,22 @@
       hint('Tap a creature, adjective, or verb.'); say('つぎは あなた！'); render(); return;
     }
     var cr=S.enemyLanes[i]; if(!cr){ return enemyResolve(i+1); }
+    var strip=document.getElementById('estrip'+i); if(strip) strip.classList.add('speaking');
+    voice(sentencePlain(cr)); say('『'+sentencePlain(cr)+'』');   // she reads her sentence — a learning moment
     if(cr.el) cr.el.classList.add('lunge');
     setTimeout(function(){
-      var opp=S.myLanes[i];
-      if(opp){ opp.hp-=cr.pow; if(opp.el){opp.el.classList.add('hit'); floatAt(opp.el,'-'+cr.pow,'#b3261e');} if(opp.hp<=0)S.myLanes[i]=null; }
-      else { var d=cr.pow; if(S.myShield>0){ var a=Math.min(S.myShield,d); S.myShield-=a; d-=a; } S.myHp-=d; floatHeart(false,cr.pow); }
-      say(pick(REACT.hitYou)); render();
+      if(cr.verb && cr.verb.eff==='guard'){ S.enemyShield+=2; floatAt(cr.el,'🛡+2','#2f5321'); }
+      else {
+        var dmg=cr.pow + (cr.verb?cr.verb.bonus:0);
+        var opp=S.myLanes[i];
+        if(opp){ opp.hp-=dmg; if(opp.el){opp.el.classList.add('hit'); floatAt(opp.el,'-'+dmg,'#b3261e');} if(opp.hp<=0)S.myLanes[i]=null; }
+        else { var d=dmg; if(S.myShield>0){ var a=Math.min(S.myShield,d); S.myShield-=a; d-=a; } S.myHp-=d; floatHeart(false,dmg); }
+        say(pick(REACT.hitYou));
+      }
+      if(strip) strip.classList.remove('speaking'); render();
       if(S.myHp<=0){ endGame(false); return; }
-      setTimeout(function(){ enemyResolve(i+1); }, 220);
-    }, 220);
+      setTimeout(function(){ enemyResolve(i+1); }, 240);
+    }, 560);
   }
   function endGame(win){ S.over=true; S.busy=false; render(); say(pick(win?REACT.win:REACT.lose));
     document.getElementById('endEmoji').textContent=win?'🎉':'🌸';
