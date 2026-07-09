@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>夜市の道 · the run map</title>
+<style>
+  :root{
+    --cream:#fff7ea; --ink:#4a3328; --fg:#4a3328; --muted:#6b5847;
+    --accent:#ef6fa7; --accent-2:#f8a8c6; --on-accent:#5a1f3a; --gold:#f2be45; --matcha:#8fbf6b;
+    --n-bg:#dbeafe; --n-bd:#93c5fd; --adj:#ede9fe; --adj-fg:#4c1d95; --v-bg:#fef3c7; --v-fg:#78350f;
+    --shadow:0 4px 0 var(--ink);
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; }
+  body{ background:radial-gradient(130% 90% at 50% 0%, #4a2f52 0%, #241a2a 62%); color:var(--fg);
+    font-family:ui-rounded,"Hiragino Maru Gothic ProN",system-ui,-apple-system,sans-serif; min-height:100vh; padding:14px; display:flex; justify-content:center; }
+  .stage{ width:100%; max-width:440px; }
+  h1.page{ color:#ffe9c9; font-size:15px; text-align:center; margin:0 0 3px; font-weight:800; }
+  p.page{ color:#d6b8cf; font-size:12px; text-align:center; margin:0 0 12px; }
+
+  .frame{ background:var(--cream); border:3px solid var(--ink); border-radius:24px; box-shadow:0 10px 0 rgba(0,0,0,.35); overflow:hidden; position:relative; }
+  .top{ display:flex; align-items:center; justify-content:space-between; padding:9px 12px; background:var(--accent-2); border-bottom:3px solid var(--ink); }
+  .top .t{ font-weight:800; font-size:14px; color:var(--on-accent); } .top .prog{ font-size:11px; font-weight:800; color:var(--on-accent); }
+
+  /* map */
+  .mapWrap{ background:#f6ecd8; }
+  .map{ position:relative; padding:14px 10px; }
+  .rowm{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:26px; position:relative; z-index:2; }
+  .node{ justify-self:center; width:60px; height:60px; border:3px solid var(--ink); border-radius:15px; background:#fff; box-shadow:var(--shadow);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; position:relative; }
+  .node .ic{ font-size:24px; line-height:1; } .node .lb{ font-size:8px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; }
+  .node.reach{ cursor:pointer; border-color:var(--accent); box-shadow:0 4px 0 var(--ink),0 0 0 3px var(--accent); animation:pulse 1.3s infinite; }
+  .node.reach:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
+  @keyframes pulse{ 0%,100%{box-shadow:0 4px 0 var(--ink),0 0 0 3px var(--accent)} 50%{box-shadow:0 4px 0 var(--ink),0 0 0 6px var(--accent-2)} }
+  .node.here{ border-color:var(--matcha); box-shadow:0 4px 0 var(--ink),0 0 0 4px var(--matcha); }
+  .node.done{ opacity:.5; } .node.locked{ opacity:.5; }
+  .node.boss{ width:72px; height:72px; } .node.boss .ic{ font-size:30px; }
+  .edges{ position:absolute; inset:0; z-index:1; } .edges line{ stroke:#cbb493; stroke-width:3; stroke-dasharray:4 4; }
+  .edges line.open{ stroke:var(--accent); stroke-dasharray:none; }
+
+  /* party */
+  .party{ background:#fbeecf; border-top:3px solid var(--ink); padding:9px 10px 12px; }
+  .party h3{ margin:0 0 6px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  .crew{ display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; }
+  .mon{ flex:0 0 auto; width:118px; border:3px solid var(--ink); border-radius:13px; background:#fff; box-shadow:var(--shadow); padding:8px 6px 7px; text-align:center; position:relative; }
+  .mon.frank{ box-shadow:0 4px 0 var(--ink),0 0 0 3px var(--gold) inset; }
+  .mon .em{ font-size:26px; line-height:1; } .mon .idjp{ font-size:13px; font-weight:800; line-height:1.15; }
+  .mon .idjp .adj{ color:var(--adj-fg); } .mon .idjp .prt{ color:var(--matcha); } .mon .idjp .vb{ color:var(--v-fg); }
+  .mon .idro{ font-size:9px; color:var(--muted); } .mon .iden{ font-size:9px; color:var(--adj-fg); font-style:italic; font-weight:700; }
+  .mon .stats{ display:flex; justify-content:center; gap:10px; margin-top:4px; font-size:11px; font-weight:800; }
+  .mon .stats .a{ color:var(--v-fg); } .mon .stats .d{ color:#7f1d1d; }
+  .mon .ab{ margin-top:3px; font-size:9px; font-weight:800; color:var(--matcha); }
+
+  /* node overlay */
+  .ov{ position:absolute; inset:0; background:rgba(42,29,42,.62); display:none; align-items:center; justify-content:center; padding:16px; z-index:10; }
+  .ov.on{ display:flex; }
+  .panel{ background:var(--cream); border:3px solid var(--ink); border-radius:20px; box-shadow:0 8px 0 var(--ink); padding:16px; width:100%; max-width:340px; text-align:center; }
+  .panel .big{ font-size:34px; } .panel h2{ margin:4px 0 2px; font-size:19px; } .panel .desc{ color:var(--muted); font-size:13px; margin:0 0 12px; }
+  .opt{ display:block; width:100%; font:inherit; font-weight:800; font-size:14px; text-align:left; border:3px solid var(--ink); border-radius:12px; background:#fff; box-shadow:0 3px 0 var(--ink); padding:10px 12px; margin-bottom:8px; cursor:pointer; }
+  .opt:active{ transform:translateY(3px); box-shadow:0 0 0 var(--ink); }
+  .opt .sub{ display:block; font-size:11px; color:var(--muted); font-weight:700; }
+  .opt.adj{ background:var(--adj); } .opt.vb{ background:var(--v-bg); } .opt.stat{ background:#e7f6dc; }
+  .btn{ width:100%; font:inherit; font-weight:800; font-size:15px; border:3px solid var(--ink); border-radius:13px; padding:11px; cursor:pointer; box-shadow:var(--shadow); background:var(--accent); color:var(--on-accent); }
+  .btn:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--ink); }
+  .btn.gold{ background:var(--gold); color:var(--ink); }
+  .pickMon{ display:flex; gap:7px; justify-content:center; flex-wrap:wrap; margin-bottom:10px; }
+  .pickMon .m{ width:84px; border:3px solid var(--ink); border-radius:11px; background:#fff; box-shadow:0 3px 0 var(--ink); padding:6px 3px; cursor:pointer; font-size:11px; font-weight:800; }
+  .pickMon .m .em{ font-size:20px; } .pickMon .m.sel{ box-shadow:0 3px 0 var(--ink),0 0 0 3px var(--accent); }
+  .note{ font-size:11px; color:var(--muted); margin-top:6px; }
+  @media (prefers-reduced-motion:reduce){ *{ animation:none !important; } }
+</style>
+</head>
+<body>
+<div class="stage">
+  <h1 class="page">夜市の道 — a run through the night market</h1>
+  <p class="page">Travel the nodes to the boss. Every stop teaches: forges graft grammar onto your creatures, spirits quiz you, merchants sell new words. Modify your nouns into your own little monsters.</p>
+
+  <div class="frame">
+    <div class="top"><span class="t">🏮 夜市の道</span><span class="prog" id="prog"></span></div>
+    <div class="mapWrap"><div class="map" id="map"></div></div>
+    <div class="party"><h3>Your creatures — <span id="crewNote" style="color:var(--matcha)">modify them as you go</span></h3><div class="crew" id="crew"></div></div>
+    <div class="ov" id="ov"><div class="panel" id="panel"></div></div>
+  </div>
+  <p class="page" style="margin-top:12px">Prototype · map + nodes + the Frankenstein forge · battle/boss are stubs that plug into the sentence-battle</p>
+</div>
+
+<script>
+(function(){
+  function rand(n){ return Math.floor(Math.random()*n); }
+  function pick(a){ return a[rand(a.length)]; }
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){var j=rand(i+1),t=a[i];a[i]=a[j];a[j]=t;} return a; }
+
+  var ADJ_POOL=[{jp:'つよい',ro:'tsuyoi',en:'strong',pw:2,hpb:0},{jp:'おおきい',ro:'ookii',en:'big',pw:0,hpb:2},{jp:'はやい',ro:'hayai',en:'fast',pw:1,hpb:0},{jp:'あかい',ro:'akai',en:'red',pw:1,hpb:0}];
+  var VERB_POOL=[{jp:'たおす',ro:'taosu',en:'defeats',eff:'attack'},{jp:'まもる',ro:'mamoru',en:'guards',eff:'guard'},{jp:'たべる',ro:'taberu',en:'eats',eff:'attack'}];
+  var NOUN_POOL=[{jp:'くま',ro:'kuma',en:'bear',em:'🐻',pow:4,hp:4},{jp:'とり',ro:'tori',en:'bird',em:'🐦',pow:3,hp:1},{jp:'ねこ',ro:'neko',en:'cat',em:'🐈',pow:2,hp:2},{jp:'いぬ',ro:'inu',en:'dog',em:'🐕',pow:2,hp:3},{jp:'さかな',ro:'sakana',en:'fish',em:'🐟',pow:1,hp:2}];
+
+  function mkMon(def){ return { jp:def.jp, ro:def.ro, en:def.en, em:def.em, basePow:def.pow, baseHp:def.hp, adjs:[], verb:null, fPow:0, fHp:0, id:'m'+rand(1e9) }; }
+  function powOf(m){ return m.basePow + m.adjs.reduce(function(s,a){return s+a.pw;},0) + m.fPow; }
+  function hpOf(m){ return m.baseHp + m.adjs.reduce(function(s,a){return s+a.hpb;},0) + m.fHp; }
+  function idJP(m){ var h=''; m.adjs.forEach(function(a){ h+='<span class="adj">'+a.jp+'</span> '; }); h+=m.jp; if(m.verb) h+=' <span class="prt">が</span> <span class="vb">'+m.verb.jp+'</span>'; return h; }
+  function idRo(m){ return m.adjs.map(function(a){return a.ro;}).concat([m.ro]).join(' ')+(m.verb?(' ga '+m.verb.ro):''); }
+  function idEn(m){ var s=m.adjs.map(function(a){return a.en;}).concat([m.en]).join(' '); return m.verb?('the '+s+' '+m.verb.en):('a '+s); }
+
+  // map: bottom row 0 → top boss. cols 0..2
+  var MAP=[
+    [{t:'start',col:1}],
+    [{t:'battle',col:0},{t:'forge',col:2}],
+    [{t:'event',col:0},{t:'battle',col:1},{t:'merchant',col:2}],
+    [{t:'forge',col:0},{t:'battle',col:2}],
+    [{t:'event',col:1}],
+    [{t:'boss',col:1}]
+  ];
+  var NT={ start:{ic:'▶',lb:'start'}, battle:{ic:'⚔️',lb:'battle'}, forge:{ic:'🔥',lb:'forge'}, event:{ic:'❓',lb:'spirit'}, merchant:{ic:'🛒',lb:'shop'}, boss:{ic:'👹',lb:'boss'} };
+
+  var S={};
+  function newRun(){
+    S={ party:[ mkMon(NOUN_POOL[0]), mkMon(NOUN_POOL[1]), mkMon(NOUN_POOL[2]) ], pos:{r:0,col:1}, done:{'0-1':true} };
+    render();
+    setTimeout(function(){ resolveNode(MAP[0][0]); },0); // start node (no-op panel)
+  }
+  function reachable(node){ if(S.pos.r>=MAP.length-1) return false; return node._r===S.pos.r+1 && Math.abs(node.col-S.pos.col)<=1; }
+
+  function render(){
+    document.getElementById('prog').textContent='row '+S.pos.r+' / '+(MAP.length-1);
+    // map (render top→bottom = boss first)
+    var map=document.getElementById('map'); map.innerHTML='';
+    for(var r=MAP.length-1;r>=0;r--){
+      var row=document.createElement('div'); row.className='rowm';
+      // fill 3 columns
+      for(var c=0;c<3;c++){
+        var node=MAP[r].filter(function(n){return n.col===c;})[0];
+        var cell=document.createElement('div');
+        if(node){ node._r=r; cell.className='node '+node.t+' '+cellState(node,r); cell.innerHTML='<span class="ic">'+NT[node.t].ic+'</span><span class="lb">'+NT[node.t].lb+'</span>';
+          if(cell.className.indexOf('reach')>=0){ (function(n){ cell.onclick=function(){ travel(n); }; })(node); }
+        } else { cell.style.visibility='hidden'; cell.className='node'; cell.innerHTML='&nbsp;'; }
+        row.appendChild(cell);
+      }
+      map.appendChild(row);
+    }
+    // party
+    var crew=document.getElementById('crew'); crew.innerHTML='';
+    S.party.forEach(function(m){
+      var el=document.createElement('div'); el.className='mon'+((m.adjs.length||m.verb)?' frank':'');
+      el.innerHTML='<span class="em">'+m.em+'</span><span class="idjp">'+idJP(m)+'</span><span class="idro">'+idRo(m)+'</span><span class="iden">'+idEn(m)+'</span>'+
+        '<div class="stats"><span class="a">⚔'+powOf(m)+'</span><span class="d">♥'+hpOf(m)+'</span></div>'+
+        (m.verb?'<div class="ab">can '+m.verb.en+'</div>':'');
+      crew.appendChild(el);
+    });
+  }
+  function cellState(node,r){
+    var key=r+'-'+node.col;
+    if(S.pos.r===r && S.pos.col===node.col) return 'here';
+    if(S.done[key]) return 'done';
+    if(reachable(node)){ node._r=r; return 'reach'; }
+    return '';
+  }
+  function travel(node){ S.pos={r:node._r,col:node.col}; S.done[node._r+'-'+node.col]=true; render(); resolveNode(node); }
+
+  /* ---------- nodes: every one teaches ---------- */
+  var ov=document.getElementById('ov'), panel=document.getElementById('panel');
+  function openPanel(html){ panel.innerHTML=html; ov.classList.add('on'); }
+  function closePanel(){ ov.classList.remove('on'); render(); }
+
+  function resolveNode(node){
+    if(node.t==='start'){ return; }
+    if(node.t==='forge') return forgeNode();
+    if(node.t==='event') return eventNode();
+    if(node.t==='merchant') return merchantNode();
+    if(node.t==='battle') return battleNode(false);
+    if(node.t==='boss') return battleNode(true);
+  }
+
+  // FORGE — the Frankenstein: modify a noun; it slowly does different things
+  var forgeTarget=null;
+  function forgeNode(){
+    openPanel('<div class="big">🔥</div><h2>The forge</h2><p class="desc">Pick a creature to modify.</p>'+
+      '<div class="pickMon" id="pm"></div>');
+    var pm=document.getElementById('pm');
+    S.party.forEach(function(m){ var b=document.createElement('div'); b.className='m'; b.innerHTML='<span class="em">'+m.em+'</span><br>'+m.jp;
+      b.onclick=function(){ forgeTarget=m; forgeOptions(m); }; pm.appendChild(b); });
+  }
+  function forgeOptions(m){
+    var adj=pick(ADJ_POOL.filter(function(a){ return !m.adjs.some(function(x){return x.jp===a.jp;}); }) || ADJ_POOL) || pick(ADJ_POOL);
+    var vb=m.verb?null:pick(VERB_POOL);
+    var html='<div class="big">'+m.em+'</div><h2>'+m.jp+' 「'+m.ro+'」</h2><p class="desc">Graft something on. It becomes part of the creature — and its sentence.</p>';
+    html+='<button class="opt adj" data-k="adj">🩹 Graft 「'+adj.jp+'」<span class="sub">'+adj.en+' · +⚔'+adj.pw+(adj.hpb?' +♥'+adj.hpb:'')+' · now reads '+adj.jp+' '+m.jp+'</span></button>';
+    if(vb) html+='<button class="opt vb" data-k="verb">✋ Teach 「'+vb.jp+'」<span class="sub">'+vb.en+' · it can act on its own — '+m.jp+' が '+vb.jp+'</span></button>';
+    html+='<button class="opt stat" data-k="stat">💪 Temper<span class="sub">+2 ⚔ and +2 ♥, no words</span></button>';
+    if(S.party.length>=2) html+='<button class="opt" data-k="stitch">🧟 Stitch two creatures<span class="sub">fuse into one Frankenstein monster</span></button>';
+    openPanel(html);
+    panel.querySelectorAll('.opt').forEach(function(b){ b.onclick=function(){ var k=b.getAttribute('data-k');
+      if(k==='adj'){ m.adjs.push(adj); done('Grafted 「'+adj.jp+'」 — now '+idEn(m)+'.'); }
+      else if(k==='verb'){ m.verb=vb; done('Taught 「'+vb.jp+'」 — '+m.jp+' can now '+vb.en+'.'); }
+      else if(k==='stat'){ m.fPow+=2; m.fHp+=2; done('Tempered — ⚔'+powOf(m)+' ♥'+hpOf(m)+'.'); }
+      else stitchNode();
+    }; });
+  }
+  function done(msg){ openPanel('<div class="big">✨</div><h2>Done</h2><p class="desc">'+msg+'</p><button class="btn" id="ok">Back to the road</button>'); document.getElementById('ok').onclick=closePanel; }
+
+  // STITCH — the full Frankenstein: fuse two creatures into one
+  var stitchPick=[];
+  function stitchNode(){
+    stitchPick=[];
+    openPanel('<div class="big">🧟</div><h2>Stitch</h2><p class="desc">Choose two creatures to fuse. Stats add, words combine, and you get one monster.</p><div class="pickMon" id="pm"></div><button class="btn gold" id="go" disabled>Fuse</button>');
+    var pm=document.getElementById('pm');
+    S.party.forEach(function(m){ var b=document.createElement('div'); b.className='m'; b.dataset.id=m.id; b.innerHTML='<span class="em">'+m.em+'</span><br>'+m.jp;
+      b.onclick=function(){ var i=stitchPick.indexOf(m); if(i>=0){ stitchPick.splice(i,1); b.classList.remove('sel'); } else if(stitchPick.length<2){ stitchPick.push(m); b.classList.add('sel'); }
+        document.getElementById('go').disabled=stitchPick.length!==2; }; pm.appendChild(b); });
+    document.getElementById('go').onclick=function(){ if(stitchPick.length!==2) return; fuse(stitchPick[0],stitchPick[1]); };
+  }
+  function fuse(a,b){
+    var monster={ jp:a.jp+b.jp, ro:a.ro+b.ro, en:a.en+'-'+b.en, em:a.em+b.em, basePow:powOf(a)+Math.ceil(powOf(b)/2), baseHp:hpOf(a)+hpOf(b), adjs:a.adjs.concat(b.adjs), verb:a.verb||b.verb, fPow:0, fHp:0, id:'m'+rand(1e9) };
+    S.party=S.party.filter(function(m){ return m!==a && m!==b; }); S.party.push(monster);
+    done('Stitched 「'+monster.jp+'」 — a '+monster.en+' monster! ⚔'+powOf(monster)+' ♥'+hpOf(monster)+'.');
+  }
+
+  // EVENT — a spirit quizzes you (learning moment + reward)
+  function eventNode(){
+    var target=pick(ADJ_POOL); var opts=shuffle([target].concat(shuffle(ADJ_POOL.filter(function(a){return a!==target;})).slice(0,2)));
+    var html='<div class="big">🦊</div><h2>A spirit blocks the way</h2><p class="desc">「Which word means <b>'+target.en+'</b>?」 Answer to pass — and pick up the word.</p>';
+    opts.forEach(function(o){ html+='<button class="opt" data-jp="'+o.jp+'">'+o.jp+' <span class="sub">'+o.ro+'</span></button>'; });
+    openPanel(html);
+    panel.querySelectorAll('.opt').forEach(function(b){ b.onclick=function(){
+      if(b.getAttribute('data-jp')===target.jp){ var m=pick(S.party); m.adjs.push(target); done('正解！ The spirit grafts 「'+target.jp+'」 onto '+m.jp+' — '+idEn(m)+'.'); }
+      else { openPanel('<div class="big">🦊</div><h2>ちがう…</h2><p class="desc">「'+target.en+'」 is 「'+target.jp+'」. The spirit lets you pass anyway — remember it.</p><button class="btn" id="ok">Continue</button>'); document.getElementById('ok').onclick=closePanel; }
+    }; });
+  }
+
+  // MERCHANT — buy a new word (new creature = new vocab)
+  function merchantNode(){
+    var offer=mkMon(pick(NOUN_POOL));
+    openPanel('<div class="big">🛒</div><h2>Word merchant</h2><p class="desc">A new creature joins your run — a new noun to learn.</p>'+
+      '<div class="pickMon"><div class="m"><span class="em">'+offer.em+'</span><br>'+offer.jp+'<br><span style="font-size:9px;color:var(--muted)">'+offer.ro+' · '+offer.en+'</span></div></div>'+
+      '<button class="btn" id="take">Take 「'+offer.jp+'」</button>');
+    document.getElementById('take').onclick=function(){ S.party.push(offer); done('「'+offer.jp+'」 ('+offer.en+') joins your creatures.'); };
+  }
+
+  // BATTLE / BOSS — stub for now (real sentence-battle plugs in here)
+  function battleNode(isBoss){
+    if(isBoss){
+      openPanel('<div class="big">👹</div><h2>Boss: 夜市の ぬし</h2><p class="desc">The boss builds <b>its own sentences</b> and hurls them at you — a hard fight. (Real battle plugs in here; for now, your monsters prevail.)</p><button class="btn gold" id="ok">Face it →</button>');
+      document.getElementById('ok').onclick=function(){ openPanel('<div class="big">🏮</div><h2>クリア！</h2><p class="desc">You cleared the district with your Frankenstein creatures. Stamp earned 🏮.</p><button class="btn" id="again2">New run</button>'); document.getElementById('again2').onclick=newRun; };
+    } else {
+      openPanel('<div class="big">⚔️</div><h2>Battle</h2><p class="desc">Your creatures fight, sentence by sentence. (The real sentence-battle plugs in here.) You win and move on.</p><button class="btn" id="ok">Fight →</button>');
+      document.getElementById('ok').onclick=closePanel;
+    }
+  }
+
+  newRun();
+})();
+</script>
+</body>
+</html>
