@@ -7,25 +7,26 @@
 <style>
   :root{
     --cream:#fff7ea; --ink:#4a3328; --fg:#4a3328; --muted:#6b5847;
-    --accent:#ef6fa7; --accent-2:#f8a8c6; --on-accent:#5a1f3a; --gold:#f2be45; --matcha:#8fbf6b; --part-fg:#2f5321;
-    --n-bg:#dbeafe; --n-bd:#93c5fd; --n-fg:#1e3a8a; --adj:#ede9fe; --adj-fg:#4c1d95; --v-bg:#fef3c7; --v-fg:#78350f;
+    --accent:#d1341f; --accent-2:#b02a1a; --on-accent:#fff2e6; --gold:#e8b64b; --matcha:#7fb06b; --part-fg:#2f5321;
+    --sumi:#15111c; --urushi:#221a28; --washi:#efe6d0; --hitodama:#6ad0e0; --lantern:#f2a63b;
+    --n-bg:#e7ddc4; --n-bd:#93c5fd; --n-fg:#1e3a8a; --adj:#e2d3ec; --adj-fg:#5a2a6e; --v-bg:#efd9a6; --v-fg:#6b3a12;
     --shadow:0 4px 0 var(--ink);
   }
   *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body{ margin:0; }
-  body{ background:radial-gradient(130% 90% at 50% 0%, #4a2f52 0%, #241a2a 62%); color:var(--fg);
+  body{ background:radial-gradient(120% 70% at 50% -8%, #3a1420 0%, #15111c 58%), var(--sumi); color:var(--washi);
     font-family:ui-rounded,"Hiragino Maru Gothic ProN",system-ui,-apple-system,sans-serif; min-height:100vh; padding:14px; display:flex; justify-content:center; }
   .stage{ width:100%; max-width:440px; }
-  h1.page{ color:#ffe9c9; font-size:15px; text-align:center; margin:0 0 3px; font-weight:800; }
-  p.page{ color:#d6b8cf; font-size:12px; text-align:center; margin:0 0 12px; }
-  .frame{ background:var(--cream); border:3px solid var(--ink); border-radius:24px; box-shadow:0 10px 0 rgba(0,0,0,.35); overflow:hidden; position:relative; }
-  .top{ display:flex; align-items:center; justify-content:space-between; padding:9px 12px; background:var(--accent-2); border-bottom:3px solid var(--ink); }
-  .top .t{ font-weight:800; font-size:14px; color:var(--on-accent); } .top .prog{ font-size:11px; font-weight:800; color:var(--on-accent); }
+  h1.page{ color:var(--lantern); font-size:15px; text-align:center; margin:0 0 3px; font-weight:800; letter-spacing:.04em; text-shadow:0 1px 0 #000; }
+  p.page{ color:#a8927e; font-size:12px; text-align:center; margin:0 0 12px; }
+  .frame{ background:var(--urushi); border:3px solid #0c0910; border-radius:24px; box-shadow:0 10px 0 rgba(0,0,0,.55), inset 0 0 0 2px var(--gold); overflow:hidden; position:relative; color:var(--washi); }
+  .top{ display:flex; align-items:center; justify-content:space-between; padding:9px 12px; background:linear-gradient(#d1341f,#8f1e12); border-bottom:3px solid var(--gold); }
+  .top .t{ font-weight:800; font-size:14px; color:#fff2e6; text-shadow:0 1px 0 #5a0e06; } .top .prog{ font-size:11px; font-weight:800; color:#ffd9c2; }
 
-  /* map */
-  .mapWrap{ background:#f6ecd8; } .map{ position:relative; padding:14px 10px; }
+  /* map — a lantern-lit parade road on sumi */
+  .mapWrap{ background:radial-gradient(circle at 18% 12%, rgba(242,166,59,.12) 0 10px, transparent 12px), radial-gradient(circle at 82% 34%, rgba(106,208,224,.10) 0 9px, transparent 11px), radial-gradient(circle at 60% 78%, rgba(242,166,59,.08) 0 8px, transparent 10px), var(--sumi); } .map{ position:relative; padding:14px 10px; }
   .rowm{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:24px; position:relative; z-index:2; }
-  .node{ justify-self:center; width:58px; height:58px; border:3px solid var(--ink); border-radius:15px; background:#fff; box-shadow:var(--shadow); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; position:relative; }
+  .node{ justify-self:center; width:58px; height:58px; border:3px solid #0c0910; border-radius:14px; background:var(--washi); box-shadow:0 4px 0 #0c0910; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; position:relative; color:var(--ink); }
   .node .ic{ font-size:22px; line-height:1; } .node .lb{ font-size:8px; font-weight:800; color:var(--muted); text-transform:uppercase; }
   .node.reach{ cursor:pointer; border-color:var(--accent); animation:pulse 1.3s infinite; }
   .node.reach:active{ transform:translateY(3px); }
@@ -34,10 +35,10 @@
   .node.boss{ width:70px; height:70px; } .node.boss .ic{ font-size:28px; }
 
   /* party */
-  .party{ background:#fbeecf; border-top:3px solid var(--ink); padding:9px 10px 12px; }
-  .party h3{ margin:0 0 6px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  .party{ background:#1b141f; border-top:3px solid var(--gold); padding:9px 10px 12px; }
+  .party h3{ margin:0 0 6px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--lantern); }
   .crew{ display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; }
-  .mon{ flex:0 0 auto; width:116px; border:3px solid var(--ink); border-radius:13px; background:#fff; box-shadow:var(--shadow); padding:8px 6px 7px; text-align:center; position:relative; }
+  .mon{ flex:0 0 auto; width:116px; border:3px solid #0c0910; border-radius:13px; background:var(--washi); box-shadow:0 4px 0 #0c0910; padding:8px 6px 7px; text-align:center; position:relative; color:var(--ink); }
   .mon.frank{ box-shadow:0 4px 0 var(--ink),0 0 0 3px var(--gold) inset; }
   .mon .em{ font-size:24px; line-height:1; } .mon .idjp{ font-size:12px; font-weight:800; line-height:1.15; }
   .idjp .adj{ color:var(--adj-fg); } .idjp .prt{ color:var(--part-fg); } .idjp .vb{ color:var(--v-fg); }
@@ -46,7 +47,7 @@
 
   /* overlay panels */
   .ov{ position:absolute; inset:0; background:rgba(42,29,42,.62); display:none; align-items:center; justify-content:center; padding:16px; z-index:30; } .ov.on{ display:flex; }
-  .panel{ background:var(--cream); border:3px solid var(--ink); border-radius:20px; box-shadow:0 8px 0 var(--ink); padding:16px; width:100%; max-width:340px; text-align:center; }
+  .panel{ background:var(--washi); color:var(--ink); border:3px solid #0c0910; border-radius:20px; box-shadow:0 8px 0 #0c0910, inset 0 0 0 2px var(--gold); padding:16px; width:100%; max-width:340px; text-align:center; }
   .panel .big{ font-size:32px; } .panel h2{ margin:4px 0 2px; font-size:18px; } .panel .desc{ color:var(--muted); font-size:13px; margin:0 0 12px; }
   .opt{ display:block; width:100%; font:inherit; font-weight:800; font-size:14px; text-align:left; border:3px solid var(--ink); border-radius:12px; background:#fff; box-shadow:0 3px 0 var(--ink); padding:10px 12px; margin-bottom:8px; cursor:pointer; }
   .opt:active{ transform:translateY(3px); box-shadow:0 0 0 var(--ink); } .opt .sub{ display:block; font-size:11px; color:var(--muted); font-weight:700; }
@@ -58,42 +59,42 @@
 
   /* battle */
   .hidden{ display:none !important; }
-  .hearts{ display:flex; justify-content:space-between; align-items:center; padding:7px 14px; background:#fff; border-bottom:3px solid var(--ink); font-weight:800; }
-  .hearts .side{ display:flex; align-items:center; gap:6px; font-size:14px; } .hearts .hp{ color:#b3261e; font-variant-numeric:tabular-nums; } .hearts .sh{ color:var(--part-fg); }
-  .hearts .lab{ color:var(--muted); font-size:11px; text-transform:uppercase; }
-  .say{ background:#fff; border-bottom:3px solid var(--ink); padding:6px 12px; font-weight:700; font-size:13px; min-height:32px; display:flex; align-items:center; }
+  .hearts{ display:flex; justify-content:space-between; align-items:center; padding:7px 14px; background:var(--urushi); border-bottom:3px solid var(--gold); font-weight:800; }
+  .hearts .side{ display:flex; align-items:center; gap:6px; font-size:14px; } .hearts .hp{ color:#ff6a54; font-variant-numeric:tabular-nums; } .hearts .sh{ color:var(--hitodama); }
+  .hearts .lab{ color:var(--lantern); font-size:11px; text-transform:uppercase; }
+  .say{ background:#120e18; color:var(--washi); border-bottom:3px solid #0c0910; padding:6px 12px; font-weight:700; font-size:13px; min-height:32px; display:flex; align-items:center; }
   .lanes{ padding:9px; } .brow{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; } .divider{ height:0; border-top:2px dashed #d8c4a4; margin:9px 2px; }
-  .slot{ min-height:74px; border:2.5px dashed #cbb493; border-radius:13px; display:grid; place-items:center; position:relative; } .slot.enemy{ background:#faf1f4; } .slot.mine{ background:#f2f7ec; }
+  .slot{ min-height:74px; border:2.5px dashed #5a4a3a; border-radius:13px; display:grid; place-items:center; position:relative; } .slot.enemy{ background:rgba(209,52,31,.09); } .slot.mine{ background:rgba(106,208,224,.07); }
   .slot.targetable{ border-color:var(--accent); border-style:solid; background:#ffeef5; cursor:pointer; } .slot.attach{ border-color:var(--adj-bd); border-style:solid; cursor:pointer; }
-  .creature{ width:100%; height:100%; border:3px solid var(--ink); border-radius:11px; background:#fff; box-shadow:var(--shadow); position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3px; }
+  .creature{ width:100%; height:100%; border:3px solid #0c0910; border-radius:11px; background:var(--washi); color:var(--ink); box-shadow:0 4px 0 #0c0910; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3px; }
   .creature.n{ background:var(--n-bg); } .creature.full{ box-shadow:0 4px 0 var(--ink),0 0 0 3px var(--gold) inset; }
   .creature .em{ font-size:21px; line-height:1;} .creature .nm{ font-size:12px; font-weight:800; } .creature .cr-ro{ font-size:8px; color:var(--muted); }
   .creature .stat{ position:absolute; bottom:-8px; width:20px; height:20px; border-radius:50%; border:2.5px solid var(--ink); display:grid; place-items:center; font-size:11px; font-weight:800; } .creature .atk{ left:-6px; background:var(--v-bg); color:var(--v-fg);} .creature .def{ right:-6px; background:#ffe1e1; color:#7f1d1d;}
   .creature.hit{ animation:shake .3s;} .creature.lunge{ animation:lunge .4s;} @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}} @keyframes lunge{0%{transform:translateY(0)}45%{transform:translateY(-12px)}100%{transform:translateY(0)}}
-  .sentRow{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; } .strip{ min-height:34px; border:2.5px solid var(--ink); border-radius:10px; background:#fff; box-shadow:0 3px 0 var(--ink); padding:4px 3px; text-align:center; display:flex; flex-direction:column; justify-content:center; }
-  .strip.empty{ border-style:dashed; box-shadow:none; background:transparent; color:var(--muted); font-size:10px;} .strip.enemyStrip{ background:#fff0f5; } .strip.speaking{ background:#fff7d6; box-shadow:0 3px 0 var(--ink),0 0 0 3px var(--gold);}
+  .sentRow{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px; } .strip{ min-height:34px; border:2.5px solid #0c0910; border-radius:10px; background:var(--washi); color:var(--ink); box-shadow:0 3px 0 #0c0910; padding:4px 3px; text-align:center; display:flex; flex-direction:column; justify-content:center; }
+  .strip.empty{ border-style:dashed; box-shadow:none; background:transparent; color:#5a4a3a; font-size:10px;} .strip.enemyStrip{ background:#f0e2d0; } .strip.speaking{ background:#fff2cf; box-shadow:0 3px 0 #0c0910,0 0 0 3px var(--gold);}
   .strip .jp{ font-size:13px; font-weight:800; line-height:1.1;} .strip .jp .adj{ color:var(--adj-fg);} .strip .jp .noun{ color:var(--n-fg);} .strip .jp .prt{ color:var(--part-fg);} .strip .jp .vb{ color:var(--v-fg);} .strip .ro{ font-size:8px; color:var(--muted);} .strip .gl{ font-size:9px; color:var(--adj-fg); font-style:italic; font-weight:700;} .strip .need{ font-size:8px; color:var(--muted); font-weight:700;}
   /* boss banner */
   .bossBar{ margin:9px; border:3px solid var(--ink); border-radius:14px; background:#2a1d2a; color:#ffe9c9; box-shadow:var(--shadow); padding:9px 10px; }
   .bossBar .bh{ display:flex; align-items:center; justify-content:space-between; } .bossBar .em{ font-size:26px;} .bossBar .nm{ font-weight:800; font-size:14px;} .bossBar .hpbar{ height:9px; border:2px solid #ffe9c9; border-radius:6px; overflow:hidden; margin-top:5px; background:#4a2f52;} .bossBar .hpbar i{ display:block; height:100%; background:#e0554e;}
   .bossSent{ margin-top:7px; background:#fff; color:var(--fg); border:2.5px solid var(--ink); border-radius:10px; padding:5px; text-align:center; min-height:34px; }
   .bossSent.charging{ box-shadow:0 0 0 3px var(--gold);} .bossSent .jp{ font-size:14px; font-weight:800;} .bossSent .jp .adj{color:var(--adj-fg);} .bossSent .jp .noun{color:var(--n-fg);} .bossSent .jp .vb{color:var(--v-fg);} .bossSent .jp .prt{color:var(--part-fg);} .bossSent .gl{ font-size:9px; color:var(--muted); font-style:italic; font-weight:700;} .bossSent .tele{ font-size:9px; color:#b9791b; font-weight:800;}
-  .tray{ background:#fbeecf; border-top:3px solid var(--ink); padding:8px 10px 12px; } .trayHead{ display:flex; justify-content:space-between; font-size:11px; font-weight:800; text-transform:uppercase; color:var(--muted); margin-bottom:6px;}
-  .hand{ display:flex; gap:7px; overflow-x:auto; padding-bottom:3px; } .card{ flex:0 0 auto; width:70px; border:3px solid var(--ink); border-radius:11px; background:#fff; box-shadow:var(--shadow); padding:6px 4px 5px; text-align:center; cursor:pointer; position:relative; }
+  .tray{ background:#1b141f; border-top:3px solid var(--gold); padding:8px 10px 12px; } .trayHead{ display:flex; justify-content:space-between; font-size:11px; font-weight:800; text-transform:uppercase; color:var(--lantern); margin-bottom:6px;}
+  .hand{ display:flex; gap:7px; overflow-x:auto; padding-bottom:3px; } .card{ flex:0 0 auto; width:70px; border:3px solid #0c0910; border-radius:11px; background:var(--washi); color:var(--ink); box-shadow:0 4px 0 #0c0910; padding:6px 4px 5px; text-align:center; cursor:pointer; position:relative; }
   .card:active{ transform:translateY(3px); box-shadow:0 1px 0 var(--ink);} .card.n{ background:var(--n-bg);} .card.adj{ background:var(--adj);} .card.v{ background:var(--v-bg);} .card.sel{ transform:translateY(-6px); box-shadow:0 7px 0 var(--ink),0 0 0 3px var(--accent);}
   .card .pos{ font-size:8px; font-weight:800; text-transform:uppercase; color:var(--muted);} .card .em{ font-size:18px;} .card .jp{ font-size:13px; font-weight:800;} .card .ro{ font-size:8px; color:var(--muted);} .card .en{ font-size:9px; font-weight:700;} .card .mini{ font-size:9px; font-weight:800; margin-top:1px;}
-  .actions{ display:flex; gap:8px; margin-top:9px; } .hint{ text-align:center; font-size:12px; color:var(--muted); margin-top:7px; font-weight:700; min-height:15px; }
+  .actions{ display:flex; gap:8px; margin-top:9px; } .hint{ text-align:center; font-size:12px; color:#b8a48f; margin-top:7px; font-weight:700; min-height:15px; }
   .float{ position:absolute; font-weight:800; font-size:18px; pointer-events:none; z-index:6; animation:up .8s ease forwards; } @keyframes up{ to{ transform:translateY(-26px); opacity:0 } }
   @media (prefers-reduced-motion:reduce){ *{ animation:none !important; } }
 </style>
 </head>
 <body>
 <div class="stage">
-  <h1 class="page">夜市の道 — a run through the night market</h1>
-  <p class="page" id="sub">Travel the nodes. Fights, forges, spirits and shops all teach. Modify your nouns into monsters — and take them into battle.</p>
+  <h1 class="page">百鬼夜市 — the Hundred-Demon Night Market</h1>
+  <p class="page" id="sub">You've wandered into the yōkai parade. Duel spirits, graft words onto your creatures, reach the boss before dawn. Everything here teaches.</p>
 
   <div class="frame">
-    <div class="top"><span class="t" id="topT">🏮 夜市の道</span><span class="prog" id="prog"></span></div>
+    <div class="top"><span class="t" id="topT">⛩ 百鬼夜市</span><span class="prog" id="prog"></span></div>
 
     <!-- MAP SCREEN -->
     <div id="mapScreen">
@@ -151,16 +152,18 @@
   function plain(m){ return m.adjs.map(function(a){return a.jp;}).join('')+m.jp+(m.verb?('が'+m.verb.jp):''); }
 
   /* ===== RUN / MAP ===== */
-  var NT={ start:{ic:'▶',lb:'start'}, battle:{ic:'⚔️',lb:'battle'}, forge:{ic:'🔥',lb:'forge'}, event:{ic:'❓',lb:'spirit'}, merchant:{ic:'🛒',lb:'shop'}, boss:{ic:'👹',lb:'boss'} };
-  // rebalanced: fight rows and reward rows alternate; no shop right after a forge; both branches carry fights + rewards
+  var NT={ start:{ic:'⛩',lb:'gate'}, battle:{ic:'👺',lb:'duel'}, elite:{ic:'☠️',lb:'named'}, forge:{ic:'🔥',lb:'tsukumo'}, event:{ic:'🦊',lb:'riddle'}, merchant:{ic:'🏮',lb:'peddler'}, rest:{ic:'⛩️',lb:'shrine'}, treasure:{ic:'🎁',lb:'omen'}, boss:{ic:'👹',lb:'ぬし'} };
+  // the parade road: fight rows & reward rows alternate; no peddler right after a tsukumo-forge; both branches carry duels + boons
   var MAP=[
     [{t:'start',col:1}],
     [{t:'battle',col:0},{t:'battle',col:2}],
-    [{t:'forge',col:0},{t:'event',col:2}],
-    [{t:'battle',col:1}],
     [{t:'event',col:0},{t:'forge',col:2}],
-    [{t:'battle',col:0},{t:'battle',col:2}],
-    [{t:'merchant',col:1}],
+    [{t:'rest',col:1}],
+    [{t:'elite',col:0},{t:'treasure',col:2}],
+    [{t:'battle',col:1}],
+    [{t:'forge',col:0},{t:'merchant',col:2}],
+    [{t:'rest',col:1}],
+    [{t:'battle',col:0},{t:'elite',col:2}],
     [{t:'boss',col:1}]
   ];
   var RUN={};
@@ -183,12 +186,26 @@
       el.innerHTML='<span class="em">'+m.em+'</span><span class="idjp">'+idJP(m)+'</span><span class="idro">'+idRo(m)+'</span><span class="iden">'+idEn(m)+'</span><div class="stats"><span class="a">⚔'+powOf(m)+'</span><span class="d">♥'+hpMax(m)+'</span></div>'; crew.appendChild(el); });
   }
   function travel(node){ RUN.pos={r:node._r,col:node.col}; RUN.done[node._r+'-'+node.col]=true; renderMap(); resolveNode(node); }
-  function showMap(){ document.getElementById('mapScreen').classList.remove('hidden'); document.getElementById('battleScreen').classList.add('hidden'); document.getElementById('topT').textContent='🏮 夜市の道'; }
+  function showMap(){ document.getElementById('mapScreen').classList.remove('hidden'); document.getElementById('battleScreen').classList.add('hidden'); document.getElementById('topT').textContent='⛩ 百鬼夜市'; }
 
   var ov=document.getElementById('ov'), panel=document.getElementById('panel');
   function openPanel(html){ panel.innerHTML=html; ov.classList.add('on'); }
   function closePanel(){ ov.classList.remove('on'); renderMap(); }
-  function resolveNode(node){ if(node.t==='start')return; if(node.t==='forge')return forgeNode(); if(node.t==='event')return eventNode(); if(node.t==='merchant')return merchantNode(); if(node.t==='battle')return startBattle(false); if(node.t==='boss')return startBattle(true); }
+  function resolveNode(node){ if(node.t==='start')return; if(node.t==='forge')return forgeNode(); if(node.t==='event')return eventNode(); if(node.t==='merchant')return merchantNode(); if(node.t==='rest')return restNode(); if(node.t==='treasure')return treasureNode(); if(node.t==='battle')return startBattle(false); if(node.t==='elite')return startBattle('elite'); if(node.t==='boss')return startBattle(true); }
+  // ⛩️ shrine — a small offering: temper one creature +1/+1
+  function restNode(){ openPanel('<div class="big">⛩️</div><h2>Roadside shrine</h2><p class="desc">Leave an offering — one creature grows a little. (＋1 ⚔ / ＋1 ♥)</p><div class="pickMon" id="pm"></div>');
+    var pm=document.getElementById('pm'); RUN.party.forEach(function(m){ var b=document.createElement('div'); b.className='m'; b.innerHTML='<span class="em">'+m.em+'</span><br>'+m.jp; b.onclick=function(){ m.fPow+=1; m.fHp+=1; doneMsg('祈った。 '+m.jp+' — ⚔'+powOf(m)+' ♥'+hpMax(m)+'.'); }; pm.appendChild(b); }); }
+  // 🎁 omen — pick one of three boons
+  function treasureNode(){ var newMon=mkMon(pick(NOUNS)); var adj=pick(ADJS);
+    openPanel('<div class="big">🎁</div><h2>An omen on the road</h2><p class="desc">Take one.</p>'+
+      '<button class="opt adj" data-k="adj">🩹 A talisman: 「'+adj.jp+'」<span class="sub">graft '+adj.en+' onto a random creature</span></button>'+
+      '<button class="opt" data-k="mon">🏮 A stray spirit: 「'+newMon.jp+'」<span class="sub">'+newMon.en+' joins your creatures</span></button>'+
+      '<button class="opt stat" data-k="stat">💪 A charm of strength<span class="sub">+2 ⚔ / +2 ♥ to a random creature</span></button>');
+    panel.querySelectorAll('.opt').forEach(function(b){ b.onclick=function(){ var k=b.getAttribute('data-k'); var m=pick(RUN.party);
+      if(k==='adj'){ m.adjs.push(adj); doneMsg('「'+adj.jp+'」 grafted onto '+m.jp+' — '+idEn(m)+'.'); }
+      else if(k==='mon'){ RUN.party.push(newMon); doneMsg('「'+newMon.jp+'」 ('+newMon.en+') joins you.'); }
+      else { m.fPow+=2; m.fHp+=2; doneMsg(m.jp+' — ⚔'+powOf(m)+' ♥'+hpMax(m)+'.'); }
+    }; }); }
 
   function forgeNode(){ openPanel('<div class="big">🔥</div><h2>The forge</h2><p class="desc">Pick a creature to modify.</p><div class="pickMon" id="pm"></div>');
     var pm=document.getElementById('pm'); RUN.party.forEach(function(m){ var b=document.createElement('div'); b.className='m'; b.innerHTML='<span class="em">'+m.em+'</span><br>'+m.jp; b.onclick=function(){ forgeOptions(m); }; pm.appendChild(b); }); }
@@ -224,20 +241,20 @@
   function liveFrom(mon){ var c={ jp:mon.jp,ro:mon.ro,en:mon.en,em:mon.em,basePow:mon.basePow,baseHp:mon.baseHp,adjs:mon.adjs.slice(),verb:mon.verb,fPow:mon.fPow,fHp:mon.fHp,el:null }; c.hp=hpMax(c); return c; }
   function liveWild(def){ var c={ jp:def.jp,ro:def.ro,en:def.en,em:def.em,basePow:def.pow,baseHp:def.hp,adjs:[],verb:null,fPow:0,fHp:0,el:null }; c.hp=hpMax(c); return c; }
   function actionDeck(){ var d=[]; ADJS.forEach(function(a){ d.push({kind:'adj',jp:a.jp,ro:a.ro,en:a.en,pw:a.pw,hpb:a.hpb}); }); VERBS.forEach(function(v){ d.push({kind:'v',jp:v.jp,ro:v.ro,en:v.en,eff:v.eff,bonus:v.bonus}); d.push({kind:'v',jp:v.jp,ro:v.ro,en:v.en,eff:v.eff,bonus:v.bonus}); }); return shuffle(d); }
-  function startBattle(isBoss){
+  function startBattle(mode){
+    var isBoss=mode===true, isElite=mode==='elite';
     ov.classList.remove('on');
     document.getElementById('mapScreen').classList.add('hidden'); document.getElementById('battleScreen').classList.remove('hidden');
-    document.getElementById('topT').textContent=isBoss?'👹 ボス戦':'⚔️ 戦い';
-    BT={ isBoss:isBoss, myHp:12, enemyHp:isBoss?0:12, myShield:0, enemyShield:0,
+    document.getElementById('topT').textContent=isBoss?'👹 ボス戦':(isElite?'☠️ 名あり妖怪':'👺 妖怪との たたかい');
+    BT={ isBoss:isBoss, isElite:isElite, myHp:12, enemyHp:isBoss?0:(isElite?16:12), myShield:0, enemyShield:0,
       myLanes:[null,null,null], enemyLanes:[null,null,null],
       hand:[], deck:actionDeck(), busy:false, over:false, sel:null,
       boss:isBoss?{ hp:22, maxhp:22, em:'👹', name:'夜市の ぬし', build:null, stage:0 }:null };
-    // your creatures = your party (summon each once)
     RUN.party.forEach(function(m){ BT.hand.push({kind:'n', mon:m}); });
     for(var k=0;k<2;k++) drawAction();
-    document.getElementById('foeLab').textContent=isBoss?'ぬし':'もち子';
-    if(!isBoss) BT.enemyLanes[1]=liveWild(pick(NOUNS));
-    say(isBoss?'ぐふふ… わたしの ぶんを うけて みよ！':'こんばんは！ ぶんを つくって みせて？');
+    document.getElementById('foeLab').textContent=isBoss?'ぬし':(isElite?'名あり':'妖怪');
+    if(!isBoss){ var w=liveWild(pick(NOUNS)); if(isElite){ w.adjs.push(pick(ADJS)); w.verb=pick(VERBS); w.hp=hpMax(w); } BT.enemyLanes[1]=w; }
+    say(isBoss?'ぐふふ… わたしの ぶんを うけて みよ！':(isElite?'なめるなよ、にんげん…':'こんばんは！ ぶんを つくって みせて？'));
     hint('Play a creature into a lane.'); renderBattle();
   }
   function drawAction(){ if(!BT.deck.length) BT.deck=actionDeck(); if(BT.deck.length) BT.hand.push(BT.deck.shift()); }
@@ -343,7 +360,11 @@
   function endBattle(win){ BT.over=true; BT.busy=false; renderBattle();
     if(!win){ openPanel('<div class="big">🌸</div><h2>まけ…</h2><p class="desc">Your creatures fell. The run resets — what you learned stays.</p><button class="btn" id="ok">New run</button>'); document.getElementById('ok').onclick=function(){ ov.classList.remove('on'); newRun(); }; return; }
     if(BT.isBoss){ openPanel('<div class="big">🏮</div><h2>クリア！</h2><p class="desc">You out-spoke the ぬし. Stamp earned 🏮 — district cleared.</p><button class="btn" id="ok">New run</button>'); document.getElementById('ok').onclick=function(){ ov.classList.remove('on'); newRun(); }; return; }
-    // normal win → heal a touch, back to map
+    if(BT.isElite){ // elite win → a graft reward
+      var adj=pick(ADJS), m=pick(RUN.party); m.adjs.push(adj);
+      openPanel('<div class="big">☠️</div><h2>名あり妖怪 を たおした！</h2><p class="desc">It drops a talisman: 「'+adj.jp+'」 grafts onto '+m.jp+' — '+idEn(m)+'.</p><button class="btn" id="ok">Continue</button>');
+      document.getElementById('ok').onclick=function(){ ov.classList.remove('on'); showMap(); renderMap(); }; return;
+    }
     openPanel('<div class="big">✨</div><h2>かち！</h2><p class="desc">Battle won — back to the road.</p><button class="btn" id="ok">Continue</button>');
     document.getElementById('ok').onclick=function(){ ov.classList.remove('on'); showMap(); renderMap(); };
   }
