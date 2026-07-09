@@ -47,7 +47,8 @@
   .creature{ width:100%; height:100%; border:3px solid var(--ink); border-radius:12px; background:#fff; box-shadow:var(--shadow);
     position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0; padding:4px; }
   .creature.n{ background:var(--n-bg); } .creature.full{ box-shadow:0 4px 0 var(--ink),0 0 0 3px var(--gold) inset; }
-  .creature .em{ font-size:24px; line-height:1; } .creature .nm{ font-size:13px; font-weight:800; }
+  .creature .em{ font-size:23px; line-height:1; } .creature .nm{ font-size:13px; font-weight:800; line-height:1.05; }
+  .creature .cr-ro{ font-size:9px; color:var(--muted); line-height:1; }
   .creature .stat{ position:absolute; bottom:-8px; width:22px; height:22px; border-radius:50%; border:2.5px solid var(--ink); display:grid; place-items:center; font-size:12px; font-weight:800; }
   .creature .atk{ left:-7px; background:var(--v-bg); color:var(--v-fg); } .creature .def{ right:-7px; background:#ffe1e1; color:#7f1d1d; }
   .creature.hit{ animation:shake .3s; } .creature.lunge{ animation:lunge .45s; }
@@ -63,6 +64,7 @@
   .strip .jp{ font-size:14px; font-weight:800; line-height:1.15; }
   .strip .jp .adj{ color:var(--adj-fg); } .strip .jp .noun{ color:var(--n-fg); } .strip .jp .prt{ color:var(--part-fg); } .strip .jp .vb{ color:var(--v-fg); }
   .strip .ro{ font-size:9px; color:var(--muted); margin-top:1px; }
+  .strip .gl{ font-size:10px; color:var(--adj-fg); font-weight:700; font-style:italic; margin-top:2px; } /* English — the last training wheel to fade */
   .strip .need{ font-size:9px; color:var(--muted); font-weight:700; }
 
   .tray{ background:#fbeecf; border-top:3px solid var(--ink); padding:9px 10px 12px; margin-top:10px; }
@@ -175,11 +177,13 @@
   }
   function sentencePlain(cr){ return (cr.adj?cr.adj.jp:'')+cr.jp+(cr.verb?('が'+cr.verb.jp):''); }
   function sentenceRomaji(cr){ return (cr.adj?cr.adj.ro+' ':'')+cr.ro+(cr.verb?(' ga '+cr.verb.ro):''); }
+  // English translation — shown now, the last training wheel we fade out as the learner grows
+  function sentenceEnglish(cr){ var subj=(cr.adj?cr.adj.en+' ':'')+cr.en; return cr.verb ? ('the '+subj+' '+cr.verb.en) : ('a '+subj); }
 
   /* ---------- render ---------- */
   function creatureEl(cr){
     var d=document.createElement('div'); d.className='creature n'+(cr.verb?' full':'');
-    d.innerHTML='<span class="em">'+cr.em+'</span><span class="nm">'+cr.jp+'</span>'+
+    d.innerHTML='<span class="em">'+cr.em+'</span><span class="nm">'+cr.jp+'</span><span class="cr-ro">'+cr.ro+'</span>'+
       '<span class="stat atk">'+cr.pow+'</span><span class="stat def">'+cr.hp+'</span>';
     cr.el=d; return d;
   }
@@ -200,6 +204,7 @@
       var st=document.createElement('div'); var cr=S.myLanes[i];
       if(cr){ st.className='strip'; st.id='strip'+i;
         st.innerHTML='<span class="jp">'+sentenceHTML(cr)+'</span><span class="ro">'+sentenceRomaji(cr)+'</span>'+
+          '<span class="gl">'+sentenceEnglish(cr)+'</span>'+
           (cr.verb?'':'<span class="need">＋ verb = full sentence</span>');
       } else { st.className='strip empty'; st.textContent='—'; }
       sr.appendChild(st);
@@ -209,7 +214,7 @@
     var h=document.getElementById('hand'); h.innerHTML='';
     S.hand.forEach(function(c,idx){
       var el=document.createElement('div'); el.className='card '+c.kind+(S.sel&&S.sel.idx===idx?' sel':'');
-      if(c.kind==='n') el.innerHTML='<span class="pos">名 noun</span><span class="em">'+c.em+'</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span><div class="mini"><span class="a">⚔'+c.pow+'</span> <span class="d">♥'+c.hp+'</span></div>';
+      if(c.kind==='n') el.innerHTML='<span class="pos">名 noun</span><span class="em">'+c.em+'</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span><span class="en">'+c.en+'</span><div class="mini"><span class="a">⚔'+c.pow+'</span> <span class="d">♥'+c.hp+'</span></div>';
       else if(c.kind==='adj') el.innerHTML='<span class="pos">形 adj</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span><span class="en">'+c.en+'</span><div class="mini">'+(c.pw?'+⚔'+c.pw:'')+(c.hpb?' +♥'+c.hpb:'')+'</div>';
       else el.innerHTML='<span class="pos">動 verb</span><span class="jp">'+c.jp+'</span><span class="ro">'+c.ro+'</span><span class="en">'+c.en+'</span><div class="mini">'+(c.eff==='guard'?'🛡 guard':'⚔ act'+(c.bonus?' +'+c.bonus:''))+'</div>';
       el.onclick=function(){ selectCard(idx); }; h.appendChild(el);
