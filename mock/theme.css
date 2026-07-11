@@ -717,6 +717,16 @@ footer { font-family: var(--display); color: var(--muted); }
 .kq-opt.ok { background: color-mix(in srgb, var(--good) 30%, #fff); }
 .kq-opt.bad { background: color-mix(in srgb, var(--bad) 22%, #fff); }
 
+/* in-lesson sound-recognition interlude (rolled in from the old journey stop) */
+#kana-sound { display: flex; flex-direction: column; gap: 0.9rem; align-items: center; }
+.kana-sound-char {
+  font-family: var(--display); font-size: 4.4rem; line-height: 1.1; color: var(--ink);
+  background: #fffdf6; border: 3px solid var(--ink); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 0.6rem 1.8rem; cursor: pointer;
+}
+.kana-sound-char:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+.kana-sound-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; width: 100%; }
+
 /* romaji printed above Japanese fragments in teaching text (notes & hints) */
 #lesson-note ruby, #hint ruby, #quiz-hint ruby { ruby-position: over; }
 #lesson-note rt, #hint rt, #quiz-hint rt {

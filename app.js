@@ -460,6 +460,7 @@
     intro: $("lesson-intro"), lessonTitle: $("lesson-title"), lessonGrammar: $("lesson-grammar"),
     lessonNote: $("lesson-note"), vocabList: $("vocab-list"), startBtn: $("start-btn"), buildBtn: $("build-btn"),
     buildArea: $("build-area"), buildAnswer: $("build-answer"), buildBank: $("build-bank"), buildReset: $("build-reset"),
+    kanaSound: $("kana-sound"), kanaSoundChar: $("kana-sound-char"), kanaSoundOpts: $("kana-sound-opts"),
     drill: $("drill"), progressFill: $("progress-fill"), combo: $("combo"), cardCounter: $("card-counter"),
     retireBtn: $("retire-btn"), buildHardBtn: $("build-hard-btn"),
     promptLabel: $("prompt-label"), revealLabel: $("reveal-label"),
@@ -1430,26 +1431,8 @@
         node.appendChild(side);
 
         path.appendChild(node);
-
-        // After a lesson that introduces new letters, a syllable-practice stop
-        // on the road — drill just those sounds before the next sentence.
-        const newK = LESSON_NEW_KANA[L.id] || [];
-        if (newK.length) {
-          const pn = document.createElement("div");
-          pn.className = "map-node node-practice";
-          const pdot = document.createElement("button");
-          pdot.className = "node-dot practice-dot";
-          pdot.textContent = newK[0];               // a letter it drills, as the icon
-          pdot.setAttribute("aria-label", "Practice these " + newK.length + " sounds");
-          pdot.addEventListener("click", () => practiceLessonKana(newK));
-          pn.appendChild(pdot);
-          const pside = document.createElement("div");
-          pside.className = "node-side";
-          pside.appendChild(Object.assign(document.createElement("div"), { className: "node-label", textContent: "Practice the sounds" }));
-          pside.appendChild(Object.assign(document.createElement("span"), { className: "node-badge new", textContent: newK.length + " letters" }));
-          pn.appendChild(pside);
-          path.appendChild(pn);
-        }
+        // (The old "Practice the sounds" road-stop was removed — that sound drill
+        // now happens inside the lesson, as an interlude between sentences.)
       });
       map.appendChild(path);
       regionIdx++;
@@ -1619,12 +1602,21 @@
     const cards = CARDS.filter((c) => c.lessonId === L.id);
     let queue = cards;
     if (!(opts && opts.build)) {
+      // New letters this lesson still worth drilling by sound — the old journey
+      // road-stop, now dealt out as interludes between sentences and phased out
+      // once a letter is mastered.
+      const soundLetters = (LESSON_NEW_KANA[L.id] || []).filter((c) => kanaMastery(c) < KANA_MAX);
+      let si = 0;
       queue = [];
       for (const c of cards) {
         queue.push(c);
+        if (si < soundLetters.length)
+          queue.push({ id: c.id + "~snd", lessonId: L.id, kanaSound: true, soundChar: soundLetters[si++] });
         const w = pickSpellWord(c.s);
         if (w) queue.push({ id: c.id + "~kana", lessonId: L.id, kanaBuild: true, word: w });
       }
+      while (si < soundLetters.length)          // more new letters than sentences → tack on
+        queue.push({ id: L.id + "~snd" + si, lessonId: L.id, kanaSound: true, soundChar: soundLetters[si++] });
     }
     startSession(queue, "lesson", L.id, opts);
   }
@@ -1735,6 +1727,8 @@
   }
 
   function renderCard() {
+    el.kanaSound.hidden = true;                       // off unless it's a sound interlude
+    if (current.kanaSound) { renderKanaSoundCard(); return; }
     if (current.kanaBuild) { renderKanaBuildCard(); return; }
     const s = current.s;
     // Build mode needs at least one word chip; single-word set phrases just get
@@ -1807,6 +1801,55 @@
     }
     build = { correct: letters, placed: [], bank, solved: false };
     renderBuild();
+  }
+
+  // Sound-recognition interlude: hear a letter, pick its romaji from four. Rolled
+  // in from the old journey road-stop; notches the same per-letter mastery.
+  function renderKanaSoundCard() {
+    const ch = current.soundChar;
+    current.doBuild = true;                    // reuse the space/reveal guards
+    el.promptLabel.textContent = "🔊 Which sound is this?";
+    el.promptEn.textContent = "tap the letter to hear it";
+    el.promptEn.classList.remove("jp");
+    el.hintRow.hidden = true; el.revealArea.hidden = true; el.replayBtn.hidden = true;
+    el.retireBtn.hidden = true; el.grade.hidden = true; el.revealBtn.hidden = true;
+    el.buildArea.hidden = true; el.kanaSound.hidden = false;
+    el.kanaSoundChar.textContent = ch;
+    el.kanaSoundChar.onclick = () => speakLetter(ch);
+    speakLetter(ch);                           // play it on arrival
+    const script = ch.charCodeAt(0) >= 0x30a0 ? "k" : "h";
+    const answer = (KANA_INDEX.get(ch) || {}).romaji || "";
+    const poolR = kanaList(script).map((x) => x.romaji).filter((r) => r && r !== answer);
+    const opts = [answer];
+    while (opts.length < 4 && poolR.length) {
+      const r = poolR.splice(Math.floor(Math.random() * poolR.length), 1)[0];
+      if (!opts.includes(r)) opts.push(r);
+    }
+    for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
+    el.kanaSoundOpts.innerHTML = "";
+    let answered = false;
+    for (const r of opts) {
+      const b = document.createElement("button");
+      b.className = "kq-opt"; b.textContent = r;
+      b.addEventListener("click", () => {
+        if (answered) return;
+        answered = true;
+        speakLetter(ch);
+        const ok = r === answer;
+        b.classList.add(ok ? "ok" : "bad");
+        if (!ok) [...el.kanaSoundOpts.children].find((x) => x.textContent === answer).classList.add("ok");
+        if (ok) {
+          prog.kanaMastery[ch] = Math.min(KANA_MAX, (prog.kanaMastery[ch] || 0) + 1);
+          markKanaSeen(ch, 2);
+          try { window.HanaFX && HanaFX.pop && HanaFX.pop(); } catch (e) {}
+        } else {
+          markKanaSeen(ch, 1);
+        }
+        save();
+        ensureKanaNextBtn().hidden = false;
+      });
+      el.kanaSoundOpts.appendChild(b);
+    }
   }
 
   // The learner advances the spell-it card themselves — no auto-jump.
@@ -2859,7 +2902,8 @@
   el.revealBtn.addEventListener("click", reveal);
   el.replayBtn.addEventListener("click", () => speak(current.s.jp, { lang: "ja-JP" }));
   el.promptEn.addEventListener("click", () => {
-    if (current && current.kanaBuild) speak(current.word.jp, { lang: "ja-JP" });
+    if (current && current.kanaSound) speakLetter(current.soundChar);
+    else if (current && current.kanaBuild) speak(current.word.jp, { lang: "ja-JP" });
     else if (current && current.doBuild && session.hard) speak(current.s.jp, { lang: "ja-JP" });
   });
   el.showHintBtn.addEventListener("click", () => { el.hint.hidden = false; el.showHintBtn.hidden = true; });
