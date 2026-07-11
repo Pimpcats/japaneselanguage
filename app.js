@@ -2216,10 +2216,53 @@
     return { id: "auto-" + L.id, lesson: L.id, title: L.title, auto: true, steps };
   }
 
+  // Curriculum order across every level → tier → theme → its lessons. Used to
+  // find the lesson that comes right before this one.
+  function prevLessonOf(L) {
+    const ord = [];
+    for (const lv of (window.LEVELS || []))
+      for (const tier of lv.tiers)
+        for (const theme of tier.themes)
+          for (const x of window.LESSONS.filter((y) => y.section === theme)) ord.push(x);
+    const idx = ord.findIndex((x) => x.id === L.id);
+    return idx > 0 ? ord[idx - 1] : null;
+  }
+
+  // Every lesson past the first opens its talk with a quick spoken refresher of
+  // the PREVIOUS lesson — もち子さん randomly asks "how do you say…?" the way a
+  // coworker might. Old content stays warm; the lesson's own practice follows.
+  function buildRefresher(L) {
+    const prev = prevLessonOf(L);
+    if (!prev || !prev.sentences || !prev.sentences.length) return [];
+    const M = window.MOCHIKO || {};
+    const pool = prev.sentences.slice();
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const picks = pool.slice(0, Math.min(3, pool.length));   // a few, not the whole lesson
+    const steps = [];
+    const cue = (M.review && M.review.length) ? M.review[Math.floor(Math.random() * M.review.length)] : null;
+    if (cue) steps.push({ who: "m", jp: cue.jp, en: cue.en });
+    picks.forEach((s) => {
+      steps.push({ who: "you", ctx: "まえの レッスンの おさらい — how do you say…", en: s.en, jp: s.jp, romaji: s.romaji, hint: s.hint });
+    });
+    return steps;
+  }
+
   function startTalk(L) {
     if (!L) return;
     const sc = (window.SCENES || []).find((s) => s.lesson === L.id);
-    startScene(sc || buildAutoScene(L));
+    const base = sc || buildAutoScene(L);
+    const refresher = buildRefresher(L);
+    let steps = base.steps;
+    if (refresher.length) {
+      // Slip the refresher in right after her opening greeting, never before it,
+      // and never mutate a hand-written SCENES object.
+      const at = (steps[0] && steps[0].who === "m") ? 1 : 0;
+      steps = steps.slice(0, at).concat(refresher, steps.slice(at));
+    }
+    startScene(Object.assign({}, base, { steps }));
   }
 
   function setMic(listening) {

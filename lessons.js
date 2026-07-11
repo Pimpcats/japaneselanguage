@@ -2559,6 +2559,13 @@ window.MOCHIKO = {
     { jp: "ゆっくりで いいですよ。", en: "Take your time — no rush." },
     { jp: "きょうは なにを はなしましょうか。", en: "What shall we talk about today?" },
   ],
+  // Spontaneous "how do you say this?" cues — at the start of a lesson's talk she
+  // pulls you back to review the PREVIOUS lesson first. (Voiced by gen-audio CI.)
+  review: [
+    { jp: "そうだ、まえの おさらいを しましょう！", en: "Oh right — let's review the last lesson!" },
+    { jp: "ねえ、これは なんて いうか おぼえてる？", en: "Hey — do you remember how to say this?" },
+    { jp: "ふくしゅうも たいせつですよ。", en: "Reviewing matters too, you know." },
+  ],
   praise: [
     { jp: "すごい！", en: "Amazing!" },
     { jp: "じょうずですね！", en: "You're getting good!" },
