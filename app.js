@@ -2216,36 +2216,51 @@
     return { id: "auto-" + L.id, lesson: L.id, title: L.title, auto: true, steps };
   }
 
-  // Curriculum order across every level → tier → theme → its lessons. Used to
-  // find the lesson that comes right before this one.
-  function prevLessonOf(L) {
+  // Curriculum order across every level → tier → theme → its lessons.
+  function orderedLessons() {
     const ord = [];
     for (const lv of (window.LEVELS || []))
       for (const tier of lv.tiers)
         for (const theme of tier.themes)
           for (const x of window.LESSONS.filter((y) => y.section === theme)) ord.push(x);
-    const idx = ord.findIndex((x) => x.id === L.id);
-    return idx > 0 ? ord[idx - 1] : null;
+    return ord;
+  }
+  // How many recent-lesson questions to ask — grows as you get deeper into the
+  // course: 3 early, 5 through the middle, 7 in the late lessons.
+  function refresherCountFor(idx, total) {
+    if (idx < 0) return 3;
+    const frac = idx / Math.max(1, total - 1);
+    return frac < 1 / 3 ? 3 : frac < 2 / 3 ? 5 : 7;
   }
 
-  // Every lesson past the first opens its talk with a quick spoken refresher of
-  // the PREVIOUS lesson — もち子さん randomly asks "how do you say…?" the way a
-  // coworker might. Old content stays warm; the lesson's own practice follows.
+  // Every lesson past the first opens its talk with a quick spoken refresher —
+  // もち子さん randomly asks "how do you say…?" the way a coworker might. It draws
+  // from the lesson(s) just behind this one, reaching back only as far as needed
+  // to hit the target count (a single lesson holds ~5 sentences, so late lessons
+  // sweep the last couple). Old content stays warm; the lesson's own practice
+  // follows.
   function buildRefresher(L) {
-    const prev = prevLessonOf(L);
-    if (!prev || !prev.sentences || !prev.sentences.length) return [];
-    const M = window.MOCHIKO || {};
-    const pool = prev.sentences.slice();
+    const ord = orderedLessons();
+    const idx = ord.findIndex((x) => x.id === L.id);
+    if (idx <= 0) return [];                                   // the very first lesson gets none
+    const target = refresherCountFor(idx, ord.length);
+    const pool = [];
+    for (let k = idx - 1; k >= 0 && pool.length < target; k--) {
+      const les = ord[k];
+      if (les.sentences && les.sentences.length) pool.push(...les.sentences);
+    }
+    if (!pool.length) return [];
     for (let i = pool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
     }
-    const picks = pool.slice(0, Math.min(3, pool.length));   // a few, not the whole lesson
+    const picks = pool.slice(0, Math.min(target, pool.length));
+    const M = window.MOCHIKO || {};
     const steps = [];
     const cue = (M.review && M.review.length) ? M.review[Math.floor(Math.random() * M.review.length)] : null;
     if (cue) steps.push({ who: "m", jp: cue.jp, en: cue.en });
     picks.forEach((s) => {
-      steps.push({ who: "you", ctx: "まえの レッスンの おさらい — how do you say…", en: s.en, jp: s.jp, romaji: s.romaji, hint: s.hint });
+      steps.push({ who: "you", ctx: "おさらい・review — how do you say…", en: s.en, jp: s.jp, romaji: s.romaji, hint: s.hint });
     });
     return steps;
   }
