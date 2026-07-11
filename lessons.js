@@ -102,10 +102,9 @@ window.LESSONS = [
     id: "l0-ka", section: "The sounds", title: "か・き・く・け・こ",
     grammar: "か き く け こ",
     grammarNote:
-      "The k-row: か(ka) き(ki) く(ku) け(ke) こ(ko). Ten letters in — real words appear: かお, えき, こえ…",
+      "The k-row: か(ka) き(ki) く(ku) け(ke) こ(ko). Ten letters in — real words appear: かお, いけ, こえ…",
     vocab: [
       { jp: "かお", romaji: "kao", en: "face", pos: "n" },
-      { jp: "えき", romaji: "eki", en: "station", pos: "n" },
       { jp: "いけ", romaji: "ike", en: "pond", pos: "n" },
       { jp: "こえ", romaji: "koe", en: "voice", pos: "n" },
       { jp: "かき", romaji: "kaki", en: "persimmon", pos: "n" },
@@ -146,9 +145,8 @@ window.LESSONS = [
     id: "l0-ta", section: "The sounds", title: "た・ち・つ・て・と",
     grammar: "た ち つ て と",
     grammarNote:
-      "The t-row: た(ta) ち(chi) つ(tsu) て(te) と(to). つき, とけい — the words get useful fast.",
+      "The t-row: た(ta) ち(chi) つ(tsu) て(te) と(to). とけい, たこ — the words get useful fast.",
     vocab: [
-      { jp: "つき", romaji: "tsuki", en: "moon", pos: "n" },
       { jp: "とけい", romaji: "tokei", en: "clock", pos: "n" },
       { jp: "たこ", romaji: "tako", en: "octopus", pos: "n" },
       { jp: "そと", romaji: "soto", en: "outside", pos: "n" },
@@ -156,7 +154,6 @@ window.LESSONS = [
       { jp: "いつ", romaji: "itsu", en: "when", pos: "expr" },
       { jp: "たかい", romaji: "takai", en: "expensive / tall", pos: "adj" },
       { jp: "ちいさい", romaji: "chiisai", en: "small", pos: "adj" },
-      { jp: "ちかい", romaji: "chikai", en: "near", pos: "adj" },
     ],
     sentences: [
       { en: "An expensive clock!", jp: "たかい とけい！", romaji: "takai tokei!",
@@ -176,9 +173,7 @@ window.LESSONS = [
       { jp: "ねこ", romaji: "neko", en: "cat", pos: "n" },
       { jp: "いぬ", romaji: "inu", en: "dog", pos: "n" },
       { jp: "なに", romaji: "nani", en: "what", pos: "expr" },
-      { jp: "なつ", romaji: "natsu", en: "summer", pos: "n" },
       { jp: "にく", romaji: "niku", en: "meat", pos: "n" },
-      { jp: "おなか", romaji: "onaka", en: "belly / tummy", pos: "n" },
     ],
     sentences: [
       { en: "The cat's foot!", jp: "ねこの あし！", romaji: "neko no ashi!",
@@ -220,7 +215,6 @@ window.LESSONS = [
     grammarNote:
       "The m-row: ま(ma) み(mi) む(mu) め(me) も(mo). More は-sentences with everything you own so far.",
     vocab: [
-      { jp: "みみ", romaji: "mimi", en: "ear", pos: "n" },
       { jp: "まち", romaji: "machi", en: "town", pos: "n" },
       { jp: "もも", romaji: "momo", en: "peach", pos: "n" },
       { jp: "みせ", romaji: "mise", en: "shop", pos: "n" },
@@ -244,10 +238,7 @@ window.LESSONS = [
       "Just three this time: や(ya) ゆ(yu) よ(yo). A gentle day — enjoy the mountain weather.",
     vocab: [
       { jp: "やま", romaji: "yama", en: "mountain", pos: "n" },
-      { jp: "ゆき", romaji: "yuki", en: "snow", pos: "n" },
       { jp: "ふゆ", romaji: "fuyu", en: "winter", pos: "n" },
-      { jp: "おゆ", romaji: "oyu", en: "hot water", pos: "n" },
-      { jp: "やすい", romaji: "yasui", en: "cheap", pos: "adj" },
       { jp: "つよい", romaji: "tsuyoi", en: "strong", pos: "adj" },
       { jp: "さむい", romaji: "samui", en: "cold", pos: "adj" },
     ],
@@ -262,18 +253,14 @@ window.LESSONS = [
     id: "l0-ra", section: "The sounds", title: "ら・り・る・れ・ろ — これ・それ・あれ",
     grammar: "ら り る れ ろ  ·  これ・それ・あれ",
     grammarNote:
-      "The r-row: ら(ra) り(ri) る(ru) れ(re) ろ(ro) — a soft tap between r and l. It unlocks the pointing words: これ (this), それ (that), あれ (that over there).",
+      "The r-row: ら(ra) り(ri) る(ru) れ(re) ろ(ro) — a soft tap between r and l. It unlocks the pointing words: これ (this) and それ (that).",
     vocab: [
       { jp: "これ", romaji: "kore", en: "this", pos: "n" },
       { jp: "それ", romaji: "sore", en: "that (by you)", pos: "n" },
-      { jp: "あれ", romaji: "are", en: "that over there", pos: "n" },
       { jp: "とり", romaji: "tori", en: "bird", pos: "n" },
       { jp: "くるま", romaji: "kuruma", en: "car", pos: "n" },
       { jp: "さくら", romaji: "sakura", en: "cherry blossom", pos: "n" },
-      { jp: "はる", romaji: "haru", en: "spring", pos: "n" },
-      { jp: "よる", romaji: "yoru", en: "night", pos: "n" },
       { jp: "しろい", romaji: "shiroi", en: "white", pos: "adj" },
-      { jp: "ひろい", romaji: "hiroi", en: "wide / spacious", pos: "adj" },
     ],
     sentences: [
       { en: "This is a bird. (casual)", jp: "これは とり。", romaji: "kore wa tori.", hint: "casual style — です arrives in the next lesson",
@@ -293,8 +280,6 @@ window.LESSONS = [
       { jp: "わたし", romaji: "watashi", en: "I / me", pos: "n" },
       { jp: "ほん", romaji: "hon", en: "book", pos: "n" },
       { jp: "にほん", romaji: "nihon", en: "Japan", pos: "n" },
-      { jp: "みかん", romaji: "mikan", en: "mandarin orange", pos: "n" },
-      { jp: "かんたん", romaji: "kantan", en: "easy / simple", pos: "n" },
     ],
     sentences: [
       { en: "My book!", jp: "わたしの ほん！", romaji: "watashi no hon!",
@@ -312,7 +297,6 @@ window.LESSONS = [
       "Two little marks make new sounds from letters you know: ゛(てんてん) turns か→が(ga), さ→ざ(za), た→だ(da), は→ば(ba); ゜(まる) makes ぱ(pa). And だ-row gives you で — which unlocks です, the polite is/am you'll use everywhere from now on.",
     vocab: [
       { jp: "ともだち", romaji: "tomodachi", en: "friend", pos: "n" },
-      { jp: "だれ", romaji: "dare", en: "who", pos: "expr" },
       { jp: "でんわ", romaji: "denwa", en: "telephone", pos: "n" },
       { jp: "えいが", romaji: "eiga", en: "movie", pos: "n" },
       { jp: "ぱん", romaji: "pan", en: "bread", pos: "n" },
@@ -1408,7 +1392,6 @@ window.LESSONS = [
     vocab: [
       { jp: "とって",   romaji: "totte",   en: "take (a photo)  (撮る)", pos: "v" },
       { jp: "すわって", romaji: "suwatte", en: "sit  (座る)", pos: "v" },
-      { jp: "はいって", romaji: "haitte",  en: "enter / come in  (入る)", pos: "v" },
       { jp: "さわって", romaji: "sawatte", en: "touch  (触る)", pos: "v" },
       { jp: "しゃしん", romaji: "shashin", en: "photo", pos: "n" },
       { jp: "どうぞ",   romaji: "douzo",   en: "go ahead / please", pos: "expr" },
