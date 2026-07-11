@@ -444,101 +444,38 @@ footer { font-family: var(--display); color: var(--muted); }
 .slot-label { font-size: 0.58rem; font-weight: 700; color: var(--muted); line-height: 1.15; }
 .stamp-slot.got .slot-label { color: var(--ink); }
 
-/* ============ World-map journey view (app renderJourney) ============ */
-.world-map { display: flex; flex-direction: column; gap: 0.2rem; --map-accent: var(--accent); }
-.world-map.lv-0 { --map-accent: #ef6fa7; }
-.world-map.lv-1 { --map-accent: #2e5bcf; }
-.world-map.lv-2 { --map-accent: #3e8e41; }
-.world-map.lv-3 { --map-accent: #e0772e; }
-.world-map.lv-4 { --map-accent: #8a5cd0; }
+/* ============ Level page: condensed lesson cards (app renderJourney) ========
+   The Japan map + road of nodes was retired — this is the same journey, tight:
+   compact theme headers, lessons as a wrapped grid of small tappable cards. */
+.lesson-list { display: flex; flex-direction: column; gap: 0.45rem; }
 
-.map-chapter { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin: 1rem 0 0.2rem; font-family: var(--display); color: var(--ink); font-size: 1rem; }
-.map-chapter-count { font-size: 0.62rem; background: var(--map-accent); color: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 0.12rem 0.55rem; white-space: nowrap; }
+.map-chapter { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin: 0.9rem 0 0; font-family: var(--display); color: var(--ink); font-size: 1rem; }
+.map-chapter-count { font-size: 0.62rem; background: var(--accent); color: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 0.12rem 0.55rem; white-space: nowrap; }
 
-.map-region { display: flex; align-items: center; gap: 0.5rem; margin: 0.55rem 0 0.1rem;
-  background: color-mix(in srgb, var(--map-accent) 16%, #fff); border: 2.5px solid var(--ink);
-  border-radius: 999px; padding: 0.32rem 0.7rem; box-shadow: 0 3px 0 rgba(74, 51, 40, 0.16); }
-.region-ico { font-size: 1.2rem; line-height: 1; }
-.region-name { font-family: var(--display); font-size: 0.82rem; color: var(--ink); flex: 1; }
-.region-count { font-size: 0.62rem; font-weight: 900; color: var(--ink); background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 0.06rem 0.5rem; white-space: nowrap; }
+.theme-head { display: flex; align-items: center; gap: 0.45rem; margin: 0.45rem 0 0; padding: 0 0.15rem; }
+.theme-ico { font-size: 1rem; line-height: 1; }
+.theme-name { font-family: var(--display); font-size: 0.78rem; color: var(--ink); flex: 1; }
+.theme-count { font-size: 0.6rem; font-weight: 900; color: var(--muted); }
+.theme-stamp { width: 22px; height: 22px; object-fit: contain; transform: rotate(-10deg); }
 
-.map-path { position: relative; padding: 0.6rem 0 0.3rem; }
-.map-path::before {
-  content: ""; position: absolute; left: 50%; top: 0; bottom: 8px; width: 6px; transform: translateX(-50%);
-  background: repeating-linear-gradient(180deg, color-mix(in srgb, var(--map-accent) 55%, var(--ink)) 0 11px, transparent 11px 22px);
-  opacity: 0.55; border-radius: 3px;
+.lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.45rem; }
+.lesson-chip {
+  display: flex; align-items: center; gap: 0.45rem; text-align: left; cursor: pointer;
+  border: 2.5px solid var(--ink); border-radius: 13px; background: #fffdf6; color: var(--ink);
+  padding: 0.5rem 0.6rem; min-height: 52px; box-shadow: 0 3px 0 var(--ink);
+  font-weight: 900; font-size: 0.78rem; line-height: 1.15;
+  transition: transform 0.08s, box-shadow 0.08s;
 }
-/* Each stop is a dot with its name directly beneath it — the label can never
-   read as belonging to a neighbouring node (labels used to alternate sides of
-   the road, which paired them ambiguously once titles wrapped). */
-.map-node { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.28rem; padding: 0.45rem 0; }
-.node-dot {
-  width: 54px; height: 54px; border-radius: 50%; cursor: pointer; z-index: 1;
-  border: 3px solid var(--ink); background: #fff; color: var(--ink); font-family: var(--display); font-size: 1rem;
-  box-shadow: 0 4px 0 var(--ink); display: grid; place-items: center; transition: transform 0.08s, box-shadow 0.08s;
-}
-.node-dot:active { transform: translateY(4px); box-shadow: 0 0 0 var(--ink); }
-.node-dot img { width: 34px; height: 34px; transform: rotate(-8deg); }
-/* done = cream dot so the gold stamp reads clearly (gold-on-gold was faint) */
-.node-done .node-dot { background: #fffdf6; }
-.node-done .node-dot img { width: 42px; height: 42px; filter: drop-shadow(0 1px 1px rgba(74, 51, 40, 0.35)); }
-.node-current .node-dot { background: var(--map-accent); color: #fff; animation: node-pulse 1.7s ease-in-out infinite; }
-@keyframes node-pulse {
-  0%, 100% { box-shadow: 0 4px 0 var(--ink); }
-  50% { box-shadow: 0 4px 0 var(--ink), 0 0 0 7px color-mix(in srgb, var(--map-accent) 32%, transparent); }
-}
-.node-todo .node-dot { color: color-mix(in srgb, var(--ink) 55%, #fff); border-style: dashed; }
-.node-me { position: absolute; left: calc(50% + 32px); top: 0.2rem; width: 54px; z-index: 3;
-  filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.18)); pointer-events: none; animation: bob 3s ease-in-out infinite; }
-@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-
-.node-side { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.18rem; max-width: 78%; }
-.node-side .node-label { background: color-mix(in srgb, #fff 78%, transparent); border-radius: 8px; padding: 0 0.35rem; }
-.node-label { font-weight: 900; font-size: 0.8rem; color: var(--ink); line-height: 1.15; }
-.node-todo .node-label { color: color-mix(in srgb, var(--ink) 65%, #fff); }
-.node-badge { font-family: var(--display); font-size: 0.56rem; border: 2px solid var(--ink); border-radius: 999px; padding: 0.04rem 0.45rem; }
-.node-badge.done { background: var(--good); color: #fff; }
-.node-badge.due { background: var(--gold); color: var(--ink); }
-.node-badge.new { background: var(--sky); color: var(--ink); }
-
-/* ---- Japan silhouette overview + pins ---- */
-.japan-map {
-  position: relative; width: min(330px, 92%); margin: 0.3rem auto 0.7rem; aspect-ratio: 200 / 234;
-  background: linear-gradient(160deg, #d8effa, #bfe3f5);
-  border: 3px solid var(--ink); border-radius: 20px; overflow: hidden;
-  box-shadow: 0 5px 0 rgba(74, 51, 40, 0.16);
-}
-.japan-map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.jm-title {
-  position: absolute; top: 0.45rem; left: 0.5rem; z-index: 2; font-family: var(--display); font-size: 0.66rem;
-  color: var(--ink); background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 0.08rem 0.5rem;
-}
-.map-pin {
-  position: absolute; z-index: 3; width: 20px; height: 20px; cursor: pointer; padding: 0;
-  background: #fff; border: 2.5px solid var(--ink); border-radius: 50% 50% 50% 0;
-  transform: translate(-50%, -60%) rotate(-45deg); box-shadow: 0 2px 0 rgba(74, 51, 40, 0.25);
-}
-.map-pin::after { content: ""; position: absolute; inset: 4px; border-radius: 50%; background: var(--ink); opacity: 0.25; }
-.map-pin.pin-done { background: var(--gold); }
-.map-pin.pin-done::after { background: #fff; opacity: 0.85; }
-.map-pin.pin-current { background: var(--map-accent); z-index: 4; animation: pin-pulse 1.6s ease-in-out infinite; }
-.map-pin.pin-current::after { background: #fff; opacity: 0.95; }
-.map-pin.pin-locked { background: #e7ded0; }
-@keyframes pin-pulse {
-  0%, 100% { box-shadow: 0 2px 0 rgba(74, 51, 40, 0.25); }
-  50% { box-shadow: 0 2px 0 rgba(74, 51, 40, 0.25), 0 0 0 6px color-mix(in srgb, var(--map-accent) 30%, transparent); }
-}
-
-/* completed region: stamped */
-.map-region.region-done { background: color-mix(in srgb, var(--good) 16%, #fff); }
-.region-stamp { width: 28px; height: 28px; object-fit: contain; transform: rotate(-10deg); }
-
-/* locked nodes */
-.node-locked .node-dot { background: #f0ebe0; color: color-mix(in srgb, var(--ink) 45%, #fff); border-style: dashed; box-shadow: 0 3px 0 color-mix(in srgb, var(--ink) 45%, #fff); cursor: default; }
-.node-locked .node-label { color: color-mix(in srgb, var(--ink) 50%, #fff); }
-.node-badge.locked { background: #efe7d8; color: var(--muted); }
-.map-node.shake { animation: node-shake 0.34s ease; }
-@keyframes node-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.lesson-chip:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+.chip-mark { flex: 0 0 auto; width: 22px; display: grid; place-items: center; font-size: 0.72rem; }
+.chip-mark img { width: 22px; height: 22px; transform: rotate(-8deg); }
+.chip-title { flex: 1; }
+.chip-due { flex: 0 0 auto; font-family: var(--display); font-size: 0.54rem; background: var(--gold); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 0.04rem 0.4rem; white-space: nowrap; }
+/* done = quiet cream + stamp; current = the one loud card; ahead = dimmed but tappable */
+.chip-done { background: color-mix(in srgb, var(--good) 10%, #fffdf6); }
+.chip-current { background: color-mix(in srgb, var(--accent) 14%, #fff); border-width: 3px; box-shadow: 0 4px 0 var(--ink); }
+.chip-current .chip-mark { color: var(--accent); }
+.chip-ahead { color: color-mix(in srgb, var(--ink) 62%, #fff); border-style: dashed; box-shadow: 0 3px 0 color-mix(in srgb, var(--ink) 45%, #fff); }
 
 /* ---- "new version ready" prompt: centered modal-style, hard to miss ---- */
 .sw-update {
@@ -664,8 +601,6 @@ footer { font-family: var(--display); color: var(--muted); }
 .wr-text { margin-left: 0.35rem; font-size: 0.74rem; font-weight: 800; color: var(--ink); }
 #stats.stats { border: none !important; box-shadow: none !important; background: none; padding: 0; }
 
-/* journey nodes ahead of you are waypoints, not locks — they stay tappable */
-.node-locked .node-dot { cursor: pointer; }
 #stats .week-rhythm { flex: 1; }
 
 /* tiny running-version stamp in the sign's white band (top-right, clear of
@@ -787,18 +722,6 @@ footer { font-family: var(--display); color: var(--muted); }
   transform: none !important;
   box-shadow: 0 2px 0 rgba(74, 51, 40, 0.2) !important;
 }
-
-/* syllable-practice stops on the journey road */
-.node-practice .node-dot.practice-dot {
-  background: var(--sky); color: var(--ink);
-  font-family: var(--display); font-size: 1.25rem;
-  width: 44px; height: 44px;
-}
-.node-practice .node-dot.practice-dot::after {
-  content: "🔤"; position: absolute; right: -4px; top: -6px; font-size: 0.8rem;
-  filter: drop-shadow(0 1px 0 rgba(74,51,40,0.3));
-}
-.node-practice .node-badge.new { background: var(--sky); color: var(--ink); }
 
 /* conversation feel: her line echoed above your reply prompt (dimmed, smaller),
    and lighter feedback so a scene turn reads as dialogue, not a test */

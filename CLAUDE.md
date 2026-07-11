@@ -220,15 +220,14 @@ to reveal-and-listen when unavailable.
   asks follow-ups). Levels 2-7 still use the auto-built flow; converting them
   is the standing direction: reinforce what was learned through natural
   conversation.
-- **The Japan-map journey** is the level page: cartoon-Japan SVG + pins, themes
-  as regions, lessons as road nodes (label sits directly UNDER its dot — never
-  beside, it misreads). "Ahead" nodes are styling only — every lesson stays
-  tappable (no artificial scarcity, ever).
-- **Planned: Donkey-Kong-style map** — nodes hopping between scenic spots on
-  illustrated terrain. The OWNER is producing the art to `docs/ART_ROADMAP.md`
-  (19 location panels, one per theme, spec + paint-briefs inside; panels land
-  in `assets/map/`). Keep the node/trail DOM structure stable so panels can
-  slot in behind it. Don't generate placeholder scenery art unprompted.
+- **The level page is a condensed card list** (2026-07, owner decision): compact
+  theme headers + lessons as a wrapped grid of small cards (`.lesson-chip`).
+  The old Japan-map SVG + road-of-nodes journey was RETIRED — too much scrolling,
+  too much room; do not bring it back. "Ahead" cards are styling only — every
+  lesson stays tappable (no artificial scarcity, ever).
+- The Donkey-Kong-style map plan (`docs/ART_ROADMAP.md`, panels for
+  `assets/map/`) is ON HOLD pending the owner rethinking the map — ask before
+  doing any map/journey work. Don't generate placeholder scenery art unprompted.
 - **Real-world missions** (`window.MISSIONS`, shown on lesson complete) and the
   **weekly rhythm dots** (7 forgiving days, `prog.practice`) replace
   streak-guilt. Do not add streak pressure back.

@@ -1299,54 +1299,16 @@
     show(el.home);
   }
 
-  // ---- World-map journey view ----------------------------------------------
-  // Each theme is a "stop" on the road; each lesson is a node you travel to.
-  // Reuses the real lessonStats() + openIntro() so behaviour is unchanged.
+  // ---- Level page: condensed lesson cards -----------------------------------
+  // The Japan-map + road-of-nodes journey was retired (too much scrolling, too
+  // much room). Themes are compact headers; lessons are a wrapped grid of small
+  // cards. Every lesson stays tappable — "ahead" is styling, never a lock.
   const REGION_ICONS = ["⛩️", "🏯", "🗻", "🌸", "🏮", "🍵", "🚉", "🌊", "🦊", "🎋", "🏔️", "🛤️"];
-  // Pin stops trace the archipelago NE → SW (Hokkaidō → Tōhoku → Kantō →
-  // Chūbu → Kansai → Chūgoku → Shikoku → Kyūshū → Okinawa), matching the
-  // landmasses drawn below (coords are % of the 200×240 map box).
-  const PIN_SLOTS = [[77, 17], [70, 27], [73, 36], [73, 45], [62, 51], [53, 55], [40, 59], [44, 68], [27, 75], [10, 94]];
-  // Cartoon Japan — stylised but recognisable: Hokkaidō, Honshū (with the
-  // Noto, Bōsō and Kii peninsulas drawn in), Shikoku, Kyūshū and Okinawa.
-  const JAPAN_SVG =
-    '<svg viewBox="0 0 200 240" preserveAspectRatio="xMidYMid meet" aria-hidden="true">' +
-    '<g fill="#cfe6c4" stroke="#4a3328" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">' +
-    // Hokkaidō
-    '<path d="M148 22 c10 -6 24 -2 28 8 c4 9 0 16 -8 20 c-4 2 -6 6 -10 7 c-3 1 -5 -2 -9 -1 c-6 2 -12 -1 -14 -7 c-2 -7 1 -13 6 -16 c3 -2 4 -8 7 -11 Z"/>' +
-    // Honshū (clockwise from the northern tip; Bōsō notch, Kii dip, Noto spur)
-    '<path d="M140 62 C146 68 150 76 150 86 C150 96 154 102 152 108 C151 111 147 110 146 112 C147 116 152 114 150 118 C144 126 136 126 128 128 C120 130 116 138 112 146 C110 150 106 148 105 143 C104 139 106 134 102 133 C94 132 86 140 78 146 C70 151 62 156 56 158 C52 159 50 155 52 151 C58 146 64 142 70 138 C78 133 84 128 88 120 C92 112 96 104 100 97 C101 93 103 88 106 89 C108 90 107 95 108 98 C112 94 118 90 124 84 C129 79 134 70 140 62 Z"/>' +
-    // Shikoku
-    '<path d="M84 158 c8 -3 18 -2 22 4 c3 5 -2 10 -10 11 c-8 1 -16 -1 -18 -6 c-2 -5 2 -8 6 -9 Z"/>' +
-    // Kyūshū
-    '<path d="M52 168 c8 -2 16 2 18 9 c2 6 -2 12 -6 17 c-3 4 -8 3 -10 -1 c-1 -3 -5 -3 -7 -6 c-4 -6 -2 -16 5 -19 Z"/>' +
-    // Okinawa
-    '<path d="M18 222 q4 -3 7 0 q-2 4 -5 6 q-4 -2 -2 -6 Z"/>' +
-    "</g></svg>";
-
-  function buildJapanMap(regionList, currentIdx, scrollToRegion) {
-    const wrap = document.createElement("div");
-    wrap.className = "japan-map";
-    wrap.innerHTML = JAPAN_SVG + '<span class="jm-title">🗾 にほんの たび</span>';
-    regionList.forEach((r, idx) => {
-      const [x, y] = PIN_SLOTS[idx % PIN_SLOTS.length];
-      const status = r.done ? "done" : (idx === currentIdx ? "current" : (idx < currentIdx ? "done" : "locked"));
-      const pin = document.createElement("button");
-      pin.className = "map-pin pin-" + status;
-      pin.style.left = x + "%"; pin.style.top = y + "%";
-      pin.title = r.theme;
-      pin.addEventListener("click", () => scrollToRegion(idx));
-      wrap.appendChild(pin);
-    });
-    return wrap;
-  }
 
   function renderJourney(container, level) {
-    const lvIdx = window.LEVELS.findIndex((l) => l.id === level.id);
-    const map = document.createElement("div");
-    map.className = "world-map lv-" + (((lvIdx % 5) + 5) % 5);
+    const wrap = document.createElement("div");
+    wrap.className = "lesson-list";
 
-    // Regions (themes) in order, each with a done flag.
     const isDoneL = (L) => { const s = lessonStats(L); return s.passed >= s.total; };
     const regionList = [];
     for (const tier of level.tiers) for (const theme of tier.themes) {
@@ -1356,88 +1318,54 @@
     // Frontier = first not-done lesson across the level: that's where you are.
     let frontierId = null;
     outer: for (const r of regionList) for (const L of r.lessons) if (!isDoneL(L)) { frontierId = L.id; break outer; }
-    const currentIdx = frontierId === null ? regionList.length
-      : Math.max(0, regionList.findIndex((r) => r.lessons.some((L) => L.id === frontierId)));
-
-    const scrollToRegion = (idx) => {
-      const el2 = map.querySelector('[data-region="' + idx + '"]');
-      if (el2) el2.scrollIntoView({ behavior: "smooth", block: "center" });
-    };
-    if (regionList.length) map.appendChild(buildJapanMap(regionList, currentIdx, scrollToRegion));
 
     let lastTier = null, regionIdx = 0;
     for (const r of regionList) {
-      if (r.tier !== lastTier) {
+      if (r.tier !== lastTier && level.tiers.length > 1) {
         lastTier = r.tier;
         const tierLessons = window.LESSONS.filter((L) => r.tier.themes.includes(L.section));
         const chapter = document.createElement("div");
         chapter.className = "map-chapter";
         chapter.appendChild(span("map-chapter-name", r.tier.name));
         chapter.appendChild(span("map-chapter-count", tierLessons.filter(isDoneL).length + " / " + tierLessons.length));
-        map.appendChild(chapter);
+        wrap.appendChild(chapter);
       }
 
-      const region = document.createElement("div");
-      region.className = "map-region" + (r.done ? " region-done" : "");
-      region.dataset.region = String(regionIdx);
-      region.appendChild(span("region-ico", REGION_ICONS[regionIdx % REGION_ICONS.length]));
-      region.appendChild(span("region-name", r.theme));
+      const head = document.createElement("div");
+      head.className = "theme-head" + (r.done ? " theme-done" : "");
+      head.appendChild(span("theme-ico", REGION_ICONS[regionIdx % REGION_ICONS.length]));
+      head.appendChild(span("theme-name", r.theme));
       if (r.done) {
         const stamp = document.createElement("img");
-        stamp.className = "region-stamp"; stamp.src = "assets/star_stamp.png"; stamp.alt = "";
-        region.appendChild(stamp);
+        stamp.className = "theme-stamp"; stamp.src = "assets/star_stamp.png"; stamp.alt = "done";
+        head.appendChild(stamp);
       } else {
-        region.appendChild(span("region-count", r.lessons.filter(isDoneL).length + "/" + r.lessons.length));
+        head.appendChild(span("theme-count", r.lessons.filter(isDoneL).length + "/" + r.lessons.length));
       }
-      map.appendChild(region);
+      wrap.appendChild(head);
 
-      const path = document.createElement("div");
-      path.className = "map-path";
+      const grid = document.createElement("div");
+      grid.className = "lesson-grid";
       r.lessons.forEach((L) => {
         const st = lessonStats(L);
         const isDone = st.passed >= st.total;
         const current = !isDone && L.id === frontierId;
-        // "ahead" is a waypoint you haven't reached, NOT a lock — every lesson
-        // stays tappable (no artificial scarcity), the styling just shows
-        // where you are on the road.
-        const status = isDone ? "done" : current ? "current" : "locked";
-
-        const node = document.createElement("div");
-        node.className = "map-node node-" + status;
-        if (current) {
-          const me = document.createElement("img");
-          me.className = "node-me"; me.src = "assets/chibi_think.png"; me.alt = "";
-          node.appendChild(me);
-        }
-
-        const dot = document.createElement("button");
-        dot.className = "node-dot";
-        dot.dataset.lesson = L.id;          // so Back can scroll home to this node
-        dot.setAttribute("aria-label", L.title);
-        if (isDone) dot.innerHTML = '<img src="assets/star_stamp.png" alt="">';
-        else if (current) dot.textContent = "▶";
-        else dot.textContent = "○";
-        dot.addEventListener("click", () => openIntro(L));
-        node.appendChild(dot);
-
-        const side = document.createElement("div");
-        side.className = "node-side";
-        side.appendChild(Object.assign(document.createElement("div"), { className: "node-label", textContent: L.title }));
-        const sb = document.createElement("span");
-        if (isDone) { sb.className = "node-badge done"; sb.textContent = "✓ done"; }
-        else if (current) { sb.className = "node-badge due"; sb.textContent = st.due > 0 ? st.due + " due" : "start →"; }
-        else { sb.className = "node-badge locked"; sb.textContent = "up ahead"; }
-        side.appendChild(sb);
-        node.appendChild(side);
-
-        path.appendChild(node);
-        // (The old "Practice the sounds" road-stop was removed — that sound drill
-        // now happens inside the lesson, as an interlude between sentences.)
+        const chip = document.createElement("button");
+        chip.className = "lesson-chip" + (isDone ? " chip-done" : current ? " chip-current" : " chip-ahead");
+        chip.dataset.lesson = L.id;          // so Back can scroll home to this card
+        chip.setAttribute("aria-label", L.title);
+        const mark = span("chip-mark", current ? "▶" : "");
+        if (isDone) mark.innerHTML = '<img src="assets/star_stamp.png" alt="">';
+        chip.appendChild(mark);
+        chip.appendChild(span("chip-title", L.title));
+        if (current && st.due > 0) chip.appendChild(span("chip-due", st.due + " due"));
+        chip.addEventListener("click", () => openIntro(L));
+        grid.appendChild(chip);
       });
-      map.appendChild(path);
+      wrap.appendChild(grid);
       regionIdx++;
     }
-    container.appendChild(map);
+    container.appendChild(wrap);
   }
 
   // ---- Lesson intro --------------------------------------------------------
@@ -2640,14 +2568,14 @@
     if (passed >= Math.ceil(yourLines * 0.8)) { try { window.HanaFX && HanaFX.confetti && HanaFX.confetti(); } catch (e) {} }
   }
 
-  // Back from a lesson (intro / drill / scene / done) lands on the level map
-  // scrolled to that lesson's node — not the top of the page.
+  // Back from a lesson (intro / drill / scene / done) lands on the level page
+  // scrolled to that lesson's card — not the top of the page.
   function backToMap() {
     renderHome();
     if (openLevelId && activeLesson) {
       requestAnimationFrame(() => {
-        const dot = document.querySelector('.node-dot[data-lesson="' + activeLesson.id + '"]');
-        if (dot && dot.scrollIntoView) dot.scrollIntoView({ block: "center" });
+        const chip = document.querySelector('.lesson-chip[data-lesson="' + activeLesson.id + '"]');
+        if (chip && chip.scrollIntoView) chip.scrollIntoView({ block: "center" });
       });
     }
   }

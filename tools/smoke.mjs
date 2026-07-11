@@ -31,8 +31,8 @@ for (const f of ["lessons.js", "kana.js", "app.js", "theme.js", "collection.js"]
 const click = (el) => el && el.dispatchEvent(new window.Event("click", { bubbles: true }));
 check("home renders level cards", document.querySelectorAll(".level-card").length >= 5);
 click(document.querySelector(".level-card"));
-check("level page renders journey nodes", document.querySelectorAll(".node-dot").length >= 3);
-click(document.querySelector(".node-dot"));
+check("level page renders lesson cards", document.querySelectorAll(".lesson-chip").length >= 3);
+click(document.querySelector(".lesson-chip"));
 check("lesson intro opens", !document.getElementById("lesson-intro").hidden);
 check("note annotates Japanese with romaji", document.querySelectorAll("#lesson-note ruby rt").length > 0);
 check("talk button present on every lesson", !document.getElementById("scene-btn").hidden);
