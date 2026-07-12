@@ -446,7 +446,7 @@
     backBtn: $("back-btn"),
     dailyRing: $("daily-ring"), ringFill: document.querySelector(".ring-fill"), ringLabel: document.querySelector(".ring-label"),
     mastery: $("mastery"), masteryFill: $("mastery-fill"), masteryPct: $("mastery-pct"),
-    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), focusBtn: $("focus-btn"), lessonMap: $("lesson-map"), mining: $("mining"), immersion: $("immersion"),
+    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), driveBtn: $("drive-btn"), focusBtn: $("focus-btn"), lessonMap: $("lesson-map"), mining: $("mining"), immersion: $("immersion"),
     mineForm: $("mine-form"), mineJp: $("mine-jp"), mineEn: $("mine-en"), mineRomaji: $("mine-romaji"),
     mineHint: $("mine-hint"), mineError: $("mine-error"),
     mineSaveBtn: $("mine-save-btn"), mineCancelBtn: $("mine-cancel-btn"), minePreviewBtn: $("mine-preview-btn"),
@@ -1217,6 +1217,8 @@
   let heroAction = null;   // what the hero button does right now
 
   function renderHome() {
+    document.body.classList.remove("drive-mode");   // leaving a drive session
+    keepAwake(false);
     renderDailyRing();
     renderMastery();
     el.stats.hidden = true;
@@ -1255,6 +1257,7 @@
           };
         } else { el.reviewBtn.hidden = true; heroAction = null; }
       }
+      el.driveBtn.hidden = false;
 
       // Weekly rhythm — practice as a 7-day pattern, not a streak to break.
       // A rest day leaves a gap; nothing resets, nothing scolds.
@@ -1304,6 +1307,7 @@
     if (structure) structure.hidden = true;
     if (colors) colors.hidden = true;
     el.reviewBtn.hidden = true;
+    el.driveBtn.hidden = true;
 
     const level = window.LEVELS.find((l) => l.id === openLevelId) || window.LEVELS[0];
     const back = document.createElement("button");
@@ -1521,10 +1525,40 @@
       queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId, flip: false,
       build: !!(opts && opts.build), hard: !!(opts && opts.hard), combo: 0, bestCombo: 0,
       spoken: 0,   // sentences actually said aloud (produce-direction cards)
+      drive: !!(opts && opts.drive),   // 🚗 dash-mounted: huge targets, produce-only
     };
+    document.body.classList.toggle("drive-mode", session.drive);
+    if (session.drive) keepAwake(true);
     renderCombo();
     show(el.drill, { back: true });
     nextCard();
+  }
+
+  // 🚗 Drive mode — the same drill, sized for a dash mount: one big imprecise
+  // tap at a time, produce-only, no letter-tapping interludes, screen kept awake.
+  let wakeLock = null;
+  async function keepAwake(on) {
+    try {
+      if (on && navigator.wakeLock) wakeLock = await navigator.wakeLock.request("screen");
+      else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+    } catch (e) {}
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && session && session.drive) keepAwake(true);
+  });
+  function startDrive() {
+    let cards = reviewCards();
+    if (!cards.length) {                                  // nothing due — current lesson's sentences
+      const next = nextLessonToDo();
+      if (next) cards = CARDS.filter((c) => c.lessonId === next.id);
+    }
+    if (!cards.length) {                                  // course done — keep learned lines warm
+      cards = CARDS.filter((c) => { const p = prog.cards[c.id]; return p && p.reps; });
+      for (let i = cards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [cards[i], cards[j]] = [cards[j], cards[i]]; }
+      cards = cards.slice(0, 10);
+    }
+    if (!cards.length) return;
+    startSession(cards, "review", null, { drive: true });
   }
 
   // Learning a sentence and its alphabet hand in hand: after each sentence in
@@ -1661,6 +1695,7 @@
 
   // produce = see English, say Japanese · recognize = see Japanese, recall meaning
   function cardDirection() {
+    if (session && session.drive) return "produce";   // in the car you speak, not read meanings
     const d = settings.direction;
     if (d === "recognize") return "recognize";
     if (d === "both") { session.flip = !session.flip; return session.flip ? "recognize" : "produce"; }
@@ -2790,9 +2825,16 @@
   el.backBtn.addEventListener("click", backToMap);
   el.doneHomeBtn.addEventListener("click", backToMap);
   el.reviewBtn.addEventListener("click", () => { if (heroAction) heroAction(); });
+  el.driveBtn.addEventListener("click", startDrive);
   el.encoreBtn.addEventListener("click", () => {
     const cards = reviewCards().slice(0, 5);
-    if (cards.length) startSession(cards, "review", null); else renderHome();
+    // an encore after a drive session stays in drive mode
+    if (cards.length) startSession(cards, "review", null, { drive: !!(session && session.drive) });
+    else renderHome();
+  });
+  // Drive mode: the whole card is the reveal button — no aiming at a chip.
+  document.getElementById("card").addEventListener("click", () => {
+    if (session && session.drive && el.grade.hidden && !el.revealBtn.hidden && !el.revealBtn.disabled) reveal();
   });
   el.focusBtn.addEventListener("click", startFocus);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));

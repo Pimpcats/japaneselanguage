@@ -606,6 +606,20 @@ footer { font-family: var(--display); color: var(--muted); }
 /* the one-tap hero on Home and the おかわり encore — the obvious next action */
 #review-btn.hero-btn { font-size: 1.02rem; padding: 0.95rem 1rem; margin-bottom: 0.35rem; }
 #encore-btn { margin-top: 0.5rem; }
+#drive-btn { margin-bottom: 0.35rem; }
+
+/* 🚗 drive mode — dash-mounted phone: huge type, one imprecise tap at a time.
+   The whole card is the reveal button; hints, chips and extras get out of the way. */
+body.drive-mode #prompt-en { font-size: 1.9rem; line-height: 1.35; }
+body.drive-mode #card { cursor: pointer; }
+body.drive-mode #answer-kana { font-size: 1.75rem; line-height: 1.4; }
+body.drive-mode #answer-romaji { font-size: 1.05rem; }
+body.drive-mode #reveal-btn { min-height: 84px; font-size: 1.25rem; }
+body.drive-mode #replay-btn { min-height: 68px; font-size: 1.1rem; }
+body.drive-mode button.grade { min-height: 84px; font-size: 1rem; }
+body.drive-mode #hint-row, body.drive-mode #word-breakdown, body.drive-mode #combo,
+body.drive-mode #retire-btn { display: none !important; }
+body.drive-mode #encore-btn, body.drive-mode .done-actions button { min-height: 64px; }
 
 /* tiny running-version stamp in the sign's white band (top-right, clear of
    the centered title) — lets the owner see at a glance if they're current */
