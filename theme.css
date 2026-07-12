@@ -121,7 +121,7 @@ button.primary:active, button.secondary:active { transform: translateY(4px); box
 button.small { border-width: 2.5px; box-shadow: 0 3px 0 var(--ink); }
 button.link { color: var(--accent); font-weight: 700; }
 
-/* grade + review-sub chips — compact height, all three stay on one row */
+/* grade chips — compact height, all three stay on one row */
 #grade .grade-row { flex-wrap: nowrap; }
 button.grade {
   border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink); background: #fff;
@@ -602,6 +602,10 @@ footer { font-family: var(--display); color: var(--muted); }
 #stats.stats { border: none !important; box-shadow: none !important; background: none; padding: 0; }
 
 #stats .week-rhythm { flex: 1; }
+
+/* the one-tap hero on Home and the おかわり encore — the obvious next action */
+#review-btn.hero-btn { font-size: 1.02rem; padding: 0.95rem 1rem; margin-bottom: 0.35rem; }
+#encore-btn { margin-top: 0.5rem; }
 
 /* tiny running-version stamp in the sign's white band (top-right, clear of
    the centered title) — lets the owner see at a glance if they're current */

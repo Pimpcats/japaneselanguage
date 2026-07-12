@@ -213,7 +213,6 @@ html, body {
 .str-ex .ck { border-radius: 6px; padding: 0.02em 0.12em; }
 
 /* Review sub-buckets: cards last graded nope / kinda */
-.review-sub { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
 .review-chip {
   flex: 1;
   display: flex;

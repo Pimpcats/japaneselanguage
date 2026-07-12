@@ -446,7 +446,7 @@
     backBtn: $("back-btn"),
     dailyRing: $("daily-ring"), ringFill: document.querySelector(".ring-fill"), ringLabel: document.querySelector(".ring-label"),
     mastery: $("mastery"), masteryFill: $("mastery-fill"), masteryPct: $("mastery-pct"),
-    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), reviewSub: $("review-sub"), focusBtn: $("focus-btn"), lessonMap: $("lesson-map"), mining: $("mining"), immersion: $("immersion"),
+    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), focusBtn: $("focus-btn"), lessonMap: $("lesson-map"), mining: $("mining"), immersion: $("immersion"),
     mineForm: $("mine-form"), mineJp: $("mine-jp"), mineEn: $("mine-en"), mineRomaji: $("mine-romaji"),
     mineHint: $("mine-hint"), mineError: $("mine-error"),
     mineSaveBtn: $("mine-save-btn"), mineCancelBtn: $("mine-cancel-btn"), minePreviewBtn: $("mine-preview-btn"),
@@ -469,7 +469,7 @@
     hintRow: $("hint-row"), showHintBtn: $("show-hint-btn"), hint: $("hint"),
     revealBtn: $("reveal-btn"), replayBtn: $("replay-btn"),
     grade: $("grade"),
-    done: $("lesson-done"), doneSummary: $("done-summary"), restartBtn: $("restart-btn"), doneHomeBtn: $("done-home-btn"),
+    done: $("lesson-done"), doneSummary: $("done-summary"), restartBtn: $("restart-btn"), doneHomeBtn: $("done-home-btn"), encoreBtn: $("encore-btn"),
     voiceWarn: $("voice-warn"), syncBtn: $("sync-btn"),
     settingsBtn: $("settings-btn"), settings: $("settings"), romajiToggle: $("romaji-toggle"),
     voiceSelect: $("voice-select"), voiceTestBtn: $("voice-test-btn"),
@@ -1208,6 +1208,14 @@
   // Jump straight to the level overview (used by the banner Home button).
   window.__hanaGoHome = function () { openLevelId = null; renderHome(); window.scrollTo(0, 0); };
 
+  // The first not-yet-finished lesson across the whole curriculum — where the
+  // one-tap hero button points when nothing is due.
+  function nextLessonToDo() {
+    for (const L of orderedLessons()) { const s = lessonStats(L); if (s.passed < s.total) return L; }
+    return null;
+  }
+  let heroAction = null;   // what the hero button does right now
+
   function renderHome() {
     renderDailyRing();
     renderMastery();
@@ -1215,7 +1223,6 @@
     el.stats.innerHTML = "";
 
     const reviewN = reviewCards().length;
-    el.reviewSub.hidden = true;
     el.focusBtn.hidden = true;
     const howit = document.getElementById("howit");
     const structure = document.getElementById("structure");
@@ -1230,8 +1237,24 @@
       if (howit) howit.hidden = false;
       if (structure) structure.hidden = false;
       if (colors) colors.hidden = false;
-      el.reviewBtn.hidden = reviewN === 0;
-      el.reviewBtn.textContent = `⚡ Review ${reviewN} card${reviewN === 1 ? "" : "s"}`;
+      // One-tap start: the first thing on Home is always the obvious next action —
+      // due reviews if there are any, otherwise the next lesson on the road.
+      if (reviewN > 0) {
+        el.reviewBtn.hidden = false;
+        el.reviewBtn.textContent = `▶ ⚡ Review ${reviewN} card${reviewN === 1 ? "" : "s"}`;
+        heroAction = startReview;
+      } else {
+        const next = nextLessonToDo();
+        if (next) {
+          el.reviewBtn.hidden = false;
+          el.reviewBtn.textContent = "▶ Continue — " + next.title;
+          heroAction = () => {
+            const lv = window.LEVELS.find((l) => l.tiers.some((t) => t.themes.includes(next.section)));
+            if (lv) { openLevelId = lv.id; settings.activeLevel = lv.id; saveSettings(); }
+            openIntro(next);
+          };
+        } else { el.reviewBtn.hidden = true; heroAction = null; }
+      }
 
       // Weekly rhythm — practice as a 7-day pattern, not a streak to break.
       // A rest day leaves a gap; nothing resets, nothing scolds.
@@ -1497,6 +1520,7 @@
     session = {
       queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId, flip: false,
       build: !!(opts && opts.build), hard: !!(opts && opts.hard), combo: 0, bestCombo: 0,
+      spoken: 0,   // sentences actually said aloud (produce-direction cards)
     };
     renderCombo();
     show(el.drill, { back: true });
@@ -2018,6 +2042,9 @@
   }
 
   function grade(g) {
+    // Only produce-direction cards count as "said out loud" — not build puzzles
+    // or meaning-recognition flips.
+    if (current && !current.doBuild && current.dir !== "recognize") session.spoken += 1;
     if (session.mode === "focus") {           // day-based loop, no in-session repeats
       focusUpdate(current.id, g);
       if (g === 2) { session.combo += 1; session.bestCombo = Math.max(session.bestCombo, session.combo); }
@@ -2059,9 +2086,15 @@
       msg = due > 0 ? `You've got ${due} card${due === 1 ? "" : "s"} due across all lessons.` : "Every sentence drilled. Come back tomorrow to lock it in.";
     }
     if (session.bestCombo >= 3) msg += ` Best streak: 🔥 ${session.bestCombo} in a row.`;
+    // End on the thing that matters: how much Japanese left your mouth.
+    if (session.spoken > 0) msg = `🗣 You said ${session.spoken} sentence${session.spoken === 1 ? "" : "s"} out loud. ` + msg;
     // Finishing a lesson introduces its kana — romaji for them fades from here on.
     if (session.mode === "lesson" && session.lessonId) { markLessonKanaSeen(session.lessonId); save(); }
     el.doneSummary.textContent = msg;
+    // おかわり — one more small helping, only when something is genuinely due.
+    const encoreN = reviewCards().length;
+    el.encoreBtn.hidden = encoreN === 0;
+    if (encoreN) el.encoreBtn.textContent = `おかわり — ${Math.min(5, encoreN)} more card${Math.min(5, encoreN) === 1 ? "" : "s"}?`;
     // Real-world mission — a tiny transfer task, because the point is using
     // Japanese out in your day, not in the app.
     let mission = "";
@@ -2756,7 +2789,11 @@
   // ---- Wire up -------------------------------------------------------------
   el.backBtn.addEventListener("click", backToMap);
   el.doneHomeBtn.addEventListener("click", backToMap);
-  el.reviewBtn.addEventListener("click", startReview);
+  el.reviewBtn.addEventListener("click", () => { if (heroAction) heroAction(); });
+  el.encoreBtn.addEventListener("click", () => {
+    const cards = reviewCards().slice(0, 5);
+    if (cards.length) startSession(cards, "review", null); else renderHome();
+  });
   el.focusBtn.addEventListener("click", startFocus);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
   el.doneQuizBtn.addEventListener("click", () => startTalk(activeLesson));
@@ -2782,7 +2819,11 @@
   });
   el.buildBtn.addEventListener("click", () => startLesson(activeLesson, { build: true }));
   el.buildHardBtn.addEventListener("click", () => startLesson(activeLesson, { build: true, hard: true }));
-  el.buildReset.addEventListener("click", () => { if (build && !build.solved) startBuild(current.s); });
+  el.buildReset.addEventListener("click", () => {
+    if (!build || build.solved) return;
+    // spell-it cards have no sentence — rebuild the letter puzzle, not the sentence
+    if (current && current.kanaBuild) renderKanaBuildCard(); else startBuild(current.s);
+  });
   el.retireBtn.addEventListener("click", () => {
     delete prog.cards[current.id];     // back to "new" — only its lesson drills it now
     save();
