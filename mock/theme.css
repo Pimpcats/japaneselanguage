@@ -617,8 +617,10 @@ body.drive-mode #answer-romaji { font-size: 1.05rem; }
 body.drive-mode #reveal-btn { min-height: 84px; font-size: 1.25rem; }
 body.drive-mode #replay-btn { min-height: 68px; font-size: 1.1rem; }
 body.drive-mode button.grade { min-height: 84px; font-size: 1rem; }
-body.drive-mode #hint-row, body.drive-mode #word-breakdown, body.drive-mode #combo,
+body.drive-mode #hint-row, body.drive-mode #combo,
 body.drive-mode #retire-btn { display: none !important; }
+/* word chips stay — tapping one speaks that word, perfect in the car — just bigger */
+body.drive-mode .word-chip { font-size: 1.15rem; padding: 0.55rem 0.7rem; border-radius: 14px; }
 body.drive-mode #encore-btn, body.drive-mode .done-actions button { min-height: 64px; }
 
 /* tiny running-version stamp in the sign's white band (top-right, clear of
