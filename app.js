@@ -1615,17 +1615,24 @@
     }
     startSession(warmup.concat(queue), "lesson", L.id, opts);
   }
-  // The unified review bucket = cards last graded Nope/Kinda that are due
-  // (same set focusCards() computes). Surfaced on SRS schedule; "Got it"
-  // graduates a card out of the bucket and back to its lesson.
+  // THE review loop (owner decision, 2026-07): marking a card Nope/Kinda means
+  // it rides along as a ⚡ warmup in every lesson you move forward through —
+  // no day-gate, no separate review errand — until "Got it" finally clears it.
+  // Keep marking it, it keeps coming back; get it, it's gone.
   function reviewCards() {
-    // Freshly mined sentences have no grade history yet, so focusCards()
-    // skips them — include them here or they'd never surface anywhere.
+    const weak = CARDS.filter((c) => {
+      const p = prog.cards[c.id];
+      if (!p || (!p.reps && !p.lapses)) return false;
+      const lg = lastGradeOf(p);
+      return lg === 0 || lg === 1;
+    }).sort((a, b) => ((prog.cards[a.id] || {}).due || 0) - ((prog.cards[b.id] || {}).due || 0)); // longest-waiting first
+    // Freshly mined sentences have no grade history yet — include them or
+    // they'd never surface anywhere.
     const freshMined = CARDS.filter((c) => {
       const p = prog.cards[c.id];
       return c.mined && (!p || (!p.reps && !p.lapses));
     });
-    return focusCards().concat(freshMined);
+    return weak.concat(freshMined);
   }
   function startReview() {
     const cards = reviewCards();
