@@ -289,7 +289,7 @@
     if (grade === 0) { c.reps = 0; c.lapses += 1; }
     else c.reps += 1;
     c.lastGrade = grade;                     // drives the Nope/Kinda review buckets
-    if (grade <= 1) c.struggled = true;      // permanent: feeds the level-end challenge
+    if (grade <= 1) c.struggles = (c.struggles || 0) + 1;   // lifetime marks: feeds the level-end challenge
     c.due = Date.now() + c.interval * DAY;
     prog.cards[cardId] = c;
     prog.reviews += 1;
@@ -1336,8 +1336,9 @@
   // cards. Every lesson stays tappable — "ahead" is styling, never a lock.
   const REGION_ICONS = ["⛩️", "🏯", "🗻", "🌸", "🏮", "🍵", "🚉", "🌊", "🦊", "🎋", "🏔️", "🛤️"];
 
-  // Every sentence in this level you EVER marked nope/kinda (struggled flag;
-  // lapses/lastGrade backfill history from before the flag existed).
+  // The level challenge pulls sentences you marked nope/kinda MORE THAN ONCE —
+  // one stumble is noise, two is a pattern. (lapses backfill history from
+  // before the struggles counter existed; the old boolean counts as one mark.)
   function struggledCardsForLevel(level) {
     const themes = new Set(level.tiers.flatMap((t) => t.themes));
     return CARDS.filter((c) => {
@@ -1345,7 +1346,8 @@
       if (!L || !themes.has(L.section)) return false;
       const p = prog.cards[c.id];
       if (!p) return false;
-      return !!(p.struggled || (p.lapses || 0) > 0 || lastGradeOf(p) <= 1 && (p.reps || p.lapses));
+      const marks = Math.max(p.struggles || 0, (p.lapses || 0) + (p.struggled ? 1 : 0));
+      return marks >= 2;
     });
   }
   function startChallenge(level) {
@@ -1423,7 +1425,7 @@
         const btn = document.createElement("button");
         btn.className = "lesson-chip chip-challenge";
         btn.innerHTML = '<span class="chip-mark">🏆</span><span class="chip-title">Level challenge — ' +
-          strugg.length + " sentence" + (strugg.length === 1 ? "" : "s") + " you once marked</span>";
+          strugg.length + " sentence" + (strugg.length === 1 ? "" : "s") + " you kept missing</span>";
         btn.addEventListener("click", () => startChallenge(level));
         wrap.appendChild(btn);
       }
@@ -1693,7 +1695,7 @@
   function focusUpdate(cardId, grade) {
     const c = prog.cards[cardId] || { reps: 0, ease: 2.5, interval: 0, lapses: 0 };
     c.lastGrade = grade;
-    if (grade <= 1) c.struggled = true;      // permanent: feeds the level-end challenge
+    if (grade <= 1) c.struggles = (c.struggles || 0) + 1;   // lifetime marks: feeds the level-end challenge
     if (grade === 2) {                        // got it — leaves the focus section
       c.reps = (c.reps || 0) + 1;
       c.interval = 5 * c.reps;
@@ -2969,6 +2971,32 @@
   document.getElementById("card").addEventListener("click", () => {
     if (session && session.drive && el.grade.hidden && !el.revealBtn.hidden && !el.revealBtn.disabled) reveal();
   });
+  // Drive mode: once revealed, swipe the card — ← nope, → got it — next card.
+  (function () {
+    const card = document.getElementById("card");
+    let sx = 0, sy = 0, dx = 0, tracking = false;
+    card.addEventListener("touchstart", (e) => {
+      if (!(session && session.drive) || el.grade.hidden || !e.touches || !e.touches[0]) return;
+      tracking = true; sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = 0;
+    }, { passive: true });
+    card.addEventListener("touchmove", (e) => {
+      if (!tracking || !e.touches || !e.touches[0]) return;
+      dx = e.touches[0].clientX - sx;
+      const dy = e.touches[0].clientY - sy;
+      if (Math.abs(dy) > 80 && Math.abs(dy) > Math.abs(dx)) { tracking = false; card.style.transform = ""; return; }
+      card.style.transform = "translateX(" + dx + "px) rotate(" + (dx / 30) + "deg)";
+    }, { passive: true });
+    card.addEventListener("touchend", (e) => {
+      if (!tracking) return;
+      tracking = false;
+      card.style.transform = "";
+      if (Math.abs(dx) > 70 && session && session.drive && !el.grade.hidden) {
+        if (e.cancelable) e.preventDefault();   // swallow the synthetic click that follows
+        grade(dx > 0 ? 2 : 0);
+      }
+      dx = 0;
+    });
+  })();
   el.focusBtn.addEventListener("click", startFocus);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
   el.doneQuizBtn.addEventListener("click", () => startTalk(activeLesson));
