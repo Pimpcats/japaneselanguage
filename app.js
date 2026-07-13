@@ -2365,6 +2365,13 @@
     renderSceneStep();
   }
 
+  // Look a taught sentence up by its jp — accepts sets reference sentences by
+  // text, and the display needs their en/romaji.
+  function sentenceByJP(jp) {
+    const c = CARDS.find((x) => x.s.jp === jp);
+    return c ? { en: c.s.en, jp: c.s.jp, romaji: c.s.romaji, hint: c.s.hint } : { jp, en: "", romaji: "" };
+  }
+
   function renderSceneStep() {
     const st = quiz.steps[quiz.idx];
     resetQuizCard();
@@ -2401,7 +2408,11 @@
         el.quizLabel.textContent = "あなたの ばん — which will you say?";
         el.quizEn.hidden = true;
         el.quizChoices.hidden = false;
-        st.choice.forEach((opt) => {
+        // A choice turn's own options, or — with no mic to hear an open answer —
+        // an accepts step degrades into choosing which valid answer to give.
+        const opts = st.choice ||
+          [{ en: st.en, jp: st.jp, romaji: st.romaji, hint: st.hint }].concat((st.accepts || []).map(sentenceByJP));
+        opts.forEach((opt) => {
           const b = document.createElement("button");
           b.className = "qc-opt";
           b.textContent = "“" + opt.en + "”";
@@ -2426,8 +2437,11 @@
         return;
       }
       const stEff = quiz.pick || st;            // a chosen option stands in for the step
+      // Open answer but no recognizer → choose which valid answer to give instead.
+      if (stEff.accepts && stEff.accepts.length && !SpeechRec && !quiz.pick) { quiz.stage = "choose"; renderSceneStep(); return; }
       quiz.target = stEff;
-      el.quizLabel.textContent = stEff.ctx ? "↳ " + stEff.ctx : "Your turn — reply to her";
+      el.quizLabel.textContent = (stEff.ctx ? "↳ " + stEff.ctx : "Your turn — reply to her") +
+        (stEff.accepts && stEff.accepts.length ? " · any answer you know works" : "");
       el.quizEn.hidden = false;
       el.quizEn.textContent = stEff.en;
       if (stEff.hint) {
@@ -2571,13 +2585,27 @@
     // them needs the tokenizer. Load it before scoring kanji output, or 私
     // would be dropped from the comparison and tank the score.
     if (!kuroTok && alts.some((a) => hasKanji(a))) { try { await loadTokenizer(); } catch (e) {} }
-    const target = readingOf(plainJP(quiz.target.jp));
-    let best = { score: -1, heard: alts[0] || "", reading: "" };
-    for (const a of alts) {
-      const r = readingOf(a);
-      const sc = similarity(r, target);
-      if (sc > best.score) best = { score: sc, heard: a, reading: r };
-    }
+    // "Any valid answer": the scripted line plus its accepts set are all fair
+    // targets — whichever you actually said (best reading match) is the one
+    // you're scored and shown against.
+    const candJPs = [quiz.target.jp].concat(quiz.target.accepts || []);
+    const altRs = alts.map((a) => readingOf(a));
+    const perCand = candJPs.map((jp) => {
+      const t = readingOf(plainJP(jp));
+      let m = { score: -1, heard: alts[0] || "", reading: "" };
+      altRs.forEach((r, i) => { const sc = similarity(r, t); if (sc > m.score) m = { score: sc, heard: alts[i], reading: r }; });
+      return Object.assign(m, { targetR: t });
+    });
+    let bestI = 0;
+    perCand.forEach((m, i) => { if (m.score > perCand[bestI].score) bestI = i; });
+    const rival = perCand.reduce((mx, m, i) => (i === bestI ? mx : Math.max(mx, m.score)), -1);
+    const best = perCand[bestI];
+    const target = best.targetR;
+    quiz.matched = bestI > 0 ? sentenceByJP(candJPs[bestI]) : null;
+    // Two answers nearly tied and neither said cleanly → don't guess which you
+    // meant; treat it as "close" so you say it once more.
+    if (candJPs.length > 1 && best.score >= 0.6 && best.score < 0.85 && best.score - rival < 0.08)
+      best.score = Math.min(best.score, 0.55);
     const pct = Math.max(0, Math.round(best.score * 100));
     quiz.results[quiz.idx] = Math.max(quiz.results[quiz.idx] || 0, best.score);
 
@@ -2656,19 +2684,20 @@
   }
 
   function showQuizAnswer() {
+    const t = quiz.matched || quiz.target;      // the answer you actually gave, if it was a valid alternate
     el.quizAnswer.hidden = false;
-    el.quizKana.innerHTML = furiganaHTML(quiz.target.jp);
-    if (quiz.target.romaji && needRomaji(quiz.target.jp)) { el.quizRomaji.hidden = false; el.quizRomaji.textContent = quiz.target.romaji; }
+    el.quizKana.innerHTML = furiganaHTML(t.jp);
+    if (t.romaji && needRomaji(t.jp)) { el.quizRomaji.hidden = false; el.quizRomaji.textContent = t.romaji; }
     else el.quizRomaji.hidden = true;
     el.quizPlayBtn.hidden = false; el.quizRevealBtn.hidden = true; el.quizSkipBtn.hidden = true;
     el.quizNextBtn.hidden = false;
     el.quizNextBtn.textContent = (quiz.idx >= quiz.steps.length - 1) ? "see results →" : "next →";
-    speak(quiz.target.jp, { lang: "ja-JP" });   // always hear the correct version
+    speak(t.jp, { lang: "ja-JP" });             // always hear the correct version
   }
 
   function quizNext() {
     if (!quiz) return;
-    quiz.stage = null; quiz.pick = null;        // each step decides its own opening stage
+    quiz.stage = null; quiz.pick = null; quiz.matched = null;   // each step opens fresh
     if (quiz.idx >= quiz.steps.length - 1) { finishQuiz(); return; }
     quiz.idx += 1;
     renderSceneStep();
@@ -2894,7 +2923,7 @@
   el.kanaPracticeBtn.addEventListener("click", startKanaPractice);
   el.kqStop.addEventListener("click", openKana);
   el.quizMicBtn.addEventListener("click", startListening);
-  el.quizPlayBtn.addEventListener("click", () => { if (quiz && quiz.target) speak(quiz.target.jp, { lang: "ja-JP" }); });
+  el.quizPlayBtn.addEventListener("click", () => { const t = quiz && (quiz.matched || quiz.target); if (t) speak(t.jp, { lang: "ja-JP" }); });
   el.quizThinkBtn.addEventListener("click", () => { if (!quiz) return; quiz.stage = "answer"; renderSceneStep(); });
   el.quizRevealBtn.addEventListener("click", () => { if (!quiz) return; quiz.results[quiz.idx] = quiz.results[quiz.idx] || 0; showQuizAnswer(); });
   el.quizSkipBtn.addEventListener("click", () => { if (!quiz) return; quiz.results[quiz.idx] = quiz.results[quiz.idx] || 0; quizNext(); });

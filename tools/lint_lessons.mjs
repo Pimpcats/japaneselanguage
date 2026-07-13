@@ -45,6 +45,9 @@ for (const sc of SCENES || []) {
     if (!st.jp) fail(`scene "${sc.id}": step missing jp`);
     if (st.who !== "m" && st.who !== "you") fail(`scene "${sc.id}": step has who="${st.who}"`);
     if (st.who === "you" && (!st.en || !st.romaji)) fail(`scene "${sc.id}": your line "${st.jp}" missing en/romaji`);
+    // open-answer sets: every accepted alternate must be a taught sentence (clip + drilled)
+    for (const a of st.accepts || [])
+      if (!allSentenceJP.has(a)) fail(`scene "${sc.id}": accepts entry "${a}" is not an existing lesson sentence`);
   }
 }
 for (const key of Object.keys(MISSIONS || {})) {
