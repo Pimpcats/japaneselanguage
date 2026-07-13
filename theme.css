@@ -609,6 +609,7 @@ footer { font-family: var(--display); color: var(--muted); }
 #review-btn.hero-btn { font-size: 1.02rem; padding: 0.95rem 1rem; margin-bottom: 0.35rem; }
 #encore-btn { margin-top: 0.5rem; }
 #drive-btn { margin-bottom: 0.35rem; }
+#drive-btn.drive-on { background: color-mix(in srgb, var(--accent) 16%, #fff); }
 
 /* 🚗 drive mode — dash-mounted phone: the card owns the screen. Huge type,
    one imprecise tap at a time, swipe ← nope / → got it once revealed.

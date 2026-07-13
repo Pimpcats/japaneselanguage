@@ -1262,6 +1262,8 @@
         heroAction = startReview;
       } else { el.reviewBtn.hidden = true; heroAction = null; }
       el.driveBtn.hidden = false;
+      el.driveBtn.textContent = settings.drive ? "🚗 Drive mode ON — every lesson runs car-style" : "🚗 Drive mode — for the car mount";
+      el.driveBtn.classList.toggle("drive-on", !!settings.drive);
 
       // Weekly rhythm — practice as a 7-day pattern, not a streak to break.
       // A rest day leaves a gap; nothing resets, nothing scolds.
@@ -1563,7 +1565,9 @@
       queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId, flip: false,
       build: !!(opts && opts.build), hard: !!(opts && opts.hard), combo: 0, bestCombo: 0,
       spoken: 0,   // sentences actually said aloud (produce-direction cards)
-      drive: !!(opts && opts.drive),   // 🚗 dash-mounted: huge targets, produce-only
+      // 🚗 the Home-screen toggle: when on, EVERY session runs car-style —
+      // huge targets, produce-only, tap-reveal + swipe-grade, screen awake.
+      drive: !!(settings.drive || (opts && opts.drive)),
     };
     document.body.classList.toggle("drive-mode", session.drive);
     if (session.drive) keepAwake(true);
@@ -1584,20 +1588,6 @@
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && session && session.drive) keepAwake(true);
   });
-  function startDrive() {
-    let cards = reviewCards();
-    if (!cards.length) {                                  // nothing due — current lesson's sentences
-      const next = nextLessonToDo();
-      if (next) cards = CARDS.filter((c) => c.lessonId === next.id);
-    }
-    if (!cards.length) {                                  // course done — keep learned lines warm
-      cards = CARDS.filter((c) => { const p = prog.cards[c.id]; return p && p.reps; });
-      for (let i = cards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [cards[i], cards[j]] = [cards[j], cards[i]]; }
-      cards = cards.slice(0, 10);
-    }
-    if (!cards.length) return;
-    startSession(cards, "review", null, { drive: true });
-  }
 
   // Learning a sentence and its alphabet hand in hand: after each sentence in
   // a lesson run, a quick "spell it" — tap the hiragana/katakana of a word you
@@ -1631,7 +1621,7 @@
     const warmup = (opts && opts.build) ? [] :
       reviewCards().filter((c) => c.lessonId !== L.id).slice(0, 5)
         .map((c) => Object.assign({}, c, { warmup: true }));
-    if (!(opts && opts.build)) {
+    if (!(opts && opts.build) && !settings.drive) {   // no letter-tapping interludes in the car
       // New letters this lesson still worth drilling by sound — the old journey
       // road-stop, now dealt out as interludes between sentences and phased out
       // once a letter is mastered.
@@ -2960,7 +2950,7 @@
   el.backBtn.addEventListener("click", backToMap);
   el.doneHomeBtn.addEventListener("click", backToMap);
   el.reviewBtn.addEventListener("click", () => { if (heroAction) heroAction(); });
-  el.driveBtn.addEventListener("click", startDrive);
+  el.driveBtn.addEventListener("click", () => { settings.drive = !settings.drive; saveSettings(); renderHome(); });
   el.encoreBtn.addEventListener("click", () => {
     const cards = reviewCards().slice(0, 5);
     // an encore after a drive session stays in drive mode
