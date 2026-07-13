@@ -628,11 +628,14 @@ body.drive-mode #mastery, body.drive-mode #progress-row { display: none !importa
 body.drive-mode #drill:not([hidden]) { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 0 0.7rem 0.55rem; }
 body.drive-mode #card {
   cursor: pointer; flex: 1 1 auto; min-height: 0; overflow-y: auto;
-  display: flex; flex-direction: column; justify-content: center;
+  display: flex; flex-direction: column; justify-content: flex-start;
   border: 0 !important; border-image: none !important; box-shadow: none !important;
-  background: transparent !important; padding: 0.4rem 0.3rem;
+  background: transparent !important; padding: 1.1rem 1rem 0.4rem;
+  text-align: center;                       /* centred, anchored under the banner — no gap */
   transition: transform 0.15s ease; touch-action: pan-y;
 }
+body.drive-mode #prompt-label, body.drive-mode #reveal-label { justify-content: center; }
+body.drive-mode #word-breakdown { justify-content: center; }
 body.drive-mode #prompt-en { font-size: 2.3rem; line-height: 1.3; }
 body.drive-mode #answer-kana { font-size: 2rem; line-height: 1.4; }
 body.drive-mode #answer-romaji { font-size: 1.15rem; }
