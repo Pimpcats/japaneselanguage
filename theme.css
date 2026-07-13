@@ -476,6 +476,8 @@ footer { font-family: var(--display); color: var(--muted); }
 .chip-current { background: color-mix(in srgb, var(--accent) 14%, #fff); border-width: 3px; box-shadow: 0 4px 0 var(--ink); }
 .chip-current .chip-mark { color: var(--accent); }
 .chip-ahead { color: color-mix(in srgb, var(--ink) 62%, #fff); border-style: dashed; box-shadow: 0 3px 0 color-mix(in srgb, var(--ink) 45%, #fff); }
+/* 🏆 the level's ending challenge — gold, full width, appears when the level is cleared */
+.chip-challenge { grid-column: 1 / -1; width: 100%; margin-top: 0.6rem; background: color-mix(in srgb, var(--gold) 28%, #fffdf6); border-width: 3px; box-shadow: 0 4px 0 var(--ink); }
 
 /* ---- "new version ready" prompt: centered modal-style, hard to miss ---- */
 .sw-update {

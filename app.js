@@ -289,6 +289,7 @@
     if (grade === 0) { c.reps = 0; c.lapses += 1; }
     else c.reps += 1;
     c.lastGrade = grade;                     // drives the Nope/Kinda review buckets
+    if (grade <= 1) c.struggled = true;      // permanent: feeds the level-end challenge
     c.due = Date.now() + c.interval * DAY;
     prog.cards[cardId] = c;
     prog.reviews += 1;
@@ -1335,6 +1336,24 @@
   // cards. Every lesson stays tappable — "ahead" is styling, never a lock.
   const REGION_ICONS = ["⛩️", "🏯", "🗻", "🌸", "🏮", "🍵", "🚉", "🌊", "🦊", "🎋", "🏔️", "🛤️"];
 
+  // Every sentence in this level you EVER marked nope/kinda (struggled flag;
+  // lapses/lastGrade backfill history from before the flag existed).
+  function struggledCardsForLevel(level) {
+    const themes = new Set(level.tiers.flatMap((t) => t.themes));
+    return CARDS.filter((c) => {
+      const L = lessonById[c.lessonId];
+      if (!L || !themes.has(L.section)) return false;
+      const p = prog.cards[c.id];
+      if (!p) return false;
+      return !!(p.struggled || (p.lapses || 0) > 0 || lastGradeOf(p) <= 1 && (p.reps || p.lapses));
+    });
+  }
+  function startChallenge(level) {
+    const cards = struggledCardsForLevel(level).slice();
+    for (let i = cards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [cards[i], cards[j]] = [cards[j], cards[i]]; }
+    if (cards.length) startSession(cards, "challenge", null);
+  }
+
   function renderJourney(container, level) {
     const wrap = document.createElement("div");
     wrap.className = "lesson-list";
@@ -1394,6 +1413,20 @@
       });
       wrap.appendChild(grid);
       regionIdx++;
+    }
+    // 🏆 The level's ending challenge: everything you ever marked, one gauntlet.
+    // Appears once the level is cleared; retake it as often as you like.
+    const levelDone = regionList.length && regionList.every((r) => r.done);
+    if (levelDone) {
+      const strugg = struggledCardsForLevel(level);
+      if (strugg.length) {
+        const btn = document.createElement("button");
+        btn.className = "lesson-chip chip-challenge";
+        btn.innerHTML = '<span class="chip-mark">🏆</span><span class="chip-title">Level challenge — ' +
+          strugg.length + " sentence" + (strugg.length === 1 ? "" : "s") + " you once marked</span>";
+        btn.addEventListener("click", () => startChallenge(level));
+        wrap.appendChild(btn);
+      }
     }
     container.appendChild(wrap);
   }
@@ -1660,6 +1693,7 @@
   function focusUpdate(cardId, grade) {
     const c = prog.cards[cardId] || { reps: 0, ease: 2.5, interval: 0, lapses: 0 };
     c.lastGrade = grade;
+    if (grade <= 1) c.struggled = true;      // permanent: feeds the level-end challenge
     if (grade === 2) {                        // got it — leaves the focus section
       c.reps = (c.reps || 0) + 1;
       c.interval = 5 * c.reps;
@@ -2132,6 +2166,11 @@
       msg = left > 0
         ? `${left} weak card${left === 1 ? "" : "s"} still to go.`
         : "Weak cards cleared for today. The ones you missed come back tomorrow.";
+    } else if (session.mode === "challenge") {
+      const remaining = CARDS.filter((c) => { const p = prog.cards[c.id]; return p && (lastGradeOf(p) === 0 || lastGradeOf(p) === 1); }).length;
+      msg = remaining > 0
+        ? `Challenge faced! ${remaining} sentence${remaining === 1 ? "" : "s"} still marked — they'll ride your warmups.`
+        : "🏆 Challenge cleared — every sentence you ever stumbled on, nailed.";
     } else if (session.mode === "review") {
       msg = "Review session done. Nice work keeping things fresh.";
     } else {
