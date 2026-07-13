@@ -611,19 +611,33 @@ footer { font-family: var(--display); color: var(--muted); }
 #drive-btn { margin-bottom: 0.35rem; }
 #drive-btn.drive-on { background: color-mix(in srgb, var(--accent) 16%, #fff); }
 
-/* 🚗 drive mode — dash-mounted phone: the card owns the screen. Huge type,
-   one imprecise tap at a time, swipe ← nope / → got it once revealed.
-   The whole card is the reveal button; hints and extras get out of the way. */
-body.drive-mode #app { max-width: 100%; padding: 0.4rem 0.55rem 2rem; }
-body.drive-mode #app-header { transform: scale(0.82); transform-origin: top center; margin-bottom: -0.9rem; }
+/* 🚗 drive mode — dash-mounted phone. ONE cohesive cream sheet, exactly one
+   viewport tall, nothing scrolls: the sign banner is gone, the slim control
+   bar (back · counter · gear) sits directly on the sheet, and the card loses
+   its frame and floats on the same surface. Tap reveals, ← nope / → got it. */
+body.drive-mode { overflow: hidden; }
+body.drive-mode #app {
+  max-width: 100%; height: 100dvh; min-height: 0; overflow: hidden;
+  padding: 0; background: #fffdf6;
+}
+body.drive-mode #app-header { transform: none; margin: 0; padding: 0.25rem 0.3rem 0;
+  background: none; filter: none; }
+body.drive-mode #app-banner { display: none !important; }
+body.drive-mode #ctrl-bar { padding: 0.3rem 0.6rem 0.1rem; min-height: 2.2rem; }
 body.drive-mode #mastery, body.drive-mode #progress-row { display: none !important; }
-body.drive-mode #card { cursor: pointer; min-height: 46vh; display: flex; flex-direction: column; justify-content: center;
-  transition: transform 0.15s ease; touch-action: pan-y; }
-body.drive-mode #card.swipe-snap { transition: transform 0.15s ease; }
+body.drive-mode #drill:not([hidden]) { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 0 0.7rem 0.55rem; }
+body.drive-mode #card {
+  cursor: pointer; flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  display: flex; flex-direction: column; justify-content: center;
+  border: 0 !important; border-image: none !important; box-shadow: none !important;
+  background: transparent !important; padding: 0.4rem 0.3rem;
+  transition: transform 0.15s ease; touch-action: pan-y;
+}
 body.drive-mode #prompt-en { font-size: 2.3rem; line-height: 1.3; }
 body.drive-mode #answer-kana { font-size: 2rem; line-height: 1.4; }
 body.drive-mode #answer-romaji { font-size: 1.15rem; }
-body.drive-mode #replay-btn { min-height: 68px; font-size: 1.1rem; }
+body.drive-mode #controls { flex: 0 0 auto; margin-top: 0.2rem; }
+body.drive-mode #replay-btn { min-height: 60px; font-size: 1.1rem; }
 body.drive-mode #hint-row, body.drive-mode #combo,
 body.drive-mode #retire-btn { display: none !important; }
 /* tap reveals, swipe grades — no buttons needed in the car */
@@ -635,7 +649,10 @@ body.drive-mode #reveal-area::after {
 }
 /* word chips stay — tapping one speaks that word, perfect in the car — just bigger */
 body.drive-mode .word-chip { font-size: 1.2rem; padding: 0.6rem 0.75rem; border-radius: 14px; }
-body.drive-mode #encore-btn, body.drive-mode .done-actions button { min-height: 64px; }
+body.drive-mode footer { display: none !important; }
+/* the done screen shares the sheet: no scroll, big warm buttons */
+body.drive-mode #lesson-done:not([hidden]) { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0.5rem 0.9rem; }
+body.drive-mode #encore-btn, body.drive-mode .done-actions button { min-height: 60px; }
 
 /* tiny running-version stamp in the sign's white band (top-right, clear of
    the centered title) — lets the owner see at a glance if they're current */
