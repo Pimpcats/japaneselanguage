@@ -458,26 +458,45 @@ footer { font-family: var(--display); color: var(--muted); }
 .theme-count { font-size: 0.6rem; font-weight: 900; color: var(--muted); }
 .theme-stamp { width: 22px; height: 22px; object-fit: contain; transform: rotate(-10deg); }
 
-.lesson-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.45rem; }
-.lesson-chip {
-  display: flex; align-items: center; gap: 0.45rem; text-align: left; cursor: pointer;
-  border: 2.5px solid var(--ink); border-radius: 13px; background: #fffdf6; color: var(--ink);
-  padding: 0.5rem 0.6rem; min-height: 52px; box-shadow: 0 3px 0 var(--ink);
-  font-weight: 900; font-size: 0.78rem; line-height: 1.15;
+/* Lessons are picture cards now (owner decision, 2026-07): a big illustrated
+   cover + title + short "what's this about" line. Two to a row so each stays
+   large but the level still browses without endless scrolling. */
+.lesson-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.lesson-card {
+  display: flex; flex-direction: column; text-align: left; cursor: pointer;
+  border: 2.5px solid var(--ink); border-radius: 16px; background: #fffdf6; color: var(--ink);
+  padding: 0; overflow: hidden; box-shadow: 0 4px 0 var(--ink);
   transition: transform 0.08s, box-shadow 0.08s;
 }
-.lesson-chip:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
-.chip-mark { flex: 0 0 auto; width: 22px; display: grid; place-items: center; font-size: 0.72rem; }
-.chip-mark img { width: 22px; height: 22px; transform: rotate(-8deg); }
-.chip-title { flex: 1; }
-.chip-due { flex: 0 0 auto; font-family: var(--display); font-size: 0.54rem; background: var(--gold); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 0.04rem 0.4rem; white-space: nowrap; }
-/* done = quiet cream + stamp; current = the one loud card; ahead = dimmed but tappable */
-.chip-done { background: color-mix(in srgb, var(--good) 10%, #fffdf6); }
-.chip-current { background: color-mix(in srgb, var(--accent) 14%, #fff); border-width: 3px; box-shadow: 0 4px 0 var(--ink); }
-.chip-current .chip-mark { color: var(--accent); }
-.chip-ahead { color: color-mix(in srgb, var(--ink) 62%, #fff); border-style: dashed; box-shadow: 0 3px 0 color-mix(in srgb, var(--ink) 45%, #fff); }
+.lesson-card:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+.lc-photo {
+  position: relative; width: 100%; aspect-ratio: 3 / 2;
+  display: grid; place-items: center; overflow: hidden;
+  background-size: cover; background-position: center;
+  border-bottom: 2.5px solid var(--ink);
+}
+.lc-emoji { font-size: 2.9rem; line-height: 1; filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.16)); }
+.lc-has-img .lc-emoji { display: none; }
+.lc-stamp { position: absolute; right: 6px; bottom: 5px; width: 34px; height: 34px; object-fit: contain; transform: rotate(-10deg); filter: drop-shadow(0 2px 0 rgba(74, 51, 40, 0.2)); }
+.lc-badge {
+  position: absolute; left: 7px; top: 7px; font-family: var(--display); font-size: 0.62rem;
+  background: var(--accent); color: #fff; border: 2px solid var(--ink); border-radius: 999px;
+  padding: 0.1rem 0.5rem; box-shadow: 0 2px 0 var(--ink);
+}
+.lc-body { display: flex; flex-direction: column; gap: 0.12rem; padding: 0.5rem 0.6rem 0.6rem; }
+.lc-title { font-family: var(--display); font-weight: 900; font-size: 0.82rem; line-height: 1.15; color: var(--ink); }
+.lc-desc { font-size: 0.66rem; line-height: 1.25; color: var(--muted); }
+.lc-due { align-self: flex-start; margin-top: 0.25rem; font-family: var(--display); font-size: 0.58rem; background: var(--gold); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 0.05rem 0.45rem; }
+/* done = star stamp + quiet; current = the one loud card; ahead = softly dimmed but tappable */
+.lc-done .lc-photo { filter: saturate(0.85); }
+.lc-current { border-width: 3px; box-shadow: 0 5px 0 var(--ink); }
+.lc-ahead { opacity: 0.9; }
+.lc-ahead .lc-photo { filter: saturate(0.7) brightness(1.02); }
 /* 🏆 the level's ending challenge — gold, full width, appears when the level is cleared */
-.chip-challenge { grid-column: 1 / -1; width: 100%; margin-top: 0.6rem; background: color-mix(in srgb, var(--gold) 28%, #fffdf6); border-width: 3px; box-shadow: 0 4px 0 var(--ink); }
+.lc-challenge { grid-column: 1 / -1; flex-direction: row; align-items: center; margin-top: 0.6rem; }
+.lc-challenge .lc-photo { width: 92px; flex: 0 0 92px; aspect-ratio: auto; align-self: stretch; border-bottom: 0; border-right: 2.5px solid var(--ink); }
+.lc-photo-challenge { background: color-mix(in srgb, var(--gold) 34%, #fffdf6); }
+.lc-challenge .lc-body { justify-content: center; }
 
 /* ---- "new version ready" prompt: centered modal-style, hard to miss ---- */
 .sw-update {
@@ -608,8 +627,6 @@ footer { font-family: var(--display); color: var(--muted); }
 /* the one-tap hero on Home and the おかわり encore — the obvious next action */
 #review-btn.hero-btn { font-size: 1.02rem; padding: 0.95rem 1rem; margin-bottom: 0.35rem; }
 #encore-btn { margin-top: 0.5rem; }
-#drive-btn { margin-bottom: 0.35rem; }
-#drive-btn.drive-on { background: color-mix(in srgb, var(--accent) 16%, #fff); }
 
 /* 🚗 drive mode — dash-mounted phone. ONE cohesive cream sheet, exactly one
    viewport tall, nothing scrolls: the sign banner is gone, the slim control
@@ -619,6 +636,13 @@ body.drive-mode { overflow: hidden; }
 body.drive-mode #app {
   max-width: 100%; height: 100dvh; min-height: 0; overflow: hidden;
   padding: 0; background: #fffdf6;
+  /* the painted frame now wraps the whole sheet edge-to-edge, not the card */
+  border-style: solid; border-color: transparent;
+  border-width: 34px 24px 38px 24px;
+  border-image: url("../assets/frame.png") 245 157 182 157 round;
+}
+@media (max-width: 430px) {
+  body.drive-mode #app { border-width: 28px 20px 32px 20px; }
 }
 body.drive-mode #app-header { transform: none; margin: 0; padding: 0.25rem 0.3rem 0;
   background: none; filter: none; }
@@ -637,10 +661,17 @@ body.drive-mode #card {
 body.drive-mode #prompt-label, body.drive-mode #reveal-label { justify-content: center; }
 body.drive-mode #word-breakdown { justify-content: center; }
 body.drive-mode #prompt-en { font-size: 2.3rem; line-height: 1.3; }
-body.drive-mode #answer-kana { font-size: 2rem; line-height: 1.4; }
-body.drive-mode #answer-romaji { font-size: 1.15rem; }
-body.drive-mode #controls { flex: 0 0 auto; margin-top: 0.2rem; }
-body.drive-mode #replay-btn { min-height: 60px; font-size: 1.1rem; }
+body.drive-mode #answer-kana { font-size: 2rem; line-height: 2.1; }
+/* per-mora romaji sits over each letter, so the single romaji line is redundant */
+body.drive-mode #answer-romaji { display: none !important; }
+/* the alphabet, drawn right over its letter — learn kana as you read the sentence */
+body.drive-mode #answer-kana ruby.mr { ruby-position: over; ruby-align: center; }
+body.drive-mode #answer-kana ruby.mr rt {
+  font-size: 0.42em; font-weight: 800; color: var(--muted);
+  letter-spacing: 0.01em; line-height: 1; padding-bottom: 0.12em;
+}
+/* no buttons in the car — tap the sheet to reveal / hear, swipe to grade */
+body.drive-mode #controls { display: none !important; }
 body.drive-mode #hint-row, body.drive-mode #combo,
 body.drive-mode #retire-btn { display: none !important; }
 /* tap reveals, swipe grades — no buttons needed in the car */

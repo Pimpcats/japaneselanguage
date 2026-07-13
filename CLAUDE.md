@@ -127,11 +127,13 @@ the clip, falling back to device `speechSynthesis` if missing.
   "always"/"never" override. Never remove this weaning mechanic.
 - The あア Kana section (Home) has the browse grid (tap to hear) and a
   practice drill (letter → pick the sound, weak letters weighted heavier).
-- **Spell-it interludes**: in lesson drills, after each sentence card, the
-  learner spells one of its words by tapping kana in order (build-mode UI,
-  letters + 2 decoys). Inserted ONLY while the word contains letters with
-  strength < 2, so they naturally phase out as kana is mastered — keep that
-  self-pacing rule; never make them permanent or level-gated.
+- **Alphabet-over-letters** (2026-07, replaces the in-drill interludes): in car
+  mode (the only mode now) the model answer draws each kana's romaji right over
+  it as ruby (`driveAnswerHTML` → `moraRunHTML`, grouped by mora: きょ→kyo,
+  っか→kka), so the alphabet is taught in place as the sentence is read. This
+  superseded the old spell-it / sound interludes, which were removed when car
+  mode became universal (`startLesson` no longer inserts `kanaBuild`/`kanaSound`
+  cards; those renderers remain only for the standalone あア Kana practice).
 
 ## Content rules (lessons.js)
 
@@ -170,6 +172,18 @@ the clip, falling back to device `speechSynthesis` if missing.
 - Reward sounds are real MP3s (`assets/sfx-correct.mp3`,
   `assets/sfx-lesson-complete.mp3`) with a synth fallback in theme.js. Don't
   replace them with pure synthesis — it was tried and sounded cheap.
+
+## Sentence practice = car mode ONLY (app.js)
+
+The lesson drill runs in ONE mode now (owner decision, 2026-07): **car mode**.
+There is no toggle, no other layout — `startSession` forces `session.drive`
+(except the opt-in 🧩 Build puzzle). Full-bleed one-viewport sheet, the painted
+`assets/frame.png` wrapping the whole edge (`body.drive-mode #app`), no buttons:
+tap the sheet to reveal + hear (tap again to replay), swipe ← nope / → got it to
+grade and advance. Produce-only (English → say it in Japanese), screen kept
+awake, word-breakdown chips kept, alphabet drawn over each letter. It NEVER
+touches the drive-vs-not distinction anymore; don't reintroduce a toggle or a
+"normal" drill. (The `keepAwake`/wake-lock and swipe handlers on `#card` power it.)
 
 ## Speaking practice = "Talk with もち子さん" (app.js)
 
@@ -220,11 +234,17 @@ to reveal-and-listen when unavailable.
   asks follow-ups). Levels 2-7 still use the auto-built flow; converting them
   is the standing direction: reinforce what was learned through natural
   conversation.
-- **The level page is a condensed card list** (2026-07, owner decision): compact
-  theme headers + lessons as a wrapped grid of small cards (`.lesson-chip`).
-  The old Japan-map SVG + road-of-nodes journey was RETIRED — too much scrolling,
-  too much room; do not bring it back. "Ahead" cards are styling only — every
-  lesson stays tappable (no artificial scarcity, ever).
+- **The level page is a grid of picture cards** (2026-07, owner decision):
+  compact theme headers, then lessons as two-up `.lesson-card`s — each an
+  illustrated cover (`lc-photo`) + title + short "what's this about" line
+  (`lessonDesc`, the grammar point trimmed). The cover art is a per-lesson emoji
+  chosen from what the lesson teaches (`lessonCover`: keyword match on
+  title/section/grammar/vocab, stable per-id fallback) on a per-theme wash;
+  covers are heuristic and OVERRIDABLE — set `L.cover` (emoji) or `L.image`
+  (a real photo path, which then replaces the emoji tile) on any lesson to pin
+  it. The earlier tiny `.lesson-chip` list and the Japan-map/road-of-nodes
+  journey are both RETIRED — don't bring either back. "Ahead" cards are styling
+  only — every lesson stays tappable (no artificial scarcity, ever).
 - The Donkey-Kong-style map plan (`docs/ART_ROADMAP.md`, panels for
   `assets/map/`) is ON HOLD pending the owner rethinking the map — ask before
   doing any map/journey work. Don't generate placeholder scenery art unprompted.

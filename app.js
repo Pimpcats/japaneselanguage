@@ -447,7 +447,7 @@
     backBtn: $("back-btn"),
     dailyRing: $("daily-ring"), ringFill: document.querySelector(".ring-fill"), ringLabel: document.querySelector(".ring-label"),
     mastery: $("mastery"), masteryFill: $("mastery-fill"), masteryPct: $("mastery-pct"),
-    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), driveBtn: $("drive-btn"), focusBtn: $("focus-btn"), lessonMap: $("lesson-map"), mining: $("mining"), immersion: $("immersion"),
+    home: $("home"), stats: $("stats"), reviewBtn: $("review-btn"), focusBtn: $("focus-btn"), lessonMap: $("lesson-map"), mining: $("mining"), immersion: $("immersion"),
     mineForm: $("mine-form"), mineJp: $("mine-jp"), mineEn: $("mine-en"), mineRomaji: $("mine-romaji"),
     mineHint: $("mine-hint"), mineError: $("mine-error"),
     mineSaveBtn: $("mine-save-btn"), mineCancelBtn: $("mine-cancel-btn"), minePreviewBtn: $("mine-preview-btn"),
@@ -653,6 +653,41 @@
       cursor = end;
     }
     return out + furiganaHTML(s.slice(cursor));
+  }
+  // Drive mode: render a kana run with its romaji drawn right over each mora
+  // (きょ→kyo, っか→kka), so the alphabet is taught in place as the sentence is
+  // read. Non-kana (punctuation, spaces) pass through untouched.
+  function moraRunHTML(run) {
+    const chars = [...String(run || "")];
+    let out = "", i = 0;
+    while (i < chars.length) {
+      const ch = chars[i];
+      if (ch === " ") { out += " "; i++; continue; }
+      const base = SMALL_KANA[ch] || ch;
+      if (!KANA_INDEX.has(base) && ch !== "っ" && ch !== "ッ") { out += escHTML(ch); i++; continue; }
+      let g = ch; i++;
+      if ((g === "っ" || g === "ッ") && i < chars.length && KANA_INDEX.has(SMALL_KANA[chars[i]] || chars[i])) { g += chars[i]; i++; }
+      while (i < chars.length && ((SMALL_KANA[chars[i]] && chars[i] !== "っ" && chars[i] !== "ッ") || chars[i] === "ー")) { g += chars[i]; i++; }
+      out += '<ruby class="mr">' + escHTML(g) + "<rt>" + escHTML(kanaToRomaji(g)) + "</rt></ruby>";
+    }
+    return out;
+  }
+  // Same POS tint as coloredFuriganaHTML, but each word's kana carries per-mora
+  // romaji. Kanji sentences keep their normal furigana (no mora ruby).
+  function driveAnswerHTML(s, words) {
+    s = String(s || "");
+    if (s.includes("[")) return coloredFuriganaHTML(s, words);
+    if (!words || !words.length) return moraRunHTML(s);
+    let out = "", cursor = 0;
+    for (const w of words) {
+      const i = s.indexOf(w.jp, cursor);
+      if (i < 0) continue;
+      const end = i + w.jp.length;
+      out += moraRunHTML(s.slice(cursor, i));
+      out += '<span class="ck pos-' + escHTML(w.pos || "n") + '">' + moraRunHTML(s.slice(i, end)) + "</span>";
+      cursor = end;
+    }
+    return out + moraRunHTML(s.slice(cursor));
   }
 
   function speakTTS(text, lang, rate) {
@@ -1261,9 +1296,6 @@
         el.reviewBtn.textContent = `▶ ⚡ Review ${reviewN} card${reviewN === 1 ? "" : "s"}`;
         heroAction = startReview;
       } else { el.reviewBtn.hidden = true; heroAction = null; }
-      el.driveBtn.hidden = false;
-      el.driveBtn.textContent = settings.drive ? "🚗 Drive mode ON — every lesson runs car-style" : "🚗 Drive mode — for the car mount";
-      el.driveBtn.classList.toggle("drive-on", !!settings.drive);
 
       // Weekly rhythm — practice as a 7-day pattern, not a streak to break.
       // A rest day leaves a gap; nothing resets, nothing scolds.
@@ -1313,7 +1345,6 @@
     if (structure) structure.hidden = true;
     if (colors) colors.hidden = true;
     el.reviewBtn.hidden = true;
-    el.driveBtn.hidden = true;
 
     const level = window.LEVELS.find((l) => l.id === openLevelId) || window.LEVELS[0];
     const back = document.createElement("button");
@@ -1358,6 +1389,63 @@
     if (cards.length) startSession(cards, "challenge", null);
   }
 
+  // Each lesson picks an emoji "cover" from what it teaches (its title, grammar
+  // point and vocab glosses), so the card art actually depicts the lesson. A
+  // hand-set L.cover wins; a keyword match is next; otherwise a stable per-id
+  // pick keeps neighbours from clashing. Owners can drop a real photo in with
+  // L.image later and the card uses that instead.
+  const COVER_KEYWORDS = [
+    [/hiragana|katakana|\bkana\b|\bsound|\bletter|\bspell|alphabet|first sound|gojuon|gojūon|てんてん/, "🔤"],
+    [/\bgreet|hello|good ?(morning|night|bye)|goodbye|welcome|introduc|\bname\b/, "👋"],
+    [/number|count|\bten\b|\bhundred|how many|\bage\b/, "🔢"],
+    [/colou?r/, "🎨"],
+    [/\beat|food|meal|restaurant|menu|breakfast|lunch|dinner|delicious|hungry|rice\b/, "🍜"],
+    [/drink|coffee|\btea\b|water|thirsty|beer|juice/, "🍵"],
+    [/family|mother|father|sister|brother|parent|child|\bmom\b|\bdad\b/, "👪"],
+    [/animal|\bcat\b|\bdog\b|bird|fish\b|\bpet\b/, "🐱"],
+    [/weather|rain|sunny|\bhot\b|\bcold\b|\bsnow|\bwarm\b|cloudy/, "☀️"],
+    [/\btime\b|clock|o'clock|hour|minute|\btoday|tomorrow|yesterday|morning|night|\bweek|month/, "🕐"],
+    [/shop|store|\bbuy|price|\byen\b|money|\bcost|expensive|cheap|market/, "🛍️"],
+    [/train|station|\bbus\b|\bcar\b|travel|\btrip|airport|ticket|\bgo to\b/, "🚃"],
+    [/school|study|\bbook|\bread|\bclass|student|teacher|homework|learn/, "📚"],
+    [/\bwork\b|\bjob\b|company|office|busy/, "💼"],
+    [/house|\bhome\b|\broom|apartment|\bdoor|\blive\b/, "🏠"],
+    [/like|\blove|happy|\bfun\b|enjoy|favou?rite|feel|sad\b|tired/, "💗"],
+    [/\bwhat\b|\bwho\b|\bwhy\b|\bwhere\b|\bwhen\b|\bhow\b|question|\bask\b/, "❓"],
+    [/mountain|river|flower|\bsea\b|nature|\bsky\b|\btree|garden|sakura|cherry/, "🌸"],
+    [/body|\bhand|\beye|\bhead|\bfoot|\bhurt|doctor|sick|health|medicine/, "🩺"],
+    [/clothe|\bwear|\bshirt|shoes|\bhat\b/, "👕"],
+    [/music|\bsong|\bsport|hobby|\bgame|\bplay\b|movie|\bswim|\brun\b/, "🎵"],
+    [/past|\btense|\bwas\b|\bwere\b|\bdid\b|already|finished/, "⏳"],
+    [/\bverb|\bgo\b|\bcome|\bsee\b|\bdo\b|\bmake|\beat|action/, "🏃"],
+    [/adjectiv|\bbig\b|small|\bgood\b|\bbad\b|\bnew\b|\bold\b|cute|beautiful/, "✨"],
+    [/particle|topic marker|\bは\b|\bを\b|\bに\b|\bで\b|\bと\b|\bから\b/, "🔗"],
+    [/city|town|place|\bhere|\bthere|direction|\bleft\b|\bright\b|\bmap\b/, "🗺️"],
+  ];
+  const COVER_FALLBACK = ["🍡", "🏮", "⛩️", "🎏", "🌸", "🍙", "🐰", "🌾", "🍵", "🎐", "🦊", "🏯", "🌙", "🍥", "🎋", "🪷"];
+  function lessonCover(L) {
+    if (L.cover) return L.cover;
+    const hay = (L.title + " " + (L.section || "") + " " + (L.grammar || "") + " " + (L.grammarNote || "") + " " +
+      (L.vocab || []).map((w) => w.en).join(" ")).toLowerCase();
+    for (const [re, emo] of COVER_KEYWORDS) if (re.test(hay)) return emo;
+    let h = 0; for (const ch of L.id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    return COVER_FALLBACK[h % COVER_FALLBACK.length];
+  }
+  // Short "what's this about" line for a lesson card: the grammar point, trimmed.
+  function lessonDesc(L) {
+    let d = (L.grammar || "").trim();
+    if (!d && L.sentences && L.sentences[0]) d = L.sentences[0].en;
+    return d.length > 68 ? d.slice(0, 66).trimEnd() + "…" : d;
+  }
+  // A soft themed wash behind the cover emoji — one hue per theme, so a region's
+  // lessons read as a set while each keeps its own little icon.
+  const COVER_WASHES = [
+    "linear-gradient(160deg,#ffe3ec,#ffd0b8)", "linear-gradient(160deg,#dff1e6,#bfe3d0)",
+    "linear-gradient(160deg,#e4ecff,#cdd9f7)", "linear-gradient(160deg,#fff2cf,#ffe0a8)",
+    "linear-gradient(160deg,#f2e4ff,#e0cdf7)", "linear-gradient(160deg,#d9f2f5,#bfe6ec)",
+    "linear-gradient(160deg,#ffe0e0,#ffcaca)", "linear-gradient(160deg,#eaf0d9,#d6e3b8)",
+  ];
+
   function renderJourney(container, level) {
     const wrap = document.createElement("div");
     wrap.className = "lesson-list";
@@ -1399,21 +1487,38 @@
 
       const grid = document.createElement("div");
       grid.className = "lesson-grid";
+      const wash = COVER_WASHES[regionIdx % COVER_WASHES.length];
       r.lessons.forEach((L) => {
         const st = lessonStats(L);
         const isDone = st.passed >= st.total;
         const current = !isDone && L.id === frontierId;
-        const chip = document.createElement("button");
-        chip.className = "lesson-chip" + (isDone ? " chip-done" : current ? " chip-current" : " chip-ahead");
-        chip.dataset.lesson = L.id;          // so Back can scroll home to this card
-        chip.setAttribute("aria-label", L.title);
-        const mark = span("chip-mark", current ? "▶" : "");
-        if (isDone) mark.innerHTML = '<img src="assets/star_stamp.png" alt="">';
-        chip.appendChild(mark);
-        chip.appendChild(span("chip-title", L.title));
-        if (current && st.due > 0) chip.appendChild(span("chip-due", st.due + " due"));
-        chip.addEventListener("click", () => openIntro(L));
-        grid.appendChild(chip);
+        const card = document.createElement("button");
+        card.className = "lesson-card" + (isDone ? " lc-done" : current ? " lc-current" : " lc-ahead");
+        card.dataset.lesson = L.id;          // so Back can scroll home to this card
+        card.setAttribute("aria-label", L.title);
+
+        const photo = document.createElement("div");
+        photo.className = "lc-photo";
+        if (L.image) { photo.style.backgroundImage = "url('" + L.image + "')"; photo.classList.add("lc-has-img"); }
+        else { photo.style.background = wash; photo.appendChild(span("lc-emoji", lessonCover(L))); }
+        if (isDone) {
+          const s = document.createElement("img");
+          s.className = "lc-stamp"; s.src = "assets/star_stamp.png"; s.alt = "done";
+          photo.appendChild(s);
+        } else if (current) {
+          photo.appendChild(span("lc-badge", "▶ start"));
+        }
+        card.appendChild(photo);
+
+        const body = document.createElement("div");
+        body.className = "lc-body";
+        body.appendChild(span("lc-title", L.title));
+        body.appendChild(span("lc-desc", lessonDesc(L)));
+        if (current && st.due > 0) body.appendChild(span("lc-due", "⚡ " + st.due + " warmup"));
+        card.appendChild(body);
+
+        card.addEventListener("click", () => openIntro(L));
+        grid.appendChild(card);
       });
       wrap.appendChild(grid);
       regionIdx++;
@@ -1425,9 +1530,10 @@
       const strugg = struggledCardsForLevel(level);
       if (strugg.length) {
         const btn = document.createElement("button");
-        btn.className = "lesson-chip chip-challenge";
-        btn.innerHTML = '<span class="chip-mark">🏆</span><span class="chip-title">Level challenge — ' +
-          strugg.length + " sentence" + (strugg.length === 1 ? "" : "s") + " you kept missing</span>";
+        btn.className = "lesson-card lc-challenge";
+        btn.innerHTML = '<div class="lc-photo lc-photo-challenge"><span class="lc-emoji">🏆</span></div>' +
+          '<div class="lc-body"><span class="lc-title">Level challenge</span><span class="lc-desc">' +
+          strugg.length + " sentence" + (strugg.length === 1 ? "" : "s") + " you kept missing</span></div>";
         btn.addEventListener("click", () => startChallenge(level));
         wrap.appendChild(btn);
       }
@@ -1565,9 +1671,11 @@
       queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId, flip: false,
       build: !!(opts && opts.build), hard: !!(opts && opts.hard), combo: 0, bestCombo: 0,
       spoken: 0,   // sentences actually said aloud (produce-direction cards)
-      // 🚗 the Home-screen toggle: when on, EVERY session runs car-style —
-      // huge targets, produce-only, tap-reveal + swipe-grade, screen awake.
-      drive: !!(settings.drive || (opts && opts.drive)),
+      // 🚗 Car mode is the ONLY sentence practice now (owner decision, 2026-07):
+      // every drill is huge-target, produce-only, tap-reveal + swipe-grade, screen
+      // awake, alphabet drawn over each letter. No toggle. (The 🧩 Build puzzle is
+      // a separate opt-in muscle and keeps its own normal layout.)
+      drive: !(opts && opts.build),
     };
     document.body.classList.toggle("drive-mode", session.drive);
     if (session.drive) keepAwake(true);
@@ -1621,23 +1729,8 @@
     const warmup = (opts && opts.build) ? [] :
       reviewCards().filter((c) => c.lessonId !== L.id).slice(0, 5)
         .map((c) => Object.assign({}, c, { warmup: true }));
-    if (!(opts && opts.build) && !settings.drive) {   // no letter-tapping interludes in the car
-      // New letters this lesson still worth drilling by sound — the old journey
-      // road-stop, now dealt out as interludes between sentences and phased out
-      // once a letter is mastered.
-      const soundLetters = (LESSON_NEW_KANA[L.id] || []).filter((c) => kanaMastery(c) < KANA_MAX);
-      let si = 0;
-      queue = [];
-      for (const c of cards) {
-        queue.push(c);
-        if (si < soundLetters.length)
-          queue.push({ id: c.id + "~snd", lessonId: L.id, kanaSound: true, soundChar: soundLetters[si++] });
-        const w = pickSpellWord(c.s);
-        if (w) queue.push({ id: c.id + "~kana", lessonId: L.id, kanaBuild: true, word: w });
-      }
-      while (si < soundLetters.length)          // more new letters than sentences → tack on
-        queue.push({ id: L.id + "~snd" + si, lessonId: L.id, kanaSound: true, soundChar: soundLetters[si++] });
-    }
+    // Car mode: no letter-tapping interludes — the alphabet is now taught in
+    // place, drawn over each kana of the model answer (see driveAnswerHTML).
     startSession(warmup.concat(queue), "lesson", L.id, opts);
   }
   // THE review loop (owner decision, 2026-07): marking a card Nope/Kinda means
@@ -1772,6 +1865,7 @@
     el.promptEn.classList.toggle("jp", recognize);
     el.revealLabel.textContent = recognize ? "Meaning" : "Model answer";
     if (recognize) el.answerKana.textContent = s.en;
+    else if (session && session.drive) el.answerKana.innerHTML = driveAnswerHTML(s.jp, s.words);
     else el.answerKana.innerHTML = coloredFuriganaHTML(s.jp, s.words);
     el.answerRomaji.textContent = needRomaji(s.jp) ? s.romaji : "";
     renderAnnotated(el.hint, s.hint || "");
@@ -2767,7 +2861,7 @@
     renderHome();
     if (openLevelId && activeLesson) {
       requestAnimationFrame(() => {
-        const chip = document.querySelector('.lesson-chip[data-lesson="' + activeLesson.id + '"]');
+        const chip = document.querySelector('.lesson-card[data-lesson="' + activeLesson.id + '"]');
         if (chip && chip.scrollIntoView) chip.scrollIntoView({ block: "center" });
       });
     }
@@ -2950,16 +3044,19 @@
   el.backBtn.addEventListener("click", backToMap);
   el.doneHomeBtn.addEventListener("click", backToMap);
   el.reviewBtn.addEventListener("click", () => { if (heroAction) heroAction(); });
-  el.driveBtn.addEventListener("click", () => { settings.drive = !settings.drive; saveSettings(); renderHome(); });
   el.encoreBtn.addEventListener("click", () => {
     const cards = reviewCards().slice(0, 5);
     // an encore after a drive session stays in drive mode
     if (cards.length) startSession(cards, "review", null, { drive: !!(session && session.drive) });
     else renderHome();
   });
-  // Drive mode: the whole card is the reveal button — no aiming at a chip.
-  document.getElementById("card").addEventListener("click", () => {
-    if (session && session.drive && el.grade.hidden && !el.revealBtn.hidden && !el.revealBtn.disabled) reveal();
+  // Drive mode: the whole card is the reveal button — no aiming at a chip. Once
+  // revealed, tapping the sheet (anywhere but a word chip) replays the line, so
+  // there's no 🔁 button to hunt for at the wheel.
+  document.getElementById("card").addEventListener("click", (e) => {
+    if (!(session && session.drive)) return;
+    if (el.grade.hidden && !el.revealBtn.hidden && !el.revealBtn.disabled) { reveal(); return; }
+    if (!el.grade.hidden && !(e.target.closest && e.target.closest(".word-chip"))) speak(current.s.jp, { lang: "ja-JP" });
   });
   // Drive mode: once revealed, swipe the card — ← nope, → got it — next card.
   (function () {
