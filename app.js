@@ -1240,24 +1240,26 @@
       if (howit) howit.hidden = false;
       if (structure) structure.hidden = false;
       if (colors) colors.hidden = false;
-      // One-tap start: the first thing on Home is always the obvious next action —
-      // due reviews if there are any, otherwise the next lesson on the road.
-      if (reviewN > 0) {
+      // One-tap start: the hero always points FORWARD — your current lesson.
+      // Due reviews aren't a destination; they ride along as a short warmup
+      // when you move ahead (see startLesson). A started lesson resumes
+      // straight into the drill; a fresh one opens its intro.
+      const next = nextLessonToDo();
+      if (next) {
+        const started = CARDS.some((c) => { const p = prog.cards[c.id]; return c.lessonId === next.id && p && (p.reps || p.lapses); });
+        el.reviewBtn.hidden = false;
+        el.reviewBtn.textContent = "▶ " + (started ? "Continue" : "Start") + " — " + next.title +
+          (reviewN ? " · ⚡" + Math.min(5, reviewN) + " warmup" : "");
+        heroAction = () => {
+          const lv = window.LEVELS.find((l) => l.tiers.some((t) => t.themes.includes(next.section)));
+          if (lv) { openLevelId = lv.id; settings.activeLevel = lv.id; saveSettings(); }
+          if (started) startLesson(next); else openIntro(next);
+        };
+      } else if (reviewN > 0) {   // course finished — reviews are all that's left
         el.reviewBtn.hidden = false;
         el.reviewBtn.textContent = `▶ ⚡ Review ${reviewN} card${reviewN === 1 ? "" : "s"}`;
         heroAction = startReview;
-      } else {
-        const next = nextLessonToDo();
-        if (next) {
-          el.reviewBtn.hidden = false;
-          el.reviewBtn.textContent = "▶ Continue — " + next.title;
-          heroAction = () => {
-            const lv = window.LEVELS.find((l) => l.tiers.some((t) => t.themes.includes(next.section)));
-            if (lv) { openLevelId = lv.id; settings.activeLevel = lv.id; saveSettings(); }
-            openIntro(next);
-          };
-        } else { el.reviewBtn.hidden = true; heroAction = null; }
-      }
+      } else { el.reviewBtn.hidden = true; heroAction = null; }
       el.driveBtn.hidden = false;
 
       // Weekly rhythm — practice as a 7-day pattern, not a streak to break.
@@ -1588,6 +1590,12 @@
   function startLesson(L, opts) {
     const cards = CARDS.filter((c) => c.lessonId === L.id);
     let queue = cards;
+    // Moving forward pays the review toll: up to 5 due cards from PAST lessons
+    // warm you up before the lesson's own cards. Review is the on-ramp, not a
+    // separate errand. (Skipped in build mode — different muscle.)
+    const warmup = (opts && opts.build) ? [] :
+      reviewCards().filter((c) => c.lessonId !== L.id).slice(0, 5)
+        .map((c) => Object.assign({}, c, { warmup: true }));
     if (!(opts && opts.build)) {
       // New letters this lesson still worth drilling by sound — the old journey
       // road-stop, now dealt out as interludes between sentences and phased out
@@ -1605,7 +1613,7 @@
       while (si < soundLetters.length)          // more new letters than sentences → tack on
         queue.push({ id: L.id + "~snd" + si, lessonId: L.id, kanaSound: true, soundChar: soundLetters[si++] });
     }
-    startSession(queue, "lesson", L.id, opts);
+    startSession(warmup.concat(queue), "lesson", L.id, opts);
   }
   // The unified review bucket = cards last graded Nope/Kinda that are due
   // (same set focusCards() computes). Surfaced on SRS schedule; "Got it"
@@ -1724,7 +1732,8 @@
     const doBuild = session.build && s.words && s.words.length >= 1;
     current.doBuild = doBuild;
     const recognize = !doBuild && current.dir === "recognize";
-    el.promptLabel.textContent = doBuild ? "Build the sentence" : (recognize ? "What does this mean?" : "Say this in Japanese");
+    el.promptLabel.textContent = (current.warmup ? "⚡ Warmup · " : "") +
+      (doBuild ? "Build the sentence" : (recognize ? "What does this mean?" : "Say this in Japanese"));
     if (recognize) el.promptEn.innerHTML = furiganaHTML(s.jp);
     else el.promptEn.textContent = s.en;
     el.promptEn.classList.toggle("jp", recognize);
