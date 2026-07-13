@@ -1486,9 +1486,9 @@
       wrap.appendChild(head);
 
       // A horizontal rail of framed picture cards: the painted frame IS the
-      // border, the cover fills it, the title sits on a soft caption. No intro
-      // screen anymore — tapping the card starts practice; two tiny corner
-      // buttons open Talk / Build.
+      // border, the cover fills it, the title + four launchers sit at the bottom
+      // of the picture. Tapping the picture jumps straight into practice; the
+      // four buttons are the different ways to practice this lesson.
       const rail = document.createElement("div");
       rail.className = "lesson-rail";
       const wash = COVER_WASHES[regionIdx % COVER_WASHES.length];
@@ -1510,18 +1510,21 @@
         const cap = document.createElement("div");
         cap.className = "lc-cap";
         cap.appendChild(span("lc-title", L.title));
-        const mini = document.createElement("div");
-        mini.className = "lc-mini";
-        const mkMini = (icon, label, fn) => {
+        const acts = document.createElement("div");
+        acts.className = "lc-actions";
+        const mkAct = (cls, icon, label, fn) => {
           const b = document.createElement("button");
-          b.className = "lc-minibtn"; b.type = "button";
-          b.textContent = icon; b.setAttribute("aria-label", label + " — " + L.title);
+          b.className = "lc-act " + cls; b.type = "button";
+          b.innerHTML = '<span class="lc-act-ico">' + icon + '</span><span class="lc-act-lbl">' + label + "</span>";
+          b.setAttribute("aria-label", label + " — " + L.title);
           b.addEventListener("click", (e) => { e.stopPropagation(); activeLesson = L; fn(); });
-          mini.appendChild(b);
+          acts.appendChild(b);
         };
-        mkMini("🎭", "Talk", () => startTalk(L));
-        mkMini("🧩", "Build", () => startLesson(L, { build: true }));
-        cap.appendChild(mini);
+        mkAct("act-words", "📖", "Words", () => openIntro(L));
+        mkAct("act-practice", "▶", "Practice", () => startLesson(L));
+        mkAct("act-talk", "🎭", "Talk", () => startTalk(L));
+        mkAct("act-build", "🧩", "Build", () => startLesson(L, { build: true }));
+        cap.appendChild(acts);
         card.appendChild(cap);
 
         card.addEventListener("click", () => { activeLesson = L; startLesson(L); });

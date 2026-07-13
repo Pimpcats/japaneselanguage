@@ -471,20 +471,21 @@ footer { font-family: var(--display); color: var(--muted); }
 .lesson-rail::-webkit-scrollbar { display: none; }
 .lesson-card {
   position: relative; box-sizing: border-box; cursor: pointer; color: var(--ink);
-  aspect-ratio: 5 / 6; overflow: hidden;
+  aspect-ratio: 3 / 4; overflow: hidden;
   background-color: #fbe9d2; background-clip: padding-box;
   background-size: cover; background-position: center; background-repeat: no-repeat;
   border-style: solid; border-color: transparent;
-  border-width: 26px 20px 30px 20px;
+  border-width: 24px 18px 28px 18px;
   border-image: url("../assets/frame.png") 245 157 182 157 round;
   border-radius: 8px;
   filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
   transition: transform 0.08s;
 }
-.lesson-rail > .lesson-card { flex: 0 0 74%; max-width: 300px; scroll-snap-align: center; }
+.lesson-rail > .lesson-card { flex: 0 0 78%; max-width: 320px; scroll-snap-align: center; }
 .lesson-card:active { transform: translateY(2px); }
 .lc-emoji {
-  position: absolute; inset: 0; display: grid; place-items: center;
+  position: absolute; left: 0; right: 0; top: 30%; transform: translateY(-50%);
+  display: grid; place-items: center;
   font-size: 4rem; line-height: 1; filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.16));
 }
 .lc-has-img .lc-emoji { display: none; }
@@ -499,26 +500,33 @@ footer { font-family: var(--display); color: var(--muted); }
 .lc-flag-done { background: var(--good); }
 .lc-done { filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14)) saturate(0.9); }
 .lc-ahead { opacity: 0.96; }
-/* title caption on a soft scrim along the bottom */
+/* caption + the four launchers along the bottom of the picture */
 .lc-cap {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
-  display: flex; align-items: flex-end; gap: 0.4rem;
-  padding: 1.1rem 0.5rem 0.45rem;
-  background: linear-gradient(transparent, rgba(255, 253, 246, 0.95) 60%);
+  display: flex; flex-direction: column; align-items: stretch; gap: 0.35rem;
+  padding: 1.4rem 0.45rem 0.5rem;
+  background: linear-gradient(transparent, rgba(255, 253, 246, 0.97) 42%);
 }
-.lc-title { flex: 1; font-family: var(--display); font-weight: 900; font-size: 0.86rem; line-height: 1.1; color: var(--ink); }
-.lc-mini { display: flex; gap: 0.3rem; flex: 0 0 auto; }
-.lc-minibtn {
-  width: 2rem; height: 2rem; display: grid; place-items: center; font-size: 0.95rem; line-height: 1;
-  background: #fffdf6; border: 2.5px solid var(--ink); border-radius: 50%; cursor: pointer;
-  box-shadow: 0 2px 0 var(--ink); transition: transform 0.08s, box-shadow 0.08s;
+.lc-title { font-family: var(--display); font-weight: 900; font-size: 0.86rem; line-height: 1.1; color: var(--ink); text-align: center; }
+.lc-actions { display: flex; justify-content: space-between; gap: 0.25rem; }
+.lc-act { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.12rem; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); }
+.lc-act-ico {
+  width: 44px; height: 44px; display: grid; place-items: center; font-size: 1.2rem; line-height: 1;
+  border: 2.5px solid var(--ink); border-radius: 50%; box-shadow: 0 3px 0 var(--ink);
+  transition: transform 0.08s, box-shadow 0.08s;
 }
-.lc-minibtn:active { transform: translateY(2px); box-shadow: 0 0 0 var(--ink); }
+.lc-act:active .lc-act-ico { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+.lc-act-lbl { font-family: var(--display); font-weight: 900; font-size: 0.5rem; }
+.act-words .lc-act-ico { background: color-mix(in srgb, var(--cobalt) 22%, #fff); }
+.act-practice .lc-act-ico { background: var(--accent); color: #fff; }
+.act-talk .lc-act-ico { background: color-mix(in srgb, var(--gold) 55%, #fff); }
+.act-build .lc-act-ico { background: color-mix(in srgb, var(--good) 26%, #fff); }
 
 /* 🏆 the level's ending challenge — full-width framed card, gold cover */
 .lc-challenge { aspect-ratio: auto; width: 100%; min-height: 96px; background-color: color-mix(in srgb, var(--gold) 32%, #fbe9d2); margin-top: 0.5rem; }
-.lc-challenge .lc-emoji { position: absolute; left: 1rem; right: auto; inset: 0 auto 0 1rem; font-size: 2.4rem; }
-.lc-challenge .lc-cap { position: static; background: none; padding: 0 0 0 3.2rem; }
+.lc-challenge .lc-emoji { position: absolute; left: 1rem; right: auto; top: 50%; bottom: auto; font-size: 2.4rem; }
+.lc-challenge .lc-cap { position: static; background: none; padding: 0 0 0 3.2rem; flex-direction: column; }
+.lc-challenge .lc-title { text-align: left; }
 
 /* ---- "new version ready" prompt: centered modal-style, hard to miss ---- */
 .sw-update {

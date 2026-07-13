@@ -187,10 +187,10 @@ touches the drive-vs-not distinction anymore; don't reintroduce a toggle or a
 
 ## Speaking practice = "Talk with もち子さん" (app.js)
 
-The 🎭 talk button — a corner mini-button on every lesson card (and on the
-lesson-complete screen) — is the single speaking entry point; the standalone
-speaking-quiz and listen-and-repeat buttons were removed at the owner's request
-(2026-07). (It used to live on the lesson-intro screen, which no longer exists.) Hand-written
+The 🎭 talk launcher — one of the four buttons on every lesson card, and a
+button on the lesson-complete screen — is the single speaking entry point; the
+standalone speaking-quiz and listen-and-repeat buttons were removed at the
+owner's request (2026-07). Hand-written
 `window.SCENES` override; every other lesson auto-builds a conversation
 (`buildAutoScene`): her greeting → each lesson sentence as your line, with her
 reactions (`MOCHIKO.reactions`) between → a closing. Under the hood it's the
@@ -227,8 +227,8 @@ to reveal-and-listen when unavailable.
 - **もち子さん is a character, not just a voice**: she asks the quiz prompts,
   praises perfect spoken answers, reacts between your lines, and stars in **conversation scenes**
   (`window.SCENES` — her lines play aloud, your lines run the quiz mic flow).
-  (Her greeting bubble `window.MOCHIKO.greetings` lived on the retired lesson
-  intro, so it's currently dormant — a good candidate to resurface elsewhere.)
+  She also greets on the lesson-intro reference (`window.MOCHIKO.greetings`,
+  bubble in `openIntro`), now reached opt-in via the card's 📖 Words button.
   New scene lines for her need clips; reuse existing lesson sentences for the
   learner's lines so their clips already exist (the lint enforces learner lines
   are real lesson sentences). ALL of Level 1 (29 lessons) has hand-written
@@ -245,12 +245,14 @@ to reveal-and-listen when unavailable.
   match on title/section/grammar/vocab, stable per-id fallback) on a per-theme
   wash, with the title on a soft bottom caption and a ▶/✓ corner flag. Covers
   are heuristic and OVERRIDABLE — `L.cover` (emoji) or `L.image` (a real photo
-  path) pins any lesson. **There is no lesson-intro screen anymore** (owner:
-  "we don't need this screen at all", 2026-07) — tapping a card starts practice
-  directly; two tiny corner buttons (🎭 Talk, 🧩 Build) launch those. `openIntro`
-  and `#lesson-intro` remain in the code but are UNREACHABLE — don't route back
-  to them. The old `.lesson-chip` grid and the Japan-map/road-of-nodes journey
-  are RETIRED. "Ahead" cards are styling only — every lesson stays tappable.
+  path) pins any lesson. Along the bottom of each card is a **four-launcher row**
+  (owner: "a great way to jump into the different ways to practice", 2026-07):
+  📖 Words · ▶ Practice · 🎭 Talk · 🧩 Build. Tapping the *picture* jumps
+  straight into Practice; the buttons launch each activity. The lesson-intro
+  screen (`openIntro`/`#lesson-intro`) is now **opt-in behind 📖 Words only** —
+  never force it on a card tap (that was the owner's complaint: it used to gate
+  every tap). The old `.lesson-chip` grid and the Japan-map/road-of-nodes
+  journey are RETIRED. "Ahead" cards are styling only — every lesson stays tappable.
 - The Donkey-Kong-style map plan (`docs/ART_ROADMAP.md`, panels for
   `assets/map/`) is ON HOLD pending the owner rethinking the map — ask before
   doing any map/journey work. Don't generate placeholder scenery art unprompted.

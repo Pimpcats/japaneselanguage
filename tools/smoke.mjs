@@ -32,8 +32,8 @@ const click = (el) => el && el.dispatchEvent(new window.Event("click", { bubbles
 check("home renders level cards", document.querySelectorAll(".level-card").length >= 5);
 click(document.querySelector(".level-card"));
 check("level page renders lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
-check("card has Talk/Build mini buttons", document.querySelectorAll(".lesson-card .lc-minibtn").length >= 2);
-// Tapping a card starts practice straight away (car mode) — no intro screen.
+check("card has four launchers", document.querySelectorAll(".lesson-card .lc-act").length >= 4);
+// Tapping the picture starts practice straight away (car mode) — no forced intro.
 click(document.querySelector(".lesson-rail .lesson-card"));
 check("tapping a card starts the drill", !document.getElementById("drill").hidden);
 check("drill runs in car mode", document.body.classList.contains("drive-mode"));
@@ -41,9 +41,14 @@ click(document.getElementById("card"));   // whole sheet is the reveal button
 check("answer draws romaji over each kana", document.querySelectorAll("#answer-kana ruby.mr rt").length > 0);
 click(document.getElementById("back-btn"));   // back to the level's card rail
 check("back returns to the lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
-// Talk opens from a card's 🎭 mini button (first mini button).
-click(document.querySelector(".lesson-card .lc-minibtn"));
+// The 🎭 Talk launcher opens the conversation.
+click(document.querySelector(".lesson-card .act-talk"));
 check("Talk opens from a card", !document.getElementById("quiz").hidden);
+click(document.getElementById("back-btn"));
+check("back returns to the lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
+// The 📖 Words launcher opens the (now opt-in) lesson reference.
+click(document.querySelector(".lesson-card .act-words"));
+check("Words opens the lesson reference", !document.getElementById("lesson-intro").hidden);
 click(document.getElementById("back-btn"));
 check("back returns home", !document.getElementById("home").hidden);
 
