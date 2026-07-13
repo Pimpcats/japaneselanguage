@@ -485,6 +485,7 @@
     quizMochiko: $("quiz-mochiko"), quizMochikoJp: $("quiz-mochiko-jp"), quizMochikoEn: $("quiz-mochiko-en"),
     doneMission: $("done-mission"),
     quizProgress: $("quiz-progress"), quizEn: $("quiz-en"), quizHintBtn: $("quiz-hint-btn"), quizHint: $("quiz-hint"),
+    quizChoices: $("quiz-choices"), quizThinkBtn: $("quiz-think-btn"),
     quizHeard: $("quiz-heard"), quizVerdict: $("quiz-verdict"), quizAnswer: $("quiz-answer"),
     quizKana: $("quiz-kana"), quizRomaji: $("quiz-romaji"),
     quizMicBtn: $("quiz-mic-btn"), quizPlayBtn: $("quiz-play-btn"), quizRevealBtn: $("quiz-reveal-btn"),
@@ -2243,13 +2244,19 @@
     const isTrouble = (s) =>
       /(ませんでした|ません|なかった|なくし|まよい|のりおくれ|ぬすまれ|おこられ|またされ|やらされ|させられ|こまって|わすれ|ざるを得|むり|だめ|いたい|たすけて|ふられた|きらい|つかれ|おちた)/.test(s.jp) &&
       !/ほめられ/.test(s.jp);
+    // The last few sentences become a CHOICE turn — you decide what to say,
+    // then produce it. Deciding is the conversational muscle the scripted
+    // turns never exercised.
+    const packN = sentences.length >= 4 ? 3 : sentences.length === 3 ? 2 : 0;
+    const packArr = packN ? sentences.splice(sentences.length - packN, packN) : [];
     sentences.forEach((s, i) => {
       steps.push({ who: "you", ctx: "もち子さん asks — how do you say…", en: s.en, jp: s.jp, romaji: s.romaji, hint: s.hint });
-      if (i >= sentences.length - 1) return;                  // closing follows
+      if (!packArr.length && i >= sentences.length - 1) return;   // closing follows
       const pool = isQuestion(s) ? M.ponder : isTrouble(s) ? M.sympathy : M.reactions;
       const r = pick(pool, seed + i);
       if (r) steps.push({ who: "m", jp: r.jp, en: r.en });
     });
+    if (packArr.length) steps.push({ who: "you", choice: packArr.map((s) => ({ en: s.en, jp: s.jp, romaji: s.romaji, hint: s.hint })) });
     const c = pick(M.closings, seed);
     if (c) steps.push({ who: "m", jp: c.jp, en: c.en });
     return { id: "auto-" + L.id, lesson: L.id, title: L.title, auto: true, steps };
@@ -2299,7 +2306,7 @@
     const cue = (M.review && M.review.length) ? M.review[Math.floor(Math.random() * M.review.length)] : null;
     if (cue) steps.push({ who: "m", jp: cue.jp, en: cue.en });
     picks.forEach((s) => {
-      steps.push({ who: "you", ctx: "おさらい・review — how do you say…", en: s.en, jp: s.jp, romaji: s.romaji, hint: s.hint });
+      steps.push({ who: "you", drill: true, ctx: "おさらい・review — how do you say…", en: s.en, jp: s.jp, romaji: s.romaji, hint: s.hint });
     });
     return steps;
   }
@@ -2326,6 +2333,8 @@
 
   // Shared per-card reset for both quiz cards and scene steps.
   function resetQuizCard() {
+    el.quizChoices.hidden = true; el.quizChoices.innerHTML = "";
+    el.quizThinkBtn.hidden = true;
     el.quizCard.hidden = false; el.quizControls.hidden = false;
     el.quizProgress.hidden = false; el.quizSummary.hidden = true;
     el.quizMochiko.hidden = true; el.quizMochiko.classList.remove("echo");
@@ -2372,7 +2381,6 @@
       el.quizNextBtn.textContent = (quiz.idx >= quiz.steps.length - 1) ? "finish →" : "reply →";
       speak(st.jp, { lang: "ja-JP" });          // reached via a tap, so audio is allowed
     } else {                                    // your line
-      quiz.target = st;
       // Echo her last line above your prompt so it reads as a reply, not a
       // flashcard — the heart of the conversation feel.
       const prev = quiz.steps[quiz.idx - 1];
@@ -2384,16 +2392,56 @@
       } else {
         el.quizMochiko.classList.remove("echo");
       }
-      el.quizLabel.textContent = st.ctx ? "↳ " + st.ctx : "Your turn — reply to her";
+      // Conversation has a step the old flow skipped: DECIDING what to say.
+      // Choice turns pick between meanings; hand-written scenes get a think-
+      // first beat before the scripted line appears. Both are one tap to skip.
+      if (!quiz.stage) quiz.stage = st.choice ? "choose" : (thinkFirst(st, prev) ? "think" : "answer");
+      if (quiz.stage === "choose") {
+        quiz.target = null;
+        el.quizLabel.textContent = "あなたの ばん — which will you say?";
+        el.quizEn.hidden = true;
+        el.quizChoices.hidden = false;
+        st.choice.forEach((opt) => {
+          const b = document.createElement("button");
+          b.className = "qc-opt";
+          b.textContent = "“" + opt.en + "”";
+          b.addEventListener("click", () => {
+            quiz.pick = Object.assign({}, opt, { ctx: "you chose — say it in Japanese" });
+            quiz.stage = "answer";
+            renderSceneStep();
+          });
+          el.quizChoices.appendChild(b);
+        });
+        el.quizMicBtn.hidden = true; el.quizRevealBtn.hidden = true; el.quizSkipBtn.hidden = true;
+        return;
+      }
+      if (quiz.stage === "think") {
+        quiz.target = null;
+        // The stage direction gives the situation; the line itself stays hidden
+        // until you've had a beat to think of your own answer.
+        el.quizLabel.textContent = "あなたの ばん — " + (st.ctx || "how would you answer her?");
+        el.quizEn.hidden = true;
+        el.quizThinkBtn.hidden = false;
+        el.quizMicBtn.hidden = true; el.quizRevealBtn.hidden = true; el.quizSkipBtn.hidden = true;
+        return;
+      }
+      const stEff = quiz.pick || st;            // a chosen option stands in for the step
+      quiz.target = stEff;
+      el.quizLabel.textContent = stEff.ctx ? "↳ " + stEff.ctx : "Your turn — reply to her";
       el.quizEn.hidden = false;
-      el.quizEn.textContent = st.en;
-      if (st.hint) {
+      el.quizEn.textContent = stEff.en;
+      if (stEff.hint) {
         el.quizHintBtn.hidden = false;
         el.quizHintBtn.textContent = "show hint";
-        renderAnnotated(el.quizHint, st.hint);
+        renderAnnotated(el.quizHint, stEff.hint);
       }
       showMicControls();
     }
+  }
+  // Think-first applies to hand-written scenes (her lines genuinely respond,
+  // so your reply IS an answer) — never to drill prompts like the refresher.
+  function thinkFirst(st, prev) {
+    return !!(quiz.scene && !quiz.scene.auto && !st.drill && prev && prev.who === "m");
   }
 
   let recStopTimer = 0, recMaxTimer = 0, recGraded = false;
@@ -2620,6 +2668,7 @@
 
   function quizNext() {
     if (!quiz) return;
+    quiz.stage = null; quiz.pick = null;        // each step decides its own opening stage
     if (quiz.idx >= quiz.steps.length - 1) { finishQuiz(); return; }
     quiz.idx += 1;
     renderSceneStep();
@@ -2846,6 +2895,7 @@
   el.kqStop.addEventListener("click", openKana);
   el.quizMicBtn.addEventListener("click", startListening);
   el.quizPlayBtn.addEventListener("click", () => { if (quiz && quiz.target) speak(quiz.target.jp, { lang: "ja-JP" }); });
+  el.quizThinkBtn.addEventListener("click", () => { if (!quiz) return; quiz.stage = "answer"; renderSceneStep(); });
   el.quizRevealBtn.addEventListener("click", () => { if (!quiz) return; quiz.results[quiz.idx] = quiz.results[quiz.idx] || 0; showQuizAnswer(); });
   el.quizSkipBtn.addEventListener("click", () => { if (!quiz) return; quiz.results[quiz.idx] = quiz.results[quiz.idx] || 0; quizNext(); });
   el.quizNextBtn.addEventListener("click", quizNext);

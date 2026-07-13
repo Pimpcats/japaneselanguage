@@ -743,6 +743,15 @@ body.drive-mode #encore-btn, body.drive-mode .done-actions button { min-height: 
   box-shadow: 0 2px 0 rgba(74, 51, 40, 0.2) !important;
 }
 
+/* choice turns — pick WHAT to say, then say it in Japanese */
+#quiz-choices { display: flex; flex-direction: column; gap: 0.55rem; margin: 0.7rem 0 0.3rem; }
+#quiz-choices .qc-opt {
+  text-align: left; font-weight: 800; font-size: 1rem; color: var(--ink);
+  border: 2.5px solid var(--ink); border-radius: 13px; background: #fff;
+  box-shadow: 0 3px 0 var(--ink); padding: 0.75rem 0.9rem; cursor: pointer;
+}
+#quiz-choices .qc-opt:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+
 /* conversation feel: her line echoed above your reply prompt (dimmed, smaller),
    and lighter feedback so a scene turn reads as dialogue, not a test */
 #quiz-mochiko.echo { opacity: 0.72; }
