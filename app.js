@@ -1289,7 +1289,7 @@
         heroAction = () => {
           const lv = window.LEVELS.find((l) => l.tiers.some((t) => t.themes.includes(next.section)));
           if (lv) { openLevelId = lv.id; settings.activeLevel = lv.id; saveSettings(); }
-          if (started) startLesson(next); else openIntro(next);
+          startLesson(next);
         };
       } else if (reviewN > 0) {   // course finished — reviews are all that's left
         el.reviewBtn.hidden = false;
@@ -1485,8 +1485,10 @@
       }
       wrap.appendChild(head);
 
-      // A horizontal rail of big picture cards (Pimsleur-shaped, our own look):
-      // large cover on top, then title + status, then a row of round launchers.
+      // A horizontal rail of framed picture cards: the painted frame IS the
+      // border, the cover fills it, the title sits on a soft caption. No intro
+      // screen anymore — tapping the card starts practice; two tiny corner
+      // buttons open Talk / Build.
       const rail = document.createElement("div");
       rail.className = "lesson-rail";
       const wash = COVER_WASHES[regionIdx % COVER_WASHES.length];
@@ -1497,50 +1499,32 @@
         const card = document.createElement("div");
         card.className = "lesson-card" + (isDone ? " lc-done" : current ? " lc-current" : " lc-ahead");
         card.dataset.lesson = L.id;          // so Back can scroll home to this card
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", L.title);
+        if (L.image) { card.style.backgroundImage = "url('" + L.image + "')"; card.classList.add("lc-has-img"); }
+        else { card.style.backgroundImage = wash; card.appendChild(span("lc-emoji", lessonCover(L))); }
 
-        const photo = document.createElement("button");
-        photo.className = "lc-photo";
-        photo.setAttribute("aria-label", "Study " + L.title);
-        if (L.image) { photo.style.backgroundImage = "url('" + L.image + "')"; photo.classList.add("lc-has-img"); }
-        else { photo.style.background = wash; photo.appendChild(span("lc-emoji", lessonCover(L))); }
-        if (isDone) {
-          const ov = document.createElement("div");
-          ov.className = "lc-done-overlay";
-          ov.innerHTML = '<span class="lc-check">✓</span><span class="lc-donetext">Done</span>';
-          photo.appendChild(ov);
-        } else if (current) {
-          photo.appendChild(span("lc-badge", "▶ start here"));
-        }
-        photo.addEventListener("click", () => openIntro(L));
-        card.appendChild(photo);
+        if (isDone) card.appendChild(span("lc-flag lc-flag-done", "✓"));
+        else if (current) card.appendChild(span("lc-flag lc-flag-now", "▶"));
 
-        const body = document.createElement("div");
-        body.className = "lc-body";
-        const head2 = document.createElement("div");
-        head2.className = "lc-head";
-        head2.appendChild(span("lc-title", L.title));
-        head2.appendChild(span("lc-pill " + (isDone ? "pill-done" : current ? "pill-now" : "pill-new"),
-          isDone ? "✓ Done" : current ? "Start here" : "New"));
-        body.appendChild(head2);
-        body.appendChild(span("lc-desc", lessonDesc(L)));
-        if (current && st.due > 0) body.appendChild(span("lc-due", "⚡ " + st.due + " warmup rides along"));
-
-        const acts = document.createElement("div");
-        acts.className = "lc-actions";
-        const mkAct = (cls, icon, label, fn) => {
+        const cap = document.createElement("div");
+        cap.className = "lc-cap";
+        cap.appendChild(span("lc-title", L.title));
+        const mini = document.createElement("div");
+        mini.className = "lc-mini";
+        const mkMini = (icon, label, fn) => {
           const b = document.createElement("button");
-          b.className = "lc-act " + cls;
-          b.innerHTML = '<span class="lc-act-ico">' + icon + '</span><span class="lc-act-lbl">' + label + "</span>";
+          b.className = "lc-minibtn"; b.type = "button";
+          b.textContent = icon; b.setAttribute("aria-label", label + " — " + L.title);
           b.addEventListener("click", (e) => { e.stopPropagation(); activeLesson = L; fn(); });
-          acts.appendChild(b);
+          mini.appendChild(b);
         };
-        mkAct("act-study", "📖", "Words", () => openIntro(L));
-        mkAct("act-practice", "▶", "Practice", () => startLesson(L));
-        mkAct("act-talk", "🎭", "Talk", () => startTalk(L));
-        mkAct("act-build", "🧩", "Build", () => startLesson(L, { build: true }));
-        body.appendChild(acts);
+        mkMini("🎭", "Talk", () => startTalk(L));
+        mkMini("🧩", "Build", () => startLesson(L, { build: true }));
+        cap.appendChild(mini);
+        card.appendChild(cap);
 
-        card.appendChild(body);
+        card.addEventListener("click", () => { activeLesson = L; startLesson(L); });
         rail.appendChild(card);
       });
       wrap.appendChild(rail);
@@ -1554,8 +1538,8 @@
       if (strugg.length) {
         const btn = document.createElement("button");
         btn.className = "lesson-card lc-challenge";
-        btn.innerHTML = '<div class="lc-photo lc-photo-challenge"><span class="lc-emoji">🏆</span></div>' +
-          '<div class="lc-body"><span class="lc-title">Level challenge</span><span class="lc-desc">' +
+        btn.innerHTML = '<span class="lc-emoji">🏆</span>' +
+          '<div class="lc-cap"><span class="lc-title">Level challenge · ' +
           strugg.length + " sentence" + (strugg.length === 1 ? "" : "s") + " you kept missing</span></div>";
         btn.addEventListener("click", () => startChallenge(level));
         wrap.appendChild(btn);
@@ -1744,6 +1728,7 @@
   }
 
   function startLesson(L, opts) {
+    activeLesson = L;   // the lesson-complete screen & Talk button read this
     const cards = CARDS.filter((c) => c.lessonId === L.id);
     let queue = cards;
     // Moving forward pays the review toll: up to 5 due cards from PAST lessons
@@ -3122,7 +3107,7 @@
   el.quizSkipBtn.addEventListener("click", () => { if (!quiz) return; quiz.results[quiz.idx] = quiz.results[quiz.idx] || 0; quizNext(); });
   el.quizNextBtn.addEventListener("click", quizNext);
   el.quizHintBtn.addEventListener("click", () => { el.quizHint.hidden = !el.quizHint.hidden; el.quizHintBtn.textContent = el.quizHint.hidden ? "show hint" : "hide hint"; });
-  el.quizBackBtn.addEventListener("click", () => { if (activeLesson) openIntro(activeLesson); else renderHome(); });
+  el.quizBackBtn.addEventListener("click", () => { if (openLevelId != null) backToMap(); else renderHome(); });
   el.quizAgainBtn.addEventListener("click", () => {
     if (quiz && quiz.scene && !quiz.scene.auto) startScene(quiz.scene);
     else startTalk(activeLesson);          // auto-scenes rebuild fresh (reshuffled)

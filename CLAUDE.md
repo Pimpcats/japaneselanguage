@@ -187,9 +187,10 @@ touches the drive-vs-not distinction anymore; don't reintroduce a toggle or a
 
 ## Speaking practice = "Talk with もち子さん" (app.js)
 
-The 🎭 talk button on EVERY lesson intro (and lesson-complete) is the single
-speaking entry point — the standalone speaking-quiz and listen-and-repeat
-buttons were removed at the owner's request (2026-07). Hand-written
+The 🎭 talk button — a corner mini-button on every lesson card (and on the
+lesson-complete screen) — is the single speaking entry point; the standalone
+speaking-quiz and listen-and-repeat buttons were removed at the owner's request
+(2026-07). (It used to live on the lesson-intro screen, which no longer exists.) Hand-written
 `window.SCENES` override; every other lesson auto-builds a conversation
 (`buildAutoScene`): her greeting → each lesson sentence as your line, with her
 reactions (`MOCHIKO.reactions`) between → a closing. Under the hood it's the
@@ -223,10 +224,11 @@ to reveal-and-listen when unavailable.
 
 ## The character & journey layer (owner-approved direction)
 
-- **もち子さん is a character, not just a voice**: she greets on lesson intros
-  (`window.MOCHIKO.greetings`, bubble in `openIntro`), asks the quiz prompts,
+- **もち子さん is a character, not just a voice**: she asks the quiz prompts,
   praises perfect spoken answers, reacts between your lines, and stars in **conversation scenes**
   (`window.SCENES` — her lines play aloud, your lines run the quiz mic flow).
+  (Her greeting bubble `window.MOCHIKO.greetings` lived on the retired lesson
+  intro, so it's currently dormant — a good candidate to resurface elsewhere.)
   New scene lines for her need clips; reuse existing lesson sentences for the
   learner's lines so their clips already exist (the lint enforces learner lines
   are real lesson sentences). ALL of Level 1 (29 lessons) has hand-written
@@ -234,17 +236,21 @@ to reveal-and-listen when unavailable.
   asks follow-ups). Levels 2-7 still use the auto-built flow; converting them
   is the standing direction: reinforce what was learned through natural
   conversation.
-- **The level page is a grid of picture cards** (2026-07, owner decision):
-  compact theme headers, then lessons as two-up `.lesson-card`s — each an
-  illustrated cover (`lc-photo`) + title + short "what's this about" line
-  (`lessonDesc`, the grammar point trimmed). The cover art is a per-lesson emoji
-  chosen from what the lesson teaches (`lessonCover`: keyword match on
-  title/section/grammar/vocab, stable per-id fallback) on a per-theme wash;
-  covers are heuristic and OVERRIDABLE — set `L.cover` (emoji) or `L.image`
-  (a real photo path, which then replaces the emoji tile) on any lesson to pin
-  it. The earlier tiny `.lesson-chip` list and the Japan-map/road-of-nodes
-  journey are both RETIRED — don't bring either back. "Ahead" cards are styling
-  only — every lesson stays tappable (no artificial scarcity, ever).
+- **The level page is a rail of framed picture cards** (2026-07, owner
+  decision): compact theme headers, then each theme is a horizontal scroll-snap
+  `.lesson-rail` of `.lesson-card`s. A card is a framed picture — the painted
+  `assets/frame.png` IS its border (9-slice `border-image`, `background-clip:
+  padding-box` so the cover fills inside it), the cover is a per-lesson emoji
+  (or `L.image`) chosen from what the lesson teaches (`lessonCover`: keyword
+  match on title/section/grammar/vocab, stable per-id fallback) on a per-theme
+  wash, with the title on a soft bottom caption and a ▶/✓ corner flag. Covers
+  are heuristic and OVERRIDABLE — `L.cover` (emoji) or `L.image` (a real photo
+  path) pins any lesson. **There is no lesson-intro screen anymore** (owner:
+  "we don't need this screen at all", 2026-07) — tapping a card starts practice
+  directly; two tiny corner buttons (🎭 Talk, 🧩 Build) launch those. `openIntro`
+  and `#lesson-intro` remain in the code but are UNREACHABLE — don't route back
+  to them. The old `.lesson-chip` grid and the Japan-map/road-of-nodes journey
+  are RETIRED. "Ahead" cards are styling only — every lesson stays tappable.
 - The Donkey-Kong-style map plan (`docs/ART_ROADMAP.md`, panels for
   `assets/map/`) is ON HOLD pending the owner rethinking the map — ask before
   doing any map/journey work. Don't generate placeholder scenery art unprompted.

@@ -32,13 +32,18 @@ const click = (el) => el && el.dispatchEvent(new window.Event("click", { bubbles
 check("home renders level cards", document.querySelectorAll(".level-card").length >= 5);
 click(document.querySelector(".level-card"));
 check("level page renders lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
-check("lesson card has action launchers", document.querySelectorAll(".lesson-card .lc-act").length >= 4);
-click(document.querySelector(".lesson-card .lc-photo"));
-check("lesson intro opens", !document.getElementById("lesson-intro").hidden);
-check("note annotates Japanese with romaji", document.querySelectorAll("#lesson-note ruby rt").length > 0);
-check("talk button present on every lesson", !document.getElementById("scene-btn").hidden);
-click(document.getElementById("scene-btn"));
-check("conversation screen opens", !document.getElementById("quiz").hidden);
+check("card has Talk/Build mini buttons", document.querySelectorAll(".lesson-card .lc-minibtn").length >= 2);
+// Tapping a card starts practice straight away (car mode) — no intro screen.
+click(document.querySelector(".lesson-rail .lesson-card"));
+check("tapping a card starts the drill", !document.getElementById("drill").hidden);
+check("drill runs in car mode", document.body.classList.contains("drive-mode"));
+click(document.getElementById("card"));   // whole sheet is the reveal button
+check("answer draws romaji over each kana", document.querySelectorAll("#answer-kana ruby.mr rt").length > 0);
+click(document.getElementById("back-btn"));   // back to the level's card rail
+check("back returns to the lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
+// Talk opens from a card's 🎭 mini button (first mini button).
+click(document.querySelector(".lesson-card .lc-minibtn"));
+check("Talk opens from a card", !document.getElementById("quiz").hidden);
 click(document.getElementById("back-btn"));
 check("back returns home", !document.getElementById("home").hidden);
 

@@ -102,8 +102,8 @@ body::before {
 
 /* condense the level page (the lesson-map's 2rem gaps wasted a lot of room)
    and darken text that sits on the translucent street background */
-#home.screen { gap: 0.7rem; }
-#lesson-map { gap: 0.85rem !important; }
+#home.screen { gap: 0.55rem; }
+#lesson-map { gap: 0.5rem !important; }
 .level-back { margin: 0 !important; }
 .level-blurb { color: var(--ink) !important; font-weight: 700; opacity: 0.8; margin: 0 !important; }
 .mastery-pct { color: var(--ink) !important; }
@@ -275,16 +275,16 @@ body.no-romaji button.vocab-row { grid-template-columns: 7.2rem 1fr; }
 .level-card-count { margin-top: auto; font-size: 0.66rem; font-weight: 800; color: var(--muted); }
 .level-card-soon { margin-top: auto; font-family: var(--display); font-size: 0.62rem; color: var(--muted); }
 
-/* level detail page: back button + header */
+/* level detail page: back is a minimal inline link, header is one tight row */
 .level-back {
-  align-self: flex-start; font: inherit; font-weight: 900; color: var(--ink); cursor: pointer;
-  background: #fff; border: 2.5px solid var(--ink); border-radius: 999px; padding: 0.4rem 0.9rem;
-  box-shadow: 0 3px 0 var(--ink); margin-bottom: 0.6rem;
+  align-self: flex-start; font: inherit; font-size: 0.82rem; font-weight: 900; color: var(--ink);
+  cursor: pointer; background: none; border: 0; box-shadow: none;
+  padding: 0.1rem 0; margin: 0.1rem 0 0.2rem; opacity: 0.85;
 }
-.level-back:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
-.level-detail-head { margin-bottom: 0.4rem; }
+.level-back:active { opacity: 0.55; }
+.level-detail-head { margin: 0 0 0.15rem; }
 .level-detail-title { font-family: var(--display); color: var(--accent); font-size: 1.25rem; margin: 0 0 0.2rem; }
-.level-detail-head .level-blurb { margin: 0 !important; font-size: 0.8rem; color: var(--muted); }
+.level-detail-head .level-blurb { margin: 0 !important; font-size: 0.72rem; line-height: 1.25; color: var(--muted); }
 
 /* ---- (legacy level-tabs styling, unused now that overview uses cards) ---- */
 .level-tabs {
@@ -458,78 +458,67 @@ footer { font-family: var(--display); color: var(--muted); }
 .theme-count { font-size: 0.6rem; font-weight: 900; color: var(--muted); }
 .theme-stamp { width: 22px; height: 22px; object-fit: contain; transform: rotate(-10deg); }
 
-/* Lessons are BIG picture cards now (owner decision, 2026-07), Pimsleur-shaped
-   but in our own kawaii look: a large cover, title + status, and a row of round
-   launchers. Each theme is a horizontal swipe-rail so the cards stay big without
-   turning the level into an endless vertical scroll. */
+/* Lessons are framed picture cards (owner decision, 2026-07): the painted
+   frame IS the border, the cover fills it, the title rides a soft caption.
+   No intro screen — tapping the card starts practice; two tiny corner buttons
+   open Talk / Build. Each theme is a horizontal swipe-rail so the cards stay
+   big without turning the level into an endless vertical scroll. */
 .lesson-rail {
-  display: flex; gap: 0.75rem; overflow-x: auto; scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch; padding: 0.25rem 0.15rem 0.6rem; margin: 0 -0.15rem;
+  display: flex; gap: 0.5rem; overflow-x: auto; scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; padding: 0.15rem 0.1rem 0.35rem; margin: 0 -0.1rem;
   scrollbar-width: none;
 }
 .lesson-rail::-webkit-scrollbar { display: none; }
 .lesson-card {
-  display: flex; flex-direction: column; text-align: left; color: var(--ink);
-  border: 3px solid var(--ink); border-radius: 22px; background: #fffdf6;
-  padding: 0; overflow: hidden; box-shadow: 0 5px 0 var(--ink);
+  position: relative; box-sizing: border-box; cursor: pointer; color: var(--ink);
+  aspect-ratio: 5 / 6; overflow: hidden;
+  background-color: #fbe9d2; background-clip: padding-box;
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+  border-style: solid; border-color: transparent;
+  border-width: 26px 20px 30px 20px;
+  border-image: url("../assets/frame.png") 245 157 182 157 round;
+  border-radius: 8px;
+  filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
+  transition: transform 0.08s;
 }
-.lesson-rail > .lesson-card { flex: 0 0 82%; max-width: 340px; scroll-snap-align: center; }
-.lc-photo {
-  position: relative; width: 100%; aspect-ratio: 4 / 3;
-  display: grid; place-items: center; overflow: hidden; cursor: pointer;
-  background-size: cover; background-position: center; padding: 0;
-  border: 0; border-bottom: 3px solid var(--ink);
-  transition: filter 0.1s;
+.lesson-rail > .lesson-card { flex: 0 0 74%; max-width: 300px; scroll-snap-align: center; }
+.lesson-card:active { transform: translateY(2px); }
+.lc-emoji {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: 4rem; line-height: 1; filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.16));
 }
-.lc-photo:active { filter: brightness(0.96); }
-.lc-emoji { font-size: 4.6rem; line-height: 1; filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.16)); }
 .lc-has-img .lc-emoji { display: none; }
-.lc-badge {
-  position: absolute; left: 10px; top: 10px; font-family: var(--display); font-size: 0.72rem;
-  background: var(--accent); color: #fff; border: 2.5px solid var(--ink); border-radius: 999px;
-  padding: 0.15rem 0.6rem; box-shadow: 0 3px 0 var(--ink);
+/* corner flag: ▶ current / ✓ done */
+.lc-flag {
+  position: absolute; left: 8px; top: 8px; z-index: 3;
+  width: 1.7rem; height: 1.7rem; display: grid; place-items: center;
+  font-size: 0.9rem; font-weight: 900; color: #fff; border: 2.5px solid var(--ink);
+  border-radius: 50%; box-shadow: 0 2px 0 var(--ink);
 }
-/* done = a big soft check washed over the cover */
-.lc-done-overlay {
-  position: absolute; inset: 0; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 0.15rem;
-  background: color-mix(in srgb, var(--good) 26%, transparent);
+.lc-flag-now { background: var(--accent); }
+.lc-flag-done { background: var(--good); }
+.lc-done { filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14)) saturate(0.9); }
+.lc-ahead { opacity: 0.96; }
+/* title caption on a soft scrim along the bottom */
+.lc-cap {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  display: flex; align-items: flex-end; gap: 0.4rem;
+  padding: 1.1rem 0.5rem 0.45rem;
+  background: linear-gradient(transparent, rgba(255, 253, 246, 0.95) 60%);
 }
-.lc-check { font-size: 2.9rem; line-height: 1; color: #fff; -webkit-text-stroke: 3px var(--ink); filter: drop-shadow(0 3px 0 var(--ink)); }
-.lc-donetext { font-family: var(--display); font-weight: 900; font-size: 0.9rem; color: #fff; -webkit-text-stroke: 1px var(--ink); }
+.lc-title { flex: 1; font-family: var(--display); font-weight: 900; font-size: 0.86rem; line-height: 1.1; color: var(--ink); }
+.lc-mini { display: flex; gap: 0.3rem; flex: 0 0 auto; }
+.lc-minibtn {
+  width: 2rem; height: 2rem; display: grid; place-items: center; font-size: 0.95rem; line-height: 1;
+  background: #fffdf6; border: 2.5px solid var(--ink); border-radius: 50%; cursor: pointer;
+  box-shadow: 0 2px 0 var(--ink); transition: transform 0.08s, box-shadow 0.08s;
+}
+.lc-minibtn:active { transform: translateY(2px); box-shadow: 0 0 0 var(--ink); }
 
-.lc-body { display: flex; flex-direction: column; gap: 0.28rem; padding: 0.6rem 0.7rem 0.75rem; }
-.lc-head { display: flex; align-items: flex-start; gap: 0.5rem; }
-.lc-title { flex: 1; font-family: var(--display); font-weight: 900; font-size: 1rem; line-height: 1.12; color: var(--ink); }
-.lc-pill { flex: 0 0 auto; font-family: var(--display); font-size: 0.56rem; border: 2px solid var(--ink); border-radius: 999px; padding: 0.12rem 0.5rem; white-space: nowrap; box-shadow: 0 2px 0 var(--ink); }
-.pill-done { background: color-mix(in srgb, var(--good) 28%, #fff); color: var(--ink); }
-.pill-now { background: var(--accent); color: #fff; }
-.pill-new { background: #fff; color: var(--muted); }
-.lc-desc { font-size: 0.72rem; line-height: 1.3; color: var(--muted); min-height: 1.9em; }
-.lc-due { align-self: flex-start; font-family: var(--display); font-size: 0.58rem; background: var(--gold); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 0.06rem 0.5rem; }
-/* the round launcher row — one tap straight into an activity */
-.lc-actions { display: flex; justify-content: space-between; gap: 0.3rem; margin-top: 0.5rem; }
-.lc-act { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); }
-.lc-act-ico {
-  width: 50px; height: 50px; display: grid; place-items: center; font-size: 1.4rem; line-height: 1;
-  border: 2.5px solid var(--ink); border-radius: 50%; box-shadow: 0 3px 0 var(--ink);
-  transition: transform 0.08s, box-shadow 0.08s;
-}
-.lc-act:active .lc-act-ico { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
-.lc-act-lbl { font-family: var(--display); font-weight: 900; font-size: 0.56rem; }
-.act-study .lc-act-ico { background: color-mix(in srgb, var(--cobalt) 24%, #fff); }
-.act-practice .lc-act-ico { background: var(--accent); color: #fff; }
-.act-talk .lc-act-ico { background: color-mix(in srgb, var(--gold) 55%, #fff); }
-.act-build .lc-act-ico { background: color-mix(in srgb, var(--good) 28%, #fff); }
-/* dim (but never lock) lessons still ahead */
-.lc-ahead { opacity: 0.94; }
-.lc-current { box-shadow: 0 6px 0 var(--ink); }
-
-/* 🏆 the level's ending challenge — gold, full width, appears when the level is cleared */
-.lc-challenge { flex-direction: row; align-items: stretch; margin-top: 0.7rem; cursor: pointer; }
-.lc-challenge .lc-photo { width: 108px; flex: 0 0 108px; aspect-ratio: auto; border-bottom: 0; border-right: 3px solid var(--ink); }
-.lc-photo-challenge { background: color-mix(in srgb, var(--gold) 34%, #fffdf6); }
-.lc-challenge .lc-body { justify-content: center; }
+/* 🏆 the level's ending challenge — full-width framed card, gold cover */
+.lc-challenge { aspect-ratio: auto; width: 100%; min-height: 96px; background-color: color-mix(in srgb, var(--gold) 32%, #fbe9d2); margin-top: 0.5rem; }
+.lc-challenge .lc-emoji { position: absolute; left: 1rem; right: auto; inset: 0 auto 0 1rem; font-size: 2.4rem; }
+.lc-challenge .lc-cap { position: static; background: none; padding: 0 0 0 3.2rem; }
 
 /* ---- "new version ready" prompt: centered modal-style, hard to miss ---- */
 .sw-update {
