@@ -32,7 +32,8 @@ const click = (el) => el && el.dispatchEvent(new window.Event("click", { bubbles
 check("home renders level cards", document.querySelectorAll(".level-card").length >= 5);
 click(document.querySelector(".level-card"));
 check("level page renders lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
-click(document.querySelector(".lesson-card"));
+check("lesson card has action launchers", document.querySelectorAll(".lesson-card .lc-act").length >= 4);
+click(document.querySelector(".lesson-card .lc-photo"));
 check("lesson intro opens", !document.getElementById("lesson-intro").hidden);
 check("note annotates Japanese with romaji", document.querySelectorAll("#lesson-note ruby rt").length > 0);
 check("talk button present on every lesson", !document.getElementById("scene-btn").hidden);

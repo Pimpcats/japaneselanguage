@@ -458,43 +458,76 @@ footer { font-family: var(--display); color: var(--muted); }
 .theme-count { font-size: 0.6rem; font-weight: 900; color: var(--muted); }
 .theme-stamp { width: 22px; height: 22px; object-fit: contain; transform: rotate(-10deg); }
 
-/* Lessons are picture cards now (owner decision, 2026-07): a big illustrated
-   cover + title + short "what's this about" line. Two to a row so each stays
-   large but the level still browses without endless scrolling. */
-.lesson-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+/* Lessons are BIG picture cards now (owner decision, 2026-07), Pimsleur-shaped
+   but in our own kawaii look: a large cover, title + status, and a row of round
+   launchers. Each theme is a horizontal swipe-rail so the cards stay big without
+   turning the level into an endless vertical scroll. */
+.lesson-rail {
+  display: flex; gap: 0.75rem; overflow-x: auto; scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; padding: 0.25rem 0.15rem 0.6rem; margin: 0 -0.15rem;
+  scrollbar-width: none;
+}
+.lesson-rail::-webkit-scrollbar { display: none; }
 .lesson-card {
-  display: flex; flex-direction: column; text-align: left; cursor: pointer;
-  border: 2.5px solid var(--ink); border-radius: 16px; background: #fffdf6; color: var(--ink);
-  padding: 0; overflow: hidden; box-shadow: 0 4px 0 var(--ink);
+  display: flex; flex-direction: column; text-align: left; color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 22px; background: #fffdf6;
+  padding: 0; overflow: hidden; box-shadow: 0 5px 0 var(--ink);
+}
+.lesson-rail > .lesson-card { flex: 0 0 82%; max-width: 340px; scroll-snap-align: center; }
+.lc-photo {
+  position: relative; width: 100%; aspect-ratio: 4 / 3;
+  display: grid; place-items: center; overflow: hidden; cursor: pointer;
+  background-size: cover; background-position: center; padding: 0;
+  border: 0; border-bottom: 3px solid var(--ink);
+  transition: filter 0.1s;
+}
+.lc-photo:active { filter: brightness(0.96); }
+.lc-emoji { font-size: 4.6rem; line-height: 1; filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.16)); }
+.lc-has-img .lc-emoji { display: none; }
+.lc-badge {
+  position: absolute; left: 10px; top: 10px; font-family: var(--display); font-size: 0.72rem;
+  background: var(--accent); color: #fff; border: 2.5px solid var(--ink); border-radius: 999px;
+  padding: 0.15rem 0.6rem; box-shadow: 0 3px 0 var(--ink);
+}
+/* done = a big soft check washed over the cover */
+.lc-done-overlay {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 0.15rem;
+  background: color-mix(in srgb, var(--good) 26%, transparent);
+}
+.lc-check { font-size: 2.9rem; line-height: 1; color: #fff; -webkit-text-stroke: 3px var(--ink); filter: drop-shadow(0 3px 0 var(--ink)); }
+.lc-donetext { font-family: var(--display); font-weight: 900; font-size: 0.9rem; color: #fff; -webkit-text-stroke: 1px var(--ink); }
+
+.lc-body { display: flex; flex-direction: column; gap: 0.28rem; padding: 0.6rem 0.7rem 0.75rem; }
+.lc-head { display: flex; align-items: flex-start; gap: 0.5rem; }
+.lc-title { flex: 1; font-family: var(--display); font-weight: 900; font-size: 1rem; line-height: 1.12; color: var(--ink); }
+.lc-pill { flex: 0 0 auto; font-family: var(--display); font-size: 0.56rem; border: 2px solid var(--ink); border-radius: 999px; padding: 0.12rem 0.5rem; white-space: nowrap; box-shadow: 0 2px 0 var(--ink); }
+.pill-done { background: color-mix(in srgb, var(--good) 28%, #fff); color: var(--ink); }
+.pill-now { background: var(--accent); color: #fff; }
+.pill-new { background: #fff; color: var(--muted); }
+.lc-desc { font-size: 0.72rem; line-height: 1.3; color: var(--muted); min-height: 1.9em; }
+.lc-due { align-self: flex-start; font-family: var(--display); font-size: 0.58rem; background: var(--gold); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 0.06rem 0.5rem; }
+/* the round launcher row — one tap straight into an activity */
+.lc-actions { display: flex; justify-content: space-between; gap: 0.3rem; margin-top: 0.5rem; }
+.lc-act { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); }
+.lc-act-ico {
+  width: 50px; height: 50px; display: grid; place-items: center; font-size: 1.4rem; line-height: 1;
+  border: 2.5px solid var(--ink); border-radius: 50%; box-shadow: 0 3px 0 var(--ink);
   transition: transform 0.08s, box-shadow 0.08s;
 }
-.lesson-card:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
-.lc-photo {
-  position: relative; width: 100%; aspect-ratio: 3 / 2;
-  display: grid; place-items: center; overflow: hidden;
-  background-size: cover; background-position: center;
-  border-bottom: 2.5px solid var(--ink);
-}
-.lc-emoji { font-size: 2.9rem; line-height: 1; filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.16)); }
-.lc-has-img .lc-emoji { display: none; }
-.lc-stamp { position: absolute; right: 6px; bottom: 5px; width: 34px; height: 34px; object-fit: contain; transform: rotate(-10deg); filter: drop-shadow(0 2px 0 rgba(74, 51, 40, 0.2)); }
-.lc-badge {
-  position: absolute; left: 7px; top: 7px; font-family: var(--display); font-size: 0.62rem;
-  background: var(--accent); color: #fff; border: 2px solid var(--ink); border-radius: 999px;
-  padding: 0.1rem 0.5rem; box-shadow: 0 2px 0 var(--ink);
-}
-.lc-body { display: flex; flex-direction: column; gap: 0.12rem; padding: 0.5rem 0.6rem 0.6rem; }
-.lc-title { font-family: var(--display); font-weight: 900; font-size: 0.82rem; line-height: 1.15; color: var(--ink); }
-.lc-desc { font-size: 0.66rem; line-height: 1.25; color: var(--muted); }
-.lc-due { align-self: flex-start; margin-top: 0.25rem; font-family: var(--display); font-size: 0.58rem; background: var(--gold); color: var(--ink); border: 2px solid var(--ink); border-radius: 999px; padding: 0.05rem 0.45rem; }
-/* done = star stamp + quiet; current = the one loud card; ahead = softly dimmed but tappable */
-.lc-done .lc-photo { filter: saturate(0.85); }
-.lc-current { border-width: 3px; box-shadow: 0 5px 0 var(--ink); }
-.lc-ahead { opacity: 0.9; }
-.lc-ahead .lc-photo { filter: saturate(0.7) brightness(1.02); }
+.lc-act:active .lc-act-ico { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+.lc-act-lbl { font-family: var(--display); font-weight: 900; font-size: 0.56rem; }
+.act-study .lc-act-ico { background: color-mix(in srgb, var(--cobalt) 24%, #fff); }
+.act-practice .lc-act-ico { background: var(--accent); color: #fff; }
+.act-talk .lc-act-ico { background: color-mix(in srgb, var(--gold) 55%, #fff); }
+.act-build .lc-act-ico { background: color-mix(in srgb, var(--good) 28%, #fff); }
+/* dim (but never lock) lessons still ahead */
+.lc-ahead { opacity: 0.94; }
+.lc-current { box-shadow: 0 6px 0 var(--ink); }
+
 /* 🏆 the level's ending challenge — gold, full width, appears when the level is cleared */
-.lc-challenge { grid-column: 1 / -1; flex-direction: row; align-items: center; margin-top: 0.6rem; }
-.lc-challenge .lc-photo { width: 92px; flex: 0 0 92px; aspect-ratio: auto; align-self: stretch; border-bottom: 0; border-right: 2.5px solid var(--ink); }
+.lc-challenge { flex-direction: row; align-items: stretch; margin-top: 0.7rem; cursor: pointer; }
+.lc-challenge .lc-photo { width: 108px; flex: 0 0 108px; aspect-ratio: auto; border-bottom: 0; border-right: 3px solid var(--ink); }
 .lc-photo-challenge { background: color-mix(in srgb, var(--gold) 34%, #fffdf6); }
 .lc-challenge .lc-body { justify-content: center; }
 

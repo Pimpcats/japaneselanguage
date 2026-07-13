@@ -1485,42 +1485,65 @@
       }
       wrap.appendChild(head);
 
-      const grid = document.createElement("div");
-      grid.className = "lesson-grid";
+      // A horizontal rail of big picture cards (Pimsleur-shaped, our own look):
+      // large cover on top, then title + status, then a row of round launchers.
+      const rail = document.createElement("div");
+      rail.className = "lesson-rail";
       const wash = COVER_WASHES[regionIdx % COVER_WASHES.length];
       r.lessons.forEach((L) => {
         const st = lessonStats(L);
         const isDone = st.passed >= st.total;
         const current = !isDone && L.id === frontierId;
-        const card = document.createElement("button");
+        const card = document.createElement("div");
         card.className = "lesson-card" + (isDone ? " lc-done" : current ? " lc-current" : " lc-ahead");
         card.dataset.lesson = L.id;          // so Back can scroll home to this card
-        card.setAttribute("aria-label", L.title);
 
-        const photo = document.createElement("div");
+        const photo = document.createElement("button");
         photo.className = "lc-photo";
+        photo.setAttribute("aria-label", "Study " + L.title);
         if (L.image) { photo.style.backgroundImage = "url('" + L.image + "')"; photo.classList.add("lc-has-img"); }
         else { photo.style.background = wash; photo.appendChild(span("lc-emoji", lessonCover(L))); }
         if (isDone) {
-          const s = document.createElement("img");
-          s.className = "lc-stamp"; s.src = "assets/star_stamp.png"; s.alt = "done";
-          photo.appendChild(s);
+          const ov = document.createElement("div");
+          ov.className = "lc-done-overlay";
+          ov.innerHTML = '<span class="lc-check">✓</span><span class="lc-donetext">Done</span>';
+          photo.appendChild(ov);
         } else if (current) {
-          photo.appendChild(span("lc-badge", "▶ start"));
+          photo.appendChild(span("lc-badge", "▶ start here"));
         }
+        photo.addEventListener("click", () => openIntro(L));
         card.appendChild(photo);
 
         const body = document.createElement("div");
         body.className = "lc-body";
-        body.appendChild(span("lc-title", L.title));
+        const head2 = document.createElement("div");
+        head2.className = "lc-head";
+        head2.appendChild(span("lc-title", L.title));
+        head2.appendChild(span("lc-pill " + (isDone ? "pill-done" : current ? "pill-now" : "pill-new"),
+          isDone ? "✓ Done" : current ? "Start here" : "New"));
+        body.appendChild(head2);
         body.appendChild(span("lc-desc", lessonDesc(L)));
-        if (current && st.due > 0) body.appendChild(span("lc-due", "⚡ " + st.due + " warmup"));
-        card.appendChild(body);
+        if (current && st.due > 0) body.appendChild(span("lc-due", "⚡ " + st.due + " warmup rides along"));
 
-        card.addEventListener("click", () => openIntro(L));
-        grid.appendChild(card);
+        const acts = document.createElement("div");
+        acts.className = "lc-actions";
+        const mkAct = (cls, icon, label, fn) => {
+          const b = document.createElement("button");
+          b.className = "lc-act " + cls;
+          b.innerHTML = '<span class="lc-act-ico">' + icon + '</span><span class="lc-act-lbl">' + label + "</span>";
+          b.addEventListener("click", (e) => { e.stopPropagation(); activeLesson = L; fn(); });
+          acts.appendChild(b);
+        };
+        mkAct("act-study", "📖", "Words", () => openIntro(L));
+        mkAct("act-practice", "▶", "Practice", () => startLesson(L));
+        mkAct("act-talk", "🎭", "Talk", () => startTalk(L));
+        mkAct("act-build", "🧩", "Build", () => startLesson(L, { build: true }));
+        body.appendChild(acts);
+
+        card.appendChild(body);
+        rail.appendChild(card);
       });
-      wrap.appendChild(grid);
+      wrap.appendChild(rail);
       regionIdx++;
     }
     // 🏆 The level's ending challenge: everything you ever marked, one gauntlet.
