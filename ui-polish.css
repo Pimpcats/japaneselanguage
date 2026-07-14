@@ -551,3 +551,70 @@ body:has(#lesson-map .lesson-list) #hub-lessons {
 .lesson-list .lesson-card {
   justify-self: center;
   align-self: center;
+
+/* Compact navigation for the full-screen sentence-practice card.
+   This remains independent of the decorative app header, so hiding the
+   large level banner never removes the user's escape controls. */
+.practice-nav {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 0.55rem);
+  left: max(0.7rem, env(safe-area-inset-left));
+  z-index: 2200;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.practice-nav[hidden] {
+  display: none !important;
+}
+
+.practice-nav-btn {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 2.5px solid var(--ink, #4a3328);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ink, #4a3328);
+  box-shadow: 0 3px 0 var(--ink, #4a3328), 0 7px 18px rgba(74, 51, 40, 0.14);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  pointer-events: auto;
+  touch-action: manipulation;
+  transition: transform 100ms ease, box-shadow 100ms ease;
+}
+
+.practice-nav-btn svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.practice-nav-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--ink, #4a3328);
+}
+
+/* Reserve a little top room so the controls do not cover the prompt. */
+body:has(#drill:not([hidden])) #drill {
+  padding-top: calc(env(safe-area-inset-top) + 3.8rem);
+}
+
+@media (max-height: 720px) {
+  .practice-nav-btn {
+    width: 2.65rem;
+    height: 2.65rem;
+  }
+
+  body:has(#drill:not([hidden])) #drill {
+    padding-top: calc(env(safe-area-inset-top) + 3.25rem);
+  }
+}
