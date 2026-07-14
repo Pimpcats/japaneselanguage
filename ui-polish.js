@@ -345,6 +345,9 @@
     document.body.classList.toggle("has-tabbar", homeVisible);
     document.body.classList.toggle("subscreen", !homeVisible);
     if (tabBar) tabBar.hidden = !homeVisible;
+    // Inside a level's cards, drop the top banner — the "← All levels" back
+    // button is the only chrome; the banner stays on the home/overview page.
+    document.body.classList.toggle("in-level", homeVisible && !!lessonMap.querySelector(".lesson-rail"));
 
     if (homeVisible) {
       appTitle.textContent = titleByHub[activeHub];
