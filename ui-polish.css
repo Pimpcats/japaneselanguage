@@ -426,59 +426,128 @@ button.secondary { background: rgba(255,255,255,.92); }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
-/* ---- Inside a level: banner-less, one full-screen swipe card ---- */
-/* No banners at all under a lesson: hide both the plain top bar AND the painted
-   sign that theme.js builds (#app-header). The "← All levels" pill is the only
-   chrome. The page can't scroll vertically — only the card rail scrolls, L↔R. */
-body.in-level #topbar,
-body.in-level #app-header,
-body.in-level #mastery,
-body.in-level .theme-head,
-body.in-level .map-chapter { display: none !important; }
+/* ========================================================================
+   LEVEL LESSON CAROUSEL
 
-body.in-level #app {
-  height: 100dvh; overflow: hidden;
-  padding-top: max(0.4rem, env(safe-area-inset-top));
-  padding-bottom: calc(5.6rem + env(safe-area-inset-bottom));
-}
-body.in-level #home,
-body.in-level .home-shell,
-body.in-level #hub-lessons {
-  flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 0.3rem; padding-top: 0;
-}
-body.in-level #lesson-map { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 0.15rem; overflow: hidden; }
-/* ONE continuous horizontal carousel across every theme in the level: the theme
-   rails collapse (display:contents) so all cards become pages of a single grid.
-   One card per snap-page, swipe left↔right only, never scroll down. */
-body.in-level .lesson-list {
-  flex: 1 1 auto; min-height: 0; width: 100%;
-  display: grid; grid-auto-flow: column; grid-auto-columns: 100%;
-  align-items: center; justify-items: center;
-  gap: 0 !important; margin: 0 !important; padding: 0.15rem 0 !important;
-  overflow-x: auto; overflow-y: hidden;
-  scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch; scrollbar-width: none;
-}
-body.in-level .lesson-list::-webkit-scrollbar { display: none; }
-body.in-level .lesson-rail { display: contents; }
-body.in-level .lesson-list .lesson-card {
-  flex: none !important; width: auto !important; margin: 0 !important;
-  height: min(100%, 780px) !important; max-height: 100% !important; max-width: 100% !important; min-height: 0 !important;
-  aspect-ratio: 3 / 4;
-  justify-self: center; align-self: center;
-  scroll-snap-align: center; scroll-snap-stop: always;
-}
-body.in-level .lesson-list .lc-challenge { aspect-ratio: 3 / 4; min-height: 0 !important; }
+   Once a level is selected, remove all decorative/header content and show
+   one large lesson picture at a time. Every lesson in the selected level
+   sits in one continuous left/right swipe rail.
+   ======================================================================== */
 
-/* the back link becomes the one top control — a small tappable pill */
-body.in-level .level-back {
-  flex: 0 0 auto; align-self: flex-start; z-index: 40;
-  position: sticky; top: 0;
-  margin: 0; padding: 0.4rem 0.85rem; opacity: 1;
-  font-size: 0.85rem; font-weight: 700; color: var(--fg);
-  background: rgba(255, 255, 255, 0.92); border: 1px solid var(--line);
-  border-radius: 999px; box-shadow: 0 3px 12px rgba(20, 28, 45, 0.10);
-  backdrop-filter: saturate(180%) blur(18px);
-  -webkit-backdrop-filter: saturate(180%) blur(18px);
+/* The large pink sign/banner shown in the screenshot. */
+body:has(#lesson-map .lesson-list) #app-header {
+  display: none !important;
 }
-body.in-level .level-back:active { transform: scale(0.95); }
+
+/* Remove the Apple shell heading, continue card and "All lessons" heading. */
+#hub-lessons:has(#lesson-map .lesson-list) > .hub-heading,
+#hub-lessons:has(#lesson-map .lesson-list) > .continue-slot,
+#hub-lessons:has(#lesson-map .lesson-list) > .content-heading {
+  display: none !important;
+}
+
+/* Remove level description plus chapter/theme banners. */
+#lesson-map:has(.lesson-list) > .level-detail-head,
+.lesson-list > .map-chapter,
+.lesson-list > .theme-head {
+  display: none !important;
+}
+
+/* Lock the level picker to the visible phone viewport. */
+body:has(#lesson-map .lesson-list) {
+  overflow: hidden !important;
+}
+
+body:has(#lesson-map .lesson-list) #app {
+  height: 100dvh;
+  min-height: 0;
+  padding-top: max(0.45rem, env(safe-area-inset-top));
+  overflow: hidden;
+}
+
+body:has(#lesson-map .lesson-list) #home,
+body:has(#lesson-map .lesson-list) .home-shell,
+body:has(#lesson-map .lesson-list) #hub-lessons {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+body:has(#lesson-map .lesson-list) #hub-lessons {
+  position: relative;
+  gap: 0 !important;
+  padding-top: 0 !important;
+}
+
+#lesson-map:has(.lesson-list) {
+  position: relative;
+  display: flex !important;
+  flex: 1;
+  min-height: 0;
+  gap: 0 !important;
+  overflow: hidden;
+}
+
+/* Keep only a small floating way back instead of the large text row. */
+#lesson-map:has(.lesson-list) > .level-back {
+  position: absolute;
+  top: 0.35rem;
+  left: 0.35rem;
+  z-index: 20;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 3px 0 var(--ink);
+  color: transparent;
+  font-size: 0;
+}
+
+#lesson-map:has(.lesson-list) > .level-back::before {
+  content: "←";
+  color: var(--ink);
+  font-size: 1.35rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* Flatten every theme's separate rail into one outer carousel. */
+.lesson-list {
+  display: grid !important;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  gap: 0 !important;
+  margin: 0 !important;
+  padding: 0.2rem 0 0.35rem !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.lesson-list::-webkit-scrollbar {
+  display: none;
+}
+
+.lesson-list > .lesson-rail {
+  display: contents !important;
+}
+
+/* One full picture card per swipe page. */
+.lesson-list .lesson-card {
+  justify-self: center;
+  align-self: center;
