@@ -138,6 +138,9 @@
     // The standalone あア Kana button is replaced by the Kana tab in the nav.
     const kanaBtn = $("kana-btn");
     if (kanaBtn) kanaBtn.style.display = "none";
+    // Hide the kawaii onboarding explainer so nothing but the banner + cards shows.
+    const howit = $("howit");
+    if (howit) howit.style.display = "none";
 
     const reviewHub = make("div", "home-hub");
     reviewHub.id = "hub-review";
@@ -260,6 +263,9 @@
   function renderContinue() {
     const slot = $("continue-slot");
     if (!slot) return;
+    // Inside a level (the big card rail is showing), hide the Continue card so
+    // the cards sit right at the top and fill the screen.
+    if (lessonMap.querySelector(".lesson-rail")) { slot.hidden = true; return; }
     const lesson = resumeLesson();
     if (!lesson) { slot.hidden = true; return; }
 

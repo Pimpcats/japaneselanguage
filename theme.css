@@ -98,14 +98,14 @@ body::before {
 #lesson-intro #lesson-title { display: none; }
 #lesson-grammar { display: none !important; }   /* the grammar note below explains it */
 .level-detail-title { display: none; }
-.level-detail-head { margin: 0 !important; }
+/* condense hard: the big cards ride at the very top — drop the level blurb/head */
+.level-detail-head { display: none !important; }
 
 /* condense the level page (the lesson-map's 2rem gaps wasted a lot of room)
    and darken text that sits on the translucent street background */
-#home.screen { gap: 0.55rem; }
-#lesson-map { gap: 0.5rem !important; }
+#home.screen { gap: 0.4rem; }
+#lesson-map { gap: 0.3rem !important; }
 .level-back { margin: 0 !important; }
-.level-blurb { color: var(--ink) !important; font-weight: 700; opacity: 0.8; margin: 0 !important; }
 .mastery-pct { color: var(--ink) !important; }
 .mastery { gap: 0.5rem; }
 
@@ -452,7 +452,7 @@ footer { font-family: var(--display); color: var(--muted); }
 .map-chapter { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin: 0.9rem 0 0; font-family: var(--display); color: var(--ink); font-size: 1rem; }
 .map-chapter-count { font-size: 0.62rem; background: var(--accent); color: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 0.12rem 0.55rem; white-space: nowrap; }
 
-.theme-head { display: flex; align-items: center; gap: 0.45rem; margin: 0.45rem 0 0; padding: 0 0.15rem; }
+.theme-head { display: flex; align-items: center; gap: 0.4rem; margin: 0.1rem 0 0; padding: 0 0.15rem; }
 .theme-ico { font-size: 1rem; line-height: 1; }
 .theme-name { font-family: var(--display); font-size: 0.78rem; color: var(--ink); flex: 1; }
 .theme-count { font-size: 0.6rem; font-weight: 900; color: var(--muted); }
@@ -471,24 +471,28 @@ footer { font-family: var(--display); color: var(--muted); }
 .lesson-rail::-webkit-scrollbar { display: none; }
 .lesson-card {
   position: relative; box-sizing: border-box; cursor: pointer; color: var(--ink);
-  aspect-ratio: 4 / 5; overflow: hidden;
+  overflow: hidden;
   background-color: #fbe9d2; background-clip: padding-box;
   background-size: cover; background-position: center; background-repeat: no-repeat;
   border-style: solid; border-color: transparent;
-  border-width: 26px 20px 30px 20px;
+  border-width: 28px 22px 32px 22px;
   border-image: url("assets/frame.png") 245 157 182 157 round;
   border-radius: 8px;
   filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
   transition: transform 0.08s;
 }
-/* the card is the main thing you interact with — ~85% of the screen wide, with
-   the next card peeking so the rail reads as swipeable */
-.lesson-rail > .lesson-card { flex: 0 0 85%; max-width: 460px; scroll-snap-align: center; }
+/* Pimsleur-style: the card nearly fills the screen and you swipe between them.
+   Sized by viewport height so it dominates; the next card peeks at the edge. */
+.lesson-rail > .lesson-card {
+  flex: 0 0 92%; max-width: 560px;
+  height: min(700px, calc(100dvh - 11.5rem));
+  scroll-snap-align: center;
+}
 .lesson-card:active { transform: translateY(2px); }
 .lc-emoji {
-  position: absolute; left: 0; right: 0; top: 33%; transform: translateY(-50%);
+  position: absolute; left: 0; right: 0; top: 38%; transform: translateY(-50%);
   display: grid; place-items: center;
-  font-size: 5.4rem; line-height: 1; filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.16));
+  font-size: 7.5rem; line-height: 1; filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.16));
 }
 .lc-has-img .lc-emoji { display: none; }
 /* corner flag: ▶ current / ✓ done */
