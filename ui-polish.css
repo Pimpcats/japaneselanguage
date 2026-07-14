@@ -426,18 +426,38 @@ button.secondary { background: rgba(255,255,255,.92); }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
-/* ---- Inside a level: banner-less, near-fullscreen swipe cards ---- */
-/* The top banner is only for the home/overview. In a level's card view the
-   "← All levels" back button is the sole chrome, so the cards fill the screen. */
-body.in-level #topbar { display: none; }
-body.in-level #app { padding-top: max(0.5rem, env(safe-area-inset-top)); }
-body.in-level #mastery { display: none; }
-/* banner gone → give the card the reclaimed height */
-body.in-level .lesson-rail > .lesson-card { height: min(820px, calc(100dvh - 8.5rem)); }
+/* ---- Inside a level: banner-less, one full-screen swipe card ---- */
+/* No banners at all under a lesson: hide both the plain top bar AND the painted
+   sign that theme.js builds (#app-header). The "← All levels" pill is the only
+   chrome. The page can't scroll vertically — only the card rail scrolls, L↔R. */
+body.in-level #topbar,
+body.in-level #app-header,
+body.in-level #mastery,
+body.in-level .theme-head,
+body.in-level .map-chapter { display: none !important; }
+
+body.in-level #app {
+  height: 100dvh; overflow: hidden;
+  padding-top: max(0.4rem, env(safe-area-inset-top));
+  padding-bottom: calc(5.6rem + env(safe-area-inset-bottom));
+}
+body.in-level #home,
+body.in-level .home-shell,
+body.in-level #hub-lessons {
+  flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 0.3rem; padding-top: 0;
+}
+body.in-level #lesson-map { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 0.25rem; overflow-x: hidden; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+/* each theme's rail fills the screen (single-theme levels never scroll down);
+   the card stretches to the rail's height. Multi-theme levels scroll vertically
+   between full-height rails, each still swiping left↔right. */
+body.in-level .lesson-rail { flex: 1 0 auto; min-height: calc(100dvh - 9rem); padding: 0.1rem; align-items: stretch; }
+body.in-level .lesson-rail > .lesson-card { height: auto; align-self: stretch; }
+
 /* the back link becomes the one top control — a small tappable pill */
 body.in-level .level-back {
-  position: sticky; top: 0; z-index: 40; align-self: flex-start;
-  margin: 0 0 0.15rem; padding: 0.4rem 0.85rem; opacity: 1;
+  flex: 0 0 auto; align-self: flex-start; z-index: 40;
+  position: sticky; top: 0;
+  margin: 0; padding: 0.4rem 0.85rem; opacity: 1;
   font-size: 0.85rem; font-weight: 700; color: var(--fg);
   background: rgba(255, 255, 255, 0.92); border: 1px solid var(--line);
   border-radius: 999px; box-shadow: 0 3px 12px rgba(20, 28, 45, 0.10);
