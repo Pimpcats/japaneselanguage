@@ -20,6 +20,8 @@
   const settingsBtn = $("settings-btn");
   const dailyRing = $("daily-ring");
   const footer = document.querySelector("#app > footer");
+  const drill = $("drill");
+  let practiceNav = null;
 
   if (!home || !lessonMap || !reviewBtn || !stats || !immersion || !mining) return;
 
@@ -214,6 +216,46 @@
     return nav;
   }
 
+  function buildPracticeNav() {
+    const nav = make("nav", "practice-nav");
+    nav.id = "practice-nav";
+    nav.hidden = true;
+    nav.setAttribute("aria-label", "Practice navigation");
+
+    const back = make("button", "practice-nav-btn practice-back");
+    back.type = "button";
+    back.setAttribute("aria-label", "Back to lesson");
+    back.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path d="M14.5 5 7.5 12l7 7"/>' +
+      "</svg>";
+    back.addEventListener("click", () => {
+      const originalBack = $("back-btn");
+      if (originalBack) originalBack.click();
+    });
+
+    const homeButton = make("button", "practice-nav-btn practice-home");
+    homeButton.type = "button";
+    homeButton.setAttribute("aria-label", "All levels");
+    homeButton.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path d="m4.5 10.5 7.5-6 7.5 6"/>' +
+      '<path d="M6.5 9.5v9h11v-9M9.5 18.5v-5h5v5"/>' +
+      "</svg>";
+    homeButton.addEventListener("click", () => {
+      if (typeof window.__hanaGoHome === "function") {
+        window.__hanaGoHome();
+      } else {
+        const originalBack = $("back-btn");
+        if (originalBack) originalBack.click();
+      }
+    });
+
+    nav.append(back, homeButton);
+    document.body.appendChild(nav);
+    return nav;
+  }
+
   const titleByHub = {
     lessons: "Lessons",
     review: "Review",
@@ -236,6 +278,11 @@
     if (!home.hidden) appTitle.textContent = titleByHub[name];
     if (scrollTop) window.scrollTo({ top: 0, behavior: "smooth" });
     queueRefresh();
+  }
+
+  function syncPracticeNav() {
+    if (!practiceNav) return;
+    practiceNav.hidden = !drill || drill.hidden;
   }
 
   function findLevelIndex(lesson) {
@@ -380,11 +427,13 @@
       renderContinue();
       renderReviewOverview();
       syncChrome();
+      syncPracticeNav();
     });
   }
 
   buildShell();
   buildTabBar();
+  practiceNav = buildPracticeNav();
   activateHub("lessons", false);
 
   lessonMap.addEventListener("click", (event) => {
