@@ -551,6 +551,31 @@ body:has(#lesson-map .lesson-list) #hub-lessons {
 .lesson-list .lesson-card {
   justify-self: center;
   align-self: center;
+  flex: none !important;
+  width: auto !important;
+  height: min(100%, 680px) !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  min-height: 0 !important;
+  aspect-ratio: 3 / 4 !important;
+  margin: 0 !important;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+.lesson-list .lc-challenge {
+  min-height: 0 !important;
+}
+
+@media (max-height: 720px) {
+  .lesson-list {
+    padding-top: 0 !important;
+    padding-bottom: 0.15rem !important;
+  }
+  .lesson-list .lesson-card {
+    height: 100% !important;
+  }
+}
 
 /* Compact navigation for the full-screen sentence-practice card.
    This remains independent of the decorative app header, so hiding the
