@@ -1244,6 +1244,18 @@
   const levelHasLessons = (lv) => window.LESSONS.some((L) => lv.tiers.some((t) => t.themes.includes(L.section)));
   // Jump straight to the level overview (used by the banner Home button).
   window.__hanaGoHome = function () { openLevelId = null; renderHome(); window.scrollTo(0, 0); };
+  // Hooks for the optional presentation shell (ui-polish.js) — no-ops for the
+  // plain build, which never calls them. Start a lesson (opening its level so
+  // Back lands sensibly) or jump into Kana practice, from anywhere.
+  window.__hanaStartLesson = function (idOrLesson) {
+    const L = typeof idOrLesson === "string" ? lessonById[idOrLesson] : idOrLesson;
+    if (!L) return;
+    const lv = window.LEVELS.find((l) => l.tiers.some((t) => t.themes.includes(L.section)));
+    if (lv) { openLevelId = lv.id; settings.activeLevel = lv.id; saveSettings(); }
+    activeLesson = L;
+    startLesson(L);
+  };
+  window.__hanaOpenKana = function () { openKana(); };
 
   // The first not-yet-finished lesson across the whole curriculum — where the
   // one-tap hero button points when nothing is due.

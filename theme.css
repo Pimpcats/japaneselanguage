@@ -471,22 +471,24 @@ footer { font-family: var(--display); color: var(--muted); }
 .lesson-rail::-webkit-scrollbar { display: none; }
 .lesson-card {
   position: relative; box-sizing: border-box; cursor: pointer; color: var(--ink);
-  aspect-ratio: 3 / 4; overflow: hidden;
+  aspect-ratio: 4 / 5; overflow: hidden;
   background-color: #fbe9d2; background-clip: padding-box;
   background-size: cover; background-position: center; background-repeat: no-repeat;
   border-style: solid; border-color: transparent;
-  border-width: 24px 18px 28px 18px;
+  border-width: 26px 20px 30px 20px;
   border-image: url("assets/frame.png") 245 157 182 157 round;
   border-radius: 8px;
   filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
   transition: transform 0.08s;
 }
-.lesson-rail > .lesson-card { flex: 0 0 78%; max-width: 320px; scroll-snap-align: center; }
+/* the card is the main thing you interact with — ~85% of the screen wide, with
+   the next card peeking so the rail reads as swipeable */
+.lesson-rail > .lesson-card { flex: 0 0 85%; max-width: 460px; scroll-snap-align: center; }
 .lesson-card:active { transform: translateY(2px); }
 .lc-emoji {
-  position: absolute; left: 0; right: 0; top: 30%; transform: translateY(-50%);
+  position: absolute; left: 0; right: 0; top: 33%; transform: translateY(-50%);
   display: grid; place-items: center;
-  font-size: 4rem; line-height: 1; filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.16));
+  font-size: 5.4rem; line-height: 1; filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.16));
 }
 .lc-has-img .lc-emoji { display: none; }
 /* corner flag: ▶ current / ✓ done */
@@ -507,16 +509,16 @@ footer { font-family: var(--display); color: var(--muted); }
   padding: 1.4rem 0.45rem 0.5rem;
   background: linear-gradient(transparent, rgba(255, 253, 246, 0.97) 42%);
 }
-.lc-title { font-family: var(--display); font-weight: 900; font-size: 0.86rem; line-height: 1.1; color: var(--ink); text-align: center; }
-.lc-actions { display: flex; justify-content: space-between; gap: 0.25rem; }
-.lc-act { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.12rem; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); }
+.lc-title { font-family: var(--display); font-weight: 900; font-size: 1rem; line-height: 1.1; color: var(--ink); text-align: center; }
+.lc-actions { display: flex; justify-content: space-between; gap: 0.3rem; }
+.lc-act { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); }
 .lc-act-ico {
-  width: 44px; height: 44px; display: grid; place-items: center; font-size: 1.2rem; line-height: 1;
+  width: 52px; height: 52px; display: grid; place-items: center; font-size: 1.4rem; line-height: 1;
   border: 2.5px solid var(--ink); border-radius: 50%; box-shadow: 0 3px 0 var(--ink);
   transition: transform 0.08s, box-shadow 0.08s;
 }
 .lc-act:active .lc-act-ico { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
-.lc-act-lbl { font-family: var(--display); font-weight: 900; font-size: 0.5rem; }
+.lc-act-lbl { font-family: var(--display); font-weight: 900; font-size: 0.56rem; }
 .act-words .lc-act-ico { background: color-mix(in srgb, var(--cobalt) 22%, #fff); }
 .act-practice .lc-act-ico { background: var(--accent); color: #fff; }
 .act-talk .lc-act-ico { background: color-mix(in srgb, var(--gold) 55%, #fff); }

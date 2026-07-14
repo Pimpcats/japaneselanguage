@@ -128,15 +128,16 @@
 
     const lessonsHub = make("div", "home-hub");
     lessonsHub.id = "hub-lessons";
-    lessonsHub.appendChild(sectionHeading("Japanese speaking", "Learn in small, useful steps.", "Continue your current lesson or choose any card below."));
+    // Condensed: no big hub heading or "All lessons" bar — the continue card and
+    // the lesson cards sit right under the banner (owner: keep everything but the
+    // banner and the cards tight).
     const continueSlot = make("div", "continue-slot");
     continueSlot.id = "continue-slot";
     lessonsHub.appendChild(continueSlot);
-    const lessonHead = make("div", "content-heading");
-    lessonHead.appendChild(make("h3", "content-title", "All lessons"));
-    lessonHead.appendChild(make("span", "content-meta", "Choose a level"));
-    lessonsHub.appendChild(lessonHead);
     lessonsHub.appendChild(lessonMap);
+    // The standalone あア Kana button is replaced by the Kana tab in the nav.
+    const kanaBtn = $("kana-btn");
+    if (kanaBtn) kanaBtn.style.display = "none";
 
     const reviewHub = make("div", "home-hub");
     reviewHub.id = "hub-review";
@@ -188,16 +189,18 @@
 
     [
       ["lessons", "Lessons"],
-      ["review", "Review"],
+      ["review", "Kana"],
       ["library", "Library"],
       ["progress", "Progress"],
     ].forEach(([name, label]) => {
       const button = make("button", "tab-item");
       button.type = "button";
       button.dataset.hub = name;
-      button.setAttribute("aria-label", label);
+      button.setAttribute("aria-label", label === "Kana" ? "Kana review" : label);
       button.innerHTML = '<span class="tab-icon">' + svg[name] + '</span><span class="tab-label">' + label + '</span>';
       button.addEventListener("click", () => {
+        // The "Kana" tab isn't a hub — it jumps straight into Kana practice.
+        if (name === "review") { if (typeof window.__hanaOpenKana === "function") window.__hanaOpenKana(); return; }
         if (activeHub === name) window.scrollTo({ top: 0, behavior: "smooth" });
         else activateHub(name, true);
       });
@@ -249,16 +252,9 @@
   function openLesson(lesson) {
     if (!lesson) return;
     localStorage.setItem(LAST_LESSON_KEY, lesson.id);
-    activateHub("lessons", false);
-
-    const targetIndex = findLevelIndex(lesson);
-    const tabs = Array.from(lessonMap.querySelectorAll(".level-tab"));
-    if (targetIndex >= 0 && tabs[targetIndex] && !tabs[targetIndex].classList.contains("active")) {
-      tabs[targetIndex].click();
-      requestAnimationFrame(() => clickLessonTile(lesson));
-    } else {
-      clickLessonTile(lesson);
-    }
+    // Drive the real engine directly — it opens the lesson's level and starts
+    // practice (car mode). Avoids guessing at DOM tiles the app doesn't render.
+    if (typeof window.__hanaStartLesson === "function") window.__hanaStartLesson(lesson);
   }
 
   function renderContinue() {
