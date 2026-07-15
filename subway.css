@@ -205,6 +205,66 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
   background: #fff !important; box-shadow: 0 4px 0 rgba(32,38,58,.16) !important;
 }
 
+/* ── Level overview as a scrollable subway line ─────────────────────────
+   Each level is a coloured station dot on a connecting rail; tapping a dot
+   opens that level's lesson cards. (Old .level-grid kept behind a flag.) */
+.level-line {
+  display: flex; align-items: flex-start; gap: 0;
+  overflow-x: auto; overflow-y: hidden;
+  padding: 0.7rem 0.5rem 1rem;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.level-line::-webkit-scrollbar { display: none; }
+.level-stop {
+  flex: 0 0 auto; width: 6rem;
+  display: flex; flex-direction: column; align-items: center;
+  background: none; border: 0; padding: 0; cursor: pointer;
+  scroll-snap-align: center; -webkit-tap-highlight-color: transparent;
+}
+.level-stop:disabled { cursor: default; }
+.level-stop-top {
+  position: relative; width: 100%; height: 2.8rem;
+  display: flex; align-items: center; justify-content: center;
+}
+/* the connecting rail — each stop draws its half, meeting the neighbours */
+.level-stop-top::before, .level-stop-top::after {
+  content: ""; position: absolute; top: 50%; height: 4px;
+  background: var(--ink); transform: translateY(-50%); z-index: 0;
+}
+.level-stop-top::before { left: 0; right: 50%; }
+.level-stop-top::after  { left: 50%; right: 0; }
+.level-stop:first-child .level-stop-top::before { display: none; }
+.level-stop:last-child  .level-stop-top::after  { display: none; }
+.level-dot {
+  position: relative; z-index: 1;
+  width: 2.3rem; height: 2.3rem; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 4px solid var(--stop-color, var(--line-blue));
+  background: #fff; color: var(--stop-color, var(--line-blue));
+  font-family: var(--mono); font-weight: 700; font-size: 0.95rem;
+  box-shadow: 0 2px 0 rgba(32, 38, 58, 0.16);
+}
+.level-stop.done .level-dot { background: var(--stop-color); color: #fff; }
+.level-stop.active .level-dot {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--stop-color) 28%, #fff), 0 2px 0 rgba(32, 38, 58, 0.16);
+}
+.level-stop.soon .level-dot { border-color: var(--rule); color: var(--ink-soft); }
+.level-stop-name {
+  margin-top: 0.5rem; font-family: var(--mono); font-size: 0.66rem; font-weight: 600;
+  letter-spacing: 0.02em; color: var(--ink-soft); text-align: center;
+}
+.level-stop-title {
+  margin-top: 0.1rem; font-size: 0.8rem; font-weight: 800; line-height: 1.12;
+  color: var(--ink); text-align: center; overflow-wrap: anywhere;
+}
+.level-stop.active .level-stop-title { color: var(--stop-color); }
+.level-stop-count {
+  margin-top: 0.22rem; font-family: var(--mono); font-size: 0.6rem; font-weight: 600;
+  color: var(--ink-soft);
+}
+
 /* ================= SHARED BUTTONS ================= */
 button.primary, button.secondary, button.small {
   border: 2.5px solid var(--ink) !important; border-radius: 12px !important;

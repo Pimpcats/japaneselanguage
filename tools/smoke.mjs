@@ -29,8 +29,8 @@ for (const f of ["lessons.js", "kana.js", "app.js", "theme.js", "collection.js"]
 }
 
 const click = (el) => el && el.dispatchEvent(new window.Event("click", { bubbles: true }));
-check("home renders level cards", document.querySelectorAll(".level-card").length >= 5);
-click(document.querySelector(".level-card"));
+check("home renders level stops", document.querySelectorAll(".level-stop, .level-card").length >= 5);
+click(document.querySelector(".level-stop:not(:disabled), .level-card"));
 check("level page renders lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
 check("card has four launchers", document.querySelectorAll(".lesson-card .lc-act").length >= 4);
 // Tapping the picture starts practice straight away (car mode) — no forced intro.

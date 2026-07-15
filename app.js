@@ -1339,6 +1339,46 @@
           ? practiced + " day" + (practiced === 1 ? "" : "s") + " of practice this week"
           : "fresh week — say something today") + "</span></div>";
 
+      // Level overview as a scrollable subway line: each level is a colored
+      // station dot on a connecting rail; tapping a dot opens that level's
+      // lesson cards. Flip LEVEL_SUBWAY to false to revert to the old grid.
+      const LEVEL_SUBWAY = true;
+      const openLevel = (lv) => {
+        openLevelId = lv.id; settings.activeLevel = lv.id; saveSettings();
+        renderHome(); window.scrollTo(0, 0);
+      };
+      if (LEVEL_SUBWAY) {
+        const line = document.createElement("div");
+        line.className = "level-line";
+        window.LEVELS.forEach((lv, i) => {
+          const lessons = window.LESSONS.filter((L) => lv.tiers.some((t) => t.themes.includes(L.section)));
+          const done = lessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
+          const allDone = lessons.length && done >= lessons.length;
+          const stop = document.createElement("button");
+          stop.className = "level-stop" + (lessons.length ? "" : " soon") + (allDone ? " done" : "") +
+            (lv.id === settings.activeLevel ? " active" : "");
+          stop.style.setProperty("--stop-color", LINE_COLORS[i % LINE_COLORS.length]);
+          stop.setAttribute("aria-label", lv.name + " — " + lv.title);
+          const top = document.createElement("div");
+          top.className = "level-stop-top";
+          top.appendChild(span("level-dot", LINE_LETTERS[i % LINE_LETTERS.length]));
+          stop.appendChild(top);
+          stop.appendChild(span("level-stop-name", lv.name));
+          stop.appendChild(span("level-stop-title", lv.title));
+          if (lessons.length) {
+            stop.appendChild(span("level-stop-count", done + " / " + lessons.length));
+            stop.addEventListener("click", () => openLevel(lv));
+          } else {
+            stop.appendChild(span("level-stop-count", "soon"));
+            stop.disabled = true;
+          }
+          line.appendChild(stop);
+        });
+        el.lessonMap.appendChild(line);
+        show(el.home);
+        return;
+      }
+
       const grid = document.createElement("div");
       grid.className = "level-grid";
       window.LEVELS.forEach((lv, i) => {
@@ -1350,10 +1390,7 @@
         if (lessons.length) {
           const done = lessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
           card.appendChild(span("level-card-count", done + " / " + lessons.length + " lessons"));
-          card.addEventListener("click", () => {
-            openLevelId = lv.id; settings.activeLevel = lv.id; saveSettings();
-            renderHome(); window.scrollTo(0, 0);
-          });
+          card.addEventListener("click", () => openLevel(lv));
         } else {
           card.appendChild(span("level-card-soon", "coming soon"));
           card.disabled = true;
