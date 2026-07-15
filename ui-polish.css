@@ -435,7 +435,7 @@ button.secondary { background: rgba(255,255,255,.92); }
    ======================================================================== */
 
 /* The large pink sign/banner shown in the screenshot. */
-body:has(#lesson-map .lesson-list) #app-header {
+body:has(#home:not([hidden]) #lesson-map .lesson-list) #app-header {
   display: none !important;
 }
 
@@ -454,26 +454,26 @@ body:has(#lesson-map .lesson-list) #app-header {
 }
 
 /* Lock the level picker to the visible phone viewport. */
-body:has(#lesson-map .lesson-list) {
+body:has(#home:not([hidden]) #lesson-map .lesson-list) {
   overflow: hidden !important;
 }
 
-body:has(#lesson-map .lesson-list) #app {
+body:has(#home:not([hidden]) #lesson-map .lesson-list) #app {
   height: 100dvh;
   min-height: 0;
   padding-top: max(0.45rem, env(safe-area-inset-top));
   overflow: hidden;
 }
 
-body:has(#lesson-map .lesson-list) #home,
-body:has(#lesson-map .lesson-list) .home-shell,
-body:has(#lesson-map .lesson-list) #hub-lessons {
+body:has(#home:not([hidden]) #lesson-map .lesson-list) #home,
+body:has(#home:not([hidden]) #lesson-map .lesson-list) .home-shell,
+body:has(#home:not([hidden]) #lesson-map .lesson-list) #hub-lessons {
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
 
-body:has(#lesson-map .lesson-list) #hub-lessons {
+body:has(#home:not([hidden]) #lesson-map .lesson-list) #hub-lessons {
   position: relative;
   gap: 0 !important;
   padding-top: 0 !important;
@@ -643,3 +643,7 @@ body:has(#drill:not([hidden])) #drill {
     padding-top: calc(env(safe-area-inset-top) + 3.25rem);
   }
 }
+
+/* The car-mode drill stays banner-less (the practice-nav gives back/home);
+   the sign banner returns on the Words + Talk screens so they have a way out. */
+body:has(#drill:not([hidden])) #app-header { display: none !important; }
