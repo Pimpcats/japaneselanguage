@@ -112,6 +112,24 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
   letter-spacing: 0.06em; color: var(--ink-soft); text-transform: uppercase;
   line-height: 1.3;
 }
+/* Kana-row lessons: each romaji sits centred directly under its kana so the
+   letter ↔ sound correlation is visible at a glance. */
+.station-sign .st-letters {
+  display: flex; align-items: flex-end; flex-wrap: wrap;
+  gap: 0.2rem 0.55rem;
+}
+.station-sign .st-letter {
+  display: flex; flex-direction: column; align-items: center;
+}
+.station-sign .st-l-jp {
+  font-family: var(--sign); font-weight: 900; font-size: 1.9rem;
+  line-height: 1.05; color: var(--ink);
+}
+.station-sign .st-l-en {
+  margin-top: 0.3rem; font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.04em; color: var(--ink-soft); text-transform: uppercase;
+  line-height: 1;
+}
 /* the ← prev · next → strip, pushed toward the middle/bottom */
 .station-sign .st-prevnext {
   margin-top: auto; display: flex; justify-content: space-between; gap: 0.6rem;

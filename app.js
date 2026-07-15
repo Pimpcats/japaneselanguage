@@ -1484,6 +1484,20 @@
     g = g.split(/\s*[—·]\s*|\s+\(/)[0].trim();     // drop the "— gloss" / "(note)" tail
     return g.length > 22 ? g.slice(0, 21).trimEnd() + "…" : g;
   }
+  // Kana-row lessons (あ い う え お …) — the station name is space-separated
+  // single morae. Return one column per letter so the romaji can sit centred
+  // directly under its kana. Returns null for anything that isn't a pure
+  // letter row (words, grammar phrases), which keep the plain name + sub-line.
+  function kanaLetterRow(name) {
+    const toks = name.trim().split(/\s+/);
+    if (toks.length < 2) return null;
+    const cols = [];
+    for (const t of toks) {
+      if (t.length > 2 || ![...t].every((c) => KANA_INDEX.has(c))) return null;
+      cols.push({ jp: t, en: kanaToRomaji(t) });
+    }
+    return cols;
+  }
 
   function renderJourney(container, level) {
     const wrap = document.createElement("div");
@@ -1570,10 +1584,25 @@
         head2.appendChild(badge);
         const names = document.createElement("div");
         names.className = "st-names";
-        names.appendChild(span("st-jp", stationName(L)));
-        // Bottom line = the station name romanised, like the Latin reading on a
-        // real 駅名標 (owner: the sub-line is always romaji, every lesson).
-        names.appendChild(span("st-en", kanaToRomaji(stationName(L))));
+        const letters = kanaLetterRow(stationName(L));
+        if (letters) {
+          // Kana-row lesson: one column per letter, romaji centred under its kana.
+          const row = document.createElement("div");
+          row.className = "st-letters";
+          for (const c of letters) {
+            const col = document.createElement("div");
+            col.className = "st-letter";
+            col.appendChild(span("st-l-jp", c.jp));
+            col.appendChild(span("st-l-en", c.en));
+            row.appendChild(col);
+          }
+          names.appendChild(row);
+        } else {
+          names.appendChild(span("st-jp", stationName(L)));
+          // Bottom line = the station name romanised, like the Latin reading on
+          // a real 駅名標 (owner: the sub-line is always romaji, every lesson).
+          names.appendChild(span("st-en", kanaToRomaji(stationName(L))));
+        }
         head2.appendChild(names);
         card.appendChild(head2);
 
