@@ -75,11 +75,18 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
   justify-self: center !important;
   color: var(--ink);
 }
-/* the coloured line bar across the top of the sign */
+/* the coloured line bar across the top of the sign — doubles as the status
+   ribbon: the "you are here" / done / warmup label sits inside it, centred */
 .station-sign .st-bar {
-  flex: 0 0 auto; height: 14px; width: 100%;
+  flex: 0 0 auto; width: 100%; min-height: 14px;
+  display: flex; align-items: center; justify-content: center;
   background: var(--stline, var(--line-blue));
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  letter-spacing: 0.04em; color: #fff; text-align: center;
 }
+.station-sign .st-bar:not(:empty) { padding: 0.34rem 0.7rem; }
+.station-sign .st-bar-done { background: var(--good); }
+.station-sign .st-bar-due { background: var(--gold); color: var(--ink); }
 .station-sign .st-head {
   display: flex; align-items: center; gap: 0.9rem;
   padding: 1.15rem 1.15rem 0.5rem;
@@ -103,15 +110,6 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
   letter-spacing: 0.06em; color: var(--ink-soft); text-transform: uppercase;
   line-height: 1.3;
 }
-/* status chip (you are here / done / warmup) */
-.station-sign .st-status {
-  align-self: flex-start; margin: 0.2rem 1.15rem 0;
-  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
-  border-radius: 6px; padding: 0.2rem 0.6rem; color: #fff;
-}
-.station-sign .st-now { background: var(--stline, var(--line-blue)); }
-.station-sign .st-done { background: var(--good); }
-.station-sign .st-due { background: var(--gold); color: var(--ink); }
 /* the ← prev · next → strip, pushed toward the middle/bottom */
 .station-sign .st-prevnext {
   margin-top: auto; display: flex; justify-content: space-between; gap: 0.6rem;

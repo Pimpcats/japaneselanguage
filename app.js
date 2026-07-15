@@ -1553,7 +1553,13 @@
         card.setAttribute("role", "button");
         card.setAttribute("aria-label", L.title);
 
-        card.appendChild(span("st-bar", ""));
+        // The coloured top bar doubles as the status ribbon — the "you are
+        // here" / done / warmup label lives inside it, centred (owner request).
+        let barText = "", barMod = "";
+        if (isDone) { barText = "✓ 通過 done"; barMod = " st-bar-done"; }
+        else if (current) { barText = "▶ 現在地 you are here"; barMod = " st-bar-now"; }
+        else if (current === false && st.due > 0) { barText = "⚡ " + st.due + " warmup"; barMod = " st-bar-due"; }
+        card.appendChild(span("st-bar" + barMod, barText));
 
         const head2 = document.createElement("div");
         head2.className = "st-head";
@@ -1565,14 +1571,11 @@
         const names = document.createElement("div");
         names.className = "st-names";
         names.appendChild(span("st-jp", stationName(L)));
-        names.appendChild(span("st-en", L.title));
+        // Bottom line = the station name romanised, like the Latin reading on a
+        // real 駅名標 (owner: the sub-line is always romaji, every lesson).
+        names.appendChild(span("st-en", kanaToRomaji(stationName(L))));
         head2.appendChild(names);
         card.appendChild(head2);
-
-        // status flag ↓ done / here
-        if (isDone) card.appendChild(span("st-status st-done", "✓ 通過 done"));
-        else if (current) card.appendChild(span("st-status st-now", "▶ 現在地 you are here"));
-        else if (current === false && st.due > 0) card.appendChild(span("st-status st-due", "⚡ " + st.due + " warmup"));
 
         // prev / next stations, like a real platform sign
         const pn = document.createElement("div");
