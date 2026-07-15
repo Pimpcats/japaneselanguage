@@ -264,6 +264,15 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
   margin-top: 0.22rem; font-family: var(--mono); font-size: 0.6rem; font-weight: 600;
   color: var(--ink-soft);
 }
+/* Collapse the empty space below the line: fill the viewport and centre the
+   hero + route as a group instead of leaving a top strip over a big void. */
+body:has(#home:not([hidden]) #hub-lessons:not([hidden]) .level-line) #app { min-height: 100dvh; }
+body:has(#home:not([hidden]) #hub-lessons:not([hidden]) .level-line) #home,
+body:has(#home:not([hidden]) #hub-lessons:not([hidden]) .level-line) .home-shell,
+body:has(#home:not([hidden]) #hub-lessons:not([hidden]) .level-line) #hub-lessons {
+  flex: 1 1 auto; min-height: 0;
+}
+#hub-lessons:not([hidden]):has(.level-line) { justify-content: center; }
 
 /* ================= SHARED BUTTONS ================= */
 button.primary, button.secondary, button.small {
