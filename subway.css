@@ -71,8 +71,8 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
   aspect-ratio: auto !important;
   width: min(90vw, 430px) !important;
   max-width: 90vw !important;
-  height: min(92%, 460px) !important;
-  max-height: 92% !important;
+  height: min(88%, 320px) !important;
+  max-height: 88% !important;
   align-self: center !important;
   justify-self: center !important;
   color: var(--ink);
@@ -80,18 +80,22 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
 /* the coloured line bar across the top of the sign — doubles as the status
    ribbon: the "you are here" / done / warmup label sits inside it, centred */
 .station-sign .st-bar {
-  flex: 0 0 auto; width: 100%; min-height: 14px;
+  flex: 0 0 auto; width: 100%; min-height: 1.05rem;
   display: flex; align-items: center; justify-content: center;
+  padding: 0.34rem 0.7rem;
   background: var(--stline, var(--line-blue));
   font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
   letter-spacing: 0.04em; color: #fff; text-align: center;
 }
-.station-sign .st-bar:not(:empty) { padding: 0.34rem 0.7rem; }
 .station-sign .st-bar-done { background: var(--good); }
 .station-sign .st-bar-due { background: var(--gold); color: var(--ink); }
+.station-sign .st-bar-ahead { background: var(--ink-soft); }
+/* Fixed-height head so the name band (and everything below it) lands in the
+   same place on every card — uniform spacing regardless of name length. */
 .station-sign .st-head {
   display: flex; align-items: center; gap: 0.9rem;
-  padding: 1.15rem 1.15rem 0.5rem;
+  min-height: 5.4rem; box-sizing: content-box;
+  padding: 1rem 1.15rem 0.5rem;
 }
 .station-sign .st-badge {
   flex: 0 0 auto; width: 3.6rem; height: 3.6rem;

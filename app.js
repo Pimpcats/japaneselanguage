@@ -1569,7 +1569,7 @@
 
         // The coloured top bar doubles as the status ribbon — the "you are
         // here" / done / warmup label lives inside it, centred (owner request).
-        let barText = "", barMod = "";
+        let barText = "◦ この先 ahead", barMod = " st-bar-ahead";
         if (isDone) { barText = "✓ 通過 done"; barMod = " st-bar-done"; }
         else if (current) { barText = "▶ 現在地 you are here"; barMod = " st-bar-now"; }
         else if (current === false && st.due > 0) { barText = "⚡ " + st.due + " warmup"; barMod = " st-bar-due"; }
