@@ -2270,6 +2270,9 @@
     chip.className = "word-chip pos-" + (pos || "n");
     const main = document.createElement("button");
     main.className = "wc-main";
+    // Visual anchor: a confident emoji for concrete words (blank otherwise).
+    const emoji = window.HanaEmoji && window.HanaEmoji.for({ jp: term || jp, en: gloss, pos });
+    if (emoji) { main.appendChild(span("wc-emoji", emoji)); chip.classList.add("has-emoji"); }
     main.appendChild(span("wc-jp", jp));
     if (reading && reading !== jp) main.appendChild(span("wc-read", reading));
     if (gloss) main.appendChild(span("wc-en", gloss));
