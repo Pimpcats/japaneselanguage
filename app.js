@@ -479,9 +479,6 @@
     kanaBtn: $("kana-btn"), kana: $("kana"), kanaTabH: $("kana-tab-h"), kanaTabK: $("kana-tab-k"),
     kanaGrid: $("kana-grid"), kanaPracticeBtn: $("kana-practice-btn"), kanaQuiz: $("kana-quiz"),
     kqChar: $("kq-char"), kqOptions: $("kq-options"), kqProgress: $("kq-progress"), kqStop: $("kq-stop"),
-    picture: $("picture"), picCard: $("pic-card"), picEmoji: $("pic-emoji"), picAnswer: $("pic-answer"),
-    picJp: $("pic-jp"), picRomaji: $("pic-romaji"), picEn: $("pic-en"), picHint: $("pic-hint"),
-    picNext: $("pic-next"), picProgress: $("pic-progress"),
     newKana: $("new-kana"), newKanaChips: $("new-kana-chips"), romajiMode: $("romaji-mode"),
     sentenceList: $("sentence-list"), vocabLabel: $("vocab-label"), sentenceLabel: $("sentence-label"),
     doneQuizBtn: $("done-quiz-btn"), quiz: $("quiz"),
@@ -737,7 +734,7 @@
   }
 
   // ---- Navigation ----------------------------------------------------------
-  const screens = [el.home, el.intro, el.drill, el.done, el.quiz, el.kana, el.picture, el.settings, el.mineForm, el.importForm, el.reader];
+  const screens = [el.home, el.intro, el.drill, el.done, el.quiz, el.kana, el.settings, el.mineForm, el.importForm, el.reader];
   // last non-settings screen, so the gear can toggle back to exactly where you were
   let visibleScreen = el.home, visibleBack = false;
   function show(screen, { back = false } = {}) {
@@ -3030,59 +3027,6 @@
     }
   }
 
-  // ---- Picture practice: emoji prompt → say it → reveal + hear -------------
-  // Its own area (a tab): a shuffled deck of every emoji-able vocab word. You
-  // see ONLY the picture, say it in Japanese out loud, then tap to check and
-  // hear it. Pure practice — never touches SRS (like the speaking quiz).
-  let picDeck = [], picIdx = 0, picRevealed = false;
-  function buildPicDeck() {
-    const deck = [], seen = new Set();
-    for (const L of window.LESSONS) {
-      for (const v of (L.vocab || [])) {
-        const emoji = window.HanaEmoji && window.HanaEmoji.for(v);
-        if (!emoji || seen.has(v.jp)) continue;
-        seen.add(v.jp);
-        deck.push({ emoji, jp: v.jp, romaji: v.romaji || "", en: v.en });
-      }
-    }
-    for (let i = deck.length - 1; i > 0; i--) {         // Fisher–Yates shuffle
-      const j = Math.floor(Math.random() * (i + 1));
-      [deck[i], deck[j]] = [deck[j], deck[i]];
-    }
-    return deck;
-  }
-  function renderPicCard() {
-    if (!picDeck[picIdx]) { picDeck = buildPicDeck(); picIdx = 0; }
-    if (!picDeck.length) { el.picEmoji.textContent = ""; el.picProgress.textContent = ""; return; }
-    const c = picDeck[picIdx];
-    picRevealed = false;
-    el.picEmoji.textContent = c.emoji;
-    el.picJp.textContent = c.jp;
-    el.picRomaji.textContent = needRomaji(c.jp) ? c.romaji : "";
-    el.picEn.textContent = c.en;
-    el.picAnswer.hidden = true;
-    el.picHint.hidden = false;
-    el.picProgress.textContent = picDeck.length ? (picIdx + 1) + " / " + picDeck.length : "";
-  }
-  function revealPic() {
-    const c = picDeck[picIdx];
-    if (!c) return;
-    if (!picRevealed) { picRevealed = true; el.picAnswer.hidden = false; el.picHint.hidden = true; }
-    speak(c.jp, { lang: "ja-JP" });                     // reveal + hear; tap again replays
-  }
-  function nextPic() {
-    picIdx += 1;
-    if (picIdx >= picDeck.length) { picDeck = buildPicDeck(); picIdx = 0; }
-    renderPicCard();
-  }
-  function openPicture() {
-    picDeck = buildPicDeck();
-    picIdx = 0;
-    show(el.picture, { back: true });
-    renderPicCard();
-  }
-  window.__hanaOpenPicture = function () { openPicture(); };
-
   // ---- Kana review & practice ----------------------------------------------
   // Browse the full gojūon in either script (tap = hear + counts as met), and
   // a practice drill: see the letter, pick its sound from four choices.
@@ -3304,8 +3248,6 @@
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
   el.doneQuizBtn.addEventListener("click", () => startTalk(activeLesson));
   el.kanaBtn.addEventListener("click", openKana);
-  el.picCard.addEventListener("click", revealPic);
-  el.picNext.addEventListener("click", nextPic);
   el.kanaTabH.addEventListener("click", () => { kanaScript = "h"; el.kanaQuiz.hidden = true; el.kanaGrid.hidden = false; el.kanaPracticeBtn.hidden = false; renderKanaGrid(); });
   el.kanaTabK.addEventListener("click", () => { kanaScript = "k"; el.kanaQuiz.hidden = true; el.kanaGrid.hidden = false; el.kanaPracticeBtn.hidden = false; renderKanaGrid(); });
   el.kanaPracticeBtn.addEventListener("click", startKanaPractice);

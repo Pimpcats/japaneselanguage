@@ -329,26 +329,6 @@ body.drive-mode #reveal-area::after { color: var(--ink-soft) !important; }
 .wc-emoji { display: block; font-size: 1.4rem; line-height: 1; margin-bottom: 0.12rem; }
 body.drive-mode .wc-emoji { font-size: 1.7rem; margin-bottom: 0.18rem; }
 
-/* ── Picture practice: emoji prompt → say it → reveal ─────────────────── */
-#picture { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding-top: 0.5rem; }
-.pic-lead { color: var(--ink-soft); text-align: center; max-width: 22rem; margin: 0.2rem auto 0; }
-.pic-card {
-  width: min(90vw, 420px); min-height: 15rem;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem;
-  border: 2.5px solid var(--ink); border-radius: 20px; background: #fff;
-  box-shadow: 0 5px 0 rgba(32, 38, 58, 0.16); cursor: pointer; padding: 1.4rem;
-  transition: transform 0.08s, box-shadow 0.08s;
-}
-.pic-card:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(32, 38, 58, 0.16); }
-.pic-emoji { font-size: 5.5rem; line-height: 1; }
-.pic-answer { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
-.pic-jp { font-family: var(--sign); font-weight: 900; font-size: 2rem; color: var(--ink); }
-.pic-romaji { font-family: var(--mono); font-size: 0.9rem; color: var(--ink-soft); letter-spacing: 0.04em; }
-.pic-en { font-size: 0.95rem; color: var(--ink-soft); }
-.pic-hint { font-family: var(--mono); font-size: 0.78rem; color: var(--ink-soft); }
-.pic-controls { display: flex; gap: 0.6rem; }
-.pic-progress { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-soft); }
-
 /* mastery / progress bars in line colour */
 .mastery-bar, .daily-bar, .tile-bar, .continue-progress { background: rgba(32,38,58,.12) !important; }
 .mastery-bar > i, #mastery-fill, .daily-bar i, .continue-progress i { background: var(--line-blue) !important; }
