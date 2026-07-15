@@ -236,3 +236,33 @@ body.drive-mode #reveal-area::after { color: var(--ink-soft) !important; }
 /* mastery / progress bars in line colour */
 .mastery-bar, .daily-bar, .tile-bar, .continue-progress { background: rgba(32,38,58,.12) !important; }
 .mastery-bar > i, #mastery-fill, .daily-bar i, .continue-progress i { background: var(--line-blue) !important; }
+
+/* ================= remove leftover kawaii chrome ================= */
+/* the painted frame around the car-mode drill sheet — gone */
+body.drive-mode #app { border: 0 !important; border-image: none !important; }
+body.drive-mode #app-header, body.drive-mode #app-banner { display: none !important; }
+
+/* replace the kawaii painted SIGN with a clean transit top bar: drop the
+   banner (cat / awning / big title), keep the control bar and move it up top */
+#app-banner { display: none !important; }
+#app-header {
+  background: rgba(246, 245, 240, 0.96) !important;
+  filter: none !important;
+  padding: 0 !important;
+  margin: 0 0 0.45rem !important;
+  border-bottom: 1px solid var(--rule) !important;
+}
+#ctrl-bar {
+  padding: calc(0.4rem + env(safe-area-inset-top)) 0.85rem 0.45rem !important;
+  min-height: 0 !important; gap: 0.5rem;
+}
+#ctrl-bar .icon-btn, #ctrl-bar #home-btn, #ctrl-bar #back-btn, #ctrl-bar #settings-btn {
+  border: 2px solid var(--ink) !important; background: #fff !important; color: var(--ink) !important;
+  box-shadow: 0 2px 0 rgba(32, 38, 58, 0.16) !important; border-radius: 10px !important;
+}
+#ctrl-bar #settings-btn.active { background: color-mix(in srgb, var(--line-blue) 16%, #fff) !important; }
+#ctrl-bar #mastery .mastery-pct { color: var(--ink) !important; }
+#ctrl-bar .card-counter { border: 2px solid var(--ink) !important; background: #fff !important; color: var(--ink) !important; box-shadow: 0 2px 0 rgba(32,38,58,.16) !important; }
+
+/* kanji furigana stays legible in the drill reading */
+body.drive-mode #answer-kana ruby rt { color: var(--ink-soft); }

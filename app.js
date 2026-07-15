@@ -672,22 +672,36 @@
     }
     return out;
   }
-  // Same POS tint as coloredFuriganaHTML, but each word's kana carries per-mora
-  // romaji. Kanji sentences keep their normal furigana (no mora ruby).
+  // A mixed run: kanji[reading] keeps its kana furigana, every kana (hiragana
+  // AND katakana) still carries its romaji reading. So the sentence always shows
+  // a reading over every character, whatever the script.
+  function driveSegHTML(run) {
+    run = String(run || "");
+    const re = /([^\s[\]]+)\[([^\]]*)\]/g;
+    let out = "", i = 0, m;
+    while ((m = re.exec(run))) {
+      out += moraRunHTML(run.slice(i, m.index));
+      out += "<ruby>" + escHTML(m[1]) + "<rt>" + escHTML(m[2]) + "</rt></ruby>";
+      i = m.index + m[0].length;
+    }
+    return out + moraRunHTML(run.slice(i));
+  }
+  // Same POS tint as coloredFuriganaHTML, but readings are shown over everything:
+  // per-mora romaji on kana, kana furigana on kanji.
   function driveAnswerHTML(s, words) {
     s = String(s || "");
-    if (s.includes("[")) return coloredFuriganaHTML(s, words);
-    if (!words || !words.length) return moraRunHTML(s);
+    if (!words || !words.length) return driveSegHTML(s);
     let out = "", cursor = 0;
     for (const w of words) {
       const i = s.indexOf(w.jp, cursor);
       if (i < 0) continue;
-      const end = i + w.jp.length;
-      out += moraRunHTML(s.slice(cursor, i));
-      out += '<span class="ck pos-' + escHTML(w.pos || "n") + '">' + moraRunHTML(s.slice(i, end)) + "</span>";
+      let end = i + w.jp.length;
+      while (s[end] === "[") { const close = s.indexOf("]", end); if (close < 0) break; end = close + 1; }
+      out += driveSegHTML(s.slice(cursor, i));
+      out += '<span class="ck pos-' + escHTML(w.pos || "n") + '">' + driveSegHTML(s.slice(i, end)) + "</span>";
       cursor = end;
     }
-    return out + moraRunHTML(s.slice(cursor));
+    return out + driveSegHTML(s.slice(cursor));
   }
 
   function speakTTS(text, lang, rate) {
