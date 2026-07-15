@@ -34,6 +34,7 @@
     review: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.25 8.5A7.5 7.5 0 1 0 20 12"/><path d="M19.25 4.75V8.5H15.5"/><path d="M12 8.25V12l2.5 1.5"/></svg>',
     library: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.25 5.25h5.5v13.5h-5.5zM13.25 5.25h5.5v13.5h-5.5z"/><path d="M7.25 8h1.5M15.25 8h1.5"/></svg>',
     progress: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18.75V13.5h3v5.25zM10.5 18.75V9h3v9.75zM16 18.75V5.25h3v13.5z"/></svg>',
+    picture: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M5 16.5 9.5 12l3 2.5L16 11l3 3.2"/></svg>',
   };
 
   function make(tag, className, text) {
@@ -195,16 +196,18 @@
     [
       ["lessons", "Lessons"],
       ["review", "Kana"],
+      ["picture", "Pics"],
       ["library", "Library"],
       ["progress", "Progress"],
     ].forEach(([name, label]) => {
       const button = make("button", "tab-item");
       button.type = "button";
       button.dataset.hub = name;
-      button.setAttribute("aria-label", label === "Kana" ? "Kana review" : label);
+      button.setAttribute("aria-label", label === "Kana" ? "Kana review" : label === "Pics" ? "Picture practice" : label);
       button.innerHTML = '<span class="tab-icon">' + svg[name] + '</span><span class="tab-label">' + label + '</span>';
       button.addEventListener("click", () => {
-        // The "Kana" tab isn't a hub — it jumps straight into Kana practice.
+        // Neither "Kana" nor "Pics" is a hub — each jumps straight into practice.
+        if (name === "picture") { if (typeof window.__hanaOpenPicture === "function") window.__hanaOpenPicture(); return; }
         if (name === "review") { if (typeof window.__hanaOpenKana === "function") window.__hanaOpenKana(); return; }
         if (activeHub === name) window.scrollTo({ top: 0, behavior: "smooth" });
         else activateHub(name, true);

@@ -23,7 +23,7 @@ window.Audio = function () { return { play() { return Promise.resolve(); }, paus
 let failed = 0;
 const check = (name, cond) => { console.log((cond ? "ok  " : "FAIL"), name); if (!cond) failed++; };
 
-for (const f of ["lessons.js", "kana.js", "app.js", "theme.js", "collection.js"]) {
+for (const f of ["lessons.js", "kana.js", "emoji.js", "app.js", "theme.js", "collection.js"]) {
   try { window.eval(readFileSync(f, "utf8")); check("load " + f, true); }
   catch (e) { check("load " + f + " — " + e.message, false); }
 }
@@ -64,5 +64,15 @@ check("four sound choices", document.querySelectorAll(".kq-opt").length === 4);
 click(document.querySelector(".kq-opt"));
 await new Promise((r) => setTimeout(r, 1600));
 check("practice advances after answering", document.getElementById("kq-progress").textContent.startsWith("2") || !document.getElementById("kana-quiz").hidden);
+
+// Picture practice: opens its own area, shows an emoji prompt, reveal + next.
+window.__hanaOpenPicture();
+check("picture area opens", !document.getElementById("picture").hidden);
+check("picture shows an emoji prompt", document.getElementById("pic-emoji").textContent.length > 0);
+check("answer hidden until reveal", document.getElementById("pic-answer").hidden);
+click(document.getElementById("pic-card"));
+check("tap reveals the word", !document.getElementById("pic-answer").hidden && document.getElementById("pic-jp").textContent.length > 0);
+click(document.getElementById("pic-next"));
+check("next hides the answer again", document.getElementById("pic-answer").hidden);
 
 process.exit(failed ? 1 : 0);

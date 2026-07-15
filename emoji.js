@@ -38,9 +38,12 @@
     morning: "🌅", night: "🌙", summer: "☀️", winter: "❄️",
     // ── places ────────────────────────────────────────────────────
     airport: "✈️", bank: "🏦", school: "🏫", company: "🏢", office: "🏢",
-    shop: "🏪", store: "🏪", park: "🏞️", home: "🏠", house: "🏠",
+    shop: "🏪", store: "🏪", market: "🏪", park: "🏞️", home: "🏠", house: "🏠",
     station: "🚉", hospital: "🏥", library: "📚", restaurant: "🍴",
+    hotel: "🏨", garden: "🌷", island: "🏝️",
     town: "🏘️", exit: "🚪", platform: "🚉", road: "🛣️", bridge: "🌉",
+    toilet: "🚽", restroom: "🚻", trip: "🧳", travel: "🧳", "traffic light": "🚦",
+    "green tea": "🍵", gift: "🎁", present: "🎁", party: "🎉", birthday: "🎂",
     // ── objects ───────────────────────────────────────────────────
     book: "📖", bag: "👜", wallet: "👛", umbrella: "☂️", phone: "📞",
     telephone: "📞", camera: "📷", photo: "📷", movie: "🎬", tv: "📺",
@@ -68,6 +71,8 @@
     hurry: "🏃", pay: "💳", teach: "🧑‍🏫", learn: "📚", touch: "👆",
     drive: "🚗", ride: "🚃", fly: "✈️", sing: "🎤", dance: "💃",
     help: "🤝", call: "📞", open: "🔓", close: "🔒", turn: "↩️",
+    arrive: "🛬", lend: "🤲", apologize: "🙇", live: "🏠", cook: "🍳",
+    "get up": "⏰", "wake up": "⏰", "give up": "🏳️", "try hard": "💪",
     // ── adjectives (literal colours / temperature / clear feelings) ─
     red: "🔴", blue: "🔵", white: "⚪", black: "⚫", green: "🟢",
     hot: "🔥", cold: "🥶", warm: "☀️", delicious: "😋", tasty: "😋",
@@ -98,13 +103,16 @@
     "humble", "acts", "act",
   ]);
 
-  function stem(t) {
-    if (IRREG[t]) return IRREG[t];
-    if (t.length > 4 && t.endsWith("ing")) return t.slice(0, -3);
-    if (t.length > 3 && t.endsWith("ed")) return t.slice(0, -2);
-    if (t.length > 3 && t.endsWith("es")) return t.slice(0, -2);
-    if (t.length > 3 && t.endsWith("s")) return t.slice(0, -1);
-    return t;
+  // Candidate lemmas for a token — try several de-inflections and let the
+  // caller pick whichever hits the map (vegetables→vegetable, driving→drive).
+  function variants(t) {
+    const out = [t];
+    if (IRREG[t]) out.push(IRREG[t]);
+    if (t.length > 4 && t.endsWith("ing")) { out.push(t.slice(0, -3), t.slice(0, -3) + "e"); }
+    if (t.length > 3 && t.endsWith("ed")) { out.push(t.slice(0, -2), t.slice(0, -2) + "e"); }
+    if (t.length > 3 && t.endsWith("es")) out.push(t.slice(0, -2));
+    if (t.length > 3 && t.endsWith("s")) out.push(t.slice(0, -1));
+    return out;
   }
 
   function fromGloss(gloss) {
@@ -119,8 +127,7 @@
       for (const raw of p.split(/\s+/)) {
         const t = raw.trim();
         if (!t || STOP.has(t)) continue;
-        const hit = BASE[t] || BASE[stem(t)];
-        if (hit) return hit;
+        for (const v of variants(t)) if (BASE[v]) return BASE[v];
       }
     }
     return "";
