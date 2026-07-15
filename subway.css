@@ -71,8 +71,8 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
   aspect-ratio: auto !important;
   width: min(90vw, 430px) !important;
   max-width: 90vw !important;
-  height: min(96%, 600px) !important;
-  max-height: 96% !important;
+  height: min(92%, 460px) !important;
+  max-height: 92% !important;
   align-self: center !important;
   justify-self: center !important;
   color: var(--ink);
