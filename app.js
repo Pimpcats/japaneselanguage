@@ -1484,19 +1484,32 @@
     g = g.split(/\s*[—·]\s*|\s+\(/)[0].trim();     // drop the "— gloss" / "(note)" tail
     return g.length > 22 ? g.slice(0, 21).trimEnd() + "…" : g;
   }
-  // Kana-row lessons (あ い う え お …) — the station name is space-separated
-  // single morae. Return one column per letter so the romaji can sit centred
-  // directly under its kana. Returns null for anything that isn't a pure
-  // letter row (words, grammar phrases), which keep the plain name + sub-line.
-  function kanaLetterRow(name) {
-    const toks = name.trim().split(/\s+/);
-    if (toks.length < 2) return null;
-    const cols = [];
-    for (const t of toks) {
-      if (t.length > 2 || ![...t].every((c) => KANA_INDEX.has(c))) return null;
-      cols.push({ jp: t, en: kanaToRomaji(t) });
+  // Split a station name into display units so each kana's romaji can sit
+  // centred directly under it (owner: the bottom lettering must match the
+  // spacing of the kana above, every applicable card). Each kana mora becomes
+  // its own {jp, en:romaji} column (digraphs きょ / gemination っか kept whole);
+  // runs of non-kana (digits, latin, ・, 〜, punctuation) group into one column
+  // with no romaji. Applies to any name that contains kana.
+  function stationUnits(name) {
+    const chars = [...String(name || "")];
+    const units = [];
+    let buf = "";
+    const flush = () => { if (buf) { units.push({ jp: buf, en: "" }); buf = ""; } };
+    let i = 0;
+    while (i < chars.length) {
+      const ch = chars[i];
+      if (ch === " ") { flush(); i++; continue; }
+      const base = SMALL_KANA[ch] || ch;
+      const isKana = KANA_INDEX.has(base) || ch === "っ" || ch === "ッ";
+      if (!isKana) { buf += ch; i++; continue; }
+      flush();
+      let g = ch; i++;
+      if ((g === "っ" || g === "ッ") && i < chars.length && KANA_INDEX.has(SMALL_KANA[chars[i]] || chars[i])) { g += chars[i]; i++; }
+      while (i < chars.length && ((SMALL_KANA[chars[i]] && chars[i] !== "っ" && chars[i] !== "ッ") || chars[i] === "ー")) { g += chars[i]; i++; }
+      units.push({ jp: g, en: kanaToRomaji(g) });
     }
-    return cols;
+    flush();
+    return units;
   }
 
   function renderJourney(container, level) {
@@ -1584,25 +1597,18 @@
         head2.appendChild(badge);
         const names = document.createElement("div");
         names.className = "st-names";
-        const letters = kanaLetterRow(stationName(L));
-        if (letters) {
-          // Kana-row lesson: one column per letter, romaji centred under its kana.
-          const row = document.createElement("div");
-          row.className = "st-letters";
-          for (const c of letters) {
-            const col = document.createElement("div");
-            col.className = "st-letter";
-            col.appendChild(span("st-l-jp", c.jp));
-            col.appendChild(span("st-l-en", c.en));
-            row.appendChild(col);
-          }
-          names.appendChild(row);
-        } else {
-          names.appendChild(span("st-jp", stationName(L)));
-          // Bottom line = the station name romanised, like the Latin reading on
-          // a real 駅名標 (owner: the sub-line is always romaji, every lesson).
-          names.appendChild(span("st-en", kanaToRomaji(stationName(L))));
+        // Every card: one column per mora so each romaji lands centred directly
+        // under its kana; non-kana runs (digits, latin) group with no romaji.
+        const row = document.createElement("div");
+        row.className = "st-letters";
+        for (const c of stationUnits(stationName(L))) {
+          const col = document.createElement("div");
+          col.className = "st-letter" + (c.en ? "" : " st-letter-plain");
+          col.appendChild(span("st-l-jp", c.jp));
+          if (c.en) col.appendChild(span("st-l-en", c.en));
+          row.appendChild(col);
         }
+        names.appendChild(row);
         head2.appendChild(names);
         card.appendChild(head2);
 

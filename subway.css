@@ -119,12 +119,14 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
 /* Kana-row lessons: each romaji sits centred directly under its kana so the
    letter ↔ sound correlation is visible at a glance. */
 .station-sign .st-letters {
-  display: flex; align-items: flex-end; flex-wrap: wrap;
-  gap: 0.2rem 0.55rem;
+  display: flex; align-items: flex-start; flex-wrap: wrap;
+  gap: 0.15rem 0.45rem;
 }
 .station-sign .st-letter {
   display: flex; flex-direction: column; align-items: center;
 }
+/* non-kana runs (digits, latin) carry no romaji — keep their glyphs tight */
+.station-sign .st-letter-plain .st-l-jp { letter-spacing: 0; }
 .station-sign .st-l-jp {
   font-family: var(--sign); font-weight: 900; font-size: 1.9rem;
   line-height: 1.05; color: var(--ink);
