@@ -1,0 +1,238 @@
+/* ============================================================================
+   はなそう — SUBWAY / TRANSIT THEME
+   A hard re-skin over the app shell in the Tokyo-transit design language:
+   cream paper, ink navy, mono codes, rounded gothic names, per-level "line"
+   colours. Loaded LAST so it wins over styles.css / theme.css / ui-polish.css.
+   The layout logic (carousel, hubs, car mode) is untouched; this is paint.
+   ============================================================================ */
+
+:root {
+  --paper: #f6f5f0;
+  --ink: #20263a;
+  --ink-soft: #5a617a;
+  --rule: #e3e1d8;
+  --line-blue: #0f6cb6;
+
+  /* re-map every token the app reads, so one theme recolours the whole UI */
+  --bg: var(--paper);
+  --fg: var(--ink);
+  --muted: var(--ink-soft);
+  --accent: var(--line-blue);
+  --accent-2: #4a90d9;
+  --on-accent: #ffffff;
+  --card: #ffffff;
+  --card-2: #fbfaf6;
+  --line: var(--rule);
+  --good: #2e7d5b;
+  --mid: #b26a00;
+  --bad: #f62e36;
+  --cobalt: var(--line-blue);
+  --gold: #e3b500;
+  --sky: #00a0b0;
+  --shadow: 0 4px 0 rgba(32, 38, 58, 0.14);
+  --shadow-sm: 0 2px 0 rgba(32, 38, 58, 0.12);
+  --radius: 16px;
+  --radius-sm: 12px;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  --sign: "Zen Maru Gothic", system-ui, sans-serif;
+}
+
+html, body {
+  background: var(--paper) !important;
+  color: var(--ink);
+  font-family: "Zen Kaku Gothic New", system-ui, sans-serif;
+}
+body::before { display: none !important; }   /* kill the kawaii street veil */
+
+#app-title, .settings-h, #lesson-title, .stat-num, #answer-kana, #lesson-done h2,
+.hub-title, .content-title, .tier-name { font-family: var(--sign); }
+
+/* ---- station-code / mono accents everywhere numbers appear ---- */
+.st-line, .st-num, .st-en, .st-prevnext, .lc-act-lbl, .tab-label, .continue-kicker,
+.card-kicker, .hub-eyebrow, .content-meta { font-family: var(--mono); }
+
+/* ================= THE STATION SIGN (lesson card) ================= */
+/* Undo the kawaii painted frame / apple picture styling on the card. */
+.lesson-card.station-sign {
+  border: 2.5px solid var(--ink) !important;
+  border-image: none !important;
+  border-radius: 18px !important;
+  background: #fff !important;
+  background-clip: border-box !important;
+  box-shadow: 0 5px 0 rgba(32, 38, 58, 0.16) !important;
+  filter: none !important;
+  overflow: hidden;
+  display: flex !important;
+  flex-direction: column;
+  padding: 0 !important;
+  /* the carousel wants a tall 3:4 picture; a station sign is a centered board */
+  aspect-ratio: auto !important;
+  width: min(90vw, 420px) !important;
+  max-width: 90vw !important;
+  height: auto !important;
+  max-height: 96% !important;
+  align-self: center !important;
+  justify-self: center !important;
+  color: var(--ink);
+}
+/* the coloured line bar across the top of the sign */
+.station-sign .st-bar {
+  flex: 0 0 auto; height: 14px; width: 100%;
+  background: var(--stline, var(--line-blue));
+}
+.station-sign .st-head {
+  display: flex; align-items: center; gap: 0.9rem;
+  padding: 1.15rem 1.15rem 0.5rem;
+}
+.station-sign .st-badge {
+  flex: 0 0 auto; width: 3.6rem; height: 3.6rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 3px solid var(--stline, var(--line-blue)); border-radius: 12px;
+  line-height: 1;
+}
+.station-sign .st-line { font-size: 0.9rem; font-weight: 600; color: var(--ink-soft); }
+.station-sign .st-num { font-size: 1.6rem; font-weight: 600; color: var(--ink); margin-top: 2px; }
+.station-sign .st-names { min-width: 0; flex: 1; text-align: left; }
+.station-sign .st-jp {
+  display: block; font-family: var(--sign); font-weight: 900;
+  font-size: 1.9rem; line-height: 1.18; color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.station-sign .st-en {
+  display: block; margin-top: 0.35rem; font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.06em; color: var(--ink-soft); text-transform: uppercase;
+  line-height: 1.3;
+}
+/* status chip (you are here / done / warmup) */
+.station-sign .st-status {
+  align-self: flex-start; margin: 0.2rem 1.15rem 0;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  border-radius: 6px; padding: 0.2rem 0.6rem; color: #fff;
+}
+.station-sign .st-now { background: var(--stline, var(--line-blue)); }
+.station-sign .st-done { background: var(--good); }
+.station-sign .st-due { background: var(--gold); color: var(--ink); }
+/* the ← prev · next → strip, pushed toward the middle/bottom */
+.station-sign .st-prevnext {
+  margin-top: auto; display: flex; justify-content: space-between; gap: 0.6rem;
+  padding: 0.7rem 1.1rem; background: var(--card-2);
+  border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 0.72rem; color: var(--ink-soft);
+}
+.station-sign .st-prev, .station-sign .st-next {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 48%;
+}
+.station-sign .st-next { text-align: right; }
+/* the four launchers, as ticket-gate round buttons */
+.station-sign .lc-actions {
+  display: flex; justify-content: space-around; gap: 0.3rem;
+  padding: 0.85rem 0.7rem 1rem;
+}
+.station-sign .lc-act { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; background: none; border: 0; cursor: pointer; color: var(--ink); }
+.station-sign .lc-act-ico {
+  width: 3rem; height: 3rem; display: grid; place-items: center; font-size: 1.3rem; line-height: 1;
+  border: 2.5px solid var(--ink); border-radius: 50%; background: #fff;
+  box-shadow: 0 3px 0 rgba(32, 38, 58, 0.16); transition: transform 0.08s, box-shadow 0.08s;
+}
+.station-sign .lc-act:active .lc-act-ico { transform: translateY(3px); box-shadow: 0 0 0 rgba(32, 38, 58, 0.16); }
+.station-sign .act-practice .lc-act-ico { background: var(--stline, var(--line-blue)); color: #fff; border-color: var(--ink); }
+.station-sign .lc-act-lbl { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.02em; }
+.station-sign.lc-ahead { opacity: 0.92; }
+.station-sign.lc-done .st-jp { color: var(--ink-soft); }
+/* hide any leftover kawaii cover bits if present */
+.station-sign .lc-emoji, .station-sign .lc-flag, .station-sign .lc-cap > .lc-title { display: none !important; }
+
+/* ================= TOP CHROME ================= */
+#topbar { background: rgba(246, 245, 240, 0.9) !important; border-bottom: 1px solid var(--rule) !important; }
+#app-title { color: var(--ink) !important; letter-spacing: 0.02em; }
+.icon-btn { background: #fff !important; border: 2px solid var(--ink) !important; color: var(--ink) !important; box-shadow: 0 2px 0 rgba(32,38,58,.16) !important; border-radius: 10px !important; }
+
+/* the small round back/home pill inside a level = a station exit sign */
+#lesson-map:has(.lesson-list) > .level-back {
+  border-color: var(--ink) !important; background: #fff !important;
+  box-shadow: 0 3px 0 rgba(32, 38, 58, 0.16) !important;
+}
+#lesson-map:has(.lesson-list) > .level-back::before { color: var(--ink) !important; }
+.practice-nav-btn { border-color: var(--ink) !important; background: #fff !important; box-shadow: 0 3px 0 rgba(32,38,58,.16), 0 7px 18px rgba(32,38,58,.12) !important; }
+
+/* ================= BOTTOM NAV = a line map footer ================= */
+.bottom-nav {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 2px solid var(--ink) !important;
+  box-shadow: 0 6px 0 rgba(32, 38, 58, 0.12), 0 12px 30px rgba(32, 38, 58, 0.14) !important;
+  border-radius: 18px !important;
+}
+.tab-item { color: var(--ink-soft) !important; }
+.tab-item.active { color: var(--line-blue) !important; background: rgba(15, 108, 182, 0.10) !important; }
+
+/* ================= HOME / CONTINUE = "next train" board ================= */
+.continue-card {
+  background: var(--ink) !important;
+  border: 2px solid var(--ink) !important; border-radius: 18px !important;
+  box-shadow: 0 6px 0 rgba(32, 38, 58, 0.25) !important;
+}
+.continue-glyph { background: rgba(255,255,255,.12) !important; border-radius: 10px !important; font-family: var(--sign); }
+.hub-title { color: var(--ink); letter-spacing: -0.02em; }
+.hub-eyebrow, .card-kicker { color: var(--line-blue) !important; }
+
+/* level overview cards → line entries */
+.level-card {
+  border: 2.5px solid var(--ink) !important; border-radius: 16px !important;
+  background: #fff !important; box-shadow: 0 4px 0 rgba(32,38,58,.16) !important;
+}
+
+/* ================= SHARED BUTTONS ================= */
+button.primary, button.secondary, button.small {
+  border: 2.5px solid var(--ink) !important; border-radius: 12px !important;
+  color: var(--ink) !important; box-shadow: 0 4px 0 rgba(32, 38, 58, 0.16) !important;
+  font-weight: 700;
+}
+button.primary { background: var(--line-blue) !important; color: #fff !important; }
+button.secondary { background: #fff !important; }
+button.primary:active, button.secondary:active { transform: translateY(4px); box-shadow: 0 0 0 rgba(32,38,58,.16) !important; }
+
+/* grade chips */
+button.grade { border: 2.5px solid var(--ink) !important; box-shadow: 0 4px 0 rgba(32,38,58,.16) !important; background: #fff !important; color: var(--ink) !important; }
+button.grade.nope { background: color-mix(in srgb, var(--bad) 14%, #fff) !important; }
+button.grade.kinda { background: color-mix(in srgb, var(--gold) 20%, #fff) !important; }
+button.grade.got { background: color-mix(in srgb, var(--line-blue) 14%, #fff) !important; }
+
+/* ================= CARDS / PANELS (words, talk, kana, settings) ================= */
+#card, .setting-group, .reader-text, .reader-pop, .vocab-item, .sentence-item,
+.mine-item, .quiz-mochiko, .kana-chip, .kq-opt, #new-kana, .stat-tile, .imm-card {
+  border-color: var(--ink) !important;
+  background: #fff !important;
+}
+.vocab-item, .sentence-item {
+  border: 2px solid var(--ink) !important; border-radius: 12px !important;
+  box-shadow: 0 3px 0 rgba(32,38,58,.12) !important;
+}
+.label, .section-title, #vocab-label, #sentence-label { color: var(--line-blue) !important; font-family: var(--mono); letter-spacing: 0.04em; }
+.tap-hint { color: var(--ink-soft) !important; }
+
+/* kana grid tiles as little station tiles */
+.kana-chip { border: 2px solid var(--ink) !important; border-radius: 10px !important; box-shadow: 0 2px 0 rgba(32,38,58,.14) !important; background:#fff !important; }
+.kana-chip.seen, .kana-chip.on { background: color-mix(in srgb, var(--line-blue) 12%, #fff) !important; }
+
+/* speaking / talk bubble */
+.quiz-mochiko, #quiz .bubble, .scene-bubble {
+  border: 2.5px solid var(--ink) !important; border-radius: 16px !important;
+  box-shadow: 0 4px 0 rgba(32,38,58,.14) !important; background: #fff !important;
+}
+#quiz .who, .quiz-who { color: var(--line-blue) !important; font-family: var(--mono); }
+
+/* ================= CAR MODE DRILL — a moving-train sign ================= */
+body.drive-mode #app { background: var(--paper) !important; }
+body.drive-mode #prompt-en { color: var(--ink) !important; font-family: var(--sign); }
+body.drive-mode #answer-kana { color: var(--ink) !important; }
+/* thin line stripe at the very top of the drill sheet */
+body.drive-mode #drill:not([hidden])::before {
+  content: ""; position: fixed; top: 0; left: 0; right: 0; height: 8px;
+  background: var(--line-blue); z-index: 5;
+}
+body.drive-mode #reveal-area::after { color: var(--ink-soft) !important; }
+.word-chip { border: 2px solid var(--ink) !important; border-radius: 10px !important; background: #fff !important; }
+
+/* mastery / progress bars in line colour */
+.mastery-bar, .daily-bar, .tile-bar, .continue-progress { background: rgba(32,38,58,.12) !important; }
+.mastery-bar > i, #mastery-fill, .daily-bar i, .continue-progress i { background: var(--line-blue) !important; }

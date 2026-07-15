@@ -1458,9 +1458,26 @@
     "linear-gradient(160deg,#ffe0e0,#ffcaca)", "linear-gradient(160deg,#eaf0d9,#d6e3b8)",
   ];
 
+  // ---- Subway theme: each level is a train LINE, each lesson a STATION ----
+  // Tokyo-transit line colors + line letters, assigned by level order.
+  const LINE_COLORS = ["#0F6CB6", "#F62E36", "#2E7D5B", "#F39700", "#8674A1", "#00A0B0", "#C8385A", "#E3B500", "#86B81B", "#1F2A44"];
+  const LINE_LETTERS = ["G", "M", "H", "T", "C", "N", "Y", "Z", "F", "I"];
+  function levelLineIdx(level) { return Math.max(0, window.LEVELS.findIndex((l) => l.id === level.id)); }
+  // The station name = the lesson's grammar point (owner decision), trimmed to
+  // the first clause so it reads like a station name on a platform sign.
+  function stationName(L) {
+    let g = (L.grammar || L.title || "").trim();
+    g = g.split(/\s*[—·]\s*|\s+\(/)[0].trim();     // drop the "— gloss" / "(note)" tail
+    return g.length > 22 ? g.slice(0, 21).trimEnd() + "…" : g;
+  }
+
   function renderJourney(container, level) {
     const wrap = document.createElement("div");
     wrap.className = "lesson-list";
+    const lineIdx = levelLineIdx(level);
+    const lineColor = LINE_COLORS[lineIdx % LINE_COLORS.length];
+    const lineLetter = LINE_LETTERS[lineIdx % LINE_LETTERS.length];
+    wrap.style.setProperty("--stline", lineColor);
 
     const isDoneL = (L) => { const s = lessonStats(L); return s.passed >= s.total; };
     const regionList = [];
@@ -1471,6 +1488,9 @@
     // Frontier = first not-done lesson across the level: that's where you are.
     let frontierId = null;
     outer: for (const r of regionList) for (const L of r.lessons) if (!isDoneL(L)) { frontierId = L.id; break outer; }
+    // The line's stations in order (across every theme) — drives station numbers
+    // and the ← prev / next → strip on each sign.
+    const levelLessons = regionList.flatMap((r) => r.lessons);
 
     let lastTier = null, regionIdx = 0;
     for (const r of regionList) {
@@ -1503,25 +1523,51 @@
       // four buttons are the different ways to practice this lesson.
       const rail = document.createElement("div");
       rail.className = "lesson-rail";
-      const wash = COVER_WASHES[regionIdx % COVER_WASHES.length];
       r.lessons.forEach((L) => {
         const st = lessonStats(L);
         const isDone = st.passed >= st.total;
         const current = !isDone && L.id === frontierId;
+        const idx = levelLessons.indexOf(L);
+        const stNum = String(idx + 1).padStart(2, "0");
+        const prev = levelLessons[idx - 1];
+        const next = levelLessons[idx + 1];
+
+        // Each lesson card is a platform station-name sign (駅名標).
         const card = document.createElement("div");
-        card.className = "lesson-card" + (isDone ? " lc-done" : current ? " lc-current" : " lc-ahead");
+        card.className = "lesson-card station-sign" + (isDone ? " lc-done" : current ? " lc-current" : " lc-ahead");
         card.dataset.lesson = L.id;          // so Back can scroll home to this card
         card.setAttribute("role", "button");
         card.setAttribute("aria-label", L.title);
-        if (L.image) { card.style.backgroundImage = "url('" + L.image + "')"; card.classList.add("lc-has-img"); }
-        else { card.style.backgroundImage = wash; card.appendChild(span("lc-emoji", lessonCover(L))); }
 
-        if (isDone) card.appendChild(span("lc-flag lc-flag-done", "✓"));
-        else if (current) card.appendChild(span("lc-flag lc-flag-now", "▶"));
+        card.appendChild(span("st-bar", ""));
 
-        const cap = document.createElement("div");
-        cap.className = "lc-cap";
-        cap.appendChild(span("lc-title", L.title));
+        const head2 = document.createElement("div");
+        head2.className = "st-head";
+        const badge = document.createElement("div");
+        badge.className = "st-badge";
+        badge.appendChild(span("st-line", lineLetter));
+        badge.appendChild(span("st-num", stNum));
+        head2.appendChild(badge);
+        const names = document.createElement("div");
+        names.className = "st-names";
+        names.appendChild(span("st-jp", stationName(L)));
+        names.appendChild(span("st-en", L.title));
+        head2.appendChild(names);
+        card.appendChild(head2);
+
+        // status flag ↓ done / here
+        if (isDone) card.appendChild(span("st-status st-done", "✓ 通過 done"));
+        else if (current) card.appendChild(span("st-status st-now", "▶ 現在地 you are here"));
+        else if (current === false && st.due > 0) card.appendChild(span("st-status st-due", "⚡ " + st.due + " warmup"));
+
+        // prev / next stations, like a real platform sign
+        const pn = document.createElement("div");
+        pn.className = "st-prevnext";
+        pn.appendChild(span("st-prev", prev ? "← " + stationName(prev) : "始発 start"));
+        pn.appendChild(span("st-next", next ? stationName(next) + " →" : "終点 end"));
+        card.appendChild(pn);
+
+        // the four ways to practice, kept as ticket-gate style buttons
         const acts = document.createElement("div");
         acts.className = "lc-actions";
         const mkAct = (cls, icon, label, fn) => {
@@ -1533,11 +1579,10 @@
           acts.appendChild(b);
         };
         mkAct("act-words", "📖", "Words", () => openIntro(L));
-        mkAct("act-practice", "▶", "Practice", () => startLesson(L));
+        mkAct("act-practice", "▶", "Ride", () => startLesson(L));
         mkAct("act-talk", "🎭", "Talk", () => startTalk(L));
         mkAct("act-build", "🧩", "Build", () => startLesson(L, { build: true }));
-        cap.appendChild(acts);
-        card.appendChild(cap);
+        card.appendChild(acts);
 
         card.addEventListener("click", () => { activeLesson = L; startLesson(L); });
         rail.appendChild(card);
