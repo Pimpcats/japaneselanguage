@@ -65,11 +65,13 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
   display: flex !important;
   flex-direction: column;
   padding: 0 !important;
-  /* the carousel wants a tall 3:4 picture; a station sign is a centered board */
+  /* the carousel wants a tall 3:4 picture; a station sign is a centered board.
+     Fixed height so EVERY card is the same large size regardless of how long
+     its station name / status is (owner: cards must not vary lesson-to-lesson). */
   aspect-ratio: auto !important;
-  width: min(90vw, 420px) !important;
+  width: min(90vw, 430px) !important;
   max-width: 90vw !important;
-  height: auto !important;
+  height: min(96%, 600px) !important;
   max-height: 96% !important;
   align-self: center !important;
   justify-self: center !important;
