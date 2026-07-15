@@ -41,11 +41,12 @@ click(document.getElementById("card"));   // whole sheet is the reveal button
 check("answer draws romaji over each kana", document.querySelectorAll("#answer-kana ruby.mr rt").length > 0);
 click(document.getElementById("back-btn"));   // back to the level's card rail
 check("back returns to the lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
-// The 🎭 Talk launcher opens the conversation.
-click(document.querySelector(".lesson-card .act-talk"));
-check("Talk opens from a card", !document.getElementById("quiz").hidden);
-click(document.getElementById("back-btn"));
-check("back returns to the lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
+// The 🔁 Catch up launcher replaces Talk; with nothing missed yet it just
+// flashes a toast and stays on the cards (no crash, no drill).
+const catchupBtn = document.querySelector(".lesson-card .act-catchup");
+check("catch-up launcher present", !!catchupBtn);
+click(catchupBtn);
+check("catch-up with nothing missed stays on cards", document.querySelectorAll(".lesson-card").length >= 3);
 // The 📖 Words launcher opens the (now opt-in) lesson reference.
 click(document.querySelector(".lesson-card .act-words"));
 check("Words opens the lesson reference", !document.getElementById("lesson-intro").hidden);

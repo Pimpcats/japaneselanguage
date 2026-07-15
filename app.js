@@ -275,21 +275,28 @@
   }
 
   // ---- Scheduling -----------------------------------------------------------
-  // The interval comes straight from the card's correct-answer count (reps,
-  // which resets on nope): got it = 5d, 10d, 15d…; kinda = 2d, 4d, 6d…;
-  // nope = always 1d.
+  // Tug-of-war spacing (owner, 2026-07): each card sits on a notch of this
+  // day-ladder. Reps IS the notch. "Got it" climbs one notch (comes back
+  // later — days → weeks → months as consecutive rights stack up); "nope"
+  // drops ONE notch (comes back sooner) rather than resetting to zero, so a
+  // single slip never wipes hard-won memory. A mastered card still resurfaces
+  // when its notch elapses — understanding it once doesn't retire it forever.
+  const SRS_LADDER = [1, 3, 7, 14, 30, 60, 120, 240];
+  const ladderInterval = (reps) => SRS_LADDER[Math.min(Math.max(reps | 0, 0), SRS_LADDER.length - 1)];
+  // Predict the interval a given grade would set (drives the swipe-hint days).
   function nextInterval(c, grade) {
-    if (grade === 0) return 1;
-    const n = (c.reps || 0) + 1;             // counting this pass
-    return grade === 1 ? 2 * n : 5 * n;
+    let r = c.reps || 0;
+    if (grade === 2) r += 1; else if (grade === 0) r = Math.max(0, r - 1);
+    return ladderInterval(r);
   }
   function srsUpdate(cardId, grade) {
     const c = prog.cards[cardId] || { reps: 0, ease: 2.5, interval: 0, lapses: 0 };
-    c.interval = nextInterval(c, grade);
-    if (grade === 0) { c.reps = 0; c.lapses += 1; }
-    else c.reps += 1;
-    c.lastGrade = grade;                     // drives the Nope/Kinda review buckets
-    if (grade <= 1) c.struggles = (c.struggles || 0) + 1;   // lifetime marks: feeds the level-end challenge
+    if (grade === 2) c.reps = (c.reps || 0) + 1;                 // climb a notch
+    else if (grade === 0) { c.reps = Math.max(0, (c.reps || 0) - 1); c.lapses = (c.lapses || 0) + 1; } // drop one
+    // grade 1 (kinda) holds the current notch
+    c.interval = ladderInterval(c.reps);
+    c.lastGrade = grade;                     // drives the missed / Catch-up buckets
+    if (grade <= 1) c.struggles = (c.struggles || 0) + 1;   // lifetime marks: feeds the level challenge
     c.due = Date.now() + c.interval * DAY;
     prog.cards[cardId] = c;
     prog.reviews += 1;
@@ -1669,7 +1676,7 @@
         };
         mkAct("act-words", "📖", "Words", () => openIntro(L));
         mkAct("act-practice", "▶", "Ride", () => startLesson(L));
-        mkAct("act-talk", "🎭", "Talk", () => startTalk(L));
+        mkAct("act-catchup", "🔁", "Catch up", startCatchup);
         mkAct("act-build", "🧩", "Build", () => startLesson(L, { build: true }));
         card.appendChild(acts);
 
@@ -1883,9 +1890,7 @@
     // Moving forward pays the review toll: up to 5 due cards from PAST lessons
     // warm you up before the lesson's own cards. Review is the on-ramp, not a
     // separate errand. (Skipped in build mode — different muscle.)
-    const warmup = (opts && opts.build) ? [] :
-      reviewCards().filter((c) => c.lessonId !== L.id).slice(0, 5)
-        .map((c) => Object.assign({}, c, { warmup: true }));
+    const warmup = (opts && opts.build) ? [] : buildWarmup(L.id);
     // Car mode: no letter-tapping interludes — the alphabet is now taught in
     // place, drawn over each kana of the model answer (see driveAnswerHTML).
     startSession(warmup.concat(queue), "lesson", L.id, opts);
@@ -1894,6 +1899,20 @@
   // it rides along as a ⚡ warmup in every lesson you move forward through —
   // no day-gate, no separate review errand — until "Got it" finally clears it.
   // Keep marking it, it keeps coming back; get it, it's gone.
+  // What rides the next lesson's warmup: sentences you MISSED (come back the
+  // very next lesson) plus mastered cards whose notch has elapsed (spaced
+  // return). Most-overdue first, capped so a lesson never front-loads a slog.
+  function buildWarmup(excludeLessonId) {
+    const now = Date.now();
+    const pool = CARDS.filter((c) => {
+      if (c.lessonId === excludeLessonId) return false;
+      const p = prog.cards[c.id];
+      if (!p || (!p.reps && !p.lapses)) return false;    // never seen
+      const lg = lastGradeOf(p);
+      return lg <= 1 || (p.due || 0) <= now;             // missed → always; mastered → when due
+    }).sort((a, b) => ((prog.cards[a.id] || {}).due || 0) - ((prog.cards[b.id] || {}).due || 0));
+    return pool.slice(0, 5).map((c) => Object.assign({}, c, { warmup: true }));
+  }
   function reviewCards() {
     const weak = CARDS.filter((c) => {
       const p = prog.cards[c.id];
@@ -1913,6 +1932,23 @@
     const cards = reviewCards();
     if (!cards.length) return;
     startSession(cards, "review", null);
+  }
+  // Catch up (replaces the per-lesson 🎭 Talk launcher): drill every sentence
+  // you've missed across ALL lessons — your whole backlog in one place.
+  function startCatchup() {
+    const cards = reviewCards();
+    if (!cards.length) { flash("All caught up — nothing to review 🎉"); return; }
+    startSession(cards.slice(), "review", null);
+  }
+  // A brief bottom toast for transient feedback (e.g. nothing to catch up).
+  let flashTimer = null;
+  function flash(msg) {
+    let t = document.getElementById("toast");
+    if (!t) { t = document.createElement("div"); t.id = "toast"; document.body.appendChild(t); }
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(flashTimer);
+    flashTimer = setTimeout(() => t.classList.remove("show"), 2200);
   }
   function lastGradeOf(p) {
     if (!p) return 0;
@@ -2391,7 +2427,9 @@
     if (g === 2) { session.combo += 1; session.bestCombo = Math.max(session.bestCombo, session.combo); }
     else session.combo = 0;
     renderCombo();
-    if (g === 0) session.queue.push(current); else session.cleared += 1;
+    // No endless loop (owner, 2026-07): a miss advances like any card — it drops
+    // a notch and rides the NEXT lesson's warmup instead of repeating right now.
+    session.cleared += 1;
     renderDailyRing();
     nextCard();
   }
@@ -3246,7 +3284,7 @@
   })();
   el.focusBtn.addEventListener("click", startFocus);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
-  el.doneQuizBtn.addEventListener("click", () => startTalk(activeLesson));
+  el.doneQuizBtn.addEventListener("click", startCatchup);
   el.kanaBtn.addEventListener("click", openKana);
   el.kanaTabH.addEventListener("click", () => { kanaScript = "h"; el.kanaQuiz.hidden = true; el.kanaGrid.hidden = false; el.kanaPracticeBtn.hidden = false; renderKanaGrid(); });
   el.kanaTabK.addEventListener("click", () => { kanaScript = "k"; el.kanaQuiz.hidden = true; el.kanaGrid.hidden = false; el.kanaPracticeBtn.hidden = false; renderKanaGrid(); });

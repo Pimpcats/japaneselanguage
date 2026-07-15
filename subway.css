@@ -329,6 +329,16 @@ body.drive-mode #reveal-area::after { color: var(--ink-soft) !important; }
 .wc-emoji { display: block; font-size: 1.4rem; line-height: 1; margin-bottom: 0.12rem; }
 body.drive-mode .wc-emoji { font-size: 1.7rem; margin-bottom: 0.18rem; }
 
+/* transient bottom toast (e.g. "all caught up") */
+#toast {
+  position: fixed; left: 50%; bottom: 5.5rem; z-index: 200;
+  transform: translateX(-50%) translateY(1rem);
+  background: var(--ink); color: #fff; padding: 0.6rem 1rem; border-radius: 12px;
+  font-weight: 600; font-size: 0.9rem; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
 /* mastery / progress bars in line colour */
 .mastery-bar, .daily-bar, .tile-bar, .continue-progress { background: rgba(32,38,58,.12) !important; }
 .mastery-bar > i, #mastery-fill, .daily-bar i, .continue-progress i { background: var(--line-blue) !important; }
