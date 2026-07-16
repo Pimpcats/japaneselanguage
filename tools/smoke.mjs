@@ -66,4 +66,9 @@ click(document.querySelector(".kq-opt"));
 await new Promise((r) => setTimeout(r, 1600));
 check("practice advances after answering", document.getElementById("kq-progress").textContent.startsWith("2") || !document.getElementById("kana-quiz").hidden);
 
+// Catch-up bubble is built in the top bar and refresh runs without error.
+check("catch-up badge built", !!document.getElementById("catchup-badge"));
+try { window.__hanaRefreshCatchup(); check("catch-up refresh runs", true); }
+catch (e) { check("catch-up refresh runs — " + e.message, false); }
+
 process.exit(failed ? 1 : 0);

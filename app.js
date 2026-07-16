@@ -1289,6 +1289,7 @@
   function renderHome() {
     document.body.classList.remove("drive-mode");   // leaving a drive session
     keepAwake(false);
+    updateCatchupBadge();
     renderDailyRing();
     renderMastery();
     el.stats.hidden = true;
@@ -1950,6 +1951,18 @@
     clearTimeout(flashTimer);
     flashTimer = setTimeout(() => t.classList.remove("show"), 2200);
   }
+  // The top-bar catch-up bubble (built in theme.js) shows how many missed
+  // sentences are waiting; hidden when you're all caught up.
+  function updateCatchupBadge() {
+    const b = document.getElementById("catchup-badge");
+    if (!b) return;
+    const n = reviewCards().length;
+    const c = b.querySelector(".cu-n");
+    if (c) c.textContent = n > 99 ? "99+" : String(n);
+    b.hidden = n === 0;
+  }
+  window.__hanaCatchup = startCatchup;
+  window.__hanaRefreshCatchup = updateCatchupBadge;
   function lastGradeOf(p) {
     if (!p) return 0;
     if (typeof p.lastGrade === "number") return p.lastGrade;
@@ -2443,6 +2456,7 @@
 
   function finish() {
     el.progressFill.style.width = "100%";
+    updateCatchupBadge();
     const due = dueCards().length;
     let msg;
     if (session.mode === "focus") {

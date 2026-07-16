@@ -329,6 +329,22 @@ body.drive-mode #reveal-area::after { color: var(--ink-soft) !important; }
 .wc-emoji { display: block; font-size: 1.4rem; line-height: 1; margin-bottom: 0.12rem; }
 body.drive-mode .wc-emoji { font-size: 1.7rem; margin-bottom: 0.18rem; }
 
+/* Catch-up bubble in the top bar — a round button like Home, badged with the
+   number of missed sentences waiting. */
+#catchup-badge {
+  position: relative; border-radius: 50% !important;
+  border: 2px solid var(--ink) !important; background: #fff !important;
+  box-shadow: 0 2px 0 rgba(32, 38, 58, 0.16) !important;
+}
+#catchup-badge .cu-n {
+  position: absolute; top: -7px; right: -7px;
+  min-width: 1.15rem; height: 1.15rem; padding: 0 0.22rem; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 999px; background: var(--line-red, #f62e36); color: #fff;
+  border: 2px solid var(--paper, #fff);
+  font: 700 0.68rem/1 var(--mono); letter-spacing: 0;
+}
+
 /* transient bottom toast (e.g. "all caught up") */
 #toast {
   position: fixed; left: 50%; bottom: 5.5rem; z-index: 200;
