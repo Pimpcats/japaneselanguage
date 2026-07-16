@@ -1864,6 +1864,9 @@
     document.body.classList.toggle("drive-mode", session.drive);
     if (session.drive) keepAwake(true);
     renderCombo();
+    // Let the story add-on reset its per-run "already shown" set so replayable
+    // beats (place / identify) reappear on a fresh run of the lesson.
+    if (window.HanasouStory && HanasouStory.onSession) HanasouStory.onSession(mode, lessonId, !!(opts && opts.build));
     show(el.drill, { back: true });
     nextCard();
   }
@@ -2102,6 +2105,12 @@
     }
     renderWordChips(s);
     if (doBuild) startBuild(s);
+    // Interactive story beat BEFORE a matching card (add-on: interactive-
+    // learning.js). It overlays the just-rendered card; dismissing it reveals
+    // the normal card underneath, fully intact. No-op if no beat applies.
+    if (window.HanasouStory && HanasouStory.beforeCard) {
+      HanasouStory.beforeCard({ en: s.en, jp: s.jp, lessonId: session.lessonId, mode: session.mode, build: !!session.build });
+    }
   }
 
   // Spell-it interlude: assemble the word letter by letter from a small bank
@@ -2452,6 +2461,11 @@
     // a notch and rides the NEXT lesson's warmup instead of repeating right now.
     session.cleared += 1;
     renderDailyRing();
+    // Interactive story beat AFTER a successful grade (add-on: interactive-
+    // learning.js). If it takes over, it calls nextCard when the learner is
+    // done; otherwise we advance now. SRS scoring above already happened.
+    if (g !== 0 && window.HanasouStory && HanasouStory.afterGrade &&
+        HanasouStory.afterGrade({ en: current.s && current.s.en, jp: current.s && current.s.jp, lessonId: session.lessonId, mode: session.mode, build: !!session.build }, nextCard)) return;
     nextCard();
   }
 
