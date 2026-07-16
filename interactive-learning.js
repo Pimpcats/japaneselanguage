@@ -19,21 +19,52 @@
     { id: "window", name: "window cover" },
   ];
 
-  // Data-driven story beats keyed by a card's English prompt. Future items
-  // (umbrella, bag, ticket, drink…) slot in here without touching app.js.
+  // Data-driven story beats keyed by a card's English prompt. The rule (owner,
+  // 2026-07): the act must PRODUCE the exact sentence the learner then says —
+  // interaction establishes meaning, the speaking card still does the work.
+  // Every beat carries its home lesson so a card riding another lesson's
+  // warmup never triggers it there.
+  //
+  // Beat types: claim (choose a persistent item) · place (drag/tap position)
+  // · identify (find yours among decoys) · point (first-person hand, pick the
+  // object at the right DISTANCE — これ/それ/あれ live here). A beat may chain
+  // into another with `next` (claim flows straight into place).
+  const PLACE_BEAT = { id: "place-book", type: "place", item: "book", lesson: "this-that" };
+  const CLAIM_BEAT = { id: "claim-book", type: "claim", item: "book", once: true, lesson: "this-that", next: PLACE_BEAT };
+
   const AFTER_PROMPT = {
-    "This is a book.": { id: "claim-book", type: "claim", item: "book", once: true },
-    "That over there is my bag.": { id: "place-book", type: "place", item: "book" },
+    // First time: choose your book, then put it on the desk — one flowing
+    // scene. Later runs remember the cover, so only the placement replays.
+    "This is a book.": () => (story.completed["claim-book"] ? PLACE_BEAT : CLAIM_BEAT),
   };
-  // The action IS the answer: picking your book sets up the exact sentence the
-  // learner then produces. Keyed on the card whose Japanese the act yields.
+
   const BEFORE_PROMPT = {
+    // それ = by the other person: point at the bag beside もち子.
+    "That (by you) is a bag.": {
+      id: "point-sore", type: "point", target: "partner", lesson: "this-that",
+      instruction: "Point at the bag next to もち子",
+      answer: { jp: "それは かばんです。", romaji: "sore wa kaban desu", en: "That (by you) is a bag." },
+    },
+    // あれ = far from you both: point at your bag up on the shelf.
+    "That over there is my bag.": {
+      id: "point-are", type: "point", target: "far", lesson: "this-that",
+      instruction: "Point at your bag on the far shelf",
+      answer: { jp: "あれは わたしの かばんです。", romaji: "are wa watashi no kaban desu", en: "That over there is my bag." },
+    },
     "This is my book.": {
-      id: "answer-my-book", type: "identify", item: "book",
+      id: "answer-my-book", type: "identify", item: "book", lesson: "this-that",
       ask: { jp: "どれが あなたの ほんですか？", romaji: "dore ga anata no hon desu ka", en: "Which one is your book?" },
       answer: { jp: "これは わたしの ほんです。", romaji: "kore wa watashi no hon desu", en: "This is my book." },
     },
   };
+
+  // A map value may be a function (resolved at fire time) so a key can serve
+  // different beats depending on what the learner already owns.
+  function resolveBeat(map, en) {
+    let beat = map[normalize(en)];
+    if (typeof beat === "function") beat = beat();
+    return beat;
+  }
 
   const story = loadStory();
   story.inventory = story.inventory || {};
@@ -119,8 +150,15 @@
     if (!beat || overlayOpen) return false;
     overlayOpen = true;
     document.body.classList.add("story-open");
+    renderBeat(beat, onDone);
+    return true;
+  }
+
+  function renderBeat(beat, onDone) {
     overlay.root.hidden = false;
     overlay.root.className = "story-break open story-" + beat.type;
+    if (beat.target) overlay.root.dataset.target = beat.target;
+    else delete overlay.root.dataset.target;
     overlay.stage.className = "story-stage story-stage-" + beat.type;
     overlay.stage.innerHTML = "";
     overlay.feedback.textContent = "";
@@ -132,6 +170,9 @@
 
     const finishBeat = () => {
       markBeatDone(beat);
+      // A beat can flow straight into the next one (claim → place) without
+      // dropping back to the card in between.
+      if (beat.next && !shouldSkip(beat.next)) { renderBeat(beat.next, onDone); return; }
       closeOverlay();
       if (typeof onDone === "function") onDone();
     };
@@ -139,7 +180,7 @@
     if (beat.type === "claim") renderClaimBeat(beat, finishBeat);
     else if (beat.type === "place") renderPlaceBeat(beat, finishBeat);
     else if (beat.type === "identify") renderIdentifyBeat(beat, finishBeat);
-    return true;
+    else if (beat.type === "point") renderPointBeat(beat, finishBeat);
   }
 
   function bookButton(book, className) {
@@ -362,6 +403,91 @@
     overlay.stage.appendChild(row);
   }
 
+  // ---- Point beat: これ・それ・あれ ARE distance — so the act is pointing. ----
+  // The same bag sits in three places: by your hand (これ), beside もち子
+  // (それ), and up on a far shelf (あれ). Only distance changes the word, so
+  // wrong taps teach the system instead of just refusing.
+  const ZONE_WORD = { near: "これ", partner: "それ", far: "あれ" };
+  const ZONE_DESC = {
+    near: "right by your hand",
+    partner: "next to もち子",
+    far: "up on the far shelf",
+  };
+
+  function bagButton(zone) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "story-bag story-bag-" + zone;
+    button.dataset.zone = zone;
+    button.setAttribute("aria-label", "bag " + ZONE_DESC[zone]);
+    const handle = document.createElement("i"); handle.className = "bag-handle";
+    const body = document.createElement("i"); body.className = "bag-body";
+    const clasp = document.createElement("i"); clasp.className = "bag-clasp";
+    button.append(handle, body, clasp);
+    return button;
+  }
+
+  function renderPointBeat(beat, finishBeat) {
+    overlay.title.textContent = beat.instruction;
+    overlay.copy.textContent = "これ = near you · それ = by them · あれ = far away. Same bag — only the distance changes the word.";
+
+    const room = document.createElement("div");
+    room.className = "story-room";
+
+    const farRow = document.createElement("div");
+    farRow.className = "story-zone story-zone-far";
+    const shelf = document.createElement("div");
+    shelf.className = "story-shelf";
+    shelf.appendChild(bagButton("far"));
+    farRow.appendChild(shelf);
+
+    const partnerRow = document.createElement("div");
+    partnerRow.className = "story-zone story-zone-partner";
+    const mochiko = document.createElement("img");
+    mochiko.className = "story-mochiko";
+    mochiko.src = "assets/chibi_think.png";
+    mochiko.alt = "もち子";
+    partnerRow.append(mochiko, bagButton("partner"));
+
+    const nearRow = document.createElement("div");
+    nearRow.className = "story-zone story-zone-near";
+    const hand = document.createElement("div");
+    hand.className = "story-hand";
+    hand.setAttribute("aria-hidden", "true");
+    nearRow.append(bagButton("near"), hand);
+
+    room.append(farRow, partnerRow, nearRow);
+    overlay.stage.appendChild(room);
+
+    room.querySelectorAll(".story-bag").forEach((bag) => {
+      bag.addEventListener("click", () => {
+        if (bag.disabled) return;
+        const zone = bag.dataset.zone;
+        if (zone !== beat.target) {   // wrong distance: teach the zone word, don't advance
+          bag.classList.remove("wrong");
+          void bag.offsetWidth;
+          bag.classList.add("wrong");
+          overlay.feedback.textContent = "That bag is " + ZONE_DESC[zone] + " — that would be " +
+            ZONE_WORD[zone] + ". Find the one " + ZONE_DESC[beat.target] + ".";
+          overlay.feedback.className = "story-feedback try-again";
+          return;
+        }
+        room.querySelectorAll(".story-bag").forEach((node) => {
+          node.disabled = true;
+          if (node !== bag) node.classList.add("dimmed");
+        });
+        bag.classList.add("correct");
+        hand.dataset.aim = zone;   // the hand tilts toward what you chose
+        if (beat.answer && !overlay.stage.querySelector(".story-answer")) {
+          overlay.stage.appendChild(sentenceBlock("story-answer", ZONE_WORD[beat.target] + " — now say it:", beat.answer));
+        }
+        overlay.feedback.textContent = "You're pointing right at it!";
+        overlay.feedback.className = "story-feedback success";
+        showContinue("Say it →", finishBeat);
+      });
+    });
+  }
+
   // Block Space/Enter (and any key) from reaching the drill's reveal handler
   // while a beat is open — buttons inside the beat still get their key events.
   document.addEventListener("keydown", (event) => {
@@ -383,16 +509,18 @@
     // (it will call `done` when the learner finishes); false to advance now.
     afterGrade: function (info, done) {
       if (!info || info.mode !== "lesson" || info.build) return false;
-      const beat = AFTER_PROMPT[normalize(info.en)];
+      const beat = resolveBeat(AFTER_PROMPT, info.en);
       if (shouldSkip(beat)) return false;
+      if (beat.lesson && beat.lesson !== info.lessonId) return false;   // not a warmup ride
       return openBeat(beat, done);
     },
     // Before a matching card is acted on. Overlays the just-rendered card;
     // dismissing reveals the intact card underneath.
     beforeCard: function (info) {
       if (!info || info.mode !== "lesson" || info.build) return false;
-      const beat = BEFORE_PROMPT[normalize(info.en)];
+      const beat = resolveBeat(BEFORE_PROMPT, info.en);
       if (shouldSkip(beat)) return false;
+      if (beat.lesson && beat.lesson !== info.lessonId) return false;   // not a warmup ride
       return openBeat(beat, null);
     },
     // Dev helper: clear ONLY the story inventory (not lesson/SRS progress).

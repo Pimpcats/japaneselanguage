@@ -43,6 +43,7 @@ never corporate, never noisy. Learning is the point; charm is the vehicle.
 | `theme.js` | Additive kawaii layer: header banner + control bar (moves `#back-btn`, `#card-counter`, `#mastery`, `#topbar-right` into `#ctrl-bar`), confetti/jingle FX (`window.HanaFX`), MP3 reward sounds with synth fallback. Uses MutationObservers on screen `[hidden]` attrs — it never patches app.js functions |
 | `theme.css` | The entire visual theme, layered over `styles.css` base. `styles.css` is the old plain look; prefer overriding in `theme.css` |
 | `collection.js` | Self-contained sticker/stamp add-on; listens to the `hanasou:finish` CustomEvent |
+| `interactive-learning.js/.css` | Story-beat add-on (see its section): short touch interactions between drill cards, driven by three optional hooks app.js calls (`HanasouStory.onSession`/`afterGrade`/`beforeCard`). State in `hanasou.story.v1`, never in SRS data |
 | `sw.js` | Service worker: `CACHE = "hanasou-vNN"`, precaches shell + all audio, network-first for navigations & `audio/manifest.json`, SWR for the rest |
 | `tools/gen_audio.mjs` | Build-time VOICEVOX synthesis (see Audio) |
 | `mock/` | A copy of the theme for design preview; `mock/theme.css` is GENERATED from `theme.css` (see deploy ritual) |
@@ -261,6 +262,26 @@ to reveal-and-listen when unavailable.
   streak-guilt. Do not add streak pressure back.
 - Rewards-as-content (unlockable voice styles / scenes) is the approved future
   direction for rewards — never points or XP.
+
+## Interactive story beats (interactive-learning.js — owner direction, 2026-07)
+
+- **The act must PRODUCE the exact sentence the learner then says.** A beat is
+  an action (choose / place / point / identify) whose completion attaches the
+  precise lesson sentence, then the untouched normal speaking card follows.
+  Interaction establishes meaning; the card still does the speaking work.
+- Beats are data entries keyed by a card's English prompt (`AFTER_PROMPT` /
+  `BEFORE_PROMPT`), carry `lesson:` (fire only in their home lesson — never on
+  warmup rides), and only in lesson mode (never review/build). `next` chains
+  beats (claim → place). A map value may be a function, resolved at fire time.
+- これ・それ・あれ are taught by **pointing**: the same object at three
+  distances (by your hand / beside もち子 / far shelf). Wrong taps TEACH the
+  zone word ("that one is next to もち子 — that would be それ") instead of just
+  refusing. Extend this pattern: errors should teach the system.
+- Only `this-that` has beats so far. Good candidates: existence/location
+  (ここ・あります), ordering (〜を ください), counting, adjective picking.
+  Abstract sentences (think/because/want) stay as normal cards — don't force it.
+- Scene art is CSS-drawn (books, bags, desk, hand) + existing chibi assets. No
+  external images. `HanasouStory.reset()` clears only story state (not SRS).
 
 ## Known debt / open items (keep this list honest)
 

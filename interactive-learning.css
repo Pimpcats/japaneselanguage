@@ -267,6 +267,110 @@ button.primary.story-continue {
 .story-place-piece { width: 62px; height: 88px; }
 .story-place-piece.dragging { transform: rotate(-4deg) scale(1.06); box-shadow: 0 18px 26px rgba(31,45,77,0.25); }
 
+/* ---- point (これ・それ・あれ = distance, so the act is pointing) ---- */
+.story-stage-point {
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  min-height: 320px;
+  padding: 0.85rem 0.9rem;
+}
+.story-room {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.55rem;
+  min-height: 250px;
+}
+.story-zone { display: flex; align-items: flex-end; }
+/* far: a wooden shelf up and away, top-right */
+.story-zone-far { justify-content: flex-end; padding-right: 6%; }
+.story-shelf {
+  position: relative;
+  display: flex; justify-content: center; align-items: flex-end;
+  padding: 0 1.1rem 0.25rem;
+  border-bottom: 7px solid #a8794d;
+  border-radius: 2px;
+}
+.story-shelf::before, .story-shelf::after {
+  content: "";
+  position: absolute; bottom: -16px; width: 8px; height: 12px;
+  background: #a8794d; border-radius: 0 0 3px 3px;
+}
+.story-shelf::before { left: 6px; }
+.story-shelf::after { right: 6px; }
+/* partner: もち子 with her bag, middle-left */
+.story-zone-partner { justify-content: flex-start; gap: 0.45rem; padding-left: 4%; }
+.story-mochiko { height: 76px; width: auto; display: block; }
+/* near: your bag beside your own pointing hand, bottom-centre */
+.story-zone-near { justify-content: center; gap: 1.1rem; }
+
+/* the bag, CSS-drawn — same bag at three sizes = three distances */
+.story-bag {
+  position: relative; padding: 0; border: 0; background: transparent;
+  cursor: pointer; transition: transform 0.15s ease, filter 0.15s ease;
+}
+.story-bag-far { width: 40px; height: 46px; }
+.story-bag-partner { width: 58px; height: 66px; }
+.story-bag-near { width: 78px; height: 88px; }
+.story-bag .bag-handle {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 44%; height: 30%;
+  border: 3px solid rgba(31, 45, 77, 0.7); border-bottom: 0;
+  border-radius: 999px 999px 0 0; background: transparent;
+}
+.story-bag .bag-body {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 74%;
+  background: linear-gradient(155deg, #d29a66, #b3773f);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 9px 9px 12px 12px;
+  box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.14);
+}
+.story-bag .bag-clasp {
+  position: absolute; bottom: 26%; left: 50%; transform: translateX(-50%);
+  width: 18%; aspect-ratio: 1;
+  background: #fff1c9; border: 2px solid rgba(31, 45, 77, 0.6); border-radius: 3px;
+  z-index: 1;
+}
+.story-bag:focus-visible { outline: 3px solid var(--accent, var(--story-blue)); outline-offset: 4px; }
+.story-bag:hover { transform: translateY(-3px); }
+.story-bag.dimmed { opacity: 0.35; filter: grayscale(0.5); }
+.story-bag.correct {
+  transform: translateY(-4px) scale(1.06);
+  filter: drop-shadow(0 0 9px color-mix(in srgb, var(--good, #2e7d5b) 70%, transparent));
+}
+.story-bag.wrong { animation: story-wrong 0.35s ease; }
+
+/* your hand, first person — the finger does the grammar */
+.story-hand {
+  position: relative; width: 58px; height: 66px;
+  transform-origin: 50% 100%;
+  transition: transform 0.25s ease;
+}
+.story-hand { transform: rotate(8deg); }
+.story-hand::before {   /* curled hand */
+  content: "";
+  position: absolute; bottom: 0; left: 12px; width: 46px; height: 40px;
+  background: linear-gradient(160deg, #f3c9a5, #e5ac7f);
+  border: 2px solid rgba(31, 45, 77, 0.6);
+  border-radius: 20px 18px 16px 16px;
+  box-shadow: inset 0 6px 0 rgba(31, 45, 77, 0.07);
+}
+.story-hand::after {    /* index finger, extended from the side and tilted */
+  content: "";
+  position: absolute; bottom: 30px; left: 5px; width: 14px; height: 36px;
+  background: linear-gradient(160deg, #f3c9a5, #e9b489);
+  border: 2px solid rgba(31, 45, 77, 0.6);
+  border-radius: 999px 999px 5px 5px;
+  transform: rotate(-24deg);
+  transform-origin: 50% 100%;
+}
+.story-hand[data-aim="far"] { transform: rotate(16deg) translateY(-5px); }
+.story-hand[data-aim="partner"] { transform: rotate(-18deg) translateY(-3px); }
+.story-hand[data-aim="near"] { transform: rotate(-30deg); }
+
 /* ---- identify (question → pick → attached answer) ---- */
 .story-stage-identify {
   flex-direction: column;
@@ -334,5 +438,8 @@ button.primary.story-continue {
   .story-panel,
   .story-choice,
   .story-identify-choice,
-  .story-identify-choice.wrong { animation: none !important; transition: none !important; }
+  .story-identify-choice.wrong,
+  .story-bag,
+  .story-bag.wrong,
+  .story-hand { animation: none !important; transition: none !important; }
 }
