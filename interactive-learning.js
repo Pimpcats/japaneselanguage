@@ -25,8 +25,14 @@
     "This is a book.": { id: "claim-book", type: "claim", item: "book", once: true },
     "That over there is my bag.": { id: "place-book", type: "place", item: "book" },
   };
+  // The action IS the answer: picking your book sets up the exact sentence the
+  // learner then produces. Keyed on the card whose Japanese the act yields.
   const BEFORE_PROMPT = {
-    "Which one is your book?": { id: "find-book", type: "identify", item: "book" },
+    "This is my book.": {
+      id: "answer-my-book", type: "identify", item: "book",
+      ask: { jp: "どれが あなたの ほんですか？", romaji: "dore ga anata no hon desu ka", en: "Which one is your book?" },
+      answer: { jp: "これは わたしの ほんです。", romaji: "kore wa watashi no hon desu", en: "This is my book." },
+    },
   };
 
   const story = loadStory();
@@ -292,11 +298,31 @@
     piece.style.pointerEvents = "";
   }
 
-  function renderIdentifyBeat(_beat, finishBeat) {
+  function sentenceBlock(cls, label, sentence) {
+    const box = document.createElement("div");
+    box.className = cls;
+    if (label) box.appendChild(span2("story-line-label", label));
+    box.appendChild(span2("story-line-jp", sentence.jp));
+    if (sentence.romaji) box.appendChild(span2("story-line-romaji", sentence.romaji));
+    if (sentence.en) box.appendChild(span2("story-line-en", sentence.en));
+    return box;
+  }
+  function span2(cls, text) {
+    const s = document.createElement("span");
+    s.className = cls;
+    s.textContent = text;
+    return s;
+  }
+
+  function renderIdentifyBeat(beat, finishBeat) {
     const chosen = ensureBook();
     const chosenSlot = Number.isInteger(story.inventory.book.slot) ? story.inventory.book.slot : 1;
-    overlay.title.textContent = "Which one is your book?";
-    overlay.copy.textContent = "Two more books appeared. Tap the book you chose earlier, then continue to the speaking card.";
+    const ask = beat.ask || { en: "Which one is your book?", jp: "", romaji: "" };
+    overlay.title.textContent = ask.en;
+    overlay.copy.textContent = "Tap the book you chose earlier — that answers the question.";
+    // The question the learner is answering, heard/read (not produced here).
+    if (ask.jp) overlay.stage.appendChild(sentenceBlock("story-ask", "もち子 asks", ask));
+
     const row = document.createElement("div");
     row.className = "story-book-row story-identify-row";
     const ordered = new Array(3);
@@ -323,9 +349,13 @@
           if (node !== button) node.classList.add("dimmed");
         });
         button.classList.add("correct");
-        overlay.feedback.textContent = "You found your book. Now say the sentence in Japanese.";
+        // The act IS the answer — attach the exact sentence to say next.
+        if (beat.answer && !overlay.stage.querySelector(".story-answer")) {
+          overlay.stage.appendChild(sentenceBlock("story-answer", "Now say it:", beat.answer));
+        }
+        overlay.feedback.textContent = "That's your book!";
         overlay.feedback.className = "story-feedback success";
-        showContinue("Continue to the sentence →", finishBeat);
+        showContinue("Say it →", finishBeat);
       });
       row.appendChild(button);
     });
