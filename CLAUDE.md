@@ -277,9 +277,16 @@ to reveal-and-listen when unavailable.
   distances (by your hand / beside もち子 / far shelf). Wrong taps TEACH the
   zone word ("that one is next to もち子 — that would be それ") instead of just
   refusing. Extend this pattern: errors should teach the system.
-- Only `this-that` has beats so far. Good candidates: existence/location
-  (ここ・あります), ordering (〜を ください), counting, adjective picking.
-  Abstract sentences (think/because/want) stay as normal cards — don't force it.
+- Lessons with authored scenes: `this-that` (a room — ask/claim/place/point/
+  identify) and `shop` (a counter — ask a price tag, `order`: tap what you
+  want and it drops into your basket; wrong items teach the object word).
+  Next candidates: existence/location (ここ・あります), counting, adjective
+  picking. Abstract sentences (think/because/want) stay as normal cards.
+- Scenes are CSS 3D (perspective floor + wall/counter) with an em-scaled
+  object library (book/bag/clock/cup/water/coffee/mystery) — distance is
+  font-size. Vary objects per beat; don't make everything the same item, and
+  don't make everything pointing — pick the interaction verb the sentence
+  actually performs.
 - Scene art is CSS-drawn (books, bags, desk, hand) + existing chibi assets. No
   external images. `HanasouStory.reset()` clears only story state (not SRS).
 

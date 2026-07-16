@@ -4,31 +4,49 @@
 // engine, SRS, audio, or word cards. app.js calls three optional hooks
 // (window.HanasouStory.onSession / afterGrade / beforeCard) at the natural
 // seams of the drill; this module renders short, touch-friendly story moments
-// as a full-screen overlay and remembers objects the learner claims.
+// as a full-screen overlay: little CSS-drawn environments where the learner
+// answers by DOING — choosing, placing, pointing, asking, ordering.
 //
-// Its whole state lives under one localStorage key (hanasou.story.v1), separate
-// from lesson/SRS progress, so it can be reset or removed without side effects.
+// The rule (owner, 2026-07): the act must PRODUCE the exact sentence the
+// learner then says. Interaction establishes meaning; the untouched speaking
+// card that follows still does the work.
+//
+// State lives under one localStorage key (hanasou.story.v1), separate from
+// lesson/SRS progress, so it can be reset or removed without side effects.
 (function () {
   "use strict";
 
   const STORAGE_KEY = "hanasou.story.v1";
 
+  // ---- the learner's claimable items ---------------------------------------
   const BOOKS = [
     { id: "circle", name: "circle cover" },
     { id: "stripes", name: "striped cover" },
     { id: "window", name: "window cover" },
   ];
 
-  // Data-driven story beats keyed by a card's English prompt. The rule (owner,
-  // 2026-07): the act must PRODUCE the exact sentence the learner then says —
-  // interaction establishes meaning, the speaking card still does the work.
-  // Every beat carries its home lesson so a card riding another lesson's
-  // warmup never triggers it there.
-  //
-  // Beat types: claim (choose a persistent item) · place (drag/tap position)
-  // · identify (find yours among decoys) · point (first-person hand, pick the
-  // object at the right DISTANCE — これ/それ/あれ live here). A beat may chain
-  // into another with `next` (claim flows straight into place).
+  // ---- object library (all CSS-drawn, no external images) ------------------
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle" };
+  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー" };
+
+  // ---- zones: これ・それ・あれ ARE distance --------------------------------
+  const ZONE_WORD = { near: "これ", partner: "それ", far: "あれ" };
+  const ZONE_DESC = {
+    near: "right by your hand",
+    partner: "next to もち子",
+    far: "up on the far shelf",
+  };
+
+  // ---- story beats, per lesson ----------------------------------------------
+  // Keyed by the card's English prompt. Each beat carries its home lesson so a
+  // card riding another lesson's warmup never triggers it there. Types:
+  //   claim    choose a persistent item (once)
+  //   place    drag/tap it into position
+  //   point    pick the object at the right DISTANCE (これ/それ/あれ)
+  //   identify find YOUR item among decoys
+  //   ask      tap the unknown thing — the act of curiosity IS the question
+  //   order    tap what you want on the counter — it drops into your basket
+  // `next` chains beats; a map value may be a function resolved at fire time.
   const PLACE_BEAT = { id: "place-book", type: "place", item: "book", lesson: "this-that" };
   const CLAIM_BEAT = { id: "claim-book", type: "claim", item: "book", once: true, lesson: "this-that", next: PLACE_BEAT };
 
@@ -39,15 +57,23 @@
   };
 
   const BEFORE_PROMPT = {
-    // それ = by the other person: point at the bag beside もち子.
+    // ---- This, that & whose: a room you point around --------------------
+    "What is this?": {
+      id: "ask-what", type: "ask", lesson: "this-that",
+      scene: "room", zone: "near", object: "mystery",
+      instruction: "Something is sitting right in front of you",
+      copy: "You've never seen it before. Tap it to ask what it is.",
+      answer: { jp: "これは なんですか？", romaji: "kore wa nan desu ka", en: "What is this?" },
+    },
     "That (by you) is a bag.": {
       id: "point-sore", type: "point", target: "partner", lesson: "this-that",
+      layout: { near: "book", partner: "bag", far: "clock" },
       instruction: "Point at the bag next to もち子",
       answer: { jp: "それは かばんです。", romaji: "sore wa kaban desu", en: "That (by you) is a bag." },
     },
-    // あれ = far from you both: point at your bag up on the shelf.
     "That over there is my bag.": {
       id: "point-are", type: "point", target: "far", lesson: "this-that",
+      layout: { near: "book", partner: "cup", far: "bag" },
       instruction: "Point at your bag on the far shelf",
       answer: { jp: "あれは わたしの かばんです。", romaji: "are wa watashi no kaban desu", en: "That over there is my bag." },
     },
@@ -55,6 +81,43 @@
       id: "answer-my-book", type: "identify", item: "book", lesson: "this-that",
       ask: { jp: "どれが あなたの ほんですか？", romaji: "dore ga anata no hon desu ka", en: "Which one is your book?" },
       answer: { jp: "これは わたしの ほんです。", romaji: "kore wa watashi no hon desu", en: "This is my book." },
+    },
+    "Is that (by you) a book?": {
+      id: "ask-book", type: "ask", lesson: "this-that",
+      scene: "room", zone: "partner", object: "mystery",
+      instruction: "もち子 is holding something…",
+      copy: "It's about the size of a book — but you can't tell. Tap it to ask her.",
+      answer: { jp: "それは ほんですか？", romaji: "sore wa hon desu ka", en: "Is that (by you) a book?" },
+    },
+
+    // ---- At a shop: a counter you order across ---------------------------
+    "How much is this?": {
+      id: "shop-howmuch", type: "ask", lesson: "shop",
+      scene: "shop", zone: "counter", object: "clock", tag: true,
+      instruction: "This one has no price",
+      copy: "Tap the tag to ask how much it is.",
+      answer: { jp: "これは いくらですか？", romaji: "kore wa ikura desu ka", en: "How much is this?" },
+    },
+    "Water, please.": {
+      id: "shop-water", type: "order", lesson: "shop",
+      items: ["water", "coffee", "cup"], target: "water",
+      instruction: "You're thirsty — get the water",
+      copy: "Tap what you want and もち子 will hand it over.",
+      answer: { jp: "みずを ください。", romaji: "mizu o kudasai", en: "Water, please." },
+    },
+    "Coffee, please.": {
+      id: "shop-coffee", type: "order", lesson: "shop",
+      items: ["cup", "water", "coffee"], target: "coffee",
+      instruction: "Long day — you need the coffee",
+      copy: "Tap what you want and もち子 will hand it over.",
+      answer: { jp: "コーヒーを ください。", romaji: "koohii o kudasai", en: "Coffee, please." },
+    },
+    "This one, please.": {
+      id: "shop-this-one", type: "order", lesson: "shop",
+      items: ["water", "coffee", "cup"], target: null,
+      instruction: "Your turn — pick anything",
+      copy: "Whichever you tap becomes これ — the one right in front of you.",
+      answer: { jp: "これを ください。", romaji: "kore o kudasai", en: "This one, please." },
     },
   };
 
@@ -96,41 +159,32 @@
     return false;
   }
 
+  // ---- overlay scaffolding ---------------------------------------------------
+  function el(tag, cls, text) {
+    const node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
   function buildOverlay() {
-    const root = document.createElement("section");
+    const root = el("section", "story-break");
     root.id = "story-break";
-    root.className = "story-break";
     root.hidden = true;
     root.setAttribute("role", "dialog");
     root.setAttribute("aria-modal", "true");
     root.setAttribute("aria-live", "polite");
 
-    const panel = document.createElement("div");
-    panel.className = "story-panel";
-
-    const kicker = document.createElement("div");
-    kicker.className = "story-kicker";
-    kicker.textContent = "Your story";
-
-    const title = document.createElement("h2");
-    title.className = "story-title";
-
-    const copy = document.createElement("p");
-    copy.className = "story-copy";
-
-    const stage = document.createElement("div");
-    stage.className = "story-stage";
-
-    const feedback = document.createElement("p");
-    feedback.className = "story-feedback";
+    const panel = el("div", "story-panel");
+    const kicker = el("div", "story-kicker", "Your story");
+    const title = el("h2", "story-title");
+    const copy = el("p", "story-copy");
+    const stage = el("div", "story-stage");
+    const feedback = el("p", "story-feedback");
     feedback.setAttribute("role", "status");
-
-    const actions = document.createElement("div");
-    actions.className = "story-actions";
-    const continueBtn = document.createElement("button");
+    const actions = el("div", "story-actions");
+    const continueBtn = el("button", "primary story-continue", "Continue →");
     continueBtn.type = "button";
-    continueBtn.className = "primary story-continue";
-    continueBtn.textContent = "Continue →";
     continueBtn.hidden = true;
     actions.appendChild(continueBtn);
 
@@ -158,9 +212,11 @@
     overlay.root.hidden = false;
     overlay.root.className = "story-break open story-" + beat.type;
     if (beat.target) overlay.root.dataset.target = beat.target;
+    else if (beat.type === "order") overlay.root.dataset.target = "free";
     else delete overlay.root.dataset.target;
     overlay.stage.className = "story-stage story-stage-" + beat.type;
     overlay.stage.innerHTML = "";
+    overlay.panel.querySelectorAll(".story-answer").forEach((node) => node.remove());
     overlay.feedback.textContent = "";
     overlay.feedback.className = "story-feedback";
     overlay.continueBtn.hidden = true;
@@ -170,8 +226,7 @@
 
     const finishBeat = () => {
       markBeatDone(beat);
-      // A beat can flow straight into the next one (claim → place) without
-      // dropping back to the card in between.
+      // A beat can flow straight into the next one (claim → place).
       if (beat.next && !shouldSkip(beat.next)) { renderBeat(beat.next, onDone); return; }
       closeOverlay();
       if (typeof onDone === "function") onDone();
@@ -181,25 +236,92 @@
     else if (beat.type === "place") renderPlaceBeat(beat, finishBeat);
     else if (beat.type === "identify") renderIdentifyBeat(beat, finishBeat);
     else if (beat.type === "point") renderPointBeat(beat, finishBeat);
+    else if (beat.type === "ask") renderAskBeat(beat, finishBeat);
+    else if (beat.type === "order") renderOrderBeat(beat, finishBeat);
   }
 
-  function bookButton(book, className) {
-    const button = document.createElement("button");
+  function showContinue(text, finishBeat) {
+    overlay.continueBtn.textContent = text || "Continue →";
+    overlay.continueBtn.hidden = false;
+    overlay.continueBtn.onclick = finishBeat;
+    requestAnimationFrame(() => { try { overlay.continueBtn.focus({ preventScroll: true }); } catch {} });
+  }
+
+  function sentenceBlock(cls, label, sentence) {
+    const box = el("div", cls);
+    if (label) box.appendChild(el("span", "story-line-label", label));
+    box.appendChild(el("span", "story-line-jp", sentence.jp));
+    if (sentence.romaji) box.appendChild(el("span", "story-line-romaji", sentence.romaji));
+    if (sentence.en) box.appendChild(el("span", "story-line-en", sentence.en));
+    return box;
+  }
+  function attachAnswer(beat, label) {
+    if (beat.answer && !overlay.stage.parentElement.querySelector(".story-answer")) {
+      overlay.stage.insertAdjacentElement("afterend", sentenceBlock("story-answer", label, beat.answer));
+    }
+  }
+
+  const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---- the environments: a room / a shop counter, CSS 3D -------------------
+  function buildScene(kind) {
+    const scene = el("div", "story-scene story-scene-" + kind);
+    scene.append(el("div", "scene-wall"), el("div", "scene-floor"));
+    if (kind === "shop") scene.append(el("div", "scene-counter"));
+    return scene;
+  }
+  function mochikoImg(src, cls) {
+    const img = document.createElement("img");
+    img.className = cls || "scene-mochiko";
+    img.src = src;
+    img.alt = "もち子";
+    return img;
+  }
+
+  // ---- object factory (spans inside buttons; all CSS-drawn) -----------------
+  function objectFigure(kind) {
+    const fig = el("span", "obj obj-" + kind);
+    fig.setAttribute("aria-hidden", "true");
+    if (kind === "book") {
+      const design = (story.inventory.book && story.inventory.book.design) || "circle";
+      fig.dataset.design = design;
+      fig.append(el("i", "obj-book-mark"), el("i", "obj-book-pages"));
+    } else if (kind === "bag") {
+      fig.append(el("i", "bag-handle"), el("i", "bag-body"), el("i", "bag-clasp"));
+    } else if (kind === "clock") {
+      fig.append(el("i", "clock-face"), el("i", "clock-hand-h"), el("i", "clock-hand-m"));
+    } else if (kind === "cup") {
+      fig.append(el("i", "cup-steam"), el("i", "cup-body"), el("i", "cup-saucer"));
+    } else if (kind === "water") {
+      fig.append(el("i", "bottle-cap"), el("i", "bottle-body"), el("i", "bottle-label"));
+    } else if (kind === "coffee") {
+      fig.append(el("i", "cup-steam"), el("i", "coffee-body"), el("i", "cup-saucer"));
+    } else if (kind === "mystery") {
+      fig.append(el("i", "mystery-lump"), el("i", "mystery-knot"), el("i", "mystery-q"));
+    }
+    return fig;
+  }
+  function objButton(kind, zone, label) {
+    const button = el("button", "story-obj");
     button.type = "button";
-    button.className = "story-book " + (className || "");
-    button.dataset.design = book.id;
-    button.setAttribute("aria-label", book.name + " book");
-    const cover = document.createElement("span");
-    cover.className = "story-book-cover";
-    const mark = document.createElement("i");
-    mark.className = "story-book-mark";
-    const pages = document.createElement("i");
-    pages.className = "story-book-pages";
-    cover.append(mark, pages);
-    button.appendChild(cover);
+    if (zone) button.dataset.zone = zone;
+    button.dataset.object = kind;
+    button.setAttribute("aria-label", label || (OBJ_NAME[kind] + (zone && ZONE_DESC[zone] ? " " + ZONE_DESC[zone] : "")));
+    button.appendChild(objectFigure(kind));
     return button;
   }
 
+  // ---- claim: choose your book ----------------------------------------------
+  function bookButton(book, className) {
+    const button = el("button", "story-book " + (className || ""));
+    button.type = "button";
+    button.dataset.design = book.id;
+    button.setAttribute("aria-label", book.name + " book");
+    const cover = el("span", "story-book-cover");
+    cover.append(el("i", "story-book-mark"), el("i", "story-book-pages"));
+    button.appendChild(cover);
+    return button;
+  }
   function selectedBook() {
     const id = story.inventory.book && story.inventory.book.design;
     return BOOKS.find((book) => book.id === id) || BOOKS[0];
@@ -208,18 +330,11 @@
     if (!story.inventory.book) { story.inventory.book = { design: BOOKS[0].id, slot: 1 }; saveStory(); }
     return selectedBook();
   }
-  function showContinue(text, finishBeat) {
-    overlay.continueBtn.textContent = text || "Continue →";
-    overlay.continueBtn.hidden = false;
-    overlay.continueBtn.onclick = finishBeat;
-    requestAnimationFrame(() => { try { overlay.continueBtn.focus({ preventScroll: true }); } catch {} });
-  }
 
   function renderClaimBeat(_beat, finishBeat) {
     overlay.title.textContent = "Choose your book";
     overlay.copy.textContent = "Pick one cover. The app remembers it and brings it back in later scenes.";
-    const shelf = document.createElement("div");
-    shelf.className = "story-book-row story-choice-row";
+    const shelf = el("div", "story-book-row story-choice-row");
     for (const book of BOOKS) {
       const button = bookButton(book, "story-choice");
       button.addEventListener("click", () => {
@@ -239,24 +354,22 @@
     overlay.stage.appendChild(shelf);
   }
 
+  // ---- place: put it on the desk (drag or tap) -------------------------------
   function renderPlaceBeat(_beat, finishBeat) {
     const book = ensureBook();
     overlay.title.textContent = "Put your book on the desk";
     overlay.copy.textContent = "Drag your book onto a space — or just tap the space where you want it.";
-    const desk = document.createElement("div");
-    desk.className = "story-desk";
+    const desk = el("div", "story-desk");
     const slots = [];
     for (let index = 0; index < 3; index += 1) {
-      const slot = document.createElement("button");
+      const slot = el("button", "story-slot");
       slot.type = "button";
-      slot.className = "story-slot";
       slot.dataset.slot = String(index);
       slot.setAttribute("aria-label", ["left", "middle", "right"][index] + " side of desk");
       desk.appendChild(slot);
       slots.push(slot);
     }
-    const tray = document.createElement("div");
-    tray.className = "story-tray";
+    const tray = el("div", "story-tray");
     const piece = bookButton(book, "story-place-piece");
     piece.setAttribute("aria-label", "Your book. Drag it to the desk, or tap a desk space.");
     tray.appendChild(piece);
@@ -339,33 +452,16 @@
     piece.style.pointerEvents = "";
   }
 
-  function sentenceBlock(cls, label, sentence) {
-    const box = document.createElement("div");
-    box.className = cls;
-    if (label) box.appendChild(span2("story-line-label", label));
-    box.appendChild(span2("story-line-jp", sentence.jp));
-    if (sentence.romaji) box.appendChild(span2("story-line-romaji", sentence.romaji));
-    if (sentence.en) box.appendChild(span2("story-line-en", sentence.en));
-    return box;
-  }
-  function span2(cls, text) {
-    const s = document.createElement("span");
-    s.className = cls;
-    s.textContent = text;
-    return s;
-  }
-
+  // ---- identify: find YOUR book among decoys ---------------------------------
   function renderIdentifyBeat(beat, finishBeat) {
     const chosen = ensureBook();
     const chosenSlot = Number.isInteger(story.inventory.book.slot) ? story.inventory.book.slot : 1;
     const ask = beat.ask || { en: "Which one is your book?", jp: "", romaji: "" };
     overlay.title.textContent = ask.en;
     overlay.copy.textContent = "Tap the book you chose earlier — that answers the question.";
-    // The question the learner is answering, heard/read (not produced here).
     if (ask.jp) overlay.stage.appendChild(sentenceBlock("story-ask", "もち子 asks", ask));
 
-    const row = document.createElement("div");
-    row.className = "story-book-row story-identify-row";
+    const row = el("div", "story-book-row story-identify-row");
     const ordered = new Array(3);
     ordered[chosenSlot] = chosen;
     const decoys = BOOKS.filter((book) => book.id !== chosen.id);
@@ -390,10 +486,7 @@
           if (node !== button) node.classList.add("dimmed");
         });
         button.classList.add("correct");
-        // The act IS the answer — attach the exact sentence to say next.
-        if (beat.answer && !overlay.stage.querySelector(".story-answer")) {
-          overlay.stage.appendChild(sentenceBlock("story-answer", "Now say it:", beat.answer));
-        }
+        attachAnswer(beat, "Now say it:");
         overlay.feedback.textContent = "That's your book!";
         overlay.feedback.className = "story-feedback success";
         showContinue("Say it →", finishBeat);
@@ -403,85 +496,137 @@
     overlay.stage.appendChild(row);
   }
 
-  // ---- Point beat: これ・それ・あれ ARE distance — so the act is pointing. ----
-  // The same bag sits in three places: by your hand (これ), beside もち子
-  // (それ), and up on a far shelf (あれ). Only distance changes the word, so
-  // wrong taps teach the system instead of just refusing.
-  const ZONE_WORD = { near: "これ", partner: "それ", far: "あれ" };
-  const ZONE_DESC = {
-    near: "right by your hand",
-    partner: "next to もち子",
-    far: "up on the far shelf",
-  };
-
-  function bagButton(zone) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "story-bag story-bag-" + zone;
-    button.dataset.zone = zone;
-    button.setAttribute("aria-label", "bag " + ZONE_DESC[zone]);
-    const handle = document.createElement("i"); handle.className = "bag-handle";
-    const body = document.createElement("i"); body.className = "bag-body";
-    const clasp = document.createElement("i"); clasp.className = "bag-clasp";
-    button.append(handle, body, clasp);
-    return button;
-  }
-
+  // ---- point: the object at the right DISTANCE -------------------------------
+  // Wrong taps TEACH the zone word instead of just refusing.
   function renderPointBeat(beat, finishBeat) {
     overlay.title.textContent = beat.instruction;
-    overlay.copy.textContent = "これ = near you · それ = by them · あれ = far away. Same bag — only the distance changes the word.";
+    overlay.copy.textContent = "これ = near you · それ = by them · あれ = far away.";
 
-    const room = document.createElement("div");
-    room.className = "story-room";
+    const scene = buildScene("room");
+    const layout = beat.layout || { near: "book", partner: "bag", far: "clock" };
 
-    const farRow = document.createElement("div");
-    farRow.className = "story-zone story-zone-far";
-    const shelf = document.createElement("div");
-    shelf.className = "story-shelf";
-    shelf.appendChild(bagButton("far"));
-    farRow.appendChild(shelf);
-
-    const partnerRow = document.createElement("div");
-    partnerRow.className = "story-zone story-zone-partner";
-    const mochiko = document.createElement("img");
-    mochiko.className = "story-mochiko";
-    mochiko.src = "assets/chibi_think.png";
-    mochiko.alt = "もち子";
-    partnerRow.append(mochiko, bagButton("partner"));
-
-    const nearRow = document.createElement("div");
-    nearRow.className = "story-zone story-zone-near";
-    const hand = document.createElement("div");
-    hand.className = "story-hand";
+    const farZone = el("div", "scene-zone scene-zone-far");
+    farZone.append(objButton(layout.far, "far"), el("i", "scene-shelf-board"));
+    const partnerZone = el("div", "scene-zone scene-zone-partner");
+    partnerZone.append(mochikoImg("assets/chibi_think.png"), objButton(layout.partner, "partner"));
+    const nearZone = el("div", "scene-zone scene-zone-near");
+    const hand = el("div", "story-hand");
     hand.setAttribute("aria-hidden", "true");
-    nearRow.append(bagButton("near"), hand);
+    nearZone.append(objButton(layout.near, "near"), hand);
+    scene.append(farZone, partnerZone, nearZone);
+    overlay.stage.appendChild(scene);
 
-    room.append(farRow, partnerRow, nearRow);
-    overlay.stage.appendChild(room);
-
-    room.querySelectorAll(".story-bag").forEach((bag) => {
-      bag.addEventListener("click", () => {
-        if (bag.disabled) return;
-        const zone = bag.dataset.zone;
-        if (zone !== beat.target) {   // wrong distance: teach the zone word, don't advance
-          bag.classList.remove("wrong");
-          void bag.offsetWidth;
-          bag.classList.add("wrong");
-          overlay.feedback.textContent = "That bag is " + ZONE_DESC[zone] + " — that would be " +
-            ZONE_WORD[zone] + ". Find the one " + ZONE_DESC[beat.target] + ".";
+    scene.querySelectorAll(".story-obj").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.disabled) return;
+        const zone = btn.dataset.zone;
+        const kind = btn.dataset.object;
+        if (zone !== beat.target) {   // wrong distance: teach it, don't advance
+          btn.classList.remove("wrong");
+          void btn.offsetWidth;
+          btn.classList.add("wrong");
+          overlay.feedback.textContent = "That's the " + (OBJ_JP[kind] || OBJ_NAME[kind]) + " " + ZONE_DESC[zone] +
+            " — " + ZONE_WORD[zone] + ". Find the " + (OBJ_JP[layout[beat.target]] || "one") + " " + ZONE_DESC[beat.target] + ".";
           overlay.feedback.className = "story-feedback try-again";
           return;
         }
-        room.querySelectorAll(".story-bag").forEach((node) => {
+        scene.querySelectorAll(".story-obj").forEach((node) => {
           node.disabled = true;
-          if (node !== bag) node.classList.add("dimmed");
+          if (node !== btn) node.classList.add("dimmed");
         });
-        bag.classList.add("correct");
-        hand.dataset.aim = zone;   // the hand tilts toward what you chose
-        if (beat.answer && !overlay.stage.querySelector(".story-answer")) {
-          overlay.stage.appendChild(sentenceBlock("story-answer", ZONE_WORD[beat.target] + " — now say it:", beat.answer));
-        }
+        btn.classList.add("correct");
+        hand.dataset.aim = zone;
+        attachAnswer(beat, ZONE_WORD[beat.target] + " — now say it:");
         overlay.feedback.textContent = "You're pointing right at it!";
+        overlay.feedback.className = "story-feedback success";
+        showContinue("Say it →", finishBeat);
+      });
+    });
+  }
+
+  // ---- ask: tap the unknown thing — curiosity IS the question ----------------
+  function renderAskBeat(beat, finishBeat) {
+    overlay.title.textContent = beat.instruction;
+    overlay.copy.textContent = beat.copy || "";
+
+    const scene = buildScene(beat.scene === "shop" ? "shop" : "room");
+    const target = objButton(beat.object, beat.zone, (beat.tag ? "price tag on the " : "") + OBJ_NAME[beat.object]);
+    if (beat.tag) target.appendChild(el("i", "obj-tag"));
+
+    if (beat.scene === "shop") {
+      scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
+      const counterZone = el("div", "scene-zone scene-zone-counter");
+      counterZone.appendChild(target);
+      scene.appendChild(counterZone);
+    } else if (beat.zone === "partner") {
+      const partnerZone = el("div", "scene-zone scene-zone-partner");
+      partnerZone.append(mochikoImg("assets/chibi_think.png"), target);
+      scene.appendChild(partnerZone);
+    } else {
+      const nearZone = el("div", "scene-zone scene-zone-near");
+      const hand = el("div", "story-hand");
+      hand.setAttribute("aria-hidden", "true");
+      nearZone.append(target, hand);
+      scene.appendChild(nearZone);
+    }
+    overlay.stage.appendChild(scene);
+
+    target.addEventListener("click", () => {
+      if (target.disabled) return;
+      target.disabled = true;
+      target.classList.add("noticed");
+      attachAnswer(beat, "Ask it:");
+      overlay.feedback.textContent = "Hmm… time to ask.";
+      overlay.feedback.className = "story-feedback success";
+      showContinue("Ask →", finishBeat);
+    });
+  }
+
+  // ---- order: tap what you want — it drops into your basket ------------------
+  // Wrong taps teach the OBJECT word (それは コーヒーです — you want みず).
+  function renderOrderBeat(beat, finishBeat) {
+    overlay.title.textContent = beat.instruction;
+    overlay.copy.textContent = beat.copy || "";
+
+    const scene = buildScene("shop");
+    scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
+    const counterZone = el("div", "scene-zone scene-zone-counter");
+    for (const kind of beat.items) counterZone.appendChild(objButton(kind, "counter"));
+    scene.appendChild(counterZone);
+    const basket = el("div", "scene-basket");
+    basket.setAttribute("aria-hidden", "true");
+    scene.appendChild(basket);
+    overlay.stage.appendChild(scene);
+
+    counterZone.querySelectorAll(".story-obj").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.disabled) return;
+        const kind = btn.dataset.object;
+        if (beat.target && kind !== beat.target) {   // wrong item: teach the word
+          btn.classList.remove("wrong");
+          void btn.offsetWidth;
+          btn.classList.add("wrong");
+          overlay.feedback.textContent = "That's the " + OBJ_JP[kind] + " (" + OBJ_NAME[kind] + "). You're after the " +
+            OBJ_JP[beat.target] + " (" + OBJ_NAME[beat.target] + ").";
+          overlay.feedback.className = "story-feedback try-again";
+          return;
+        }
+        counterZone.querySelectorAll(".story-obj").forEach((node) => {
+          node.disabled = true;
+          if (node !== btn) node.classList.add("dimmed");
+        });
+        btn.classList.add("correct");
+        // it hops into your basket — ownership through action
+        if (!reducedMotion) {
+          const a = btn.getBoundingClientRect();
+          const b = basket.getBoundingClientRect();
+          btn.style.transition = "transform 0.5s cubic-bezier(0.2, 0.8, 0.3, 1)";
+          btn.style.transform = "translate(" + (b.left + b.width / 2 - (a.left + a.width / 2)) + "px, " +
+            (b.top + b.height / 2 - (a.top + a.height / 2)) + "px) scale(0.75)";
+          btn.style.zIndex = "6";
+        }
+        attachAnswer(beat, "Now say it:");
+        overlay.feedback.textContent = beat.target ? "It's yours — into the basket." : "Good pick — that one is これ now.";
         overlay.feedback.className = "story-feedback success";
         showContinue("Say it →", finishBeat);
       });
@@ -500,7 +645,7 @@
   // ---- Hooks called by app.js at the drill's natural seams -----------------
   window.HanasouStory = {
     // A new drill session started — reset the per-run "already shown" set so
-    // replayable beats (place / identify) reappear on a fresh run.
+    // replayable beats reappear on a fresh run.
     onSession: function (_mode, _lessonId, _build) {
       if (overlayOpen) closeOverlay();
       shownThisSession.clear();

@@ -1,6 +1,8 @@
 /* Interactive visual-learning story breaks for Hanasou.
    A full-screen overlay (a cream storybook panel) shown between speaking
-   cards. CSS-drawn books/desk — no external images. */
+   cards, containing little CSS-drawn 3D environments — a room, a shop
+   counter — where the learner answers by DOING. No external images
+   (もち子 uses the app's own chibi assets). */
 :root {
   --story-ink: #1f2d4d;
   --story-blue: #315f9e;
@@ -9,6 +11,7 @@
   --story-coral: #c66d58;
   --story-green: #668477;
   --story-desk: #d5aa72;
+  --story-wood: #a8794d;
 }
 
 /* ---- full-screen overlay ---- */
@@ -39,15 +42,14 @@ body.story-open { overflow: hidden; }
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.25rem 1.1rem 1.15rem;
+  gap: 0.7rem;
+  padding: 1.2rem 1.05rem 1.1rem;
   background: var(--card, #fffdf8);
   border: 2.5px solid var(--ink, var(--story-ink));
   border-radius: 20px;
   box-shadow: 0 6px 0 rgba(32, 38, 58, 0.16), 0 16px 34px rgba(32, 38, 58, 0.18);
   animation: story-enter 0.28s ease both;
 }
-
 @keyframes story-enter {
   from { opacity: 0; transform: translateY(10px) scale(0.99); }
   to { opacity: 1; transform: none; }
@@ -65,25 +67,23 @@ body.story-open { overflow: hidden; }
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-
 .story-title {
   margin: 0;
   color: var(--ink, var(--story-ink));
   font-family: var(--sign, inherit);
-  font-size: clamp(1.4rem, 5.5vw, 1.95rem);
+  font-size: clamp(1.35rem, 5.4vw, 1.85rem);
   line-height: 1.12;
 }
-
 .story-copy {
   margin: 0;
   color: var(--muted, #6b5847);
-  font-size: 0.94rem;
-  line-height: 1.45;
+  font-size: 0.92rem;
+  line-height: 1.42;
 }
 
 .story-stage {
   position: relative;
-  min-height: 235px;
+  min-height: 230px;
   border: 2px solid color-mix(in srgb, var(--story-blue) 20%, var(--ink, #ccc));
   border-radius: 18px;
   background:
@@ -96,17 +96,17 @@ body.story-open { overflow: hidden; }
   overflow: hidden;
   isolation: isolate;
 }
-
 .story-stage::after {
   content: "";
   position: absolute;
-  left: 7%;
-  right: 7%;
-  bottom: 12%;
+  left: 7%; right: 7%; bottom: 12%;
   height: 2px;
   background: color-mix(in srgb, var(--story-ink) 15%, transparent);
   z-index: -1;
 }
+/* scene stages draw their own world — no padding, no floor line */
+.story-stage-point, .story-stage-ask, .story-stage-order { padding: 0; min-height: 300px; }
+.story-stage-point::after, .story-stage-ask::after, .story-stage-order::after { display: none; }
 
 .story-feedback {
   min-height: 1.4em;
@@ -125,7 +125,298 @@ button.primary.story-continue {
   min-height: 3rem; font-size: 1rem;
 }
 
-/* ---- books (CSS-drawn) ---- */
+/* ======================================================================
+   THE ENVIRONMENTS — a room / a shop, CSS 3D (perspective floor + wall)
+   ====================================================================== */
+.story-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 16px;
+}
+.scene-wall {
+  position: absolute;
+  left: 0; right: 0; top: 0; height: 60%;
+  background: linear-gradient(180deg, #eaf2fb 0%, #f3ecdc 90%);
+  border-bottom: 2px solid rgba(31, 45, 77, 0.14);
+}
+.scene-floor {
+  position: absolute;
+  left: -14%; right: -14%; bottom: -4%; height: 46%;
+  background:
+    repeating-linear-gradient(90deg, rgba(95, 57, 28, 0.10) 0 3px, transparent 3px 52px),
+    linear-gradient(180deg, #ecd3a7, #dbb987);
+  transform: perspective(260px) rotateX(38deg);
+  transform-origin: 50% 0;
+}
+/* wall shelf the far object sits on */
+.scene-shelf-board {
+  display: block;
+  width: 7.5em; height: 0.55em;
+  margin-top: 0.1em;
+  background: linear-gradient(180deg, #c39668, var(--story-wood));
+  border: 2px solid rgba(31, 45, 77, 0.45);
+  border-radius: 3px;
+  box-shadow: 0 4px 6px rgba(45, 35, 25, 0.18);
+}
+
+/* zones position + scale the objects — distance is font-size */
+.scene-zone { position: absolute; display: flex; align-items: flex-end; }
+.scene-zone-far {
+  top: 7%; right: 7%;
+  flex-direction: column; align-items: center;
+  font-size: 7px;
+}
+.scene-zone-partner {
+  left: 4%; bottom: 36%;
+  gap: 0.6rem;
+  font-size: 10px;
+}
+.scene-zone-near {
+  left: 60%; transform: translateX(-50%);
+  bottom: 4%;
+  gap: 1.1rem;
+  font-size: 14px;
+}
+.scene-mochiko { height: 78px; width: auto; display: block; filter: drop-shadow(0 3px 3px rgba(31,45,77,.18)); }
+
+/* ---- shop variant: counter + shopkeeper もち子 + your basket ---- */
+.story-scene-shop .scene-wall { background: linear-gradient(180deg, #fbeedd 0%, #f4e3c8 90%); }
+.scene-counter {
+  position: absolute;
+  left: -2%; right: -2%; bottom: 0; height: 38%;
+  background:
+    repeating-linear-gradient(90deg, rgba(95, 57, 28, 0.10) 0 2px, transparent 2px 40px),
+    linear-gradient(180deg, #e1bd8a, var(--story-desk));
+  border-top: 5px solid #c39668;
+  box-shadow: 0 -4px 10px rgba(45, 35, 25, 0.12);
+}
+.scene-mochiko-shop { position: absolute; right: 6%; bottom: 34%; height: 84px; }
+.scene-zone-counter {
+  left: 6%; right: 30%; bottom: 20%;
+  justify-content: space-around; align-items: flex-end;
+  font-size: 11px;
+}
+.story-scene-shop .scene-zone-counter:only-of-type { right: 34%; }
+.scene-basket {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  bottom: 2%;
+  width: 96px; height: 34px;
+  border: 2.5px solid rgba(31, 45, 77, 0.6);
+  border-radius: 6px 6px 16px 16px;
+  background:
+    repeating-linear-gradient(45deg, rgba(95,57,28,.14) 0 6px, transparent 6px 12px),
+    linear-gradient(180deg, #e8c491, #cfa268);
+}
+
+/* ======================================================================
+   OBJECT LIBRARY — every object is CSS, sized in em so zones scale it
+   ====================================================================== */
+.story-obj {
+  position: relative;
+  padding: 0; border: 0; background: transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.story-obj:hover { transform: translateY(-3px); }
+.story-obj:focus-visible { outline: 3px solid var(--accent, var(--story-blue)); outline-offset: 4px; }
+.story-obj.dimmed { opacity: 0.35; filter: grayscale(0.5); }
+.story-obj.correct, .story-obj.noticed {
+  transform: translateY(-4px) scale(1.06);
+  filter: drop-shadow(0 0 9px color-mix(in srgb, var(--good, #2e7d5b) 70%, transparent));
+}
+.story-obj.wrong { animation: story-wrong 0.35s ease; }
+.obj { position: relative; display: block; }
+/* soft contact shadow under every object */
+.obj::before {
+  content: "";
+  position: absolute; left: 8%; right: 8%; bottom: -0.35em; height: 0.55em;
+  background: radial-gradient(ellipse at center, rgba(31, 45, 77, 0.22), transparent 70%);
+  border-radius: 50%;
+}
+
+/* book — wears the learner's claimed cover design */
+.obj-book { width: 4.6em; height: 6em; border-radius: 0.55em 0.8em 0.8em 0.5em; border: 2px solid rgba(31,45,77,0.72); overflow: hidden; }
+.obj-book[data-design="circle"] { background: linear-gradient(145deg, #4374b7, #254f89); }
+.obj-book[data-design="stripes"] { background: linear-gradient(145deg, #d8846e, #a95349); }
+.obj-book[data-design="window"] { background: linear-gradient(145deg, #79998a, #4d7162); }
+.obj-book .obj-book-mark {
+  position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%);
+  width: 42%; aspect-ratio: 1; border-radius: 50%;
+  background: #fff1c9;
+}
+.obj-book[data-design="stripes"] .obj-book-mark { border-radius: 0.3em; background: repeating-linear-gradient(90deg, #fff1c9 0 0.5em, transparent 0.5em 0.95em); border: 2px solid rgba(255,241,201,0.65); height: 55%; aspect-ratio: auto; }
+.obj-book[data-design="window"] .obj-book-mark { border-radius: 0.2em; border: 0.32em solid #fff1c9; background: #91c6da; height: 40%; width: 46%; aspect-ratio: auto; }
+.obj-book .obj-book-pages {
+  position: absolute; right: -1px; bottom: 0.3em; width: 0.5em; height: 78%;
+  border-radius: 2px 0.5em 0.5em 2px;
+  background: repeating-linear-gradient(180deg, #fffaf0 0 0.28em, #d9d2c4 0.28em 0.36em);
+  opacity: 0.9;
+}
+
+/* bag */
+.obj-bag { width: 5.4em; height: 6.1em; }
+.obj-bag .bag-handle {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 44%; height: 30%;
+  border: 0.22em solid rgba(31, 45, 77, 0.7); border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+}
+.obj-bag .bag-body {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 74%;
+  background: linear-gradient(155deg, #d29a66, #b3773f);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 0.6em 0.6em 0.85em 0.85em;
+  box-shadow: inset 0 0.35em 0 rgba(255, 255, 255, 0.14);
+}
+.obj-bag .bag-clasp {
+  position: absolute; bottom: 26%; left: 50%; transform: translateX(-50%);
+  width: 18%; aspect-ratio: 1;
+  background: #fff1c9; border: 2px solid rgba(31, 45, 77, 0.6); border-radius: 0.2em;
+  z-index: 1;
+}
+
+/* clock */
+.obj-clock { width: 4.8em; height: 5.2em; }
+.obj-clock .clock-face {
+  position: absolute; left: 0; right: 0; top: 0; height: 4.8em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #fffdf5, #f2e8d2);
+  border: 0.28em solid var(--story-ink);
+  box-shadow: inset 0 0 0 0.14em #fff;
+}
+.obj-clock .clock-hand-h, .obj-clock .clock-hand-m {
+  position: absolute; left: 50%; top: 2.4em;
+  width: 0.24em; background: var(--story-ink); border-radius: 999px;
+  transform-origin: 50% 100%;
+}
+.obj-clock .clock-hand-h { height: 1.1em; transform: translate(-50%, -100%) rotate(45deg); }
+.obj-clock .clock-hand-m { height: 1.6em; transform: translate(-50%, -100%) rotate(160deg); }
+
+/* teacup */
+.obj-cup { width: 4.6em; height: 4.4em; }
+.obj-cup .cup-body, .obj-coffee .coffee-body {
+  position: absolute; left: 0.4em; right: 0.9em; bottom: 0.5em; height: 2.6em;
+  background: linear-gradient(180deg, #fffdf5, #efe4cd);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 0.3em 0.3em 1.4em 1.4em;
+}
+.obj-cup .cup-body::after, .obj-coffee .coffee-body::after {
+  content: "";
+  position: absolute; right: -1em; top: 0.3em; width: 0.9em; height: 1.4em;
+  border: 0.24em solid rgba(31, 45, 77, 0.72); border-left: 0;
+  border-radius: 0 999px 999px 0;
+}
+.obj-cup .cup-body::before { content: ""; position: absolute; left: 0.2em; right: 0.2em; top: 0.25em; height: 0.5em; border-radius: 999px; background: #9fbf87; opacity: 0.8; }
+.obj-cup .cup-saucer, .obj-coffee .cup-saucer {
+  position: absolute; left: 0; right: 0.5em; bottom: 0; height: 0.55em;
+  background: linear-gradient(180deg, #fffdf5, #e3d7bd);
+  border: 2px solid rgba(31, 45, 77, 0.6); border-radius: 999px;
+}
+.obj-cup .cup-steam, .obj-coffee .cup-steam {
+  position: absolute; left: 1.6em; top: 0; width: 0.3em; height: 1.2em;
+  border-right: 0.22em solid rgba(31, 45, 77, 0.28);
+  border-radius: 999px;
+  transform: rotate(12deg);
+}
+/* coffee = the same cup, dark roast */
+.obj-coffee { width: 4.6em; height: 4.4em; }
+.obj-coffee .coffee-body { background: linear-gradient(180deg, #f7efe0, #e8dcc4); }
+.obj-coffee .coffee-body::before { content: ""; position: absolute; left: 0.2em; right: 0.2em; top: 0.25em; height: 0.5em; border-radius: 999px; background: #6b4a32; }
+
+/* water bottle */
+.obj-water { width: 3.2em; height: 6.2em; }
+.obj-water .bottle-cap {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 38%; height: 0.9em;
+  background: #7fb3d8; border: 2px solid rgba(31, 45, 77, 0.65); border-radius: 0.25em;
+}
+.obj-water .bottle-body {
+  position: absolute; left: 0; right: 0; top: 0.75em; bottom: 0;
+  background: linear-gradient(155deg, #dcedfa, #b9d8ef);
+  border: 2px solid rgba(31, 45, 77, 0.65);
+  border-radius: 0.75em 0.75em 0.6em 0.6em;
+  box-shadow: inset 0.3em 0 0 rgba(255, 255, 255, 0.5);
+}
+.obj-water .bottle-label {
+  position: absolute; left: -1px; right: -1px; top: 45%; height: 1.5em;
+  background: #fff1c9; border: 2px solid rgba(31, 45, 77, 0.5);
+}
+
+/* mystery bundle — a furoshiki-wrapped lump with a ? */
+.obj-mystery { width: 5em; height: 4.6em; }
+.obj-mystery .mystery-lump {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 3.4em;
+  background: linear-gradient(150deg, #b8a0c8, #8f74aa);
+  border: 2px solid rgba(31, 45, 77, 0.7);
+  border-radius: 45% 45% 0.7em 0.7em;
+}
+.obj-mystery .mystery-knot {
+  position: absolute; top: 0.35em; left: 50%; transform: translateX(-50%) rotate(45deg);
+  width: 1.1em; height: 1.1em;
+  background: #a98cbc; border: 2px solid rgba(31, 45, 77, 0.7); border-radius: 0.25em;
+}
+.obj-mystery .mystery-q {
+  position: absolute; left: 50%; bottom: 1em; transform: translateX(-50%);
+  width: 1.5em; height: 1.5em;
+  font: 900 1.15em/1.3 var(--sign, sans-serif);
+  color: #fff8e7; text-align: center; font-style: normal;
+}
+.obj-mystery .mystery-q::after { content: "?"; }
+
+/* the shop price tag with a ? */
+.obj-tag {
+  position: absolute; top: -1.1em; right: -1.7em;
+  width: 1.9em; height: 1.4em;
+  background: #fff1c9; border: 2px solid rgba(31, 45, 77, 0.65);
+  border-radius: 0.25em;
+  transform: rotate(12deg);
+  font-style: normal;
+}
+.obj-tag::before {
+  content: ""; position: absolute; left: -0.8em; top: 0.55em; width: 0.9em; height: 2px;
+  background: rgba(31, 45, 77, 0.55); transform: rotate(-24deg);
+}
+.obj-tag::after {
+  content: "?";
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font: 800 0.95em/1 var(--mono, monospace); color: var(--story-ink);
+}
+
+/* your hand, first person — the finger does the grammar */
+.story-hand {
+  position: relative; width: 58px; height: 66px;
+  transform-origin: 50% 100%;
+  transition: transform 0.25s ease;
+  transform: rotate(8deg);
+}
+.story-hand::before {   /* curled hand */
+  content: "";
+  position: absolute; bottom: 0; left: 12px; width: 46px; height: 40px;
+  background: linear-gradient(160deg, #f3c9a5, #e5ac7f);
+  border: 2px solid rgba(31, 45, 77, 0.6);
+  border-radius: 20px 18px 16px 16px;
+  box-shadow: inset 0 6px 0 rgba(31, 45, 77, 0.07);
+}
+.story-hand::after {    /* index finger, extended from the side and tilted */
+  content: "";
+  position: absolute; bottom: 30px; left: 5px; width: 14px; height: 36px;
+  background: linear-gradient(160deg, #f3c9a5, #e9b489);
+  border: 2px solid rgba(31, 45, 77, 0.6);
+  border-radius: 999px 999px 5px 5px;
+  transform: rotate(-24deg);
+  transform-origin: 50% 100%;
+}
+.story-hand[data-aim="far"] { transform: rotate(22deg) translateY(-5px); }
+.story-hand[data-aim="partner"] { transform: rotate(-16deg) translateY(-3px); }
+.story-hand[data-aim="near"] { transform: rotate(-4deg); }
+
+/* ======================================================================
+   claim / place / identify (book scenes)
+   ====================================================================== */
 .story-book-row {
   width: 100%;
   display: grid;
@@ -134,7 +425,6 @@ button.primary.story-continue {
   justify-items: center;
   gap: clamp(0.35rem, 2.5vw, 0.9rem);
 }
-
 .story-book {
   position: relative;
   width: clamp(70px, 21vw, 98px);
@@ -149,7 +439,6 @@ button.primary.story-continue {
   transform-origin: 50% 100%;
 }
 .story-book:focus-visible { outline: 3px solid var(--accent, var(--story-blue)); outline-offset: 5px; }
-
 .story-book-cover {
   position: absolute;
   inset: 0;
@@ -176,7 +465,6 @@ button.primary.story-continue {
   position: absolute; display: block; left: 50%; top: 45%;
   transform: translate(-50%, -50%);
 }
-
 .story-book[data-design="circle"] .story-book-cover { background: linear-gradient(145deg, #4374b7, #254f89); }
 .story-book[data-design="circle"] .story-book-mark {
   width: 42%; aspect-ratio: 1; border-radius: 50%;
@@ -232,7 +520,7 @@ button.primary.story-continue {
   background:
     repeating-linear-gradient(90deg, rgba(95,57,28,0.08) 0 2px, transparent 2px 34px),
     linear-gradient(180deg, #e1bd8a, var(--story-desk));
-  box-shadow: 0 10px 0 #a8794d, 0 17px 18px rgba(45,35,25,0.15);
+  box-shadow: 0 10px 0 var(--story-wood), 0 17px 18px rgba(45,35,25,0.15);
 }
 .story-slot {
   min-width: 0;
@@ -248,7 +536,6 @@ button.primary.story-continue {
 }
 .story-slot.filled { border-color: transparent; background: rgba(255,255,255,0.11); }
 .story-slot .story-book { width: 58px; height: 82px; box-shadow: 0 5px 8px rgba(31,45,77,0.15); }
-
 .story-tray {
   position: relative;
   width: 100%; min-height: 105px;
@@ -267,119 +554,10 @@ button.primary.story-continue {
 .story-place-piece { width: 62px; height: 88px; }
 .story-place-piece.dragging { transform: rotate(-4deg) scale(1.06); box-shadow: 0 18px 26px rgba(31,45,77,0.25); }
 
-/* ---- point (これ・それ・あれ = distance, so the act is pointing) ---- */
-.story-stage-point {
-  flex-direction: column;
-  justify-content: flex-start;
-  gap: 0.6rem;
-  min-height: 320px;
-  padding: 0.85rem 0.9rem;
-}
-.story-room {
-  width: 100%;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 0.55rem;
-  min-height: 250px;
-}
-.story-zone { display: flex; align-items: flex-end; }
-/* far: a wooden shelf up and away, top-right */
-.story-zone-far { justify-content: flex-end; padding-right: 6%; }
-.story-shelf {
-  position: relative;
-  display: flex; justify-content: center; align-items: flex-end;
-  padding: 0 1.1rem 0.25rem;
-  border-bottom: 7px solid #a8794d;
-  border-radius: 2px;
-}
-.story-shelf::before, .story-shelf::after {
-  content: "";
-  position: absolute; bottom: -16px; width: 8px; height: 12px;
-  background: #a8794d; border-radius: 0 0 3px 3px;
-}
-.story-shelf::before { left: 6px; }
-.story-shelf::after { right: 6px; }
-/* partner: もち子 with her bag, middle-left */
-.story-zone-partner { justify-content: flex-start; gap: 0.45rem; padding-left: 4%; }
-.story-mochiko { height: 76px; width: auto; display: block; }
-/* near: your bag beside your own pointing hand, bottom-centre */
-.story-zone-near { justify-content: center; gap: 1.1rem; }
-
-/* the bag, CSS-drawn — same bag at three sizes = three distances */
-.story-bag {
-  position: relative; padding: 0; border: 0; background: transparent;
-  cursor: pointer; transition: transform 0.15s ease, filter 0.15s ease;
-}
-.story-bag-far { width: 40px; height: 46px; }
-.story-bag-partner { width: 58px; height: 66px; }
-.story-bag-near { width: 78px; height: 88px; }
-.story-bag .bag-handle {
-  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-  width: 44%; height: 30%;
-  border: 3px solid rgba(31, 45, 77, 0.7); border-bottom: 0;
-  border-radius: 999px 999px 0 0; background: transparent;
-}
-.story-bag .bag-body {
-  position: absolute; left: 0; right: 0; bottom: 0; height: 74%;
-  background: linear-gradient(155deg, #d29a66, #b3773f);
-  border: 2px solid rgba(31, 45, 77, 0.72);
-  border-radius: 9px 9px 12px 12px;
-  box-shadow: inset 0 5px 0 rgba(255, 255, 255, 0.14);
-}
-.story-bag .bag-clasp {
-  position: absolute; bottom: 26%; left: 50%; transform: translateX(-50%);
-  width: 18%; aspect-ratio: 1;
-  background: #fff1c9; border: 2px solid rgba(31, 45, 77, 0.6); border-radius: 3px;
-  z-index: 1;
-}
-.story-bag:focus-visible { outline: 3px solid var(--accent, var(--story-blue)); outline-offset: 4px; }
-.story-bag:hover { transform: translateY(-3px); }
-.story-bag.dimmed { opacity: 0.35; filter: grayscale(0.5); }
-.story-bag.correct {
-  transform: translateY(-4px) scale(1.06);
-  filter: drop-shadow(0 0 9px color-mix(in srgb, var(--good, #2e7d5b) 70%, transparent));
-}
-.story-bag.wrong { animation: story-wrong 0.35s ease; }
-
-/* your hand, first person — the finger does the grammar */
-.story-hand {
-  position: relative; width: 58px; height: 66px;
-  transform-origin: 50% 100%;
-  transition: transform 0.25s ease;
-}
-.story-hand { transform: rotate(8deg); }
-.story-hand::before {   /* curled hand */
-  content: "";
-  position: absolute; bottom: 0; left: 12px; width: 46px; height: 40px;
-  background: linear-gradient(160deg, #f3c9a5, #e5ac7f);
-  border: 2px solid rgba(31, 45, 77, 0.6);
-  border-radius: 20px 18px 16px 16px;
-  box-shadow: inset 0 6px 0 rgba(31, 45, 77, 0.07);
-}
-.story-hand::after {    /* index finger, extended from the side and tilted */
-  content: "";
-  position: absolute; bottom: 30px; left: 5px; width: 14px; height: 36px;
-  background: linear-gradient(160deg, #f3c9a5, #e9b489);
-  border: 2px solid rgba(31, 45, 77, 0.6);
-  border-radius: 999px 999px 5px 5px;
-  transform: rotate(-24deg);
-  transform-origin: 50% 100%;
-}
-.story-hand[data-aim="far"] { transform: rotate(16deg) translateY(-5px); }
-.story-hand[data-aim="partner"] { transform: rotate(-18deg) translateY(-3px); }
-.story-hand[data-aim="near"] { transform: rotate(-30deg); }
-
-/* ---- identify (question → pick → attached answer) ---- */
-.story-stage-identify {
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.85rem;
-  padding-top: 1rem;
-}
+/* ---- attached question / answer sentence blocks ---- */
 .story-ask, .story-answer {
   width: 100%;
+  box-sizing: border-box;
   display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
   padding: 0.6rem 0.8rem;
   border-radius: 14px;
@@ -406,6 +584,13 @@ button.primary.story-continue {
 }
 .story-line-en { font-size: 0.78rem; color: var(--muted, #6b5847); }
 
+/* ---- identify choices ---- */
+.story-stage-identify {
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.85rem;
+  padding-top: 1rem;
+}
 .story-identify-choice { transition: opacity 0.18s ease, transform 0.18s ease, filter 0.18s ease; }
 .story-identify-choice:hover { transform: translateY(-5px); }
 .story-identify-choice.dimmed { opacity: 0.28; filter: grayscale(0.65); }
@@ -428,10 +613,14 @@ button.primary.story-continue {
 
 @media (max-width: 390px) {
   .story-panel { padding-inline: 0.85rem; }
-  .story-stage { min-height: 220px; padding-inline: 0.65rem; }
+  .story-stage { min-height: 220px; }
+  .story-stage-point, .story-stage-ask, .story-stage-order { min-height: 280px; }
   .story-stage-place { min-height: 290px; }
   .story-desk { height: 142px; gap: 0.35rem; padding: 0.65rem; }
   .story-slot .story-book { width: 52px; height: 75px; }
+  .scene-zone-near { font-size: 13px; }
+  .scene-mochiko { height: 68px; }
+  .scene-mochiko-shop { height: 74px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -439,7 +628,7 @@ button.primary.story-continue {
   .story-choice,
   .story-identify-choice,
   .story-identify-choice.wrong,
-  .story-bag,
-  .story-bag.wrong,
+  .story-obj,
+  .story-obj.wrong,
   .story-hand { animation: none !important; transition: none !important; }
 }
