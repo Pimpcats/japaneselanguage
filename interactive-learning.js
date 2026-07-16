@@ -25,16 +25,24 @@
     { id: "window", name: "window cover" },
   ];
 
-  // ---- object library (all CSS-drawn, no external images) ------------------
-  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle" };
-  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー" };
+  // ---- object library (all CSS-drawn; people use the app's chibi art) ------
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子" };
+  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち" };
 
-  // ---- zones: これ・それ・あれ ARE distance --------------------------------
-  const ZONE_WORD = { near: "これ", partner: "それ", far: "あれ" };
+  // ---- zones: distance IS the grammar --------------------------------------
+  // things: これ・それ・あれ  ·  places: ここ・そこ・あそこ
+  const WORDSETS = {
+    thing: { near: "これ", partner: "それ", far: "あれ" },
+    place: { near: "ここ", partner: "そこ", far: "あそこ" },
+  };
+  const WORDSET_COPY = {
+    thing: "これ = near you · それ = by them · あれ = far away.",
+    place: "ここ = right here · そこ = there, by them · あそこ = way over there.",
+  };
   const ZONE_DESC = {
     near: "right by your hand",
     partner: "next to もち子",
-    far: "up on the far shelf",
+    far: "far away over there",
   };
 
   // ---- story beats, per lesson ----------------------------------------------
@@ -118,6 +126,40 @@
       instruction: "Your turn — pick anything",
       copy: "Whichever you tap becomes これ — the one right in front of you.",
       answer: { jp: "これを ください。", romaji: "kore o kudasai", en: "This one, please." },
+    },
+
+    // ---- Where is it?: a street — ここ・そこ・あそこ are PLACE distance ----
+    "Where is the restroom?": {
+      id: "where-ask-toilet", type: "ask", lesson: "where",
+      scene: "street", zone: "partner", object: "mochiko", askLabel: "Ask her:",
+      instruction: "You really need the restroom…",
+      copy: "You have no idea where it is. Tap もち子 and ask.",
+      answer: { jp: "トイレは どこですか？", romaji: "toire wa doko desu ka", en: "Where is the restroom?" },
+    },
+    "It's over there.": {
+      id: "where-spot-wc", type: "point", words: "place", scene: "street", target: "far", lesson: "where",
+      layout: { near: "water", partner: "mochiko", far: "wc" },
+      instruction: "There it is! Point at the restroom sign",
+      answer: { jp: "あそこです。", romaji: "asoko desu", en: "It's over there." },
+    },
+    "The station is here.": {
+      id: "where-station-here", type: "point", words: "place", scene: "street", target: "near", lesson: "where",
+      layout: { near: "station", partner: "mochiko", far: "wc" },
+      instruction: "You're standing right at the station",
+      answer: { jp: "えきは ここです。", romaji: "eki wa koko desu", en: "The station is here." },
+    },
+    "Yes, it's here.": {
+      id: "where-water-here", type: "point", words: "place", scene: "street", target: "near", lesson: "where",
+      ask: { jp: "みずは ありますか？", romaji: "mizu wa arimasu ka", en: "Is there (any) water?" },
+      layout: { near: "water", partner: "mochiko", far: "wc" },
+      instruction: "もち子 wants water — you have some!",
+      answer: { jp: "はい、ここに あります。", romaji: "hai, koko ni arimasu", en: "Yes, it's here." },
+    },
+    "My friend is over there.": {
+      id: "where-friend", type: "point", words: "place", scene: "street", target: "far", lesson: "where",
+      layout: { near: "water", partner: "mochiko", far: "friend" },
+      instruction: "Your friend is waving — spot them!",
+      answer: { jp: "ともだちは あそこに います。", romaji: "tomodachi wa asoko ni imasu", en: "My friend is over there." },
     },
   };
 
@@ -216,7 +258,7 @@
     else delete overlay.root.dataset.target;
     overlay.stage.className = "story-stage story-stage-" + beat.type;
     overlay.stage.innerHTML = "";
-    overlay.panel.querySelectorAll(".story-answer").forEach((node) => node.remove());
+    overlay.panel.querySelectorAll(":scope > .story-answer, :scope > .story-ask").forEach((node) => node.remove());
     overlay.feedback.textContent = "";
     overlay.feedback.className = "story-feedback";
     overlay.continueBtn.hidden = true;
@@ -268,6 +310,7 @@
     const scene = el("div", "story-scene story-scene-" + kind);
     scene.append(el("div", "scene-wall"), el("div", "scene-floor"));
     if (kind === "shop") scene.append(el("div", "scene-counter"));
+    if (kind === "street") scene.append(el("div", "scene-skyline"));
     return scene;
   }
   function mochikoImg(src, cls) {
@@ -298,6 +341,16 @@
       fig.append(el("i", "cup-steam"), el("i", "coffee-body"), el("i", "cup-saucer"));
     } else if (kind === "mystery") {
       fig.append(el("i", "mystery-lump"), el("i", "mystery-knot"), el("i", "mystery-q"));
+    } else if (kind === "wc") {
+      fig.append(el("i", "wc-board"), el("i", "wc-pole"));
+    } else if (kind === "station") {
+      fig.append(el("i", "st-body"), el("i", "st-door"), el("i", "st-sign"));
+    } else if (kind === "friend" || kind === "mochiko") {
+      const img = document.createElement("img");
+      img.className = "obj-person-img";
+      img.src = kind === "friend" ? "assets/chibi_cheer.png" : "assets/chibi_think.png";
+      img.alt = "";
+      fig.appendChild(img);
     }
     return fig;
   }
@@ -499,22 +552,33 @@
   // ---- point: the object at the right DISTANCE -------------------------------
   // Wrong taps TEACH the zone word instead of just refusing.
   function renderPointBeat(beat, finishBeat) {
+    const words = WORDSETS[beat.words || "thing"];
     overlay.title.textContent = beat.instruction;
-    overlay.copy.textContent = "これ = near you · それ = by them · あれ = far away.";
+    overlay.copy.textContent = WORDSET_COPY[beat.words || "thing"];
+    // A beat can carry the question this act answers (もち子 asks it first).
+    if (beat.ask) overlay.stage.insertAdjacentElement("beforebegin", sentenceBlock("story-ask", "もち子 asks", beat.ask));
 
-    const scene = buildScene("room");
+    const sceneKind = beat.scene || "room";
+    const scene = buildScene(sceneKind);
     const layout = beat.layout || { near: "book", partner: "bag", far: "clock" };
 
     const farZone = el("div", "scene-zone scene-zone-far");
-    farZone.append(objButton(layout.far, "far"), el("i", "scene-shelf-board"));
+    farZone.appendChild(objButton(layout.far, "far"));
+    if (sceneKind === "room") farZone.appendChild(el("i", "scene-shelf-board"));
     const partnerZone = el("div", "scene-zone scene-zone-partner");
-    partnerZone.append(mochikoImg("assets/chibi_think.png"), objButton(layout.partner, "partner"));
+    // If もち子 herself is the partner-zone tappable, don't draw her twice.
+    if (layout.partner !== "mochiko") partnerZone.appendChild(mochikoImg("assets/chibi_think.png"));
+    partnerZone.appendChild(objButton(layout.partner, "partner"));
     const nearZone = el("div", "scene-zone scene-zone-near");
     const hand = el("div", "story-hand");
     hand.setAttribute("aria-hidden", "true");
     nearZone.append(objButton(layout.near, "near"), hand);
     scene.append(farZone, partnerZone, nearZone);
     overlay.stage.appendChild(scene);
+
+    // "the かばん" for things; "もち子 herself" for the person
+    const named = (kind) => (kind === "mochiko" ? "もち子 herself" : "the " + (OBJ_JP[kind] || OBJ_NAME[kind]));
+    const desc = (kind, zone) => (kind === "mochiko" ? "right beside you" : ZONE_DESC[zone]);
 
     scene.querySelectorAll(".story-obj").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -525,8 +589,8 @@
           btn.classList.remove("wrong");
           void btn.offsetWidth;
           btn.classList.add("wrong");
-          overlay.feedback.textContent = "That's the " + (OBJ_JP[kind] || OBJ_NAME[kind]) + " " + ZONE_DESC[zone] +
-            " — " + ZONE_WORD[zone] + ". Find the " + (OBJ_JP[layout[beat.target]] || "one") + " " + ZONE_DESC[beat.target] + ".";
+          overlay.feedback.textContent = "That's " + named(kind) + " " + desc(kind, zone) +
+            " — " + words[zone] + ". Find " + named(layout[beat.target]) + " " + ZONE_DESC[beat.target] + ".";
           overlay.feedback.className = "story-feedback try-again";
           return;
         }
@@ -536,7 +600,7 @@
         });
         btn.classList.add("correct");
         hand.dataset.aim = zone;
-        attachAnswer(beat, ZONE_WORD[beat.target] + " — now say it:");
+        attachAnswer(beat, words[beat.target] + " — now say it:");
         overlay.feedback.textContent = "You're pointing right at it!";
         overlay.feedback.className = "story-feedback success";
         showContinue("Say it →", finishBeat);
@@ -549,7 +613,7 @@
     overlay.title.textContent = beat.instruction;
     overlay.copy.textContent = beat.copy || "";
 
-    const scene = buildScene(beat.scene === "shop" ? "shop" : "room");
+    const scene = buildScene(beat.scene || "room");
     const target = objButton(beat.object, beat.zone, (beat.tag ? "price tag on the " : "") + OBJ_NAME[beat.object]);
     if (beat.tag) target.appendChild(el("i", "obj-tag"));
 
@@ -560,7 +624,9 @@
       scene.appendChild(counterZone);
     } else if (beat.zone === "partner") {
       const partnerZone = el("div", "scene-zone scene-zone-partner");
-      partnerZone.append(mochikoImg("assets/chibi_think.png"), target);
+      // If もち子 herself is the one you're asking, she IS the tappable.
+      if (beat.object !== "mochiko") partnerZone.appendChild(mochikoImg("assets/chibi_think.png"));
+      partnerZone.appendChild(target);
       scene.appendChild(partnerZone);
     } else {
       const nearZone = el("div", "scene-zone scene-zone-near");
@@ -575,7 +641,7 @@
       if (target.disabled) return;
       target.disabled = true;
       target.classList.add("noticed");
-      attachAnswer(beat, "Ask it:");
+      attachAnswer(beat, beat.askLabel || "Ask it:");
       overlay.feedback.textContent = "Hmm… time to ask.";
       overlay.feedback.className = "story-feedback success";
       showContinue("Ask →", finishBeat);

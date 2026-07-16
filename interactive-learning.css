@@ -180,6 +180,35 @@ button.primary.story-continue {
 }
 .scene-mochiko { height: 78px; width: auto; display: block; filter: drop-shadow(0 3px 3px rgba(31,45,77,.18)); }
 
+/* ---- street variant: sky, distant skyline, pavement ---- */
+.story-scene-street .scene-wall {
+  height: 62%;
+  background: linear-gradient(180deg, #cfe6f7 0%, #eef4e9 88%);
+  border-bottom: 0;
+}
+.scene-skyline {
+  position: absolute;
+  left: 0; right: 0; top: 40%; height: 22%;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(31, 45, 77, 0.13) 0 34px, rgba(31, 45, 77, 0.07) 34px 58px,
+      rgba(31, 45, 77, 0.17) 58px 88px, rgba(31, 45, 77, 0.09) 88px 128px);
+  -webkit-mask: linear-gradient(180deg, transparent 0, #000 28%, #000 100%);
+  mask: linear-gradient(180deg, transparent 0, #000 28%, #000 100%);
+  border-bottom: 2px solid rgba(31, 45, 77, 0.16);
+}
+.story-scene-street .scene-floor {
+  background:
+    repeating-linear-gradient(90deg, rgba(60, 60, 70, 0.09) 0 3px, transparent 3px 48px),
+    linear-gradient(180deg, #ddd8ca, #c9c3b3);
+}
+/* on a street, "far" stands at the horizon, not on a shelf */
+.story-scene-street .scene-zone-far {
+  top: auto; bottom: 40%; right: 9%;
+  font-size: 6.5px;
+}
+.story-scene-street .scene-zone-partner { bottom: 32%; }
+
 /* ---- shop variant: counter + shopkeeper もち子 + your basket ---- */
 .story-scene-shop .scene-wall { background: linear-gradient(180deg, #fbeedd 0%, #f4e3c8 90%); }
 .scene-counter {
@@ -365,6 +394,62 @@ button.primary.story-continue {
   color: #fff8e7; text-align: center; font-style: normal;
 }
 .obj-mystery .mystery-q::after { content: "?"; }
+
+/* restroom sign — a pole with a blue WC board */
+.obj-wc { width: 3.6em; height: 6.6em; }
+.obj-wc .wc-board {
+  position: absolute; top: 0; left: 0; right: 0; height: 3em;
+  background: linear-gradient(160deg, #3e7cbd, #2a5c94);
+  border: 2px solid rgba(31, 45, 77, 0.75);
+  border-radius: 0.45em;
+}
+.obj-wc .wc-board::after {
+  content: "WC";
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font: 800 1.15em/1 var(--mono, monospace);
+  color: #fff; font-style: normal; letter-spacing: 0.05em;
+}
+.obj-wc .wc-pole {
+  position: absolute; top: 2.9em; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 0.5em;
+  background: linear-gradient(90deg, #9aa0ab, #7d838f);
+  border: 1.5px solid rgba(31, 45, 77, 0.5); border-radius: 0.2em;
+}
+
+/* station — a little entrance with an えき sign */
+.obj-station { width: 7em; height: 5.8em; }
+.obj-station .st-body {
+  position: absolute; left: 0; right: 0; top: 1em; bottom: 0;
+  background: linear-gradient(180deg, #f6ead2, #ecdaba);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 0.35em 0.35em 0 0;
+}
+.obj-station .st-door {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 2.1em; height: 2.7em;
+  background: linear-gradient(180deg, #6d8dab, #557593);
+  border: 2px solid rgba(31, 45, 77, 0.7);
+  border-radius: 0.65em 0.65em 0 0;
+}
+.obj-station .st-sign {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  padding: 0.12em 0.55em;
+  background: #2f6db3; border: 2px solid rgba(31, 45, 77, 0.75); border-radius: 0.3em;
+}
+.obj-station .st-sign::after {
+  content: "えき";
+  font: 700 0.95em/1.25 var(--sign, sans-serif);
+  color: #fff; font-style: normal;
+}
+
+/* people — the app's own chibi art, tappable */
+.obj-friend, .obj-mochiko { width: 5.5em; height: 8.5em; }
+.obj-person-img {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  height: 8.5em; width: auto;
+  filter: drop-shadow(0 3px 3px rgba(31, 45, 77, 0.18));
+}
 
 /* the shop price tag with a ? */
 .obj-tag {
