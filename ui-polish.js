@@ -34,6 +34,7 @@
     review: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.25 8.5A7.5 7.5 0 1 0 20 12"/><path d="M19.25 4.75V8.5H15.5"/><path d="M12 8.25V12l2.5 1.5"/></svg>',
     library: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.25 5.25h5.5v13.5h-5.5zM13.25 5.25h5.5v13.5h-5.5z"/><path d="M7.25 8h1.5M15.25 8h1.5"/></svg>',
     progress: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18.75V13.5h3v5.25zM10.5 18.75V9h3v9.75zM16 18.75V5.25h3v13.5z"/></svg>',
+    settings: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 3.5v2.2M12 18.3v2.2M4.6 7.8l1.9 1.1M17.5 15.1l1.9 1.1M4.6 16.2l1.9-1.1M17.5 8.9l1.9-1.1"/></svg>',
   };
 
   function make(tag, className, text) {
@@ -197,6 +198,7 @@
       ["review", "Kana"],
       ["library", "Library"],
       ["progress", "Progress"],
+      ["settings", "Settings"],
     ].forEach(([name, label]) => {
       const button = make("button", "tab-item");
       button.type = "button";
@@ -204,7 +206,8 @@
       button.setAttribute("aria-label", label === "Kana" ? "Kana review" : label);
       button.innerHTML = '<span class="tab-icon">' + svg[name] + '</span><span class="tab-label">' + label + '</span>';
       button.addEventListener("click", () => {
-        // The "Kana" tab isn't a hub — it jumps straight into Kana practice.
+        // Neither "Kana" nor "Settings" is a hub — each jumps straight to its screen.
+        if (name === "settings") { if (typeof window.__hanaOpenSettings === "function") window.__hanaOpenSettings(); return; }
         if (name === "review") { if (typeof window.__hanaOpenKana === "function") window.__hanaOpenKana(); return; }
         if (activeHub === name) window.scrollTo({ top: 0, behavior: "smooth" });
         else activateHub(name, true);
@@ -323,16 +326,28 @@
 
     slot.hidden = false;
     slot.innerHTML = "";
-    const button = make("button", "continue-card");
+    // Replicate the station-sign card this leads to, so you can see where in the
+    // line you are: line-coloured badge (letter + station number), station name,
+    // and progress — a light banner, not the old dark card.
+    const info = (window.__hanaStationInfo && window.__hanaStationInfo(lesson.id)) || null;
+    const button = make("button", "continue-card continue-station");
     button.type = "button";
     button.setAttribute("aria-label", (started ? "Continue " : "Start ") + lesson.title);
+    if (info) button.style.setProperty("--stline", info.lineColor);
 
-    const glyph = make("span", "continue-glyph", "話");
-    button.appendChild(glyph);
+    if (info) {
+      const badge = make("span", "cs-badge");
+      badge.appendChild(make("span", "cs-line", info.lineLetter));
+      badge.appendChild(make("span", "cs-num", info.stationNum));
+      button.appendChild(badge);
+    } else {
+      button.appendChild(make("span", "continue-glyph", "話"));
+    }
+
     const content = make("span", "continue-content");
     content.appendChild(make("span", "continue-kicker", started ? "Continue learning" : "Recommended next"));
-    content.appendChild(make("strong", "continue-title", lesson.title));
-    content.appendChild(make("span", "continue-subtitle", lesson.grammar || "Speaking practice"));
+    content.appendChild(make("strong", "continue-title", info ? info.name : lesson.title));
+    if (info && info.romaji) content.appendChild(make("span", "continue-subtitle", info.romaji));
     const progressRow = make("span", "continue-progress-row");
     const bar = make("span", "continue-progress");
     const fill = make("i");

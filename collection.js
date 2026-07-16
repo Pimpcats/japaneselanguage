@@ -189,6 +189,10 @@
     badgeEl.hidden = !n;
   }
   function mountButton() {
+    // Sticker button removed from the top bar for now (owner request). The
+    // collection still earns stickers on finish; only the entry point is gone.
+    return;
+    // eslint-disable-next-line no-unreachable
     const right = document.getElementById("topbar-right");
     if (!right || document.getElementById("collection-btn")) return;
     const btn = document.createElement("button");

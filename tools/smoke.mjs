@@ -66,9 +66,10 @@ click(document.querySelector(".kq-opt"));
 await new Promise((r) => setTimeout(r, 1600));
 check("practice advances after answering", document.getElementById("kq-progress").textContent.startsWith("2") || !document.getElementById("kana-quiz").hidden);
 
-// Catch-up bubble is built in the top bar and refresh runs without error.
-check("catch-up badge built", !!document.getElementById("catchup-badge"));
-try { window.__hanaRefreshCatchup(); check("catch-up refresh runs", true); }
-catch (e) { check("catch-up refresh runs — " + e.message, false); }
+// Station-info hook powers the Recommended-next banner (built in ui-polish).
+try {
+  const info = window.__hanaStationInfo(window.LESSONS[1].id);
+  check("station info returns line + name", !!(info && info.lineLetter && info.name && info.stationNum));
+} catch (e) { check("station info — " + e.message, false); }
 
 process.exit(failed ? 1 : 0);

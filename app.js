@@ -261,6 +261,7 @@
     renderSyncSettings();
     show(el.settings, { back: false });
   }
+  window.__hanaOpenSettings = openSettings;   // the bottom-nav Settings tab
 
   const todayStr = () => new Date().toISOString().slice(0, 10);
 
@@ -1289,7 +1290,6 @@
   function renderHome() {
     document.body.classList.remove("drive-mode");   // leaving a drive session
     keepAwake(false);
-    updateCatchupBadge();
     renderDailyRing();
     renderMastery();
     el.stats.hidden = true;
@@ -1529,6 +1529,26 @@
     g = g.split(/\s*[—·]\s*|\s+\(/)[0].trim();     // drop the "— gloss" / "(note)" tail
     return g.length > 22 ? g.slice(0, 21).trimEnd() + "…" : g;
   }
+  // Station identity for a lesson — line colour/letter, station number within
+  // its level, name + romaji, and progress. Lets the "Recommended next" banner
+  // (built in ui-polish.js) replicate the station-sign card it leads to.
+  window.__hanaStationInfo = function (lessonId) {
+    const L = lessonById[lessonId];
+    if (!L) return null;
+    const level = window.LEVELS.find((lv) => lv.tiers.some((t) => t.themes.includes(L.section)));
+    const li = level ? levelLineIdx(level) : 0;
+    const levelLessons = level ? window.LESSONS.filter((x) => level.tiers.some((t) => t.themes.includes(x.section))) : [];
+    const idx = Math.max(0, levelLessons.findIndex((x) => x.id === L.id));
+    const st = lessonStats(L);
+    const name = stationName(L);
+    return {
+      lineColor: LINE_COLORS[li % LINE_COLORS.length],
+      lineLetter: LINE_LETTERS[li % LINE_LETTERS.length],
+      stationNum: String(idx + 1).padStart(2, "0"),
+      name: name, romaji: kanaToRomaji(name),
+      passed: st.passed, total: st.total,
+    };
+  };
   // Split a station name into display units so each kana's romaji can sit
   // centred directly under it (owner: the bottom lettering must match the
   // spacing of the kana above, every applicable card). Each kana mora becomes
@@ -1951,18 +1971,6 @@
     clearTimeout(flashTimer);
     flashTimer = setTimeout(() => t.classList.remove("show"), 2200);
   }
-  // The top-bar catch-up bubble (built in theme.js) shows how many missed
-  // sentences are waiting; hidden when you're all caught up.
-  function updateCatchupBadge() {
-    const b = document.getElementById("catchup-badge");
-    if (!b) return;
-    const n = reviewCards().length;
-    const c = b.querySelector(".cu-n");
-    if (c) c.textContent = n > 99 ? "99+" : String(n);
-    b.hidden = n === 0;
-  }
-  window.__hanaCatchup = startCatchup;
-  window.__hanaRefreshCatchup = updateCatchupBadge;
   function lastGradeOf(p) {
     if (!p) return 0;
     if (typeof p.lastGrade === "number") return p.lastGrade;
@@ -2456,7 +2464,6 @@
 
   function finish() {
     el.progressFill.style.width = "100%";
-    updateCatchupBadge();
     const due = dueCards().length;
     let msg;
     if (session.mode === "focus") {

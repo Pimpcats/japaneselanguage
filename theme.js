@@ -312,17 +312,6 @@
 
     if (back) cbLeft.appendChild(back);
     cbLeft.appendChild(homeBtn);
-
-    // Catch-up bubble — a round button like Home, badged with how many missed
-    // sentences are waiting. Tapping it launches Catch up. app.js keeps the
-    // count fresh via window.__hanaRefreshCatchup.
-    const catchup = document.createElement("button");
-    catchup.id = "catchup-badge"; catchup.className = "icon-btn"; catchup.hidden = true;
-    catchup.setAttribute("aria-label", "Catch up on missed sentences");
-    catchup.innerHTML = '🔁<span class="cu-n"></span>';
-    catchup.addEventListener("click", () => { if (window.__hanaCatchup) window.__hanaCatchup(); });
-    cbLeft.appendChild(catchup);
-    setTimeout(() => { if (window.__hanaRefreshCatchup) window.__hanaRefreshCatchup(); }, 0);
     if (counter) cbMid.appendChild(counter);   // the 1/6 progress circle (drill)
     const mastery = document.getElementById("mastery");
     if (mastery) cbMid.appendChild(mastery);    // the mastery bar (home / intro)

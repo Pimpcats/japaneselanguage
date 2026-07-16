@@ -189,15 +189,43 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
 .tab-item { color: var(--ink-soft) !important; }
 .tab-item.active { color: var(--line-blue) !important; background: rgba(15, 108, 182, 0.10) !important; }
 
-/* ================= HOME / CONTINUE = "next train" board ================= */
-.continue-card {
-  background: var(--ink) !important;
-  border: 2px solid var(--ink) !important; border-radius: 18px !important;
-  box-shadow: 0 6px 0 rgba(32, 38, 58, 0.25) !important;
+/* ===== HOME / RECOMMENDED NEXT = a station-sign banner (light) ===== */
+.continue-slot { width: 100%; }
+.continue-card.continue-station {
+  width: 100%; box-sizing: border-box;
+  display: flex; align-items: center; gap: 0.85rem;
+  background: #fff !important;
+  border: 2.5px solid var(--ink) !important; border-radius: 16px !important;
+  box-shadow: 0 4px 0 rgba(32, 38, 58, 0.16) !important;
+  padding: 0.7rem 0.9rem !important;
+  border-left: 8px solid var(--stline, var(--line-blue)) !important;   /* line accent */
+  color: var(--ink) !important;
 }
-.continue-glyph { background: rgba(255,255,255,.12) !important; border-radius: 10px !important; font-family: var(--sign); }
+.continue-card.continue-station:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(32,38,58,.16) !important; }
+/* line badge — letter over station number, like the card it leads to */
+.continue-station .cs-badge {
+  flex: 0 0 auto; width: 3rem; height: 3rem;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 3px solid var(--stline, var(--line-blue)); border-radius: 10px; line-height: 1;
+}
+.continue-station .cs-line { font-family: var(--mono); font-size: 0.72rem; font-weight: 600; color: var(--ink-soft); }
+.continue-station .cs-num { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; color: var(--ink); margin-top: 1px; }
+.continue-station .continue-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.15rem; text-align: left; }
+.continue-station .continue-kicker { color: var(--stline, var(--line-blue)) !important; font-family: var(--mono); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.continue-station .continue-title { font-family: var(--sign); font-weight: 900; font-size: 1.35rem; color: var(--ink) !important; line-height: 1.1; overflow-wrap: anywhere; }
+.continue-station .continue-subtitle { font-family: var(--mono); font-size: 0.66rem; font-weight: 600; letter-spacing: 0.04em; color: var(--ink-soft) !important; text-transform: uppercase; }
+.continue-station .continue-progress-row { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.25rem; }
+.continue-station .continue-progress { flex: 1; height: 6px; border-radius: 999px; background: rgba(32,38,58,.12) !important; overflow: hidden; }
+.continue-station .continue-progress > i { display: block; height: 100%; background: var(--stline, var(--line-blue)) !important; }
+.continue-station .continue-count { font-family: var(--mono); font-size: 0.62rem; font-weight: 600; color: var(--ink-soft) !important; white-space: nowrap; }
+.continue-station .continue-arrow { flex: 0 0 auto; color: var(--ink-soft) !important; font-size: 1.5rem; font-weight: 700; }
 .hub-title { color: var(--ink); letter-spacing: -0.02em; }
 .hub-eyebrow, .card-kicker { color: var(--line-blue) !important; }
+
+/* Recommended-next sits as a banner at the TOP; the subway line centres in the
+   space below it (owner: capsule banner up top, no big void). */
+#hub-lessons:not([hidden]):has(.level-line) { justify-content: flex-start; }
+#hub-lessons:not([hidden]):has(.level-line) #lesson-map { margin-top: auto; margin-bottom: auto; }
 
 /* level overview cards → line entries */
 .level-card {
@@ -272,7 +300,6 @@ body:has(#home:not([hidden]) #hub-lessons:not([hidden]) .level-line) .home-shell
 body:has(#home:not([hidden]) #hub-lessons:not([hidden]) .level-line) #hub-lessons {
   flex: 1 1 auto; min-height: 0;
 }
-#hub-lessons:not([hidden]):has(.level-line) { justify-content: center; }
 
 /* ================= SHARED BUTTONS ================= */
 button.primary, button.secondary, button.small {
@@ -328,22 +355,6 @@ body.drive-mode #reveal-area::after { color: var(--ink-soft) !important; }
 /* visual-learning emoji atop concrete word-chips */
 .wc-emoji { display: block; font-size: 1.4rem; line-height: 1; margin-bottom: 0.12rem; }
 body.drive-mode .wc-emoji { font-size: 1.7rem; margin-bottom: 0.18rem; }
-
-/* Catch-up bubble in the top bar — a round button like Home, badged with the
-   number of missed sentences waiting. */
-#catchup-badge {
-  position: relative; border-radius: 50% !important;
-  border: 2px solid var(--ink) !important; background: #fff !important;
-  box-shadow: 0 2px 0 rgba(32, 38, 58, 0.16) !important;
-}
-#catchup-badge .cu-n {
-  position: absolute; top: -7px; right: -7px;
-  min-width: 1.15rem; height: 1.15rem; padding: 0 0.22rem; box-sizing: border-box;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 999px; background: var(--line-red, #f62e36); color: #fff;
-  border: 2px solid var(--paper, #fff);
-  font: 700 0.68rem/1 var(--mono); letter-spacing: 0;
-}
 
 /* transient bottom toast (e.g. "all caught up") */
 #toast {
