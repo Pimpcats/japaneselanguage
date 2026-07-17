@@ -356,6 +356,34 @@ body.drive-mode #reveal-area::after { color: var(--ink-soft) !important; }
 .wc-emoji { display: block; font-size: 1.4rem; line-height: 1; margin-bottom: 0.12rem; }
 body.drive-mode .wc-emoji { font-size: 1.7rem; margin-bottom: 0.18rem; }
 
+/* ===== Iconic typography: words that WEAR their meaning ===== */
+/* Geometry & aura only — POS tint stays; colour words are the exception,
+   because there the colour IS the lesson. Scales the per-mora ruby too. */
+.warp-big { font-size: 1.45em; }
+.warp-small { font-size: 0.66em; }
+.warp-tall { display: inline-block; transform: scaleY(1.35); transform-origin: 50% 100%; margin-top: 0.35em; }
+.warp-cheap { font-size: 0.78em; opacity: 0.85; vertical-align: bottom; }
+.warp-long { letter-spacing: 0.32em; }
+.warp-far { font-size: 0.7em; opacity: 0.55; }
+.warp-near { font-size: 1.25em; }
+.warp-fast { display: inline-block; transform: skewX(-9deg); }
+.warp-cold { display: inline-block; text-shadow: 0 0 7px rgba(15, 108, 182, 0.5); animation: warp-shiver 0.28s linear infinite; }
+.warp-hot { text-shadow: 0 0 8px rgba(246, 46, 54, 0.5); }
+.warp-old { opacity: 0.62; filter: sepia(0.45); }
+.warp-new { text-shadow: 0 0 9px rgba(227, 181, 0, 0.65); }
+.warp-red { color: #d23b3b !important; }
+.warp-blue { color: #2b6cb8 !important; }
+.warp-white { color: #fff !important; text-shadow: 0 0 2px rgba(32, 38, 58, 0.95), 0 0 5px rgba(32, 38, 58, 0.6); }
+.warp-black { color: #14161f !important; font-weight: 900; }
+@keyframes warp-shiver {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-1px); }
+  75% { transform: translateX(1px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .warp-cold { animation: none; }
+}
+
 /* transient bottom toast (e.g. "all caught up") */
 #toast {
   position: fixed; left: 50%; bottom: 5.5rem; z-index: 200;

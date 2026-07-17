@@ -659,11 +659,36 @@
         end = close + 1;
       }
       out += furiganaHTML(s.slice(cursor, i));
-      out += '<span class="ck pos-' + escHTML(w.pos || "n") + '">' + furiganaHTML(s.slice(i, end)) + "</span>";
+      out += '<span class="ck pos-' + escHTML(w.pos || "n") + warpClass(w.jp) + '">' + furiganaHTML(s.slice(i, end)) + "</span>";
       cursor = end;
     }
     return out + furiganaHTML(s.slice(cursor));
   }
+  // Iconic typography (owner, 2026-07): some words WEAR their meaning — the
+  // text itself is warped so the eye learns the word's sense along with its
+  // sound. おおきい renders big, ちいさい small, たかい stands tall, とおい
+  // fades into the distance, colour words are their colour. Applied wherever
+  // answer words are wrapped (drill answer, word chips). Geometry/aura only —
+  // POS tinting stays intact except for colour words, where the colour IS the
+  // lesson. Passive, so it teaches even in 🚗 drive mode.
+  const WORD_WARP = {
+    "おおきい": "warp-big", "おおきな": "warp-big",
+    "ちいさい": "warp-small", "ちいさな": "warp-small",
+    "たかい": "warp-tall",          // tall / expensive — rises above the line
+    "やすい": "warp-cheap",         // sits small and low
+    "ながい": "warp-long",
+    "とおい": "warp-far",
+    "ちかい": "warp-near",
+    "はやい": "warp-fast",
+    "さむい": "warp-cold",
+    "あつい": "warp-hot",
+    "ふるい": "warp-old",
+    "あたらしい": "warp-new",
+    "あかい": "warp-red", "あおい": "warp-blue",
+    "しろい": "warp-white", "くろい": "warp-black",
+  };
+  const warpClass = (jp) => (WORD_WARP[jp] ? " " + WORD_WARP[jp] : "");
+
   // Drive mode: render a kana run with its romaji drawn right over each mora
   // (きょ→kyo, っか→kka), so the alphabet is taught in place as the sentence is
   // read. Non-kana (punctuation, spaces) pass through untouched.
@@ -708,7 +733,7 @@
       let end = i + w.jp.length;
       while (s[end] === "[") { const close = s.indexOf("]", end); if (close < 0) break; end = close + 1; }
       out += driveSegHTML(s.slice(cursor, i));
-      out += '<span class="ck pos-' + escHTML(w.pos || "n") + '">' + driveSegHTML(s.slice(i, end)) + "</span>";
+      out += '<span class="ck pos-' + escHTML(w.pos || "n") + warpClass(w.jp) + '">' + driveSegHTML(s.slice(i, end)) + "</span>";
       cursor = end;
     }
     return out + driveSegHTML(s.slice(cursor));
@@ -2341,7 +2366,7 @@
     // Visual anchor: a confident emoji for concrete words (blank otherwise).
     const emoji = window.HanaEmoji && window.HanaEmoji.for({ jp: term || jp, en: gloss, pos });
     if (emoji) { main.appendChild(span("wc-emoji", emoji)); chip.classList.add("has-emoji"); }
-    main.appendChild(span("wc-jp", jp));
+    main.appendChild(span("wc-jp" + warpClass(term || jp), jp));
     if (reading && reading !== jp) main.appendChild(span("wc-read", reading));
     if (gloss) main.appendChild(span("wc-en", gloss));
     if (POS_NAME[pos]) main.appendChild(span("wc-pos", POS_NAME[pos]));
