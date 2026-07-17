@@ -374,6 +374,17 @@ body.drive-mode .wc-emoji { font-size: 1.7rem; margin-bottom: 0.18rem; }
 .warp-hot { text-shadow: 0 0 8px rgba(246, 46, 54, 0.5); }
 .warp-old { opacity: 0.62; filter: sepia(0.45); }
 .warp-new { text-shadow: 0 0 9px rgba(227, 181, 0, 0.65); }
+/* たかい as "expensive": the word shines gold — money, not height */
+.warp-gold {
+  color: #b8860b !important;
+  text-shadow: 0 0 6px rgba(227, 181, 0, 0.55);
+  animation: warp-glint 2.2s ease-in-out infinite;
+}
+@keyframes warp-glint {
+  0%, 100% { text-shadow: 0 0 5px rgba(227, 181, 0, 0.4); }
+  50% { text-shadow: 0 0 12px rgba(255, 219, 88, 0.85); }
+}
+@media (prefers-reduced-motion: reduce) { .warp-gold { animation: none; } }
 .warp-red { color: #d23b3b !important; }
 .warp-blue { color: #2b6cb8 !important; }
 .warp-white { color: #fff !important; text-shadow: 0 0 2px rgba(32, 38, 58, 0.95), 0 0 5px rgba(32, 38, 58, 0.6); }
