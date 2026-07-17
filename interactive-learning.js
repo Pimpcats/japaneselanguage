@@ -918,7 +918,9 @@
     const scene = buildScene("shop");
     scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
     const counterZone = el("div", "scene-zone scene-zone-counter scene-zone-count");
-    const total = Math.max(beat.n + 1, 4);
+    // ぜんぶ (finalWord) means ALL of them — the row must hold exactly n, so
+    // nothing is left behind. Counted beats get spares to choose from.
+    const total = beat.finalWord ? beat.n : Math.max(beat.n + 1, 4);
     for (let i = 0; i < total; i += 1) counterZone.appendChild(objButton(beat.item, "counter"));
     scene.appendChild(counterZone);
     overlay.stage.appendChild(scene);
