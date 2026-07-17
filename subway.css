@@ -344,7 +344,7 @@ button.grade.got { background: color-mix(in srgb, var(--line-blue) 14%, #fff) !i
 /* ================= CAR MODE DRILL — a moving-train sign ================= */
 body.drive-mode #app { background: var(--paper) !important; }
 body.drive-mode #prompt-en { color: var(--ink) !important; font-family: var(--sign); }
-body.drive-mode #answer-kana { color: var(--ink) !important; }
+body.drive-mode #answer-kana { color: var(--ink) !important; line-height: 2.1; }
 /* thin line stripe at the very top of the drill sheet */
 body.drive-mode #drill:not([hidden])::before {
   content: ""; position: fixed; top: 0; left: 0; right: 0; height: 8px;
@@ -359,13 +359,16 @@ body.drive-mode .wc-emoji { font-size: 1.7rem; margin-bottom: 0.18rem; }
 /* ===== Iconic typography: words that WEAR their meaning ===== */
 /* Geometry & aura only — POS tint stays; colour words are the exception,
    because there the colour IS the lesson. Scales the per-mora ruby too. */
-.warp-big { font-size: 1.45em; }
-.warp-small { font-size: 0.66em; }
-.warp-tall { display: inline-block; transform: scaleY(1.35); transform-origin: 50% 100%; margin-top: 0.35em; }
+.warp-big { font-size: 1.32em; }
+.warp-small { font-size: 0.7em; }
+/* "tall" grows the line box for real (font-size reflows layout) and narrows
+   via scaleX — which only shrinks inward — so it can never paint over the
+   content above or beside it. */
+.warp-tall { display: inline-block; font-size: 1.3em; transform: scaleX(0.74); transform-origin: 50% 100%; }
 .warp-cheap { font-size: 0.78em; opacity: 0.85; vertical-align: bottom; }
 .warp-long { letter-spacing: 0.32em; }
 .warp-far { font-size: 0.7em; opacity: 0.55; }
-.warp-near { font-size: 1.25em; }
+.warp-near { font-size: 1.18em; }
 .warp-fast { display: inline-block; transform: skewX(-9deg); }
 .warp-cold { display: inline-block; text-shadow: 0 0 7px rgba(15, 108, 182, 0.5); animation: warp-shiver 0.28s linear infinite; }
 .warp-hot { text-shadow: 0 0 8px rgba(246, 46, 54, 0.5); }
