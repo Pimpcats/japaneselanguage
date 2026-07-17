@@ -26,8 +26,8 @@
   ];
 
   // ---- object library (all CSS-drawn; people use the app's chibi art) ------
-  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house" };
-  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ" };
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon" };
+  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき" };
 
   // ---- zones: distance IS the grammar --------------------------------------
   // things: これ・それ・あれ  ·  places: ここ・そこ・あそこ
@@ -70,6 +70,26 @@
   };
 
   const BEFORE_PROMPT = {
+    // ---- Level 0 · か row: see the remarkable thing, call it out ----------
+    "l0-ka": {
+      "A big face!": {
+        id: "l0-bigface", type: "ask",
+        scene: "room", zone: "partner", object: "bigface",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "You can't NOT say something.",
+        instruction: "Whoa — that guy…",
+        copy: "That is quite a face. Tap it, then call it out.",
+        answer: { jp: "おおきい かお！", romaji: "ookii kao", en: "A big face!" },
+      },
+      "A red persimmon!": {
+        id: "l0-kaki", type: "ask",
+        scene: "room", zone: "table", object: "persimmon",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "So red. Say it!",
+        instruction: "On the table — small, round, red",
+        copy: "A persimmon, perfectly ripe. Tap it, then call it out.",
+        answer: { jp: "あかい かき！", romaji: "akai kaki", en: "A red persimmon!" },
+      },
+    },
+
     // ---- This, that & whose: a room you point around --------------------
     "this-that": {
       "What is this?": {
@@ -528,6 +548,10 @@
       fig.append(el("i", "car-body"), el("i", "car-window"), el("i", "car-wheel car-wheel-a"), el("i", "car-wheel car-wheel-b"));
     } else if (kind === "house") {
       fig.append(el("i", "house-roof"), el("i", "house-body"), el("i", "house-door"));
+    } else if (kind === "bigface") {
+      fig.append(el("i", "bf-face"), el("i", "bf-eye bf-eye-l"), el("i", "bf-eye bf-eye-r"), el("i", "bf-mouth"), el("i", "bf-body"));
+    } else if (kind === "persimmon") {
+      fig.append(el("i", "ps-leaf"), el("i", "ps-body"));
     } else if (kind === "friend" || kind === "mochiko") {
       const img = document.createElement("img");
       img.className = "obj-person-img";
@@ -805,6 +829,12 @@
       const counterZone = el("div", "scene-zone scene-zone-counter");
       counterZone.appendChild(target);
       scene.appendChild(counterZone);
+    } else if (beat.zone === "table") {
+      const tableZone = el("div", "scene-zone scene-zone-table");
+      const table = el("div", "scene-table");
+      table.setAttribute("aria-hidden", "true");
+      tableZone.append(target, table);
+      scene.appendChild(tableZone);
     } else if (beat.zone === "partner") {
       const partnerZone = el("div", "scene-zone scene-zone-partner");
       // If もち子 herself is the one you're asking, she IS the tappable.
@@ -825,9 +855,9 @@
       target.disabled = true;
       target.classList.add("noticed");
       attachAnswer(beat, beat.askLabel || "Ask it:");
-      overlay.feedback.textContent = "Hmm… time to ask.";
+      overlay.feedback.textContent = beat.feedback || "Hmm… time to ask.";
       overlay.feedback.className = "story-feedback success";
-      showContinue("Ask →", finishBeat);
+      showContinue(beat.cta || "Ask →", finishBeat);
     });
   }
 
