@@ -207,6 +207,11 @@ button.primary.story-continue {
   top: auto; bottom: 40%; right: 9%;
   font-size: 6.5px;
 }
+/* ...unless it lives in the sky (stars) */
+.story-scene-street .scene-zone-far.in-sky {
+  top: 5%; bottom: auto; right: 14%;
+  font-size: 9px;
+}
 .story-scene-street .scene-zone-partner { bottom: 32%; }
 
 /* ---- shop variant: counter + shopkeeper もち子 + your basket ---- */
@@ -251,6 +256,7 @@ button.primary.story-continue {
 }
 .story-obj:hover { transform: translateY(-3px); }
 .story-obj:focus-visible { outline: 3px solid var(--accent, var(--story-blue)); outline-offset: 4px; }
+.story-obj:disabled { opacity: 1; }   /* the tapped target must stay vivid — base button:disabled fades it */
 .story-obj.dimmed { opacity: 0.35; filter: grayscale(0.5); }
 .story-obj.correct, .story-obj.noticed {
   transform: translateY(-4px) scale(1.06);
@@ -605,6 +611,219 @@ button.primary.story-continue {
   border: 2px solid rgba(31, 45, 77, 0.65);
   border-radius: 0.2em 1em 0.2em 1em;
   z-index: 1;
+}
+
+/* clock-hand variants — beats set data-clock on the button to tell a time */
+.story-obj[data-clock="t7"] .clock-hand-h { transform: translate(-50%, -100%) rotate(-150deg); }
+.story-obj[data-clock="t7"] .clock-hand-m { transform: translate(-50%, -100%) rotate(0deg); }
+.story-obj[data-clock="t830"] .clock-hand-h { transform: translate(-50%, -100%) rotate(-105deg); }
+.story-obj[data-clock="t830"] .clock-hand-m { transform: translate(-50%, -100%) rotate(180deg); }
+
+/* a large indoor cow */
+.obj-cow { width: 9em; height: 6.4em; }
+.obj-cow .cow-body {
+  position: absolute; left: 0; right: 1.6em; bottom: 0.7em; height: 3.9em;
+  background: linear-gradient(165deg, #fdfaf2, #ece2cf);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 1.6em 1.2em 1.1em 1.4em;
+}
+.obj-cow .cow-head {
+  position: absolute; right: 0; top: 0.2em; width: 2.9em; height: 2.6em;
+  background: linear-gradient(165deg, #fdfaf2, #e9dfc9);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 1em 1em 1.3em 1.3em;
+  z-index: 1;
+}
+.obj-cow .cow-head::before {
+  content: ""; position: absolute; bottom: 0.15em; left: 50%; transform: translateX(-50%);
+  width: 1.9em; height: 1em;
+  background: #f0b9c4; border: 2px solid rgba(31, 45, 77, 0.55); border-radius: 0.8em;
+}
+.obj-cow .cow-head::after {
+  content: ""; position: absolute; top: 0.55em; left: 0.45em;
+  width: 0.4em; height: 0.55em; border-radius: 50%;
+  background: var(--story-ink);
+  box-shadow: 1.35em 0 0 var(--story-ink);
+}
+.obj-cow .cow-spot {
+  position: absolute; background: #45412f; border-radius: 50% 40% 55% 45%;
+}
+.obj-cow .cow-spot-a { left: 0.9em; bottom: 2.4em; width: 1.7em; height: 1.2em; }
+.obj-cow .cow-spot-b { left: 3.5em; bottom: 1.2em; width: 1.4em; height: 1em; }
+.obj-cow .cow-leg {
+  position: absolute; bottom: 0; width: 0.85em; height: 1.1em;
+  background: #efe6d2; border: 2px solid rgba(31, 45, 77, 0.7);
+  border-radius: 0 0 0.35em 0.35em;
+}
+.obj-cow .cow-leg-a { left: 1em; }
+.obj-cow .cow-leg-b { left: 4.6em; }
+
+/* a small octopus */
+.obj-octopus { width: 3.4em; height: 3.4em; }
+.obj-octopus .oct-head {
+  position: absolute; top: 0; left: 0.2em; right: 0.2em; height: 2.2em;
+  background: radial-gradient(circle at 40% 30%, #f29d9d, #d95f5f);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 50% 50% 42% 42%;
+}
+.obj-octopus .oct-eye {
+  position: absolute; top: 0.9em; width: 0.4em; height: 0.55em;
+  background: var(--story-ink); border-radius: 50%; z-index: 1;
+}
+.obj-octopus .oct-eye-l { left: 30%; }
+.obj-octopus .oct-eye-r { right: 30%; }
+.obj-octopus .oct-legs {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1.3em;
+  background:
+    radial-gradient(circle at 12% 0%, #d95f5f 0.34em, transparent 0.36em),
+    radial-gradient(circle at 37% 0%, #d95f5f 0.34em, transparent 0.36em),
+    radial-gradient(circle at 63% 0%, #d95f5f 0.34em, transparent 0.36em),
+    radial-gradient(circle at 88% 0%, #d95f5f 0.34em, transparent 0.36em);
+}
+
+/* a cat with one paw raised — the paw is the thing to notice */
+.obj-cat { width: 5.6em; height: 5.2em; }
+.obj-cat .cat-body {
+  position: absolute; left: 0.3em; right: 1.1em; bottom: 0; height: 2.6em;
+  background: linear-gradient(165deg, #e8c891, #cfa15c);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 1.2em 1.2em 0.8em 0.8em;
+}
+.obj-cat .cat-head {
+  position: absolute; top: 0.7em; right: 0; width: 2.5em; height: 2.3em;
+  background: linear-gradient(165deg, #eccf9d, #d5a964);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 48%;
+  z-index: 1;
+}
+.obj-cat .cat-head::before {
+  content: ""; position: absolute; top: 0.75em; left: 0.5em;
+  width: 0.34em; height: 0.48em; border-radius: 50%;
+  background: var(--story-ink);
+  box-shadow: 1.1em 0 0 var(--story-ink);
+}
+.obj-cat .cat-head::after {
+  content: ""; position: absolute; bottom: 0.42em; left: 50%; transform: translateX(-50%);
+  width: 0.42em; height: 0.3em;
+  background: #d97878; border-radius: 0.2em;
+}
+.obj-cat .cat-ear {
+  position: absolute; top: 0.28em; width: 0; height: 0; z-index: 2;
+  border-left: 0.42em solid transparent; border-right: 0.42em solid transparent;
+  border-bottom: 0.7em solid #c99b55;
+}
+.obj-cat .cat-ear-l { right: 1.7em; }
+.obj-cat .cat-ear-r { right: 0.25em; }
+.obj-cat .cat-paw {
+  position: absolute; left: 0.9em; top: 0.6em; width: 1em; height: 1.8em;
+  background: linear-gradient(180deg, #eccf9d, #d5a964);
+  border: 2px solid rgba(31, 45, 77, 0.75);
+  border-radius: 0.5em 0.5em 0.3em 0.3em;
+  box-shadow: 0 0 0 3px rgba(227, 181, 0, 0.35);
+  z-index: 2;
+}
+.obj-cat .cat-tail {
+  position: absolute; left: -0.35em; bottom: 1.4em; width: 0.55em; height: 2.2em;
+  background: #cfa15c; border: 2px solid rgba(31, 45, 77, 0.65);
+  border-radius: 0.5em; transform: rotate(18deg);
+}
+
+/* a scatter of stars for the far night sky */
+.obj-star { width: 4.6em; height: 3.6em; }
+.obj-star .star-a, .obj-star .star-b, .obj-star .star-c {
+  position: absolute;
+  background: radial-gradient(circle at 45% 40%, #fff6c9, #f2cf5b);
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  filter: drop-shadow(0 0 0.25em rgba(242, 207, 91, 0.8));
+}
+.obj-star .star-a { left: 0; top: 0.9em; width: 1.9em; height: 1.9em; }
+.obj-star .star-b { right: 0.2em; top: 0; width: 1.3em; height: 1.3em; }
+.obj-star .star-c { right: 1.1em; bottom: 0; width: 0.95em; height: 0.95em; }
+
+/* one perfect peach */
+.obj-peach { width: 3.6em; height: 3.9em; }
+.obj-peach .peach-body {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3.1em;
+  border-radius: 50% 50% 46% 46%;
+  background: radial-gradient(circle at 36% 30%, #ffd9c4, #f49272 65%, #ef7d5d);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+}
+.obj-peach .peach-cleft {
+  position: absolute; bottom: 0.5em; left: 50%; transform: translateX(-50%) rotate(6deg);
+  width: 0.16em; height: 2em;
+  background: rgba(31, 45, 77, 0.35); border-radius: 999px; z-index: 1;
+}
+.obj-peach .peach-leaf {
+  position: absolute; top: 0.1em; left: 55%; transform: rotate(24deg);
+  width: 1.4em; height: 0.85em;
+  background: linear-gradient(140deg, #74a25f, #567f45);
+  border: 2px solid rgba(31, 45, 77, 0.65);
+  border-radius: 0.2em 1em 0.2em 1em;
+  z-index: 1;
+}
+
+/* a little bird beside you */
+.obj-bird { width: 4.2em; height: 3.8em; }
+.obj-bird .bird-body {
+  position: absolute; bottom: 0.5em; left: 0; right: 0.5em; height: 2.7em;
+  background: linear-gradient(160deg, #9fc4e0, #6f9cc4);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 55% 60% 50% 45%;
+}
+.obj-bird .bird-wing {
+  position: absolute; bottom: 1.3em; left: 0.6em; width: 1.6em; height: 1.1em;
+  background: #5f88ad; border: 2px solid rgba(31, 45, 77, 0.6);
+  border-radius: 1em 0.2em 1em 0.2em; z-index: 1;
+}
+.obj-bird .bird-beak {
+  position: absolute; top: 1em; right: 0; width: 0; height: 0; z-index: 1;
+  border-top: 0.32em solid transparent; border-bottom: 0.32em solid transparent;
+  border-left: 0.65em solid #f0a33c;
+}
+.obj-bird .bird-eye {
+  position: absolute; top: 0.75em; right: 1.1em; width: 0.36em; height: 0.36em;
+  background: var(--story-ink); border-radius: 50%; z-index: 1;
+}
+.obj-bird .bird-legs {
+  position: absolute; bottom: 0; left: 45%; width: 0.14em; height: 0.55em;
+  background: var(--story-ink); border-radius: 999px;
+  box-shadow: 0.5em 0 0 var(--story-ink);
+}
+
+/* a potted flower */
+.obj-flower { width: 3.4em; height: 4.6em; }
+.obj-flower .fl-petals {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 2.2em; height: 2.2em;
+  background:
+    radial-gradient(circle at 50% 18%, #f5a8c0 0.55em, transparent 0.57em),
+    radial-gradient(circle at 82% 50%, #f5a8c0 0.55em, transparent 0.57em),
+    radial-gradient(circle at 50% 82%, #f5a8c0 0.55em, transparent 0.57em),
+    radial-gradient(circle at 18% 50%, #f5a8c0 0.55em, transparent 0.57em),
+    radial-gradient(circle at 26% 26%, #f5a8c0 0.5em, transparent 0.52em),
+    radial-gradient(circle at 74% 26%, #f5a8c0 0.5em, transparent 0.52em),
+    radial-gradient(circle at 26% 74%, #f5a8c0 0.5em, transparent 0.52em),
+    radial-gradient(circle at 74% 74%, #f5a8c0 0.5em, transparent 0.52em);
+  filter: drop-shadow(0 1px 0 rgba(31, 45, 77, 0.35));
+}
+.obj-flower .fl-center {
+  position: absolute; top: 0.68em; left: 50%; transform: translateX(-50%);
+  width: 0.85em; height: 0.85em;
+  background: #f2cf5b; border: 2px solid rgba(31, 45, 77, 0.6); border-radius: 50%;
+  z-index: 1;
+}
+.obj-flower .fl-stem {
+  position: absolute; top: 2em; left: 50%; transform: translateX(-50%);
+  width: 0.18em; height: 1.4em;
+  background: #567f45; border-radius: 999px;
+}
+.obj-flower .fl-pot {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 2em; height: 1.25em;
+  background: linear-gradient(180deg, #c97f4e, #a95f33);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 0.25em 0.25em 0.6em 0.6em;
+  clip-path: polygon(0 0, 100% 0, 86% 100%, 14% 100%);
 }
 
 /* a little table for things to sit on, centre of the room */

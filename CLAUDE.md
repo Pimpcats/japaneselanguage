@@ -284,15 +284,21 @@ to reveal-and-listen when unavailable.
   distances (by your hand / beside もち子 / far shelf). Wrong taps TEACH the
   zone word ("that one is next to もち子 — that would be それ") instead of just
   refusing. Extend this pattern: errors should teach the system.
-- Lessons with authored scenes (12): `this-that`, `shop`, `where` (the
+- Lessons with authored scenes (23): `this-that`, `shop`, `where` (the
   original three rich ones), plus `counters` (count), `cafe` (multi-order,
   menu, count), `money` (price tags), `object` (pick up what you drink/read),
   `likes`, `wants`, `adj-noun` (pick big/small), `numbers` (ask her age),
-  `te-please` (stop もち子 walking off — まって ください). Abstract sentences
+  `te-please` (stop もち子 walking off — まって ください), and the see-it-then-
+  say-it "ask" beats across Level 0 + Foundations: `l0-ka` (big face,
+  persimmon), `l0-sa` (sushi, cow), `l0-ta` (expensive clock, small octopus),
+  `l0-na` (cat's paw), `l0-ha` (stars in the sky), `l0-ma` (peach), `l0-ra`
+  (bird near you, car at a distance), `l0-wa` (my book), `l0-dakuten` (book
+  +です), `telling-time` (clock hands actually show 7:00 / 8:30 via
+  `beat.clock` → `data-clock`), `na-adj` (potted flower). Abstract sentences
   (think/because/want, grammar-only lessons) stay as normal cards.
 - Scenes are CSS 3D (perspective floor + wall/counter) with an em-scaled
-  object library (book/bag/clock/cup/water/coffee/mystery) — distance is
-  font-size. Vary objects per beat; don't make everything the same item, and
+  object library (book/bag/clock/cup/water/coffee/mystery/cow/octopus/cat/
+  star/peach/bird/flower/bigface/persimmon…) — distance is font-size. Vary objects per beat; don't make everything the same item, and
   don't make everything pointing — pick the interaction verb the sentence
   actually performs.
 - Scene art is CSS-drawn (books, bags, desk, hand) + existing chibi assets. No

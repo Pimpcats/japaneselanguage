@@ -26,8 +26,8 @@
   ];
 
   // ---- object library (all CSS-drawn; people use the app's chibi art) ------
-  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon" };
-  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき" };
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower" };
+  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
 
   // ---- zones: distance IS the grammar --------------------------------------
   // things: これ・それ・あれ  ·  places: ここ・そこ・あそこ
@@ -88,6 +88,102 @@
         copy: "A persimmon, perfectly ripe. Tap it, then call it out.",
         answer: { jp: "あかい かき！", romaji: "akai kaki", en: "A red persimmon!" },
       },
+    },
+
+    // ---- Level 0 · more see-it-say-it moments -----------------------------
+    "l0-sa": {
+      "Tasty sushi!": { id: "l0-sushi", type: "ask", scene: "room", zone: "table", object: "sushi",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "Mmm. Say it!",
+        instruction: "On the table — fresh sushi",
+        copy: "It looks perfect. Tap it, then call it out.",
+        answer: { jp: "おいしい すし！", romaji: "oishii sushi", en: "Tasty sushi!" } },
+      "A big cow!": { id: "l0-cow", type: "ask", scene: "room", zone: "partner", object: "cow",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "It is ENORMOUS.",
+        instruction: "There is a cow indoors",
+        copy: "A very large cow. Tap it, then call it out.",
+        answer: { jp: "おおきい うし！", romaji: "ookii ushi", en: "A big cow!" } },
+    },
+    "l0-ta": {
+      "An expensive clock!": { id: "l0-clock", type: "ask", scene: "room", zone: "table", object: "clock", tag: true, tagText: "98,000円",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "That price…!",
+        instruction: "Look at that price tag",
+        copy: "98,000 yen?! Tap the clock and call it out.",
+        answer: { jp: "たかい とけい！", romaji: "takai tokei", en: "An expensive clock!" } },
+      "A small octopus!": { id: "l0-tako", type: "ask", scene: "room", zone: "table", object: "octopus",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "Tiny!",
+        instruction: "Something small on the table",
+        copy: "A very small octopus. Tap it, then call it out.",
+        answer: { jp: "ちいさい たこ！", romaji: "chiisai tako", en: "A small octopus!" } },
+    },
+    "l0-na": {
+      "The cat's foot!": { id: "l0-neko", type: "ask", scene: "room", zone: "partner", object: "cat",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "の links owner to thing: cat's foot.",
+        instruction: "The cat is showing you its paw",
+        copy: "Tap the raised paw — の makes it the cat's.",
+        answer: { jp: "ねこの あし！", romaji: "neko no ashi", en: "The cat's foot!" } },
+    },
+    "l0-ha": {
+      "The stars are far away.": { id: "l0-hoshi", type: "ask", scene: "street", zone: "far", object: "star",
+        askLabel: "Say it:", cta: "Say it →", feedback: "So far — とおい.",
+        instruction: "Way up there — stars",
+        copy: "Tiny with distance. Tap them and say it.",
+        answer: { jp: "ほしは とおい。", romaji: "hoshi wa tooi", en: "The stars are far away." } },
+    },
+    "l0-ma": {
+      "The peach is tasty.": { id: "l0-momo", type: "ask", scene: "room", zone: "table", object: "peach",
+        askLabel: "Say it:", cta: "Say it →", feedback: "Perfectly ripe.",
+        instruction: "One perfect peach",
+        copy: "You had a bite already. Tap it and say it.",
+        answer: { jp: "ももは おいしい。", romaji: "momo wa oishii", en: "The peach is tasty." } },
+    },
+    "l0-ra": {
+      "This is a bird. (casual)": { id: "l0-tori", type: "ask", scene: "room", zone: "near", object: "bird",
+        askLabel: "Say it:", cta: "Say it →", feedback: "これ — right by you.",
+        instruction: "A little bird landed next to you",
+        copy: "Right by your hand — これ. Tap it and say it, casual style.",
+        answer: { jp: "これは とり。", romaji: "kore wa tori", en: "This is a bird. (casual)" } },
+      "That is a car. (casual)": { id: "l0-kuruma", type: "ask", scene: "street", zone: "partner", object: "car",
+        askLabel: "Say it:", cta: "Say it →", feedback: "それ — by her.",
+        instruction: "A car pulled up next to もち子",
+        copy: "By her, not you — それ. Tap it and say it.",
+        answer: { jp: "それは くるま。", romaji: "sore wa kuruma", en: "That is a car. (casual)" } },
+    },
+    "l0-wa": {
+      "My book!": { id: "l0-myhon", type: "ask", scene: "room", zone: "table", object: "book",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "わたしの — mine!",
+        instruction: "Someone left YOUR book on the table",
+        copy: "That one is yours. Tap it and claim it out loud.",
+        answer: { jp: "わたしの ほん！", romaji: "watashi no hon", en: "My book!" } },
+    },
+    "l0-dakuten": {
+      "This is a book.": { id: "l0-desu", type: "ask", scene: "room", zone: "near", object: "book",
+        askLabel: "Now with です:", cta: "Say it →", feedback: "Your first polite sentence.",
+        instruction: "Same book — new ending",
+        copy: "てんてん unlocked です. Tap the book and say it politely.",
+        answer: { jp: "これは ほんです。", romaji: "kore wa hon desu", en: "This is a book." } },
+    },
+
+    // ---- Telling time: read the clock ------------------------------------
+    "telling-time": {
+      "It's 7 o'clock.": { id: "time-7", type: "ask", scene: "room", zone: "table", object: "clock", clock: "t7",
+        askLabel: "Read it:", cta: "Say it →", feedback: "Both hands say 7:00.",
+        instruction: "What does the clock say?",
+        copy: "Hour hand on 7, minute hand at 12. Tap it and read it out.",
+        answer: { jp: "しちじです。", romaji: "shichi-ji desu", en: "It's 7 o'clock." } },
+      "It's half past 8.": { id: "time-830", type: "ask", scene: "room", zone: "table", object: "clock", clock: "t830",
+        askLabel: "Read it:", cta: "Say it →", feedback: "はん = half past.",
+        instruction: "And now?",
+        copy: "Hour hand past 8, minute hand at 6. Tap it and read it out.",
+        answer: { jp: "はちじはんです。", romaji: "hachi-ji-han desu", en: "It's half past 8." } },
+    },
+
+    // ---- な-adjectives ----------------------------------------------------
+    "na-adj": {
+      "It's a pretty flower.": { id: "na-hana", type: "ask", scene: "room", zone: "table", object: "flower",
+        askLabel: "Say it:", cta: "Say it →", feedback: "な links きれい to the noun.",
+        instruction: "Someone left a flower out",
+        copy: "きれい takes な before a noun. Tap it and say it.",
+        answer: { jp: "きれいな はなです。", romaji: "kirei na hana desu", en: "It's a pretty flower." } },
     },
 
     // ---- This, that & whose: a room you point around --------------------
@@ -548,6 +644,20 @@
       fig.append(el("i", "car-body"), el("i", "car-window"), el("i", "car-wheel car-wheel-a"), el("i", "car-wheel car-wheel-b"));
     } else if (kind === "house") {
       fig.append(el("i", "house-roof"), el("i", "house-body"), el("i", "house-door"));
+    } else if (kind === "cow") {
+      fig.append(el("i", "cow-body"), el("i", "cow-head"), el("i", "cow-spot cow-spot-a"), el("i", "cow-spot cow-spot-b"), el("i", "cow-leg cow-leg-a"), el("i", "cow-leg cow-leg-b"));
+    } else if (kind === "octopus") {
+      fig.append(el("i", "oct-head"), el("i", "oct-eye oct-eye-l"), el("i", "oct-eye oct-eye-r"), el("i", "oct-legs"));
+    } else if (kind === "cat") {
+      fig.append(el("i", "cat-body"), el("i", "cat-head"), el("i", "cat-ear cat-ear-l"), el("i", "cat-ear cat-ear-r"), el("i", "cat-paw"), el("i", "cat-tail"));
+    } else if (kind === "star") {
+      fig.append(el("i", "star-a"), el("i", "star-b"), el("i", "star-c"));
+    } else if (kind === "peach") {
+      fig.append(el("i", "peach-leaf"), el("i", "peach-body"), el("i", "peach-cleft"));
+    } else if (kind === "bird") {
+      fig.append(el("i", "bird-body"), el("i", "bird-wing"), el("i", "bird-beak"), el("i", "bird-eye"), el("i", "bird-legs"));
+    } else if (kind === "flower") {
+      fig.append(el("i", "fl-petals"), el("i", "fl-center"), el("i", "fl-stem"), el("i", "fl-pot"));
     } else if (kind === "bigface") {
       fig.append(el("i", "bf-face"), el("i", "bf-eye bf-eye-l"), el("i", "bf-eye bf-eye-r"), el("i", "bf-mouth"), el("i", "bf-body"));
     } else if (kind === "persimmon") {
@@ -823,6 +933,7 @@
     const scene = buildScene(beat.scene || "room");
     const target = objButton(beat.object, beat.zone, (beat.tag ? "price tag on the " : "") + OBJ_NAME[beat.object]);
     if (beat.tag) { const t = el("i", "obj-tag"); t.appendChild(el("span", "obj-tag-txt", beat.tagText || "?")); target.appendChild(t); }
+    if (beat.clock) target.dataset.clock = beat.clock;   // clock-hand positions for time beats
 
     if (beat.scene === "shop") {
       scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
@@ -841,6 +952,11 @@
       if (beat.object !== "mochiko") partnerZone.appendChild(mochikoImg("assets/chibi_think.png"));
       partnerZone.appendChild(target);
       scene.appendChild(partnerZone);
+    } else if (beat.zone === "far") {
+      const farZone = el("div", "scene-zone scene-zone-far");
+      if (beat.object === "star") farZone.classList.add("in-sky");   // stars hang in the sky, not at the horizon
+      farZone.appendChild(target);
+      scene.appendChild(farZone);
     } else {
       const nearZone = el("div", "scene-zone scene-zone-near");
       const hand = el("div", "story-hand");
