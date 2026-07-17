@@ -269,21 +269,27 @@ to reveal-and-listen when unavailable.
   an action (choose / place / point / identify) whose completion attaches the
   precise lesson sentence, then the untouched normal speaking card follows.
   Interaction establishes meaning; the card still does the speaking work.
-- Beats are data entries keyed by a card's English prompt (`AFTER_PROMPT` /
-  `BEFORE_PROMPT`), carry `lesson:` (fire only in their home lesson — never on
-  warmup rides), and only in lesson mode (never review/build). `next` chains
-  beats (claim → place). A map value may be a function, resolved at fire time.
+- Beats are data entries keyed lesson→English-prompt (`AFTER_PROMPT` /
+  `BEFORE_PROMPT` are nested by lesson id, so the same prompt can carry
+  different beats in different lessons, and warmup rides never fire them).
+  Only in lesson mode (never review/build), and NEVER when 🚗 Drive mode is
+  on (settings.driveMode — Settings toggle: flashcards only, hands-free).
+  `next` chains beats (claim → place). A map value may be a function.
+- Interaction verbs: claim · place (drag/tap) · point (distance) · identify ·
+  ask (tap the unknown/person — curiosity is the question) · order (tap what
+  you want; flies to basket/hand; tags carry prices; `targets` for A-and-B) ·
+  count (tap items one by one, ひとつ/ふたつ chips appear) · pick (same object
+  two sizes; wrong tap teaches the opposite adjective).
 - これ・それ・あれ are taught by **pointing**: the same object at three
   distances (by your hand / beside もち子 / far shelf). Wrong taps TEACH the
   zone word ("that one is next to もち子 — that would be それ") instead of just
   refusing. Extend this pattern: errors should teach the system.
-- Lessons with authored scenes: `this-that` (a room — ask/claim/place/point/
-  identify), `shop` (a counter — ask a price tag, `order`: tap what you want
-  and it drops into your basket; wrong items teach the object word), and
-  `where` (a street — ここ・そこ・あそこ via `words: "place"`; ask もち子
-  herself, spot the WC sign at the horizon, your friend far away teaches
-  います). Next candidates: counting, adjective picking. Abstract sentences
-  (think/because/want) stay as normal cards.
+- Lessons with authored scenes (12): `this-that`, `shop`, `where` (the
+  original three rich ones), plus `counters` (count), `cafe` (multi-order,
+  menu, count), `money` (price tags), `object` (pick up what you drink/read),
+  `likes`, `wants`, `adj-noun` (pick big/small), `numbers` (ask her age),
+  `te-please` (stop もち子 walking off — まって ください). Abstract sentences
+  (think/because/want, grammar-only lessons) stay as normal cards.
 - Scenes are CSS 3D (perspective floor + wall/counter) with an em-scaled
   object library (book/bag/clock/cup/water/coffee/mystery) — distance is
   font-size. Vary objects per beat; don't make everything the same item, and

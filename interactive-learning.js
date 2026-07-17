@@ -26,8 +26,8 @@
   ];
 
   // ---- object library (all CSS-drawn; people use the app's chibi art) ------
-  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子" };
-  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち" };
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house" };
+  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ" };
 
   // ---- zones: distance IS the grammar --------------------------------------
   // things: これ・それ・あれ  ·  places: ここ・そこ・あそこ
@@ -55,118 +55,289 @@
   //   ask      tap the unknown thing — the act of curiosity IS the question
   //   order    tap what you want on the counter — it drops into your basket
   // `next` chains beats; a map value may be a function resolved at fire time.
-  const PLACE_BEAT = { id: "place-book", type: "place", item: "book", lesson: "this-that" };
-  const CLAIM_BEAT = { id: "claim-book", type: "claim", item: "book", once: true, lesson: "this-that", next: PLACE_BEAT };
+  const PLACE_BEAT = { id: "place-book", type: "place", item: "book" };
+  const CLAIM_BEAT = { id: "claim-book", type: "claim", item: "book", once: true, next: PLACE_BEAT };
+
+  // Counter words for the count act (tap items one by one).
+  const COUNTS = ["ひとつ", "ふたつ", "みっつ", "よっつ", "いつつ"];
 
   const AFTER_PROMPT = {
-    // First time: choose your book, then put it on the desk — one flowing
-    // scene. Later runs remember the cover, so only the placement replays.
-    "This is a book.": () => (story.completed["claim-book"] ? PLACE_BEAT : CLAIM_BEAT),
+    "this-that": {
+      // First time: choose your book, then put it on the desk — one flowing
+      // scene. Later runs remember the cover, so only the placement replays.
+      "This is a book.": () => (story.completed["claim-book"] ? PLACE_BEAT : CLAIM_BEAT),
+    },
   };
 
   const BEFORE_PROMPT = {
     // ---- This, that & whose: a room you point around --------------------
-    "What is this?": {
-      id: "ask-what", type: "ask", lesson: "this-that",
-      scene: "room", zone: "near", object: "mystery",
-      instruction: "Something is sitting right in front of you",
-      copy: "You've never seen it before. Tap it to ask what it is.",
-      answer: { jp: "これは なんですか？", romaji: "kore wa nan desu ka", en: "What is this?" },
-    },
-    "That (by you) is a bag.": {
-      id: "point-sore", type: "point", target: "partner", lesson: "this-that",
-      layout: { near: "book", partner: "bag", far: "clock" },
-      instruction: "Point at the bag next to もち子",
-      answer: { jp: "それは かばんです。", romaji: "sore wa kaban desu", en: "That (by you) is a bag." },
-    },
-    "That over there is my bag.": {
-      id: "point-are", type: "point", target: "far", lesson: "this-that",
-      layout: { near: "book", partner: "cup", far: "bag" },
-      instruction: "Point at your bag on the far shelf",
-      answer: { jp: "あれは わたしの かばんです。", romaji: "are wa watashi no kaban desu", en: "That over there is my bag." },
-    },
-    "This is my book.": {
-      id: "answer-my-book", type: "identify", item: "book", lesson: "this-that",
-      ask: { jp: "どれが あなたの ほんですか？", romaji: "dore ga anata no hon desu ka", en: "Which one is your book?" },
-      answer: { jp: "これは わたしの ほんです。", romaji: "kore wa watashi no hon desu", en: "This is my book." },
-    },
-    "Is that (by you) a book?": {
-      id: "ask-book", type: "ask", lesson: "this-that",
-      scene: "room", zone: "partner", object: "mystery",
-      instruction: "もち子 is holding something…",
-      copy: "It's about the size of a book — but you can't tell. Tap it to ask her.",
-      answer: { jp: "それは ほんですか？", romaji: "sore wa hon desu ka", en: "Is that (by you) a book?" },
+    "this-that": {
+      "What is this?": {
+        id: "ask-what", type: "ask",
+        scene: "room", zone: "near", object: "mystery",
+        instruction: "Something is sitting right in front of you",
+        copy: "You've never seen it before. Tap it to ask what it is.",
+        answer: { jp: "これは なんですか？", romaji: "kore wa nan desu ka", en: "What is this?" },
+      },
+      "That (by you) is a bag.": {
+        id: "point-sore", type: "point", target: "partner",
+        layout: { near: "book", partner: "bag", far: "clock" },
+        instruction: "Point at the bag next to もち子",
+        answer: { jp: "それは かばんです。", romaji: "sore wa kaban desu", en: "That (by you) is a bag." },
+      },
+      "That over there is my bag.": {
+        id: "point-are", type: "point", target: "far",
+        layout: { near: "book", partner: "cup", far: "bag" },
+        instruction: "Point at your bag on the far shelf",
+        answer: { jp: "あれは わたしの かばんです。", romaji: "are wa watashi no kaban desu", en: "That over there is my bag." },
+      },
+      "This is my book.": {
+        id: "answer-my-book", type: "identify", item: "book",
+        ask: { jp: "どれが あなたの ほんですか？", romaji: "dore ga anata no hon desu ka", en: "Which one is your book?" },
+        answer: { jp: "これは わたしの ほんです。", romaji: "kore wa watashi no hon desu", en: "This is my book." },
+      },
+      "Is that (by you) a book?": {
+        id: "ask-book", type: "ask",
+        scene: "room", zone: "partner", object: "mystery",
+        instruction: "もち子 is holding something…",
+        copy: "It's about the size of a book — but you can't tell. Tap it to ask her.",
+        answer: { jp: "それは ほんですか？", romaji: "sore wa hon desu ka", en: "Is that (by you) a book?" },
+      },
     },
 
     // ---- At a shop: a counter you order across ---------------------------
-    "How much is this?": {
-      id: "shop-howmuch", type: "ask", lesson: "shop",
-      scene: "shop", zone: "counter", object: "clock", tag: true,
-      instruction: "This one has no price",
-      copy: "Tap the tag to ask how much it is.",
-      answer: { jp: "これは いくらですか？", romaji: "kore wa ikura desu ka", en: "How much is this?" },
-    },
-    "Water, please.": {
-      id: "shop-water", type: "order", lesson: "shop",
-      items: ["water", "coffee", "cup"], target: "water",
-      instruction: "You're thirsty — get the water",
-      copy: "Tap what you want and もち子 will hand it over.",
-      answer: { jp: "みずを ください。", romaji: "mizu o kudasai", en: "Water, please." },
-    },
-    "Coffee, please.": {
-      id: "shop-coffee", type: "order", lesson: "shop",
-      items: ["cup", "water", "coffee"], target: "coffee",
-      instruction: "Long day — you need the coffee",
-      copy: "Tap what you want and もち子 will hand it over.",
-      answer: { jp: "コーヒーを ください。", romaji: "koohii o kudasai", en: "Coffee, please." },
-    },
-    "This one, please.": {
-      id: "shop-this-one", type: "order", lesson: "shop",
-      items: ["water", "coffee", "cup"], target: null,
-      instruction: "Your turn — pick anything",
-      copy: "Whichever you tap becomes これ — the one right in front of you.",
-      answer: { jp: "これを ください。", romaji: "kore o kudasai", en: "This one, please." },
+    "shop": {
+      "How much is this?": {
+        id: "shop-howmuch", type: "ask",
+        scene: "shop", zone: "counter", object: "clock", tag: true,
+        instruction: "This one has no price",
+        copy: "Tap the tag to ask how much it is.",
+        answer: { jp: "これは いくらですか？", romaji: "kore wa ikura desu ka", en: "How much is this?" },
+      },
+      "Water, please.": {
+        id: "shop-water", type: "order",
+        items: ["water", "coffee", "cup"], target: "water",
+        instruction: "You're thirsty — get the water",
+        copy: "Tap what you want and もち子 will hand it over.",
+        answer: { jp: "みずを ください。", romaji: "mizu o kudasai", en: "Water, please." },
+      },
+      "Coffee, please.": {
+        id: "shop-coffee", type: "order",
+        items: ["cup", "water", "coffee"], target: "coffee",
+        instruction: "Long day — you need the coffee",
+        copy: "Tap what you want and もち子 will hand it over.",
+        answer: { jp: "コーヒーを ください。", romaji: "koohii o kudasai", en: "Coffee, please." },
+      },
+      "This one, please.": {
+        id: "shop-this-one", type: "order",
+        items: ["water", "coffee", "cup"], target: null,
+        instruction: "Your turn — pick anything",
+        copy: "Whichever you tap becomes これ — the one right in front of you.",
+        answer: { jp: "これを ください。", romaji: "kore o kudasai", en: "This one, please." },
+      },
     },
 
     // ---- Where is it?: a street — ここ・そこ・あそこ are PLACE distance ----
-    "Where is the restroom?": {
-      id: "where-ask-toilet", type: "ask", lesson: "where",
-      scene: "street", zone: "partner", object: "mochiko", askLabel: "Ask her:",
-      instruction: "You really need the restroom…",
-      copy: "You have no idea where it is. Tap もち子 and ask.",
-      answer: { jp: "トイレは どこですか？", romaji: "toire wa doko desu ka", en: "Where is the restroom?" },
+    "where": {
+      "Where is the restroom?": {
+        id: "where-ask-toilet", type: "ask",
+        scene: "street", zone: "partner", object: "mochiko", askLabel: "Ask her:",
+        instruction: "You really need the restroom…",
+        copy: "You have no idea where it is. Tap もち子 and ask.",
+        answer: { jp: "トイレは どこですか？", romaji: "toire wa doko desu ka", en: "Where is the restroom?" },
+      },
+      "It's over there.": {
+        id: "where-spot-wc", type: "point", words: "place", scene: "street", target: "far",
+        layout: { near: "water", partner: "mochiko", far: "wc" },
+        instruction: "There it is! Point at the restroom sign",
+        answer: { jp: "あそこです。", romaji: "asoko desu", en: "It's over there." },
+      },
+      "The station is here.": {
+        id: "where-station-here", type: "point", words: "place", scene: "street", target: "near",
+        layout: { near: "station", partner: "mochiko", far: "wc" },
+        instruction: "You're standing right at the station",
+        answer: { jp: "えきは ここです。", romaji: "eki wa koko desu", en: "The station is here." },
+      },
+      "Yes, it's here.": {
+        id: "where-water-here", type: "point", words: "place", scene: "street", target: "near",
+        ask: { jp: "みずは ありますか？", romaji: "mizu wa arimasu ka", en: "Is there (any) water?" },
+        layout: { near: "water", partner: "mochiko", far: "wc" },
+        instruction: "もち子 wants water — you have some!",
+        answer: { jp: "はい、ここに あります。", romaji: "hai, koko ni arimasu", en: "Yes, it's here." },
+      },
+      "My friend is over there.": {
+        id: "where-friend", type: "point", words: "place", scene: "street", target: "far",
+        layout: { near: "water", partner: "mochiko", far: "friend" },
+        instruction: "Your friend is waving — spot them!",
+        answer: { jp: "ともだちは あそこに います。", romaji: "tomodachi wa asoko ni imasu", en: "My friend is over there." },
+      },
     },
-    "It's over there.": {
-      id: "where-spot-wc", type: "point", words: "place", scene: "street", target: "far", lesson: "where",
-      layout: { near: "water", partner: "mochiko", far: "wc" },
-      instruction: "There it is! Point at the restroom sign",
-      answer: { jp: "あそこです。", romaji: "asoko desu", en: "It's over there." },
+
+    // ---- Counting things: tap them one by one — the count IS the word ----
+    "counters": {
+      "One, please.": {
+        id: "count-one", type: "count", item: "cup", n: 1,
+        instruction: "Just one tea — tap it",
+        answer: { jp: "ひとつ ください。", romaji: "hitotsu kudasai", en: "One, please." },
+      },
+      "Two coffees, please.": {
+        id: "count-two", type: "count", item: "coffee", n: 2,
+        instruction: "Two coffees — tap them one at a time",
+        answer: { jp: "コーヒーを ふたつ ください。", romaji: "koohii o futatsu kudasai", en: "Two coffees, please." },
+      },
+      "Three waters, please.": {
+        id: "count-three", type: "count", item: "water", n: 3,
+        instruction: "Three waters — count them off",
+        answer: { jp: "みずを みっつ ください。", romaji: "mizu o mittsu kudasai", en: "Three waters, please." },
+      },
+      "All of it, please.": {
+        id: "count-all", type: "count", item: "sushi", n: 4, finalWord: "ぜんぶ",
+        instruction: "You want every last one — tap them all",
+        answer: { jp: "ぜんぶ ください。", romaji: "zenbu kudasai", en: "All of it, please." },
+      },
     },
-    "The station is here.": {
-      id: "where-station-here", type: "point", words: "place", scene: "street", target: "near", lesson: "where",
-      layout: { near: "station", partner: "mochiko", far: "wc" },
-      instruction: "You're standing right at the station",
-      answer: { jp: "えきは ここです。", romaji: "eki wa koko desu", en: "The station is here." },
+
+    // ---- At the café ------------------------------------------------------
+    "cafe": {
+      "The menu, please.": {
+        id: "cafe-menu", type: "order",
+        items: ["menu"], target: "menu",
+        instruction: "You just sat down",
+        copy: "Catch もち子's eye and ask for the menu.",
+        answer: { jp: "メニューを おねがいします。", romaji: "menyuu o onegaishimasu", en: "The menu, please." },
+      },
+      "A coffee and a tea, please.": {
+        id: "cafe-both", type: "order",
+        items: ["coffee", "water", "cup"], targets: ["coffee", "cup"],
+        instruction: "One coffee AND one tea",
+        copy: "You're ordering for two — tap both drinks.",
+        answer: { jp: "コーヒーと おちゃを ください。", romaji: "koohii to ocha o kudasai", en: "A coffee and a tea, please." },
+      },
+      "Two teas, please.": {
+        id: "cafe-two-teas", type: "count", item: "cup", n: 2,
+        instruction: "Two teas — count them off",
+        answer: { jp: "おちゃを ふたつ ください。", romaji: "ocha o futatsu kudasai", en: "Two teas, please." },
+      },
     },
-    "Yes, it's here.": {
-      id: "where-water-here", type: "point", words: "place", scene: "street", target: "near", lesson: "where",
-      ask: { jp: "みずは ありますか？", romaji: "mizu wa arimasu ka", en: "Is there (any) water?" },
-      layout: { near: "water", partner: "mochiko", far: "wc" },
-      instruction: "もち子 wants water — you have some!",
-      answer: { jp: "はい、ここに あります。", romaji: "hai, koko ni arimasu", en: "Yes, it's here." },
+
+    // ---- Money & prices: read the tag, say the price ----------------------
+    "money": {
+      "The coffee is 300 yen.": {
+        id: "money-coffee", type: "order",
+        items: ["coffee", "water"], target: "coffee",
+        tags: { coffee: "300円", water: "100円" },
+        instruction: "Check the coffee's price tag",
+        copy: "Tap the coffee, then say what it costs.",
+        answer: { jp: "コーヒーは さんびゃくえんです。", romaji: "koohii wa sanbyaku-en desu", en: "The coffee is 300 yen." },
+      },
+      "The water is 100 yen.": {
+        id: "money-water", type: "order",
+        items: ["coffee", "water"], target: "water",
+        tags: { coffee: "300円", water: "100円" },
+        instruction: "Now check the water",
+        copy: "Tap the water, then say what it costs.",
+        answer: { jp: "みずは ひゃくえんです。", romaji: "mizu wa hyaku-en desu", en: "The water is 100 yen." },
+      },
     },
-    "My friend is over there.": {
-      id: "where-friend", type: "point", words: "place", scene: "street", target: "far", lesson: "where",
-      layout: { near: "water", partner: "mochiko", far: "friend" },
-      instruction: "Your friend is waving — spot them!",
-      answer: { jp: "ともだちは あそこに います。", romaji: "tomodachi wa asoko ni imasu", en: "My friend is over there." },
+
+    // ---- What you do it to (を): use the object -----------------------------
+    "object": {
+      "I drink water.": {
+        id: "obj-drink-water", type: "order", scene: "room", dest: "hand",
+        items: ["water", "coffee", "book"], target: "water",
+        instruction: "You're thirsty",
+        copy: "Pick up the thing you DRINK.",
+        answer: { jp: "みずを のみます。", romaji: "mizu o nomimasu", en: "I drink water." },
+      },
+      "I read a book.": {
+        id: "obj-read-book", type: "order", scene: "room", dest: "hand",
+        items: ["book", "cup", "clock"], target: "book",
+        instruction: "Quiet evening",
+        copy: "Pick up the thing you READ.",
+        answer: { jp: "ほんを よみます。", romaji: "hon o yomimasu", en: "I read a book." },
+      },
+      "I drink coffee.": {
+        id: "obj-drink-coffee", type: "order", scene: "room", dest: "hand",
+        items: ["coffee", "book", "bag"], target: "coffee",
+        instruction: "Morning fuel",
+        copy: "Pick up the thing you DRINK.",
+        answer: { jp: "コーヒーを のみます。", romaji: "koohii o nomimasu", en: "I drink coffee." },
+      },
+    },
+
+    // ---- Likes: tap what you love ------------------------------------------
+    "likes": {
+      "I like sushi.": {
+        id: "like-sushi", type: "order", scene: "room", dest: "hand",
+        items: ["sushi", "water", "clock"], target: "sushi",
+        instruction: "Your favourite thing here?",
+        copy: "Tap the one you LIKE — おすし, obviously.",
+        answer: { jp: "おすしが すきです。", romaji: "osushi ga suki desu", en: "I like sushi." },
+      },
+      "Do you like coffee?": {
+        id: "like-coffee-q", type: "ask",
+        scene: "room", zone: "partner", object: "coffee", tag: true,
+        instruction: "もち子 is eyeing your coffee…",
+        copy: "Maybe she wants one too. Tap it and ask her.",
+        answer: { jp: "コーヒーが すきですか？", romaji: "koohii ga suki desu ka", en: "Do you like coffee?" },
+      },
+    },
+
+    // ---- Wants -------------------------------------------------------------
+    "wants": {
+      "I want a car.": {
+        id: "want-car", type: "order", scene: "room", dest: "hand",
+        items: ["car", "book", "cup"], target: "car",
+        instruction: "If you could have anything…",
+        copy: "Tap the one you've been dreaming of.",
+        answer: { jp: "くるまが ほしいです。", romaji: "kuruma ga hoshii desu", en: "I want a car." },
+      },
+    },
+
+    // ---- Adjective + noun: pick the right-sized one --------------------------
+    "adj-noun": {
+      "It's a big house.": {
+        id: "pick-big-house", type: "pick", kind: "house", target: "big",
+        options: [{ mod: "big", jp: "おおきい" }, { mod: "small", jp: "ちいさい" }],
+        instruction: "Two houses — tap the BIG one",
+        answer: { jp: "おおきい いえです。", romaji: "ookii ie desu", en: "It's a big house." },
+      },
+      "It's a small car.": {
+        id: "pick-small-car", type: "pick", kind: "car", target: "small",
+        options: [{ mod: "small", jp: "ちいさい" }, { mod: "big", jp: "おおきい" }],
+        instruction: "Two cars — tap the SMALL one",
+        answer: { jp: "ちいさい くるまです。", romaji: "chiisai kuruma desu", en: "It's a small car." },
+      },
+    },
+
+    // ---- Numbers & age -------------------------------------------------------
+    "numbers": {
+      "How old are you?": {
+        id: "age-ask", type: "ask",
+        scene: "room", zone: "partner", object: "mochiko", askLabel: "Ask her:",
+        instruction: "How old IS もち子, anyway?",
+        copy: "Only one way to find out. Tap her and ask.",
+        answer: { jp: "なんさいですか？", romaji: "nan-sai desu ka", en: "How old are you?" },
+      },
+    },
+
+    // ---- Please do X ----------------------------------------------------------
+    "te-please": {
+      "Please wait a moment.": {
+        id: "matte", type: "ask",
+        scene: "street", zone: "partner", object: "mochiko", askLabel: "Call out:",
+        instruction: "もち子 is walking off without you!",
+        copy: "Quick — tap her before she disappears.",
+        answer: { jp: "ちょっと まって ください。", romaji: "chotto matte kudasai", en: "Please wait a moment." },
+      },
     },
   };
 
   // A map value may be a function (resolved at fire time) so a key can serve
   // different beats depending on what the learner already owns.
-  function resolveBeat(map, en) {
-    let beat = map[normalize(en)];
+  function resolveBeat(map, lessonId, en) {
+    const perLesson = map[lessonId];
+    let beat = perLesson && perLesson[normalize(en)];
     if (typeof beat === "function") beat = beat();
     return beat;
   }
@@ -254,8 +425,10 @@
     overlay.root.hidden = false;
     overlay.root.className = "story-break open story-" + beat.type;
     if (beat.target) overlay.root.dataset.target = beat.target;
-    else if (beat.type === "order") overlay.root.dataset.target = "free";
+    else if (beat.type === "order") overlay.root.dataset.target = beat.targets ? "multi" : "free";
     else delete overlay.root.dataset.target;
+    if (beat.type === "count") overlay.root.dataset.count = String(beat.n);
+    else delete overlay.root.dataset.count;
     overlay.stage.className = "story-stage story-stage-" + beat.type;
     overlay.stage.innerHTML = "";
     overlay.panel.querySelectorAll(":scope > .story-answer, :scope > .story-ask").forEach((node) => node.remove());
@@ -280,6 +453,8 @@
     else if (beat.type === "point") renderPointBeat(beat, finishBeat);
     else if (beat.type === "ask") renderAskBeat(beat, finishBeat);
     else if (beat.type === "order") renderOrderBeat(beat, finishBeat);
+    else if (beat.type === "count") renderCountBeat(beat, finishBeat);
+    else if (beat.type === "pick") renderPickBeat(beat, finishBeat);
   }
 
   function showContinue(text, finishBeat) {
@@ -345,6 +520,14 @@
       fig.append(el("i", "wc-board"), el("i", "wc-pole"));
     } else if (kind === "station") {
       fig.append(el("i", "st-body"), el("i", "st-door"), el("i", "st-sign"));
+    } else if (kind === "menu") {
+      fig.append(el("i", "menu-board"), el("i", "menu-lines"));
+    } else if (kind === "sushi") {
+      fig.append(el("i", "sushi-rice"), el("i", "sushi-top"), el("i", "sushi-nori"));
+    } else if (kind === "car") {
+      fig.append(el("i", "car-body"), el("i", "car-window"), el("i", "car-wheel car-wheel-a"), el("i", "car-wheel car-wheel-b"));
+    } else if (kind === "house") {
+      fig.append(el("i", "house-roof"), el("i", "house-body"), el("i", "house-door"));
     } else if (kind === "friend" || kind === "mochiko") {
       const img = document.createElement("img");
       img.className = "obj-person-img";
@@ -615,7 +798,7 @@
 
     const scene = buildScene(beat.scene || "room");
     const target = objButton(beat.object, beat.zone, (beat.tag ? "price tag on the " : "") + OBJ_NAME[beat.object]);
-    if (beat.tag) target.appendChild(el("i", "obj-tag"));
+    if (beat.tag) { const t = el("i", "obj-tag"); t.appendChild(el("span", "obj-tag-txt", beat.tagText || "?")); target.appendChild(t); }
 
     if (beat.scene === "shop") {
       scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
@@ -654,52 +837,158 @@
     overlay.title.textContent = beat.instruction;
     overlay.copy.textContent = beat.copy || "";
 
-    const scene = buildScene("shop");
-    scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
+    const sceneKind = beat.scene || "shop";
+    const scene = buildScene(sceneKind);
+    if (sceneKind === "shop") scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
     const counterZone = el("div", "scene-zone scene-zone-counter");
-    for (const kind of beat.items) counterZone.appendChild(objButton(kind, "counter"));
+    for (const kind of beat.items) {
+      const btn = objButton(kind, "counter");
+      if (beat.tags && beat.tags[kind]) {
+        const t = el("i", "obj-tag");
+        t.appendChild(el("span", "obj-tag-txt", beat.tags[kind]));
+        btn.appendChild(t);
+      }
+      counterZone.appendChild(btn);
+    }
     scene.appendChild(counterZone);
-    const basket = el("div", "scene-basket");
-    basket.setAttribute("aria-hidden", "true");
-    scene.appendChild(basket);
+    // where taken items land: your basket (shop) or your hand (room)
+    let dest;
+    if (beat.dest === "hand") {
+      dest = el("div", "story-hand scene-dest-hand");
+      dest.setAttribute("aria-hidden", "true");
+    } else {
+      dest = el("div", "scene-basket");
+      dest.setAttribute("aria-hidden", "true");
+    }
+    scene.appendChild(dest);
     overlay.stage.appendChild(scene);
+
+    const wanted = beat.targets ? beat.targets.slice() : (beat.target ? [beat.target] : null);
+    const taken = new Set();
+    const flyTo = (btn) => {
+      if (reducedMotion) return;
+      const a = btn.getBoundingClientRect();
+      const b = dest.getBoundingClientRect();
+      btn.style.transition = "transform 0.5s cubic-bezier(0.2, 0.8, 0.3, 1)";
+      btn.style.transform = "translate(" + (b.left + b.width / 2 - (a.left + a.width / 2)) + "px, " +
+        (b.top + b.height / 2 - (a.top + a.height / 2)) + "px) scale(0.75)";
+      btn.style.zIndex = "6";
+    };
+    const complete = () => {
+      counterZone.querySelectorAll(".story-obj").forEach((node) => {
+        node.disabled = true;
+        if (!node.classList.contains("correct")) node.classList.add("dimmed");
+      });
+      attachAnswer(beat, "Now say it:");
+      overlay.feedback.textContent = wanted ? "It's yours." : "Good pick — that one is これ now.";
+      overlay.feedback.className = "story-feedback success";
+      showContinue("Say it →", finishBeat);
+    };
 
     counterZone.querySelectorAll(".story-obj").forEach((btn) => {
       btn.addEventListener("click", () => {
-        if (btn.disabled) return;
+        if (btn.disabled || taken.has(btn.dataset.object)) return;
         const kind = btn.dataset.object;
-        if (beat.target && kind !== beat.target) {   // wrong item: teach the word
+        if (wanted && !wanted.includes(kind)) {   // wrong item: teach the word
           btn.classList.remove("wrong");
           void btn.offsetWidth;
           btn.classList.add("wrong");
-          overlay.feedback.textContent = "That's the " + OBJ_JP[kind] + " (" + OBJ_NAME[kind] + "). You're after the " +
-            OBJ_JP[beat.target] + " (" + OBJ_NAME[beat.target] + ").";
+          const want = wanted.filter((w) => !taken.has(w)).map((w) => OBJ_JP[w] + " (" + OBJ_NAME[w] + ")").join(" and ");
+          overlay.feedback.textContent = "That's the " + OBJ_JP[kind] + " (" + OBJ_NAME[kind] + "). You're after the " + want + ".";
           overlay.feedback.className = "story-feedback try-again";
           return;
         }
-        counterZone.querySelectorAll(".story-obj").forEach((node) => {
-          node.disabled = true;
-          if (node !== btn) node.classList.add("dimmed");
-        });
+        taken.add(kind);
         btn.classList.add("correct");
-        // it hops into your basket — ownership through action
-        if (!reducedMotion) {
-          const a = btn.getBoundingClientRect();
-          const b = basket.getBoundingClientRect();
-          btn.style.transition = "transform 0.5s cubic-bezier(0.2, 0.8, 0.3, 1)";
-          btn.style.transform = "translate(" + (b.left + b.width / 2 - (a.left + a.width / 2)) + "px, " +
-            (b.top + b.height / 2 - (a.top + a.height / 2)) + "px) scale(0.75)";
-          btn.style.zIndex = "6";
+        btn.disabled = true;
+        flyTo(btn);
+        if (!wanted || wanted.every((w) => taken.has(w))) complete();
+        else {
+          overlay.feedback.textContent = "Got it — now the other one.";
+          overlay.feedback.className = "story-feedback success";
         }
-        attachAnswer(beat, "Now say it:");
-        overlay.feedback.textContent = beat.target ? "It's yours — into the basket." : "Good pick — that one is これ now.";
-        overlay.feedback.className = "story-feedback success";
-        showContinue("Say it →", finishBeat);
       });
     });
   }
 
-  // Block Space/Enter (and any key) from reaching the drill's reveal handler
+  // ---- count: tap them one at a time — the counting IS the word --------------
+  function renderCountBeat(beat, finishBeat) {
+    overlay.title.textContent = beat.instruction;
+    overlay.copy.textContent = "Tap one at a time. The counter word appears with every tap.";
+    const scene = buildScene("shop");
+    scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
+    const counterZone = el("div", "scene-zone scene-zone-counter scene-zone-count");
+    const total = Math.max(beat.n + 1, 4);
+    for (let i = 0; i < total; i += 1) counterZone.appendChild(objButton(beat.item, "counter"));
+    scene.appendChild(counterZone);
+    overlay.stage.appendChild(scene);
+
+    let counted = 0;
+    counterZone.querySelectorAll(".story-obj").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.disabled || counted >= beat.n) return;
+        btn.disabled = true;
+        btn.classList.add("correct");
+        const isLast = counted === beat.n - 1;
+        const word = (isLast && beat.finalWord) ? beat.finalWord : COUNTS[counted] || String(counted + 1);
+        btn.appendChild(el("span", "count-chip", word));
+        counted += 1;
+        if (counted >= beat.n) {
+          counterZone.querySelectorAll(".story-obj").forEach((node) => {
+            node.disabled = true;
+            if (!node.classList.contains("correct")) node.classList.add("dimmed");
+          });
+          attachAnswer(beat, (beat.finalWord || COUNTS[beat.n - 1]) + " — now say it:");
+          overlay.feedback.textContent = "Counted!";
+          overlay.feedback.className = "story-feedback success";
+          showContinue("Say it →", finishBeat);
+        } else {
+          overlay.feedback.textContent = word + "… keep going.";
+          overlay.feedback.className = "story-feedback success";
+        }
+      });
+    });
+  }
+
+  // ---- pick: two of the same thing, different SIZE — tap the right one -------
+  // Wrong taps teach the opposite adjective.
+  function renderPickBeat(beat, finishBeat) {
+    overlay.title.textContent = beat.instruction;
+    overlay.copy.textContent = "Same thing, different size — the adjective is the difference.";
+    const row = el("div", "story-pick-row");
+    const wordFor = {};
+    beat.options.forEach((opt) => { wordFor[opt.mod] = opt.jp; });
+    beat.options.forEach((opt) => {
+      const btn = objButton(beat.kind, null, opt.jp + " " + OBJ_NAME[beat.kind]);
+      btn.classList.add("pick-" + opt.mod);
+      btn.dataset.mod = opt.mod;
+      row.appendChild(btn);
+      btn.addEventListener("click", () => {
+        if (btn.disabled) return;
+        if (opt.mod !== beat.target) {   // wrong size: teach the opposite word
+          btn.classList.remove("wrong");
+          void btn.offsetWidth;
+          btn.classList.add("wrong");
+          overlay.feedback.textContent = "That one is " + opt.jp + " (" + opt.mod + "). You want the " +
+            wordFor[beat.target] + " (" + beat.target + ") one.";
+          overlay.feedback.className = "story-feedback try-again";
+          return;
+        }
+        row.querySelectorAll(".story-obj").forEach((node) => {
+          node.disabled = true;
+          if (node !== btn) node.classList.add("dimmed");
+        });
+        btn.classList.add("correct");
+        attachAnswer(beat, wordFor[beat.target] + " — now say it:");
+        overlay.feedback.textContent = "That's the one!";
+        overlay.feedback.className = "story-feedback success";
+        showContinue("Say it →", finishBeat);
+      });
+    });
+    overlay.stage.appendChild(row);
+  }
+
+    // Block Space/Enter (and any key) from reaching the drill's reveal handler
   // while a beat is open — buttons inside the beat still get their key events.
   document.addEventListener("keydown", (event) => {
     if (!overlayOpen) return;
@@ -719,19 +1008,17 @@
     // After a successful self-grade. Returns true if it takes over the flow
     // (it will call `done` when the learner finishes); false to advance now.
     afterGrade: function (info, done) {
-      if (!info || info.mode !== "lesson" || info.build) return false;
-      const beat = resolveBeat(AFTER_PROMPT, info.en);
+      if (!info || info.mode !== "lesson" || info.build || info.drive) return false;   // 🚗 drive = flashcards only
+      const beat = resolveBeat(AFTER_PROMPT, info.lessonId, info.en);
       if (shouldSkip(beat)) return false;
-      if (beat.lesson && beat.lesson !== info.lessonId) return false;   // not a warmup ride
       return openBeat(beat, done);
     },
     // Before a matching card is acted on. Overlays the just-rendered card;
     // dismissing reveals the intact card underneath.
     beforeCard: function (info) {
-      if (!info || info.mode !== "lesson" || info.build) return false;
-      const beat = resolveBeat(BEFORE_PROMPT, info.en);
+      if (!info || info.mode !== "lesson" || info.build || info.drive) return false;   // 🚗 drive = flashcards only
+      const beat = resolveBeat(BEFORE_PROMPT, info.lessonId, info.en);
       if (shouldSkip(beat)) return false;
-      if (beat.lesson && beat.lesson !== info.lessonId) return false;   // not a warmup ride
       return openBeat(beat, null);
     },
     // Dev helper: clear ONLY the story inventory (not lesson/SRS progress).

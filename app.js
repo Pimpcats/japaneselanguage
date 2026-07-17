@@ -68,6 +68,7 @@
   if (settings.romaji === undefined) settings.romaji = true;
   // Romaji modes: auto (fade per word as its kana are learned) / always / never.
   if (!settings.kanaMode) settings.kanaMode = settings.romaji === false ? "never" : "auto";
+  if (settings.driveMode === undefined) settings.driveMode = false;   // 🚗 on = flashcards only, no story scenes
   settings.voiceURI = settings.voiceURI || "";
   if (!settings.dailyGoal) settings.dailyGoal = 20;
   settings.collapsedTiers = settings.collapsedTiers || {};
@@ -256,6 +257,7 @@
     }
     el.romajiMode.value = settings.kanaMode;
     el.goalSelect.value = String(settings.dailyGoal);
+    el.driveModeSelect.value = settings.driveMode ? "on" : "off";
     el.directionSelect.value = settings.direction;
     populateVoiceSelect();
     renderSyncSettings();
@@ -483,7 +485,7 @@
     settingsBtn: $("settings-btn"), settings: $("settings"), romajiToggle: $("romaji-toggle"),
     voiceSelect: $("voice-select"), voiceTestBtn: $("voice-test-btn"),
     syncStatus: $("sync-status"), syncConnectBtn: $("sync-connect-btn"), syncDisconnectBtn: $("sync-disconnect-btn"),
-    resetBtn: $("reset-btn"), goalSelect: $("goal-select"), directionSelect: $("direction-select"),
+    resetBtn: $("reset-btn"), goalSelect: $("goal-select"), directionSelect: $("direction-select"), driveModeSelect: $("drive-mode-select"),
     kanaBtn: $("kana-btn"), kana: $("kana"), kanaTabH: $("kana-tab-h"), kanaTabK: $("kana-tab-k"),
     kanaGrid: $("kana-grid"), kanaPracticeBtn: $("kana-practice-btn"), kanaQuiz: $("kana-quiz"),
     kqChar: $("kq-char"), kqOptions: $("kq-options"), kqProgress: $("kq-progress"), kqStop: $("kq-stop"),
@@ -2109,7 +2111,7 @@
     // learning.js). It overlays the just-rendered card; dismissing it reveals
     // the normal card underneath, fully intact. No-op if no beat applies.
     if (window.HanasouStory && HanasouStory.beforeCard) {
-      HanasouStory.beforeCard({ en: s.en, jp: s.jp, lessonId: session.lessonId, mode: session.mode, build: !!session.build });
+      HanasouStory.beforeCard({ en: s.en, jp: s.jp, lessonId: session.lessonId, mode: session.mode, build: !!session.build, drive: !!settings.driveMode });
     }
   }
 
@@ -2465,7 +2467,7 @@
     // learning.js). If it takes over, it calls nextCard when the learner is
     // done; otherwise we advance now. SRS scoring above already happened.
     if (g !== 0 && window.HanasouStory && HanasouStory.afterGrade &&
-        HanasouStory.afterGrade({ en: current.s && current.s.en, jp: current.s && current.s.jp, lessonId: session.lessonId, mode: session.mode, build: !!session.build }, nextCard)) return;
+        HanasouStory.afterGrade({ en: current.s && current.s.en, jp: current.s && current.s.jp, lessonId: session.lessonId, mode: session.mode, build: !!session.build, drive: !!settings.driveMode }, nextCard)) return;
     nextCard();
   }
 
@@ -3410,6 +3412,10 @@
     settings.romaji = settings.kanaMode !== "never";   // legacy flag, kept in sync
     saveSettings();
     applyRomaji();
+  });
+  el.driveModeSelect.addEventListener("change", () => {
+    settings.driveMode = el.driveModeSelect.value === "on";
+    saveSettings();
   });
   el.goalSelect.addEventListener("change", () => {
     settings.dailyGoal = Number(el.goalSelect.value) || 20;
