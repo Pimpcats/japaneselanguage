@@ -475,22 +475,26 @@ button.primary.story-continue {
   background: repeating-linear-gradient(180deg, rgba(31,45,77,0.35) 0 2px, transparent 2px 0.85em);
 }
 
-/* sushi — rice, topping, nori band */
-.obj-sushi { width: 4.8em; height: 3.4em; }
+/* sushi — a salmon nigiri seen at a slight angle, so it reads as sushi */
+.obj-sushi { width: 5.2em; height: 3.6em; transform: rotate(-7deg); }
 .obj-sushi .sushi-rice {
-  position: absolute; left: 0; right: 0; bottom: 0; height: 1.9em;
+  position: absolute; left: 0.15em; right: 0.15em; bottom: 0; height: 1.8em;
   background: linear-gradient(180deg, #fffdf6, #efe8da);
-  border: 2px solid rgba(31, 45, 77, 0.7); border-radius: 1em;
+  border: 2px solid rgba(31, 45, 77, 0.7); border-radius: 0.9em 0.9em 1.1em 1.1em;
 }
 .obj-sushi .sushi-top {
-  position: absolute; left: 0.25em; right: 0.25em; top: 0; height: 1.7em;
-  background: linear-gradient(160deg, #f4a261, #e07b4f);
-  border: 2px solid rgba(31, 45, 77, 0.7); border-radius: 1em 1em 0.7em 0.7em;
+  position: absolute; left: 0; right: 0; top: 0; height: 1.9em;
+  background:
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.5) 0 0.16em, transparent 0.16em 0.8em),
+    linear-gradient(160deg, #f4845f, #e0603a);
+  border: 2px solid rgba(31, 45, 77, 0.7);
+  border-radius: 1.2em 1.2em 0.9em 0.9em;
+  transform: rotate(-3deg);
 }
 .obj-sushi .sushi-nori {
-  position: absolute; left: 50%; transform: translateX(-50%); top: 0.1em; bottom: 0.2em; width: 1em;
+  position: absolute; left: 50%; transform: translateX(-50%) rotate(-2deg); top: 0; bottom: 0.15em; width: 1.05em;
   background: #2f4032; border: 1.5px solid rgba(31, 45, 77, 0.6); border-radius: 0.2em;
-  opacity: 0.9;
+  opacity: 0.92; z-index: 1;
 }
 
 /* car — body, window, wheels */
@@ -824,6 +828,198 @@ button.primary.story-continue {
   border: 2px solid rgba(31, 45, 77, 0.72);
   border-radius: 0.25em 0.25em 0.6em 0.6em;
   clip-path: polygon(0 0, 100% 0, 86% 100%, 14% 100%);
+}
+
+/* a big wall clock — for time lessons the clock IS the room */
+.scene-zone-wall {
+  left: 50%; top: 3%; transform: translateX(-50%);
+  font-size: 34px;
+}
+
+/* night variant — beats set beat.night for moon / stars */
+.story-scene.night .scene-wall { background: linear-gradient(180deg, #27334f 0%, #58688a 88%); }
+.story-scene.night .scene-skyline { opacity: 0.55; }
+.story-scene.night .scene-floor { filter: brightness(0.82); }
+
+/* a mountain over the town — two peaks, snow cap */
+.obj-mountain { width: 30em; height: 16em; }
+.obj-mountain .mt-back {
+  position: absolute; bottom: 0; left: 0; width: 20em; height: 11em;
+  background: linear-gradient(180deg, #9db4a5, #7d977f);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.obj-mountain .mt-body {
+  position: absolute; bottom: 0; right: 0; width: 24em; height: 16em;
+  background: linear-gradient(180deg, #7f9c8b, #5f7d6a);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.obj-mountain .mt-snow {
+  position: absolute; top: 0; right: 6.6em; width: 10.8em; height: 4.6em;
+  background: #fff;
+  clip-path: polygon(50% 0, 100% 100%, 78% 72%, 62% 100%, 50% 70%, 36% 100%, 22% 74%, 0 100%);
+}
+
+/* the morning sun */
+.obj-sun { width: 7em; height: 7em; }
+.obj-sun .sun-core {
+  position: absolute; inset: 1em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #ffe9a8, #f7b733);
+  border: 2px solid rgba(31, 45, 77, 0.4);
+  box-shadow: 0 0 1.2em rgba(247, 183, 51, 0.65);
+}
+.obj-sun .sun-rays {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg,
+    rgba(247, 183, 51, 0.55) 0 8deg, transparent 8deg 45deg,
+    rgba(247, 183, 51, 0.55) 45deg 53deg, transparent 53deg 90deg,
+    rgba(247, 183, 51, 0.55) 90deg 98deg, transparent 98deg 135deg,
+    rgba(247, 183, 51, 0.55) 135deg 143deg, transparent 143deg 180deg,
+    rgba(247, 183, 51, 0.55) 180deg 188deg, transparent 188deg 225deg,
+    rgba(247, 183, 51, 0.55) 225deg 233deg, transparent 233deg 270deg,
+    rgba(247, 183, 51, 0.55) 270deg 278deg, transparent 278deg 315deg,
+    rgba(247, 183, 51, 0.55) 315deg 323deg, transparent 323deg 360deg);
+}
+
+/* the crescent moon — an invisible circle whose offset shadow is the crescent */
+.obj-moon { width: 6em; height: 6em; }
+.obj-moon .moon-body {
+  position: absolute; inset: 0.4em;
+  border-radius: 50%;
+  box-shadow: 1.1em 0.5em 0 0 #f5e8b8, 1.1em 0.5em 0.9em 0.1em rgba(245, 232, 184, 0.55);
+}
+
+/* an empty chair, angled slightly toward you */
+.obj-chair { width: 4.4em; height: 5.8em; transform: rotate(-3deg); }
+.obj-chair .ch-back {
+  position: absolute; top: 0; left: 0.35em; right: 0.35em; height: 2.6em;
+  background: linear-gradient(180deg, #cd9459, #b07a42);
+  border: 2px solid rgba(31, 45, 77, 0.7); border-radius: 0.6em 0.6em 0.2em 0.2em;
+}
+.obj-chair .ch-seat {
+  position: absolute; top: 2.5em; left: 0; right: 0; height: 0.95em;
+  background: linear-gradient(180deg, #d9a568, #bd8648);
+  border: 2px solid rgba(31, 45, 77, 0.7); border-radius: 0.35em;
+  z-index: 1;
+}
+.obj-chair .ch-leg {
+  position: absolute; bottom: 0; width: 0.55em; height: 2.5em;
+  background: #a2703f; border: 2px solid rgba(31, 45, 77, 0.7);
+  border-radius: 0 0 0.25em 0.25em;
+}
+.obj-chair .ch-leg-a { left: 0.3em; }
+.obj-chair .ch-leg-b { right: 0.3em; }
+
+/* a Japanese traffic light on a pole, red lit */
+.obj-signal { width: 6.4em; height: 8.4em; }
+.obj-signal .sg-pole {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 0.5em; height: 6.4em;
+  background: #8a8f99; border: 2px solid rgba(31, 45, 77, 0.65); border-radius: 0.25em;
+}
+.obj-signal .sg-box {
+  position: absolute; top: 0; left: 0; right: 0; height: 2.3em;
+  background: linear-gradient(180deg, #4a5361, #363d48);
+  border: 2px solid rgba(31, 45, 77, 0.8); border-radius: 0.5em;
+  z-index: 1;
+}
+.obj-signal .sg-light {
+  position: absolute; top: 0.55em; width: 1.25em; height: 1.25em;
+  border-radius: 50%; z-index: 2;
+  border: 1.5px solid rgba(31, 45, 77, 0.5);
+}
+.obj-signal .sg-red { left: 0.55em; background: radial-gradient(circle at 40% 35%, #ff8a7a, #d94433); box-shadow: 0 0 0.5em rgba(217, 68, 51, 0.6); }
+.obj-signal .sg-yellow { left: 50%; transform: translateX(-50%); background: #b09a4e; opacity: 0.55; }
+.obj-signal .sg-green { right: 0.55em; background: #4e8f86; opacity: 0.55; }
+
+/* a green-stripe commuter train, side view */
+.obj-train { width: 11em; height: 5.2em; transform: rotate(-2deg); }
+.obj-train .tr-body {
+  position: absolute; left: 0; right: 0; bottom: 0.8em; height: 3.6em;
+  background: linear-gradient(180deg, #f4f6f4, #dfe4e2);
+  border: 2px solid rgba(31, 45, 77, 0.75);
+  border-radius: 1.4em 0.6em 0.4em 0.9em;
+}
+.obj-train .tr-stripe {
+  position: absolute; left: 0.15em; right: 0.15em; bottom: 1.05em; height: 0.75em;
+  background: #3f8f5f; z-index: 1;
+  border-radius: 0 0 0.2em 0.6em;
+}
+.obj-train .tr-windows {
+  position: absolute; left: 0.7em; right: 0.7em; top: 1.2em; height: 1.15em; z-index: 1;
+  background: repeating-linear-gradient(90deg, #9fc4e0 0 1.5em, transparent 1.5em 2.1em);
+  border-radius: 0.2em;
+}
+.obj-train .tr-wheel {
+  position: absolute; bottom: 0; width: 1.15em; height: 1.15em;
+  background: #3b3f4a; border: 2px solid rgba(31, 45, 77, 0.8); border-radius: 50%;
+}
+.obj-train .tr-wheel-a { left: 1.3em; }
+.obj-train .tr-wheel-b { right: 1.3em; }
+
+/* a city bus */
+.obj-bus { width: 9.6em; height: 5.6em; }
+.obj-bus .bus-body {
+  position: absolute; left: 0; right: 0; bottom: 0.85em; height: 4.2em;
+  background: linear-gradient(180deg, #f2c14e, #e0a52e);
+  border: 2px solid rgba(31, 45, 77, 0.75);
+  border-radius: 1em 1.2em 0.5em 0.5em;
+}
+.obj-bus .bus-windows {
+  position: absolute; left: 0.6em; right: 0.6em; top: 0.9em; height: 1.3em; z-index: 1;
+  background: repeating-linear-gradient(90deg, #9fc4e0 0 1.4em, transparent 1.4em 1.9em);
+  border-radius: 0.25em;
+}
+.obj-bus .bus-wheel {
+  position: absolute; bottom: 0; width: 1.3em; height: 1.3em;
+  background: #3b3f4a; border: 2px solid rgba(31, 45, 77, 0.8); border-radius: 50%;
+}
+.obj-bus .bus-wheel-a { left: 1.4em; }
+.obj-bus .bus-wheel-b { right: 1.4em; }
+
+/* an umbrella leaning by the door */
+.obj-umbrella { width: 5.6em; height: 6.4em; transform: rotate(14deg); }
+.obj-umbrella .um-canopy {
+  position: absolute; top: 0.35em; left: 0; right: 0; height: 2.6em;
+  background: linear-gradient(115deg, #7fa8d9 0 33%, #5c86bd 33% 66%, #7fa8d9 66%);
+  border: 2px solid rgba(31, 45, 77, 0.75);
+  border-radius: 2.8em 2.8em 0.4em 0.4em;
+}
+.obj-umbrella .um-tip {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 0.3em; height: 0.6em; background: var(--story-ink); border-radius: 0.2em;
+}
+.obj-umbrella .um-handle {
+  position: absolute; top: 2.9em; left: 50%; transform: translateX(-50%);
+  width: 0.35em; height: 2.6em;
+  background: #8a6642; border: 1.5px solid rgba(31, 45, 77, 0.7);
+  border-radius: 0.2em 0.2em 0 0;
+}
+.obj-umbrella .um-handle::after {
+  content: ""; position: absolute; bottom: -0.8em; left: -0.8em;
+  width: 1em; height: 0.85em;
+  border: 0.32em solid #8a6642; border-top: 0;
+  border-radius: 0 0 1em 1em;
+}
+
+/* a paper ticket, tilted like it was just slid across the counter */
+.obj-ticket { width: 5.4em; height: 3.2em; transform: rotate(-5deg); }
+.obj-ticket .tk-body {
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, #fdf7e8, #f2e7c9);
+  border: 2px solid rgba(31, 45, 77, 0.72);
+  border-radius: 0.4em;
+}
+.obj-ticket .tk-stripe {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0.9em;
+  background: #d95f5f; border-right: 2px solid rgba(31, 45, 77, 0.5);
+  border-radius: 0.32em 0 0 0.32em; z-index: 1;
+}
+.obj-ticket .tk-hole {
+  position: absolute; right: 0.55em; top: 50%; transform: translateY(-50%);
+  width: 0.55em; height: 0.55em; border-radius: 50%;
+  background: #fff; border: 2px solid rgba(31, 45, 77, 0.45); z-index: 1;
 }
 
 /* a little table for things to sit on, centre of the room */

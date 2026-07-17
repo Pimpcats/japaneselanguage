@@ -26,8 +26,8 @@
   ];
 
   // ---- object library (all CSS-drawn; people use the app's chibi art) ------
-  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower" };
-  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower" };
+  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", mountain: "やま", sun: "たいよう", moon: "つき", chair: "いす", signal: "しんごう", train: "でんしゃ", bus: "バス", umbrella: "かさ", ticket: "きっぷ", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
 
   // ---- zones: distance IS the grammar --------------------------------------
   // things: これ・それ・あれ  ·  places: ここ・そこ・あそこ
@@ -92,9 +92,9 @@
 
     // ---- Level 0 · more see-it-say-it moments -----------------------------
     "l0-sa": {
-      "Tasty sushi!": { id: "l0-sushi", type: "ask", scene: "room", zone: "table", object: "sushi",
+      "Tasty sushi!": { id: "l0-sushi", type: "ask", scene: "room", zone: "near", object: "sushi",
         askLabel: "Call it out:", cta: "Say it →", feedback: "Mmm. Say it!",
-        instruction: "On the table — fresh sushi",
+        instruction: "Fresh sushi, right in front of you",
         copy: "It looks perfect. Tap it, then call it out.",
         answer: { jp: "おいしい すし！", romaji: "oishii sushi", en: "Tasty sushi!" } },
       "A big cow!": { id: "l0-cow", type: "ask", scene: "room", zone: "partner", object: "cow",
@@ -123,7 +123,7 @@
         answer: { jp: "ねこの あし！", romaji: "neko no ashi", en: "The cat's foot!" } },
     },
     "l0-ha": {
-      "The stars are far away.": { id: "l0-hoshi", type: "ask", scene: "street", zone: "far", object: "star",
+      "The stars are far away.": { id: "l0-hoshi", type: "ask", scene: "street", zone: "far", object: "star", night: true,
         askLabel: "Say it:", cta: "Say it →", feedback: "So far — とおい.",
         instruction: "Way up there — stars",
         copy: "Tiny with distance. Tap them and say it.",
@@ -156,21 +156,21 @@
         answer: { jp: "わたしの ほん！", romaji: "watashi no hon", en: "My book!" } },
     },
     "l0-dakuten": {
-      "This is a book.": { id: "l0-desu", type: "ask", scene: "room", zone: "near", object: "book",
+      "This is a book.": { id: "l0-desu", type: "ask", scene: "room", zone: "near", object: "book", otherBook: true,
         askLabel: "Now with です:", cta: "Say it →", feedback: "Your first polite sentence.",
-        instruction: "Same book — new ending",
-        copy: "てんてん unlocked です. Tap the book and say it politely.",
+        instruction: "A book — but not yours",
+        copy: "Different cover — someone else's. So it is just a book: ほん. Tap it and say it politely with です.",
         answer: { jp: "これは ほんです。", romaji: "kore wa hon desu", en: "This is a book." } },
     },
 
     // ---- Telling time: read the clock ------------------------------------
     "telling-time": {
-      "It's 7 o'clock.": { id: "time-7", type: "ask", scene: "room", zone: "table", object: "clock", clock: "t7",
+      "It's 7 o'clock.": { id: "time-7", type: "ask", scene: "room", zone: "wall", object: "clock", clock: "t7",
         askLabel: "Read it:", cta: "Say it →", feedback: "Both hands say 7:00.",
         instruction: "What does the clock say?",
         copy: "Hour hand on 7, minute hand at 12. Tap it and read it out.",
         answer: { jp: "しちじです。", romaji: "shichi-ji desu", en: "It's 7 o'clock." } },
-      "It's half past 8.": { id: "time-830", type: "ask", scene: "room", zone: "table", object: "clock", clock: "t830",
+      "It's half past 8.": { id: "time-830", type: "ask", scene: "room", zone: "wall", object: "clock", clock: "t830",
         askLabel: "Read it:", cta: "Say it →", feedback: "はん = half past.",
         instruction: "And now?",
         copy: "Hour hand past 8, minute hand at 6. Tap it and read it out.",
@@ -184,6 +184,171 @@
         instruction: "Someone left a flower out",
         copy: "きれい takes な before a noun. Tap it and say it.",
         answer: { jp: "きれいな はなです。", romaji: "kirei na hana desu", en: "It's a pretty flower." } },
+    },
+
+    // ---- The very first exclamation: a nice house --------------------------
+    "l0-a": {
+      "What a nice house!": { id: "l0-ie", type: "ask", scene: "street", zone: "partner", object: "house",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "いい = nice. いえ = house.",
+        instruction: "Look at that house",
+        copy: "What a place. Tap it, then call it out.",
+        answer: { jp: "いい いえ！", romaji: "ii ie", en: "What a nice house!" } },
+    },
+
+    // ---- The tall mountain --------------------------------------------------
+    "l0-ya": {
+      "The mountain is tall.": { id: "l0-yama", type: "ask", scene: "street", zone: "far", object: "mountain",
+        askLabel: "Say it:", cta: "Say it →", feedback: "たかい — it stands above the whole town.",
+        instruction: "Beyond the town — a mountain",
+        copy: "It rises over everything. Tap it and say it.",
+        answer: { jp: "やまは たかい。", romaji: "yama wa takai", en: "The mountain is tall." } },
+    },
+
+    // ---- Greetings: the sky tells you which one -----------------------------
+    "greetings": {
+      "Good morning.": { id: "greet-sun", type: "ask", scene: "street", zone: "far", sky: true, object: "sun",
+        askLabel: "Greet the day:", cta: "Say it →", feedback: "Morning sun → おはよう.",
+        instruction: "The sun is up",
+        copy: "A new morning. Tap the sun and greet it.",
+        answer: { jp: "おはよう ございます。", romaji: "ohayou gozaimasu", en: "Good morning." } },
+      "Good evening.": { id: "greet-moon", type: "ask", scene: "street", zone: "far", sky: true, night: true, object: "moon",
+        askLabel: "Greet the night:", cta: "Say it →", feedback: "After dark → こんばんは.",
+        instruction: "The moon is out",
+        copy: "The day is done. Tap the moon and greet the evening.",
+        answer: { jp: "こんばんは。", romaji: "konbanwa", en: "Good evening." } },
+    },
+
+    // ---- First verbs: the act IS the verb -----------------------------------
+    "verbs": {
+      "I'll eat.": { id: "verb-eat", type: "order", scene: "room", dest: "hand",
+        items: ["sushi", "water"], target: "sushi",
+        instruction: "You're hungry — take the food",
+        copy: "たべます is for eating. Take the food, not the drink.",
+        answer: { jp: "たべます。", romaji: "tabemasu", en: "I'll eat." } },
+      "I'll drink.": { id: "verb-drink", type: "order", scene: "room", dest: "hand",
+        items: ["water", "peach"], target: "water",
+        instruction: "You're thirsty — take the drink",
+        copy: "のみます is for drinking. Take the drink, not the food.",
+        answer: { jp: "のみます。", romaji: "nomimasu", en: "I'll drink." } },
+    },
+
+    // ---- Coming & going: home is down the road ------------------------------
+    "coming-going": {
+      "I'm going home.": { id: "go-home", type: "ask", scene: "street", zone: "far", object: "house",
+        askLabel: "Say it:", cta: "Say it →", feedback: "うち = home. かえります = head back.",
+        instruction: "Home is down the road",
+        copy: "You can see your house from here. Tap it and head back.",
+        answer: { jp: "うちに かえります。", romaji: "uchi ni kaerimasu", en: "I'm going home." } },
+    },
+
+    // ---- Routine: the wall clock says get up --------------------------------
+    "routine": {
+      "I wake up at seven.": { id: "routine-7", type: "ask", scene: "room", zone: "wall", object: "clock", clock: "t7",
+        askLabel: "Read it:", cta: "Say it →", feedback: "しちじ — 7:00, time to get up.",
+        instruction: "The clock says it's morning",
+        copy: "Both hands say 7:00. Tap the clock — that's when you wake.",
+        answer: { jp: "しちじに おきます。", romaji: "shichi-ji ni okimasu", en: "I wake up at seven." } },
+    },
+
+    // ---- でした: the tag says what it WAS -----------------------
+    "was-were": {
+      "It was 500 yen.": { id: "was-500", type: "ask", scene: "shop", object: "sushi", tag: true, tagText: "500円",
+        askLabel: "Say what it cost:", cta: "Say it →", feedback: "でした — it WAS.",
+        instruction: "You bought this earlier",
+        copy: "The tag still shows what you paid. Tap it and say what it was.",
+        answer: { jp: "ごひゃくえんでした。", romaji: "gohyaku-en deshita", en: "It was 500 yen." } },
+    },
+
+    // ---- けど: both things are true --------------------------------
+    "but-kedo": {
+      "It's pricey, but tasty.": { id: "kedo-sushi", type: "ask", scene: "shop", object: "sushi", tag: true, tagText: "3,000円",
+        askLabel: "Worth it?", cta: "Say it →", feedback: "けど joins both truths.",
+        instruction: "Expensive — but look at it",
+        copy: "That price hurts, but you know it's good. Tap it and admit both.",
+        answer: { jp: "たかいけど、おいしい。", romaji: "takai kedo, oishii", en: "It's pricey, but tasty." } },
+    },
+
+    // ---- Permission: ask before you sit -------------------------------------
+    "permission": {
+      "May I sit here?": { id: "perm-chair", type: "ask", scene: "room", zone: "partner", object: "chair",
+        askLabel: "Ask her:", cta: "Ask →", feedback: "〜てもいいですか — you asked first.",
+        instruction: "One empty chair, next to もち子",
+        copy: "You'd like to sit. Tap the chair to ask if it's okay.",
+        answer: { jp: "ここに すわっても いいですか？", romaji: "koko ni suwatte mo ii desu ka", en: "May I sit here?" } },
+    },
+
+    // ---- Directions: the light, and the right side --------------------------
+    "directions": {
+      "Turn right at the next light.": { id: "dir-signal", type: "ask", scene: "street", zone: "partner", object: "signal",
+        askLabel: "Give the direction:", cta: "Say it →", feedback: "しんごう = the light. みぎ = right.",
+        instruction: "There's the traffic light",
+        copy: "That's where you turn. Tap the light and give the direction.",
+        answer: { jp: "つぎの しんごうを みぎに まがって ください。", romaji: "tsugi no shingou o migi ni magatte kudasai", en: "Turn right at the next light." } },
+      "It's on the right.": { id: "dir-right", type: "ask", scene: "street", zone: "far", object: "station",
+        askLabel: "Point it out:", cta: "Say it →", feedback: "みぎ — on the right.",
+        instruction: "The station came into view",
+        copy: "Down the street, on the right side. Tap it and point it out.",
+        answer: { jp: "みぎに あります。", romaji: "migi ni arimasu", en: "It's on the right." } },
+    },
+
+    // ---- Transport: で marks the ride -----------------------------------
+    "transport": {
+      "I'll go by train.": { id: "trans-train", type: "ask", scene: "street", zone: "partner", object: "train",
+        askLabel: "Say how:", cta: "Say it →", feedback: "で marks the ride.",
+        instruction: "Your ride is here",
+        copy: "で marks how you travel. Tap the train and say how you'll go.",
+        answer: { jp: "でんしゃで いきます。", romaji: "densha de ikimasu", en: "I'll go by train." } },
+      "I'll take the bus to the airport.": { id: "trans-bus", type: "ask", scene: "street", zone: "partner", object: "bus", tag: true, tagText: "くうこう",
+        askLabel: "Say the plan:", cta: "Say it →", feedback: "まで — as far as the airport.",
+        instruction: "This bus goes to the airport",
+        copy: "The sign shows where it ends up. Tap the bus and say the plan.",
+        answer: { jp: "くうこうまで バスで いきます。", romaji: "kuukou made basu de ikimasu", en: "I'll take the bus to the airport." } },
+    },
+
+    // ---- Does this go…?: この = right here ---------------------
+    "does-this-go": {
+      "Does this bus go to the station?": { id: "go-bus", type: "ask", scene: "street", zone: "near", object: "bus", tag: true, tagText: "えき？",
+        askLabel: "Ask the driver:", cta: "Ask →", feedback: "この バス — the one right here.",
+        instruction: "A bus pulled up in front of you",
+        copy: "この = this one, right here. Tap it to ask where it goes.",
+        answer: { jp: "この バスは えきに いきますか？", romaji: "kono basu wa eki ni ikimasu ka", en: "Does this bus go to the station?" } },
+    },
+
+    // ---- You'd better…: rain is coming ---------------------------------
+    "had-better": {
+      "You'd better take an umbrella.": { id: "better-kasa", type: "ask", scene: "room", zone: "near", object: "umbrella",
+        askLabel: "Give the advice:", cta: "Say it →", feedback: "〜た ほうが いい — better to.",
+        instruction: "Those clouds look bad",
+        copy: "Rain is coming. Tap the umbrella by the door and give the advice.",
+        answer: { jp: "かさを もっていった ほうが いいです。", romaji: "kasa o motteitta hou ga ii desu", en: "You'd better take an umbrella." } },
+    },
+
+    // ---- Comparing: read the tags, take the cheapest ------------------------
+    "comparing": {
+      "This one's the cheapest.": { id: "comp-cheap", type: "order",
+        items: ["sushi", "coffee", "water"], target: "water",
+        tags: { sushi: "1,000円", coffee: "500円", water: "100円" },
+        instruction: "Find the cheapest one",
+        copy: "Read the tags — take the one that costs least.",
+        answer: { jp: "これが いちばん やすい。", romaji: "kore ga ichiban yasui", en: "This one's the cheapest." } },
+    },
+
+    // ---- 〜そう: it LOOKS good, before you taste ----------------
+    "seems": {
+      "That looks delicious!": { id: "seems-oishi", type: "ask", scene: "shop", object: "sushi",
+        askLabel: "Say the impression:", cta: "Say it →", feedback: "〜そう — looks like, before you taste.",
+        instruction: "Behind the counter — fresh sushi",
+        copy: "You haven't tasted it — it just LOOKS good. Tap it and say so.",
+        answer: { jp: "おいしそう！", romaji: "oishisou", en: "That looks delicious!" } },
+    },
+
+    // ---- Tickets: one flat thing to Shinjuku --------------------------------
+    "tickets": {
+      "One ticket to Shinjuku, please.": { id: "tick-one", type: "ask", scene: "shop", object: "ticket", tag: true, tagText: "しんじゅく",
+        askLabel: "At the window:", cta: "Ask →", feedback: "いちまい — one flat thing.",
+        instruction: "The ticket window",
+        copy: "One ticket, to しんじゅく. Tap it to ask for it.",
+        answer: { jp: "しんじゅくまで いちまい おねがいします。", romaji: "shinjuku made ichi-mai onegaishimasu", en: "One ticket to Shinjuku, please." } },
     },
 
     // ---- This, that & whose: a room you point around --------------------
@@ -644,6 +809,24 @@
       fig.append(el("i", "car-body"), el("i", "car-window"), el("i", "car-wheel car-wheel-a"), el("i", "car-wheel car-wheel-b"));
     } else if (kind === "house") {
       fig.append(el("i", "house-roof"), el("i", "house-body"), el("i", "house-door"));
+    } else if (kind === "mountain") {
+      fig.append(el("i", "mt-back"), el("i", "mt-body"), el("i", "mt-snow"));
+    } else if (kind === "sun") {
+      fig.append(el("i", "sun-rays"), el("i", "sun-core"));
+    } else if (kind === "moon") {
+      fig.append(el("i", "moon-body"));
+    } else if (kind === "chair") {
+      fig.append(el("i", "ch-back"), el("i", "ch-seat"), el("i", "ch-leg ch-leg-a"), el("i", "ch-leg ch-leg-b"));
+    } else if (kind === "signal") {
+      fig.append(el("i", "sg-pole"), el("i", "sg-box"), el("i", "sg-light sg-red"), el("i", "sg-light sg-yellow"), el("i", "sg-light sg-green"));
+    } else if (kind === "train") {
+      fig.append(el("i", "tr-body"), el("i", "tr-stripe"), el("i", "tr-windows"), el("i", "tr-wheel tr-wheel-a"), el("i", "tr-wheel tr-wheel-b"));
+    } else if (kind === "bus") {
+      fig.append(el("i", "bus-body"), el("i", "bus-windows"), el("i", "bus-wheel bus-wheel-a"), el("i", "bus-wheel bus-wheel-b"));
+    } else if (kind === "umbrella") {
+      fig.append(el("i", "um-canopy"), el("i", "um-tip"), el("i", "um-handle"));
+    } else if (kind === "ticket") {
+      fig.append(el("i", "tk-body"), el("i", "tk-stripe"), el("i", "tk-hole"));
     } else if (kind === "cow") {
       fig.append(el("i", "cow-body"), el("i", "cow-head"), el("i", "cow-spot cow-spot-a"), el("i", "cow-spot cow-spot-b"), el("i", "cow-leg cow-leg-a"), el("i", "cow-leg cow-leg-b"));
     } else if (kind === "octopus") {
@@ -931,9 +1114,15 @@
     overlay.copy.textContent = beat.copy || "";
 
     const scene = buildScene(beat.scene || "room");
+    if (beat.night) scene.classList.add("night");
     const target = objButton(beat.object, beat.zone, (beat.tag ? "price tag on the " : "") + OBJ_NAME[beat.object]);
     if (beat.tag) { const t = el("i", "obj-tag"); t.appendChild(el("span", "obj-tag-txt", beat.tagText || "?")); target.appendChild(t); }
     if (beat.clock) target.dataset.clock = beat.clock;   // clock-hand positions for time beats
+    if (beat.otherBook) {   // NOT your book — someone else's cover, so これは ほんです stays "a book"
+      const mine = (story.inventory.book && story.inventory.book.design) || BOOKS[0].id;
+      const fig = target.querySelector(".obj-book");
+      if (fig) fig.dataset.design = (BOOKS.find((b) => b.id !== mine) || BOOKS[0]).id;
+    }
 
     if (beat.scene === "shop") {
       scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
@@ -952,9 +1141,13 @@
       if (beat.object !== "mochiko") partnerZone.appendChild(mochikoImg("assets/chibi_think.png"));
       partnerZone.appendChild(target);
       scene.appendChild(partnerZone);
+    } else if (beat.zone === "wall") {
+      const wallZone = el("div", "scene-zone scene-zone-wall");
+      wallZone.appendChild(target);
+      scene.appendChild(wallZone);
     } else if (beat.zone === "far") {
       const farZone = el("div", "scene-zone scene-zone-far");
-      if (beat.object === "star") farZone.classList.add("in-sky");   // stars hang in the sky, not at the horizon
+      if (beat.object === "star" || beat.sky) farZone.classList.add("in-sky");   // stars/sun/moon hang in the sky
       farZone.appendChild(target);
       scene.appendChild(farZone);
     } else {

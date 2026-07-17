@@ -284,7 +284,7 @@ to reveal-and-listen when unavailable.
   distances (by your hand / beside もち子 / far shelf). Wrong taps TEACH the
   zone word ("that one is next to もち子 — that would be それ") instead of just
   refusing. Extend this pattern: errors should teach the system.
-- Lessons with authored scenes (23): `this-that`, `shop`, `where` (the
+- Lessons with authored scenes (39): `this-that`, `shop`, `where` (the
   original three rich ones), plus `counters` (count), `cafe` (multi-order,
   menu, count), `money` (price tags), `object` (pick up what you drink/read),
   `likes`, `wants`, `adj-noun` (pick big/small), `numbers` (ask her age),
@@ -294,8 +294,22 @@ to reveal-and-listen when unavailable.
   `l0-na` (cat's paw), `l0-ha` (stars in the sky), `l0-ma` (peach), `l0-ra`
   (bird near you, car at a distance), `l0-wa` (my book), `l0-dakuten` (book
   +です), `telling-time` (clock hands actually show 7:00 / 8:30 via
-  `beat.clock` → `data-clock`), `na-adj` (potted flower). Abstract sentences
-  (think/because/want, grammar-only lessons) stay as normal cards.
+  `beat.clock` → `data-clock` — shown as a BIG wall clock, `zone:"wall"`),
+  `na-adj` (potted flower), plus the 2026-07 all-curriculum sweep: `l0-a`
+  (nice house), `l0-ya` (tall mountain on the horizon), `greetings` (sun/moon
+  in the sky — `sky:true`, `night:true` darkens the scene), `verbs` (take the
+  food/drink — the act IS たべます/のみます), `coming-going` (house down the
+  road), `routine` (wall clock at 7:00), `was-were` (500円 tag = でした),
+  `but-kedo` (3,000円 sushi — pricey but tasty), `permission` (empty chair
+  next to もち子), `directions` (traffic light; station on the right),
+  `transport` (train; bus tagged くうこう), `does-this-go` (bus tagged えき？),
+  `had-better` (umbrella), `comparing` (three price tags, take the cheapest),
+  `seems` (sushi you haven't tasted → おいしそう), `tickets` (ticket tagged
+  しんじゅく). Presentation follows the sentence, not a default table (owner):
+  sushi is angled so it reads as sushi, the telling-time clock fills the room,
+  これは ほんです deliberately shows a NOT-your-book cover (`otherBook:true`)
+  while わたしの ほん shows the claimed one. Abstract sentences
+  (think/because/want, grammar-only morphology, keigo) stay as normal cards.
 - Scenes are CSS 3D (perspective floor + wall/counter) with an em-scaled
   object library (book/bag/clock/cup/water/coffee/mystery/cow/octopus/cat/
   star/peach/bird/flower/bigface/persimmon…) — distance is font-size. Vary objects per beat; don't make everything the same item, and
