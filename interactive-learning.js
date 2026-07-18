@@ -964,7 +964,11 @@
   }
   function attachAnswer(beat, label) {
     if (beat.answer && !overlay.stage.parentElement.querySelector(".story-answer")) {
-      overlay.stage.insertAdjacentElement("afterend", sentenceBlock("story-answer", label, beat.answer));
+      const block = sentenceBlock("story-answer", label, beat.answer);
+      // もち子 says the line the moment it appears; tap the block to replay.
+      block.addEventListener("click", () => { if (window.HanasouSpeak) window.HanasouSpeak(beat.answer.jp); });
+      overlay.stage.insertAdjacentElement("afterend", block);
+      if (window.HanasouSpeak) window.HanasouSpeak(beat.answer.jp);
     }
   }
 
