@@ -32,7 +32,8 @@ const click = (el) => el && el.dispatchEvent(new window.Event("click", { bubbles
 check("home renders level stops", document.querySelectorAll(".level-stop, .level-card").length >= 5);
 click(document.querySelector(".level-stop:not(:disabled), .level-card"));
 check("level page renders lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
-check("card has four launchers", document.querySelectorAll(".lesson-card .lc-act").length >= 4);
+check("cards carry no launcher buttons (all folded in)",
+  document.querySelectorAll(".lesson-card .lc-act").length === 0);
 // Tapping the picture starts practice straight away (car mode) — no forced intro.
 click(document.querySelector(".lesson-rail .lesson-card"));
 check("tapping a card starts the drill", !document.getElementById("drill").hidden);
@@ -41,15 +42,15 @@ click(document.getElementById("card"));   // whole sheet is the reveal button
 check("answer draws romaji over each kana", document.querySelectorAll("#answer-kana ruby.mr rt").length > 0);
 click(document.getElementById("back-btn"));   // back to the level's card rail
 check("back returns to the lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
-// The 🔁 Catch up launcher replaces Talk; with nothing missed yet it just
-// flashes a toast and stays on the cards (no crash, no drill).
-const catchupBtn = document.querySelector(".lesson-card .act-catchup");
-check("catch-up launcher present", !!catchupBtn);
+// Catch up is folded in: missed cards ride as warmups, and the
+// lesson-complete screen keeps its explicit catch-up button.
+const catchupBtn = document.getElementById("done-quiz-btn");
+check("catch-up lives on the lesson-complete screen", !!catchupBtn);
 click(catchupBtn);
 check("catch-up with nothing missed stays on cards", document.querySelectorAll(".lesson-card").length >= 3);
-// The 📖 Words launcher opens the (now opt-in) lesson reference.
-click(document.querySelector(".lesson-card .act-words"));
-check("Words opens the lesson reference", !document.getElementById("lesson-intro").hidden);
+// Words and Build are folded into the lesson flow — no launchers for them.
+check("Words launcher is gone", !document.querySelector(".lesson-card .act-words"));
+check("Build launcher is gone", !document.querySelector(".lesson-card .act-build"));
 click(document.getElementById("back-btn"));
 check("back returns home", !document.getElementById("home").hidden);
 

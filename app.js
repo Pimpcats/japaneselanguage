@@ -1724,21 +1724,7 @@
         pn.appendChild(span("st-next", next ? stationName(next) + " →" : "終点 end"));
         card.appendChild(pn);
 
-        // the four ways to practice, kept as ticket-gate style buttons
-        const acts = document.createElement("div");
-        acts.className = "lc-actions";
-        const mkAct = (cls, icon, label, fn) => {
-          const b = document.createElement("button");
-          b.className = "lc-act " + cls; b.type = "button";
-          b.innerHTML = '<span class="lc-act-ico">' + icon + '</span><span class="lc-act-lbl">' + label + "</span>";
-          b.setAttribute("aria-label", label + " — " + L.title);
-          b.addEventListener("click", (e) => { e.stopPropagation(); activeLesson = L; fn(); });
-          acts.appendChild(b);
-        };
-        mkAct("act-practice", "▶", "Ride", () => startLesson(L));
-        mkAct("act-catchup", "🔁", "Catch up", startCatchup);
-        card.appendChild(acts);
-
+        // the card IS the button: tap the picture, ride the lesson
         card.addEventListener("click", () => { activeLesson = L; startLesson(L); });
         rail.appendChild(card);
       });
@@ -1945,7 +1931,26 @@
     return cands[0];
   }
 
+  let paceArmedId = null;
   function startLesson(L, opts) {
+    // Soft daily pacing (owner, 2026-07): five letters and a handful of
+    // sentences is a day. The FIRST new lesson today starts freely; a second
+    // NEW one asks once — tap again to keep going. Never a hard lock, and
+    // lessons you've already cleared replay without question.
+    const today = new Date().toDateString();
+    if (!prog.pace || prog.pace.day !== today) prog.pace = { day: today, started: [] };
+    const stats = lessonStats(L);
+    const isNew = stats.passed < stats.total;
+    if (isNew && !prog.pace.started.includes(L.id)) {
+      if (prog.pace.started.length >= 1 && paceArmedId !== L.id) {
+        paceArmedId = L.id;
+        flash("今日はここまで — that was today's station. Tap again to keep going.");
+        return;
+      }
+      prog.pace.started.push(L.id);
+      save();
+    }
+    paceArmedId = null;
     activeLesson = L;   // the lesson-complete screen & Talk button read this
     const cards = CARDS.filter((c) => c.lessonId === L.id);
     let queue = cards;
@@ -1965,6 +1970,8 @@
   // very next lesson) plus mastered cards whose notch has elapsed (spaced
   // return). Most-overdue first, capped so a lesson never front-loads a slog.
   function buildWarmup(excludeLessonId) {
+    const today = new Date().toDateString();
+    if (prog.warmupDay === today) return [];   // misses ride the FIRST session of the day only
     const now = Date.now();
     const pool = CARDS.filter((c) => {
       if (c.lessonId === excludeLessonId) return false;
@@ -1973,7 +1980,9 @@
       const lg = lastGradeOf(p);
       return lg <= 1 || (p.due || 0) <= now;             // missed → always; mastered → when due
     }).sort((a, b) => ((prog.cards[a.id] || {}).due || 0) - ((prog.cards[b.id] || {}).due || 0));
-    return pool.slice(0, 5).map((c) => Object.assign({}, c, { warmup: true }));
+    const rides = pool.slice(0, 5).map((c) => Object.assign({}, c, { warmup: true }));
+    if (rides.length) { prog.warmupDay = today; save(); }
+    return rides;
   }
   function reviewCards() {
     const weak = CARDS.filter((c) => {

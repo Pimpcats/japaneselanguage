@@ -246,11 +246,11 @@ to reveal-and-listen when unavailable.
   match on title/section/grammar/vocab, stable per-id fallback) on a per-theme
   wash, with the title on a soft bottom caption and a ▶/✓ corner flag. Covers
   are heuristic and OVERRIDABLE — `L.cover` (emoji) or `L.image` (a real photo
-  path) pins any lesson. Along the bottom of each card is a launcher row —
-  now just ▶ Ride · 🔁 Catch up (owner, 2026-07: 📖 Words and 🧩 Build are
-  FOLDED INTO the lesson flow, not separate destinations — see below; 🎭 Talk
-  was replaced by Catch up earlier). Tapping the *picture* jumps straight into
-  Practice. The lesson-intro screen (`openIntro`) is now unreachable from
+  path) pins any lesson. Cards carry NO launcher
+  buttons (owner, 2026-07: Words, Build, AND Catch up are all folded into the
+  lesson flow) — the picture IS the button; tapping it rides the lesson.
+  Catch-up remains reachable from the lesson-complete screen and rides
+  automatically as warmups. The lesson-intro screen (`openIntro`) is now unreachable from
   cards (kept in code); never resurrect it as a gate.
   **Folded-in alphabet**: the first run of any Level 0 lesson opens with a
   "New sounds today" panel — its newly-introduced kana as tap-to-hear tiles
@@ -269,6 +269,18 @@ to reveal-and-listen when unavailable.
   streak-guilt. Do not add streak pressure back.
 - Rewards-as-content (unlockable voice styles / scenes) is the approved future
   direction for rewards — never points or XP.
+
+## Rhythm: daily warmups + soft pace (owner, 2026-07)
+
+- **Warmups ride once per day** (`prog.warmupDay` in buildWarmup): the first
+  session of the day carries up to 5 missed/due cards; every later session
+  that day starts clean. Grinding the same misses before each lesson was the
+  owner's complaint; once-a-day keeps the reinforcement without the slog.
+- **Soft daily pace** (`prog.pace` in startLesson): the first NEW lesson of
+  the day starts freely; tapping a second new lesson flashes
+  "今日はここまで — tap again to keep going" and proceeds on the second tap.
+  Never a hard lock. Cleared lessons replay without question. Do not turn
+  this into streaks or locks — it is a nudge, full stop.
 
 ## Interactive story beats (interactive-learning.js — owner direction, 2026-07)
 
