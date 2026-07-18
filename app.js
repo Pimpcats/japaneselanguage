@@ -1570,8 +1570,13 @@
   window.HanasouSpeak = (text) => speak(text);   // story beats tap-to-hear (numbers, kana)
   // The folded-in "new sounds" panel (interactive-learning.js) reads each
   // lesson's newly introduced kana + romaji from here.
-  window.__hanaNewKana = (lessonId) =>
-    (LESSON_NEW_KANA[lessonId] || []).map((ch) => [ch, (KANA_INDEX.get(ch) || {}).romaji || ""]);
+  window.__hanaNewKana = (lessonId) => {
+    const order = [...KANA_INDEX.keys()];   // KANA rows insert in gojūon order
+    return (LESSON_NEW_KANA[lessonId] || [])
+      .slice()
+      .sort((x, y) => order.indexOf(x) - order.indexOf(y))
+      .map((ch) => [ch, (KANA_INDEX.get(ch) || {}).romaji || ""]);
+  };
   window.__hanaStationInfo = function (lessonId) {
     const L = lessonById[lessonId];
     if (!L) return null;
