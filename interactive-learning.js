@@ -26,8 +26,8 @@
   ];
 
   // ---- object library (all CSS-drawn; people use the app's chibi art) ------
-  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower" };
-  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", mountain: "やま", sun: "たいよう", moon: "つき", chair: "いす", signal: "しんごう", train: "でんしゃ", bus: "バス", umbrella: "かさ", ticket: "きっぷ", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower" };
+  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", dogface: "いぬ", redflower: "はな", boat: "ふね", sea: "うみ", town: "まち", winter: "ふゆ", sakura: "さくら", whitecat: "ねこ", japanmap: "にほん", telephone: "でんわ", mountain: "やま", sun: "たいよう", moon: "つき", chair: "いす", signal: "しんごう", train: "でんしゃ", bus: "バス", umbrella: "かさ", ticket: "きっぷ", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
 
   // ---- zones: distance IS the grammar --------------------------------------
   // things: これ・それ・あれ  ·  places: ここ・そこ・あそこ
@@ -68,6 +68,29 @@
       "This is a book.": () => (story.completed["claim-book"] ? PLACE_BEAT : CLAIM_BEAT),
     },
   };
+
+  const HOUSE_BEAT = { id: "l0-ie", type: "ask", scene: "street", zone: "partner", object: "house",
+    askLabel: "Call it out:", cta: "Say it →", feedback: "いい = nice. いえ = house.",
+    instruction: "Look at that house",
+    copy: "What a place. Tap it, then call it out.",
+    answer: { jp: "いい いえ！", romaji: "ii ie", en: "What a nice house!" } };
+  const TOUR = { id: "tour-1", type: "info", once: true,
+    instruction: "ようこそ — welcome!",
+    copy: "はなそう teaches you to SPEAK. Every card shows English — you say it in Japanese out loud, then tap to hear もち子 say it for real.",
+    art: "mochiko", cta: "Next →",
+    next: { id: "tour-2", type: "info",
+      instruction: "One symbol, one sound",
+      copy: "Japanese is written in kana. Each symbol is always the same sound — no surprises. This level teaches five a day, and the abc letters stay above every kana until you know it. They fade as you learn.",
+      cta: "Next →",
+      next: { id: "tour-3", type: "info",
+        instruction: "The card",
+        copy: "Tap the sheet to reveal and hear the answer — tap again to replay. Swipe right when you got it, left to see it again sooner. That is the whole system: no streaks, no timers, no pressure.",
+        cta: "Next →",
+        next: { id: "tour-4", type: "info",
+          instruction: "The world taps back",
+          copy: "Sometimes the room comes alive — a shop, a street, a thing to point at. Do the action, then say the line. Acting it out is how words stick.",
+          cta: "Start →",
+          next: HOUSE_BEAT } } } };
 
   const BEFORE_PROMPT = {
     // ---- Level 0 · か row: see the remarkable thing, call it out ----------
@@ -116,6 +139,11 @@
         answer: { jp: "ちいさい たこ！", romaji: "chiisai tako", en: "A small octopus!" } },
     },
     "l0-na": {
+      "The dog's face!": { id: "l0-inu", type: "ask", scene: "room", zone: "near", object: "dogface",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "の — the dog's.",
+        instruction: "A dog, right up close",
+        copy: "That is one happy face. Tap it and call it out.",
+        answer: { jp: "いぬの かお！", romaji: "inu no kao", en: "The dog's face!" } },
       "The cat's foot!": { id: "l0-neko", type: "ask", scene: "room", zone: "partner", object: "cat",
         askLabel: "Call it out:", cta: "Say it →", feedback: "の links owner to thing: cat's foot.",
         instruction: "The cat is showing you its paw",
@@ -123,6 +151,16 @@
         answer: { jp: "ねこの あし！", romaji: "neko no ashi", en: "The cat's foot!" } },
     },
     "l0-ha": {
+      "The flower is red.": { id: "l0-akahana", type: "ask", scene: "room", zone: "wall", object: "redflower",
+        askLabel: "Say it:", cta: "Say it →", feedback: "あかい — red, and nothing but.",
+        instruction: "One enormous red flower",
+        copy: "It fills the room. Tap it and say its colour.",
+        answer: { jp: "はなは あかい。", romaji: "hana wa akai", en: "The flower is red." } },
+      "The boat is big.": { id: "l0-fune", type: "ask", scene: "street", zone: "near", object: "boat",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "ふね — boat. A big one.",
+        instruction: "Down at the water — a boat",
+        copy: "It barely fits in view. Tap it and say it.",
+        answer: { jp: "ふねは おおきい。", romaji: "fune wa ookii", en: "The boat is big." } },
       "The stars are far away.": { id: "l0-hoshi", type: "ask", scene: "street", zone: "far", object: "star", night: true,
         askLabel: "Say it:", cta: "Say it →", feedback: "So far — とおい.",
         instruction: "Way up there — stars",
@@ -130,6 +168,16 @@
         answer: { jp: "ほしは とおい。", romaji: "hoshi wa tooi", en: "The stars are far away." } },
     },
     "l0-ma": {
+      "The sea is blue.": { id: "l0-umi", type: "ask", scene: "street", zone: "wall", object: "sea",
+        askLabel: "Say it:", cta: "Say it →", feedback: "あおい — blue, edge to edge.",
+        instruction: "The sea, all the way out",
+        copy: "Blue to the horizon. Tap it and say its colour.",
+        answer: { jp: "うみは あおい。", romaji: "umi wa aoi", en: "The sea is blue." } },
+      "The town is small.": { id: "l0-machi", type: "ask", scene: "street", zone: "far", object: "town",
+        askLabel: "Say it:", cta: "Say it →", feedback: "ちいさい — small with distance.",
+        instruction: "A little town, way out there",
+        copy: "From up here it looks tiny. Tap it and say it.",
+        answer: { jp: "まちは ちいさい。", romaji: "machi wa chiisai", en: "The town is small." } },
       "The peach is tasty.": { id: "l0-momo", type: "ask", scene: "room", zone: "table", object: "peach",
         askLabel: "Say it:", cta: "Say it →", feedback: "Perfectly ripe.",
         instruction: "One perfect peach",
@@ -137,6 +185,11 @@
         answer: { jp: "ももは おいしい。", romaji: "momo wa oishii", en: "The peach is tasty." } },
     },
     "l0-ra": {
+      "The cherry blossoms are white.": { id: "l0-sakura", type: "ask", scene: "street", zone: "partner", object: "sakura",
+        askLabel: "Say it:", cta: "Say it →", feedback: "しろい — white petals everywhere.",
+        instruction: "The trees are in bloom",
+        copy: "White petals drifting down. Tap the tree and say it.",
+        answer: { jp: "さくらは しろい。", romaji: "sakura wa shiroi", en: "The cherry blossoms are white." } },
       "This is a bird. (casual)": { id: "l0-tori", type: "ask", scene: "room", zone: "near", object: "bird",
         askLabel: "Say it:", cta: "Say it →", feedback: "これ — right by you.",
         instruction: "A little bird landed next to you",
@@ -149,6 +202,16 @@
         answer: { jp: "それは くるま。", romaji: "sore wa kuruma", en: "That is a car. (casual)" } },
     },
     "l0-wa": {
+      "My cat is white.": { id: "l0-shironeko", type: "ask", scene: "room", zone: "partner", object: "whitecat",
+        askLabel: "Say it:", cta: "Say it →", feedback: "わたしの — yours. しろい — white.",
+        instruction: "Your cat wandered in",
+        copy: "White from ears to tail. Tap it — の makes it yours.",
+        answer: { jp: "わたしの ねこは しろい。", romaji: "watashi no neko wa shiroi", en: "My cat is white." } },
+      "Japan is far away.": { id: "l0-nihon", type: "ask", scene: "street", zone: "far", object: "japanmap",
+        askLabel: "Say it:", cta: "Say it →", feedback: "とおい — far. For now.",
+        instruction: "Across the whole ocean — Japan",
+        copy: "A little chain of islands, a long way off. Tap it and say it.",
+        answer: { jp: "にほんは とおい。", romaji: "nihon wa tooi", en: "Japan is far away." } },
       "My book!": { id: "l0-myhon", type: "ask", scene: "room", zone: "table", object: "book",
         askLabel: "Call it out:", cta: "Say it →", feedback: "わたしの — mine!",
         instruction: "Someone left YOUR book on the table",
@@ -186,17 +249,18 @@
         answer: { jp: "きれいな はなです。", romaji: "kirei na hana desu", en: "It's a pretty flower." } },
     },
 
-    // ---- The very first exclamation: a nice house --------------------------
+    // ---- The very first lesson: welcome tour, then the nice house ----------
     "l0-a": {
-      "What a nice house!": { id: "l0-ie", type: "ask", scene: "street", zone: "partner", object: "house",
-        askLabel: "Call it out:", cta: "Say it →", feedback: "いい = nice. いえ = house.",
-        instruction: "Look at that house",
-        copy: "What a place. Tap it, then call it out.",
-        answer: { jp: "いい いえ！", romaji: "ii ie", en: "What a nice house!" } },
+      "What a nice house!": () => (story.completed["tour-1"] ? HOUSE_BEAT : TOUR),
     },
 
     // ---- The tall mountain --------------------------------------------------
     "l0-ya": {
+      "Winter is cold.": { id: "l0-fuyu", type: "ask", scene: "street", zone: "partner", object: "winter", night: true,
+        askLabel: "Say it (brr):", cta: "Say it →", feedback: "さむい — cold. The word even shivers.",
+        instruction: "Snow is falling",
+        copy: "Someone built a snowman. Tap it and say what winter is.",
+        answer: { jp: "ふゆは さむい。", romaji: "fuyu wa samui", en: "Winter is cold." } },
       "The mountain is tall.": { id: "l0-yama", type: "ask", scene: "street", zone: "far", object: "mountain",
         askLabel: "Say it:", cta: "Say it →", feedback: "たかい — it stands above the whole town.",
         instruction: "Beyond the town — a mountain",
@@ -808,6 +872,7 @@
     else if (beat.type === "count") renderCountBeat(beat, finishBeat);
     else if (beat.type === "pick") renderPickBeat(beat, finishBeat);
     else if (beat.type === "coins") renderCoinsBeat(beat, finishBeat);
+    else if (beat.type === "info") renderInfoBeat(beat, finishBeat);
   }
 
   function showContinue(text, finishBeat) {
@@ -853,6 +918,16 @@
   // scale, same ink-outline language as the painted frames. (Interim art
   // until real illustrations land — owner, 2026-07.)
   const OBJ_SVG = {
+    dogface: '<svg viewBox="0 0 130 120" preserveAspectRatio="xMidYMax meet"><path d="M28 30 L12 8 Q34 2 42 20 Z" fill="#eec98f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M102 30 L118 8 Q96 2 88 20 Z" fill="#eec98f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M22 34 Q42 12 65 12 Q88 12 108 34 Q120 50 114 76 Q106 106 65 108 Q24 106 16 76 Q10 50 22 34 Z" fill="#eec98f" stroke="#243352" stroke-width="5.5" stroke-linejoin="round"/><path d="M42 44 Q47 38 52 44" fill="none" stroke="#243352" stroke-width="5" stroke-linecap="round"/><path d="M78 44 Q83 38 88 44" fill="none" stroke="#243352" stroke-width="5" stroke-linecap="round"/><path d="M44 62 Q65 52 86 62 Q92 84 65 88 Q38 84 44 62 Z" fill="#fdf6ea" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><ellipse cx="65" cy="66" rx="7" ry="5.5" fill="#243352"/><path d="M65 71 L65 78 M65 78 Q58 84 51 80 M65 78 Q72 84 79 80" fill="none" stroke="#243352" stroke-width="4" stroke-linecap="round"/></svg>',
+    redflower: '<svg viewBox="0 0 110 150" preserveAspectRatio="xMidYMax meet"><path d="M55 74 L55 142" stroke="#567f45" stroke-width="7" stroke-linecap="round"/><path d="M55 104 Q38 100 32 86 Q50 86 55 98 Z" fill="#74a25f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M55 122 Q72 118 78 104 Q60 104 55 116 Z" fill="#74a25f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><g stroke="#243352" stroke-width="4" fill="#e05a48"><ellipse cx="55" cy="20" rx="13" ry="17"/><ellipse cx="30" cy="38" rx="13" ry="17" transform="rotate(-70 30 38)"/><ellipse cx="80" cy="38" rx="13" ry="17" transform="rotate(70 80 38)"/><ellipse cx="38" cy="62" rx="13" ry="17" transform="rotate(-140 38 62)"/><ellipse cx="72" cy="62" rx="13" ry="17" transform="rotate(140 72 62)"/></g><circle cx="55" cy="44" r="14" fill="#f2cf5b" stroke="#243352" stroke-width="4"/></svg>',
+    boat: '<svg viewBox="0 0 170 110" preserveAspectRatio="xMidYMax meet"><path d="M0 96 Q12 88 24 96 Q36 104 48 96 Q60 88 72 96 Q84 104 96 96 Q108 88 120 96 Q132 104 144 96 Q156 88 170 96 L170 110 L0 110 Z" fill="#7fa8d9" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M16 74 L154 74 Q148 96 128 98 L44 98 Q24 96 16 74 Z" fill="#d95f5f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><rect x="56" y="46" width="58" height="28" rx="5" fill="#fdf6ea" stroke="#243352" stroke-width="4.5"/><rect x="66" y="54" width="12" height="10" rx="2" fill="#9fc4e0" stroke="#243352" stroke-width="3"/><rect x="90" y="54" width="12" height="10" rx="2" fill="#9fc4e0" stroke="#243352" stroke-width="3"/><rect x="78" y="26" width="9" height="20" fill="#e8b04b" stroke="#243352" stroke-width="3.5"/><path d="M82 26 Q84 16 82 10" stroke="#b9c7d8" stroke-width="4" fill="none" stroke-linecap="round"/></svg>',
+    sea: '<svg viewBox="0 0 300 120" preserveAspectRatio="xMidYMax meet"><rect x="0" y="30" width="300" height="90" rx="8" fill="#5f93c9" stroke="#243352" stroke-width="4"/><path d="M0 52 Q20 44 40 52 Q60 60 80 52 Q100 44 120 52 Q140 60 160 52 Q180 44 200 52 Q220 60 240 52 Q260 44 280 52 Q290 56 300 52" fill="none" stroke="#9fc4e0" stroke-width="5" stroke-linecap="round"/><path d="M20 78 Q40 70 60 78 Q80 86 100 78 M150 82 Q170 74 190 82 Q210 90 230 82" fill="none" stroke="#7fa8d9" stroke-width="5" stroke-linecap="round"/><path d="M226 30 L226 12 L252 20 L226 28 Z" fill="#fdf6ea" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><path d="M222 30 L234 30" stroke="#243352" stroke-width="4" stroke-linecap="round"/><circle cx="64" cy="40" r="2.5" fill="#fff" opacity=".8"/><circle cx="120" cy="66" r="2.5" fill="#fff" opacity=".6"/><circle cx="260" cy="64" r="2.5" fill="#fff" opacity=".7"/></svg>',
+    town: '<svg viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet"><path d="M8 62 L34 40 L60 62 Z" fill="#d95f5f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><rect x="14" y="62" width="40" height="44" fill="#fdf6ea" stroke="#243352" stroke-width="4"/><rect x="28" y="80" width="12" height="26" fill="#8a6642" stroke="#243352" stroke-width="3"/><rect x="62" y="46" width="34" height="60" fill="#e8ddc4" stroke="#243352" stroke-width="4"/><path d="M60 46 L98 46" stroke="#243352" stroke-width="5" stroke-linecap="round"/><rect x="68" y="56" width="8" height="8" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="82" y="56" width="8" height="8" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="68" y="72" width="8" height="8" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="82" y="72" width="8" height="8" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><path d="M100 66 L124 48 L148 66 Z" fill="#6f8f7c" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><rect x="106" y="66" width="36" height="40" fill="#fdf6ea" stroke="#243352" stroke-width="4"/><rect x="118" y="84" width="12" height="22" fill="#8a6642" stroke="#243352" stroke-width="3"/><rect x="152" y="56" width="40" height="50" fill="#f2c9a4" stroke="#243352" stroke-width="4"/><path d="M150 56 L194 56" stroke="#243352" stroke-width="5" stroke-linecap="round"/><rect x="160" y="66" width="9" height="9" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="175" y="66" width="9" height="9" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="160" y="82" width="9" height="9" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="175" y="82" width="9" height="9" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/></svg>',
+    winter: '<svg viewBox="0 0 130 140" preserveAspectRatio="xMidYMax meet"><g fill="#fff" stroke="#b9c7d8" stroke-width="1.5"><circle cx="16" cy="22" r="4"/><circle cx="108" cy="14" r="3.4"/><circle cx="122" cy="52" r="4"/><circle cx="10" cy="72" r="3"/><circle cx="98" cy="88" r="3.4"/><circle cx="30" cy="108" r="3"/></g><circle cx="65" cy="102" r="34" fill="#fdfdfb" stroke="#243352" stroke-width="5"/><circle cx="65" cy="52" r="25" fill="#fdfdfb" stroke="#243352" stroke-width="5"/><path d="M44 30 L60 14 L74 22 L72 32 Z" fill="#4a7fb5" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><path d="M44 66 Q65 78 86 66 L88 74 Q65 86 42 74 Z" fill="#d95f5f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><ellipse cx="56" cy="48" rx="3.2" ry="4.4" fill="#243352"/><ellipse cx="76" cy="48" rx="3.2" ry="4.4" fill="#243352"/><path d="M62 58 L74 55 L64 62 Z" fill="#f0a33c" stroke="#243352" stroke-width="3" stroke-linejoin="round"/><circle cx="65" cy="94" r="3" fill="#243352"/><circle cx="65" cy="108" r="3" fill="#243352"/></svg>',
+    sakura: '<svg viewBox="0 0 150 160" preserveAspectRatio="xMidYMax meet"><path d="M70 156 L70 96 Q70 78 52 66 M70 108 Q72 88 94 76" fill="none" stroke="#8a6642" stroke-width="9" stroke-linecap="round"/><path d="M70 156 L70 96 Q70 78 52 66 M70 108 Q72 88 94 76" fill="none" stroke="#a97e54" stroke-width="5" stroke-linecap="round"/><g stroke="#243352" stroke-width="4"><path d="M22 56 Q14 34 36 26 Q44 10 64 18 Q84 8 94 26 Q112 30 108 50 Q118 66 100 74 Q94 90 74 84 Q56 94 44 78 Q24 76 22 56 Z" fill="#fdfbf7"/><path d="M96 66 Q96 50 114 46 Q124 34 138 44 Q148 54 140 66 Q144 80 128 84 Q112 88 106 78 Q96 76 96 66 Z" fill="#faf5ef"/></g><g fill="#f7c2d4"><circle cx="46" cy="42" r="4"/><circle cx="74" cy="34" r="4"/><circle cx="94" cy="52" r="4"/><circle cx="64" cy="62" r="4"/><circle cx="122" cy="62" r="4"/></g><g fill="#fdfbf7" stroke="#e8b7c8" stroke-width="1.5"><circle cx="30" cy="120" r="4"/><circle cx="116" cy="108" r="4"/><circle cx="94" cy="136" r="3.4"/></g></svg>',
+    whitecat: '<svg viewBox="0 0 120 112" preserveAspectRatio="xMidYMax meet"><path d="M24 102 Q12 98 14 80 Q16 62 34 58 L84 58 Q102 62 104 80 Q106 98 94 102 Z" fill="#fdfdfb" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M104 86 Q118 82 116 68 Q114 58 104 58" fill="none" stroke="#243352" stroke-width="5" stroke-linecap="round"/><path d="M52 18 L44 4 Q58 2 62 12 Z" fill="#fdfdfb" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M84 18 L92 4 Q78 2 74 12 Z" fill="#fdfdfb" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><circle cx="68" cy="34" r="26" fill="#fdfdfb" stroke="#243352" stroke-width="5"/><path d="M56 32 Q60 28 64 32 M74 32 Q78 28 82 32" fill="none" stroke="#243352" stroke-width="4" stroke-linecap="round"/><ellipse cx="69" cy="40" rx="3" ry="2.4" fill="#d97878"/><path d="M64 46 Q69 50 74 46" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/><path d="M40 82 Q48 78 56 82 M64 82 Q72 78 80 82" fill="none" stroke="rgba(36,51,82,.25)" stroke-width="3" stroke-linecap="round"/></svg>',
+    japanmap: '<svg viewBox="0 0 160 160" preserveAspectRatio="xMidYMax meet"><g fill="#6f8f7c" stroke="#243352" stroke-width="4" stroke-linejoin="round"><path d="M112 10 Q132 6 138 22 Q142 36 128 42 Q116 46 108 36 Q102 20 112 10 Z"/><path d="M118 54 Q130 60 122 76 Q108 100 84 112 Q64 122 52 116 Q44 110 50 100 Q60 88 76 78 Q96 66 104 56 Q110 50 118 54 Z"/><path d="M62 122 Q72 120 72 128 Q70 138 58 136 Q52 132 56 126 Z"/><path d="M28 128 Q42 122 46 132 Q48 142 34 148 Q20 150 18 140 Q18 132 28 128 Z"/></g><circle cx="86" cy="88" r="4" fill="#d95f5f" stroke="#243352" stroke-width="2.5"/></svg>',
+    telephone: '<svg viewBox="0 0 120 100" preserveAspectRatio="xMidYMax meet"><path d="M18 92 Q10 92 12 78 Q16 52 42 44 L78 44 Q104 52 108 78 Q110 92 102 92 Z" fill="#3f4650" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><circle cx="60" cy="70" r="20" fill="#fdf6ea" stroke="#243352" stroke-width="4"/><g fill="#3f4650"><circle cx="60" cy="56" r="3.4"/><circle cx="72" cy="60" r="3.4"/><circle cx="76" cy="72" r="3.4"/><circle cx="70" cy="82" r="3.4"/><circle cx="48" cy="60" r="3.4"/><circle cx="44" cy="72" r="3.4"/><circle cx="50" cy="82" r="3.4"/></g><path d="M14 34 Q12 20 26 20 Q34 20 38 28 Q48 24 60 24 Q72 24 82 28 Q86 20 94 20 Q108 20 106 34 Q105 42 96 42 Q90 42 86 36 Q74 32 60 32 Q46 32 34 36 Q30 42 24 42 Q15 42 14 34 Z" fill="#d95f5f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/></svg>',
     book: '<svg viewBox="0 0 90 110" preserveAspectRatio="xMidYMax meet"><path d="M14 4 L74 4 Q80 4 80 10 L80 96 Q80 102 74 102 L14 102 Q8 102 8 96 L8 10 Q8 4 14 4 Z" fill="#5c86bd" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M18 6 L18 100" stroke="#243352" stroke-width="3" opacity=".45"/><g class="bd bd-circle"><circle cx="50" cy="48" r="17" fill="#fdf6ea" stroke="#243352" stroke-width="4"/></g><g class="bd bd-stripes"><path d="M28 30 L72 30 M28 46 L72 46 M28 62 L72 62" stroke="#fdf6ea" stroke-width="7" stroke-linecap="round"/></g><g class="bd bd-window"><rect x="33" y="31" width="34" height="34" rx="4" fill="#fdf6ea" stroke="#243352" stroke-width="4"/><path d="M50 31 L50 65 M33 48 L67 48" stroke="#243352" stroke-width="3"/></g></svg>',
     bag: '<svg viewBox="0 0 100 112" preserveAspectRatio="xMidYMax meet"><path d="M32 32 Q32 10 50 10 Q68 10 68 32" fill="none" stroke="#243352" stroke-width="6" stroke-linecap="round"/><path d="M18 34 Q14 32 16 42 L22 98 Q23 106 32 106 L68 106 Q77 106 78 98 L84 42 Q86 32 82 34 Z" fill="#d29a66" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><rect x="42" y="60" width="16" height="14" rx="3" fill="#fff1c9" stroke="#243352" stroke-width="4"/></svg>',
     clock: '<svg viewBox="0 0 100 108" preserveAspectRatio="xMidYMax meet"><circle cx="50" cy="54" r="46" fill="#fffdf5" stroke="#243352" stroke-width="7"/><circle cx="50" cy="54" r="37" fill="none" stroke="#f0e7d2" stroke-width="3"/><circle cx="50" cy="18" r="2.6" fill="#243352"/><circle cx="86" cy="54" r="2.6" fill="#243352"/><circle cx="50" cy="90" r="2.6" fill="#243352"/><circle cx="14" cy="54" r="2.6" fill="#243352"/><g class="clock-hand-h"><rect x="47" y="30" width="6" height="24" rx="3" fill="#243352"/></g><g class="clock-hand-m"><rect x="47.5" y="20" width="5" height="34" rx="2.5" fill="#243352"/></g><circle cx="50" cy="54" r="4.5" fill="#243352"/></svg>',
@@ -1380,6 +1455,18 @@
       row.appendChild(btn);
     });
     overlay.stage.appendChild(row);
+  }
+
+  // ---- info: onboarding panels — no interaction, just orientation ----------
+  function renderInfoBeat(beat, finishBeat) {
+    overlay.title.textContent = beat.instruction;
+    overlay.copy.textContent = beat.copy || "";
+    if (beat.art) {
+      const stageArt = el("div", "story-info-art");
+      stageArt.appendChild(objectFigure(beat.art));
+      overlay.stage.appendChild(stageArt);
+    }
+    showContinue(beat.cta || "Next →", finishBeat);
   }
 
   function renderPickBeat(beat, finishBeat) {

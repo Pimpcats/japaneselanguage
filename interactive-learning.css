@@ -841,6 +841,24 @@ button.primary.story-continue {
   left: 50%; top: 3%; transform: translateX(-50%);
   font-size: 34px;
 }
+/* on a street the "wall" slot rests on the horizon (the sea lives here) */
+.story-scene-street .scene-zone-wall { top: auto; bottom: 30%; }
+
+/* the ten see-it sentence objects */
+.obj-dogface { width: 8em; height: 7.4em; }
+.obj-redflower { width: 7em; height: 9.6em; }
+.obj-boat { width: 11em; height: 7.2em; }
+.obj-sea { width: 10.5em; height: 4.2em; }
+.obj-town { width: 13em; height: 7.2em; }
+.obj-winter { width: 8em; height: 8.6em; }
+.obj-sakura { width: 9em; height: 9.6em; }
+.obj-whitecat { width: 5.6em; height: 5.2em; }
+.obj-japanmap { width: 12em; height: 12em; }
+.obj-telephone { width: 5em; height: 4.2em; }
+
+/* onboarding tour panel art */
+.story-info-art { display: grid; place-items: center; padding: 1rem 0 1.2rem; }
+.story-info-art .obj-person-img { height: 110px; width: auto; }
 
 /* night variant — beats set beat.night for moon / stars */
 .story-scene.night .scene-wall { background: linear-gradient(180deg, #27334f 0%, #58688a 88%); }
