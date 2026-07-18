@@ -19,6 +19,12 @@
   const STORAGE_KEY = "hanasou.story.v1";
 
   // ---- the learner's claimable items ---------------------------------------
+  const PEOPLE = [
+    { id: "aki", name: "Aki", svg: "P_aki" },
+    { id: "beni", name: "Beni", svg: "P_beni" },
+    { id: "kai", name: "Kai", svg: "P_kai" },
+    { id: "yuki", name: "Yuki", svg: "P_yuki" },
+  ];
   const BOOKS = [
     { id: "circle", name: "circle cover" },
     { id: "stripes", name: "striped cover" },
@@ -219,6 +225,16 @@
         answer: { jp: "わたしの ほん！", romaji: "watashi no hon", en: "My book!" } },
     },
     "l0-dakuten": {
+      "My friend's telephone.": { id: "claim-friend", type: "claimPerson", role: "friend", once: true,
+        instruction: "Time to meet your friend",
+        copy: "Pick your friend. They'll be with you the whole way — every ともだち is them.",
+        feedback: "Good choice. And look — they have an old telephone.",
+        cta: "Continue →",
+        next: { id: "friend-phone", type: "ask", scene: "room", zone: "partner", object: "friendchar", prop: "telephone",
+          askLabel: "Call it out:", cta: "Say it →", feedback: "の — the friend's.",
+          instruction: "Your friend and their telephone",
+          copy: "A proper old rotary phone. Tap them — の makes it theirs.",
+          answer: { jp: "ともだちの でんわ。", romaji: "tomodachi no denwa", en: "My friend's telephone." } } },
       "This is a book.": { id: "l0-desu", type: "ask", scene: "room", zone: "near", object: "book", otherBook: true,
         askLabel: "Now with です:", cta: "Say it →", feedback: "Your first polite sentence.",
         instruction: "A book — but not yours",
@@ -266,6 +282,35 @@
         instruction: "Beyond the town — a mountain",
         copy: "It rises over everything. Tap it and say it.",
         answer: { jp: "やまは たかい。", romaji: "yama wa takai", en: "The mountain is tall." } },
+    },
+
+    // ---- Introductions: who ARE you? ---------------------------------------
+    "intro": {
+      "Nice to meet you.": { id: "claim-avatar", type: "claimPerson", role: "avatar", once: true,
+        instruction: "First — who are you?",
+        copy: "Pick yourself. This is YOU from now on — every わたし in the app.",
+        feedback: "Looking good. Now introduce yourself.",
+        askLabel: "Bow and say it:", cta: "Say it →",
+        answer: { jp: "はじめまして。", romaji: "hajimemashite", en: "Nice to meet you." } },
+      "I'm American.": { id: "intro-flag", type: "ask", scene: "room", zone: "near", object: "avatar", prop: "usflag",
+        askLabel: "Say it:", cta: "Say it →", feedback: "わたしは — as for me.",
+        instruction: "That's you, flag and all",
+        copy: "Tap yourself and say where you're from.",
+        answer: { jp: "わたしは アメリカじんです。", romaji: "watashi wa amerika-jin desu", en: "I'm American." } },
+      "I'm a student.": { id: "intro-desk", type: "ask", scene: "room", zone: "near", object: "avatar", prop: "schooldesk",
+        askLabel: "Say it:", cta: "Say it →", feedback: "がくせい — student.",
+        instruction: "You, at your desk",
+        copy: "Class is in session. Tap yourself and say what you are.",
+        answer: { jp: "わたしは がくせいです。", romaji: "watashi wa gakusei desu", en: "I'm a student." } },
+      "What's your name?": { id: "intro-name", type: "nameInput",
+        instruction: "Your friend needs a name",
+        copy: "This is the friend you chose. Type their name — the app remembers it everywhere.",
+        answer: { jp: "おなまえは なんですか？", romaji: "onamae wa nan desu ka", en: "What's your name?" } },
+      "My friend is a student.": { id: "intro-friend-desk", type: "ask", scene: "room", zone: "near", object: "friendchar", prop: "schooldesk",
+        askLabel: "Say it:", cta: "Say it →", feedback: "ともだち — your friend.",
+        instruction: "Your friend, same classroom",
+        copy: "There they are at their desk. Tap them and say it.",
+        answer: { jp: "ともだちは がくせいです。", romaji: "tomodachi wa gakusei desu", en: "My friend is a student." } },
     },
 
     // ---- Greetings: the sky tells you which one -----------------------------
@@ -726,8 +771,22 @@
       },
     },
 
-    // ---- Numbers & age -------------------------------------------------------
+    // ---- Numbers: tap them, hear them, say the run --------------------------
     "numbers": {
+      "One, two, three, four, five.": { id: "num-15", type: "numberTap",
+        nums: [[1, "いち"], [2, "に"], [3, "さん"], [4, "よん"], [5, "ご"]],
+        instruction: "Count with your ears first",
+        copy: "Tap each number — もち子 says it. Then you say all five.",
+        answer: { jp: "いち、に、さん、よん、ご。", romaji: "ichi, ni, san, yon, go", en: "One, two, three, four, five." } },
+      "Six, seven, eight, nine, ten.": { id: "num-610", type: "numberTap",
+        nums: [[6, "ろく"], [7, "なな"], [8, "はち"], [9, "きゅう"], [10, "じゅう"]],
+        instruction: "The second half",
+        copy: "Same again — tap each one, then say the run.",
+        answer: { jp: "ろく、なな、はち、きゅう、じゅう。", romaji: "roku, nana, hachi, kyuu, juu", en: "Six, seven, eight, nine, ten." } },
+    },
+
+    // ---- Age: さい — ask もち子 hers -------------
+    "age": {
       "How old are you?": {
         id: "age-ask", type: "ask",
         scene: "room", zone: "partner", object: "mochiko", askLabel: "Ask her:",
@@ -873,6 +932,9 @@
     else if (beat.type === "pick") renderPickBeat(beat, finishBeat);
     else if (beat.type === "coins") renderCoinsBeat(beat, finishBeat);
     else if (beat.type === "info") renderInfoBeat(beat, finishBeat);
+    else if (beat.type === "claimPerson") renderClaimPersonBeat(beat, finishBeat);
+    else if (beat.type === "nameInput") renderNameInputBeat(beat, finishBeat);
+    else if (beat.type === "numberTap") renderNumberTapBeat(beat, finishBeat);
   }
 
   function showContinue(text, finishBeat) {
@@ -918,6 +980,12 @@
   // scale, same ink-outline language as the painted frames. (Interim art
   // until real illustrations land — owner, 2026-07.)
   const OBJ_SVG = {
+    P_aki: '<svg viewBox="0 0 90 130" preserveAspectRatio="xMidYMax meet"><path d="M24 96 Q22 74 45 74 Q68 74 66 96 L64 122 Q63 126 58 126 L32 126 Q27 126 26 122 Z" fill="#74a25f" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><circle cx="45" cy="42" r="28" fill="#f8d4ac" stroke="#243352" stroke-width="4.5"/><path d="M18 40 Q14 16 34 12 L38 22 L46 10 L54 22 L60 12 Q74 18 72 40 Q60 24 45 24 Q30 24 18 40 Z" fill="#d97b3c" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><ellipse cx="36" cy="44" rx="3" ry="4.4" fill="#243352"/><ellipse cx="54" cy="44" rx="3" ry="4.4" fill="#243352"/><path d="M38 56 Q45 61 52 56" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/></svg>',
+    P_beni: '<svg viewBox="0 0 90 130" preserveAspectRatio="xMidYMax meet"><path d="M26 94 Q24 74 45 74 Q66 74 64 94 L70 122 Q71 126 65 126 L25 126 Q19 126 20 122 Z" fill="#d95f5f" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><circle cx="45" cy="42" r="28" fill="#f6cea2" stroke="#243352" stroke-width="4.5"/><path d="M16 52 Q10 14 45 12 Q80 14 74 52 Q72 34 66 30 Q68 44 62 26 Q56 40 45 24 Q34 40 28 26 Q22 44 24 30 Q18 34 16 52 Z" fill="#3b3040" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><ellipse cx="36" cy="46" rx="3" ry="4.4" fill="#243352"/><ellipse cx="54" cy="46" rx="3" ry="4.4" fill="#243352"/><path d="M38 58 Q45 63 52 58" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/></svg>',
+    P_kai: '<svg viewBox="0 0 90 130" preserveAspectRatio="xMidYMax meet"><path d="M24 96 Q22 74 45 74 Q68 74 66 96 L64 122 Q63 126 58 126 L32 126 Q27 126 26 122 Z" fill="#4a7fb5" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><circle cx="45" cy="44" r="27" fill="#eab98a" stroke="#243352" stroke-width="4.5"/><path d="M16 40 Q16 14 45 14 Q74 14 74 40 L74 34 Q74 44 66 42 Q60 26 45 26 Q30 26 24 42 Q16 44 16 34 Z" fill="#5c86bd" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M70 30 Q86 28 88 36 Q84 42 72 40 Z" fill="#5c86bd" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><ellipse cx="36" cy="48" rx="3" ry="4.4" fill="#243352"/><ellipse cx="54" cy="48" rx="3" ry="4.4" fill="#243352"/><path d="M38 60 Q45 65 52 60" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/></svg>',
+    P_yuki: '<svg viewBox="0 0 90 130" preserveAspectRatio="xMidYMax meet"><path d="M26 94 Q24 74 45 74 Q66 74 64 94 L68 122 Q69 126 63 126 L27 126 Q21 126 22 122 Z" fill="#9b8ec4" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><path d="M14 60 Q8 100 20 112 Q28 104 26 84 M76 60 Q82 100 70 112 Q62 104 64 84" fill="#f2dc9b" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><circle cx="45" cy="42" r="28" fill="#f8d4ac" stroke="#243352" stroke-width="4.5"/><path d="M14 54 Q10 12 45 12 Q80 12 76 54 Q72 30 62 28 Q52 26 45 22 Q38 26 28 28 Q18 30 14 54 Z" fill="#f2dc9b" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><ellipse cx="36" cy="44" rx="3" ry="4.4" fill="#243352"/><ellipse cx="54" cy="44" rx="3" ry="4.4" fill="#243352"/><path d="M38 56 Q45 61 52 56" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/></svg>',
+    usflag: '<svg viewBox="0 0 90 110" preserveAspectRatio="xMidYMax meet"><rect x="10" y="4" width="6" height="102" rx="3" fill="#8a6642" stroke="#243352" stroke-width="3.5"/><path d="M16 8 L82 8 L82 52 L16 52 Z" fill="#fdf6ea" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M16 15 L82 15 M16 26 L82 26 M16 37 L82 37 M16 48 L82 48" stroke="#d95f5f" stroke-width="5"/><rect x="16" y="8" width="28" height="22" fill="#4a7fb5" stroke="#243352" stroke-width="3"/><g fill="#fff"><circle cx="23" cy="14" r="1.8"/><circle cx="31" cy="14" r="1.8"/><circle cx="39" cy="14" r="1.8"/><circle cx="27" cy="20" r="1.8"/><circle cx="35" cy="20" r="1.8"/><circle cx="23" cy="26" r="1.8"/><circle cx="31" cy="26" r="1.8"/><circle cx="39" cy="26" r="1.8"/></g></svg>',
+    schooldesk: '<svg viewBox="0 0 130 90" preserveAspectRatio="xMidYMax meet"><rect x="6" y="8" width="118" height="14" rx="4" fill="#d9a568" stroke="#243352" stroke-width="4.5"/><path d="M18 22 L18 84 M112 22 L112 84" stroke="#243352" stroke-width="9" stroke-linecap="round"/><path d="M18 22 L18 84 M112 22 L112 84" stroke="#8a8f99" stroke-width="5" stroke-linecap="round"/><rect x="30" y="26" width="70" height="8" rx="3" fill="#c98f4e" stroke="#243352" stroke-width="3.5"/><rect x="40" y="2" width="30" height="8" rx="2" fill="#5c86bd" stroke="#243352" stroke-width="3" transform="rotate(-4 55 6)"/></svg>',
     dogface: '<svg viewBox="0 0 130 120" preserveAspectRatio="xMidYMax meet"><path d="M28 30 L12 8 Q34 2 42 20 Z" fill="#eec98f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M102 30 L118 8 Q96 2 88 20 Z" fill="#eec98f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M22 34 Q42 12 65 12 Q88 12 108 34 Q120 50 114 76 Q106 106 65 108 Q24 106 16 76 Q10 50 22 34 Z" fill="#eec98f" stroke="#243352" stroke-width="5.5" stroke-linejoin="round"/><path d="M42 44 Q47 38 52 44" fill="none" stroke="#243352" stroke-width="5" stroke-linecap="round"/><path d="M78 44 Q83 38 88 44" fill="none" stroke="#243352" stroke-width="5" stroke-linecap="round"/><path d="M44 62 Q65 52 86 62 Q92 84 65 88 Q38 84 44 62 Z" fill="#fdf6ea" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><ellipse cx="65" cy="66" rx="7" ry="5.5" fill="#243352"/><path d="M65 71 L65 78 M65 78 Q58 84 51 80 M65 78 Q72 84 79 80" fill="none" stroke="#243352" stroke-width="4" stroke-linecap="round"/></svg>',
     redflower: '<svg viewBox="0 0 110 150" preserveAspectRatio="xMidYMax meet"><path d="M55 74 L55 142" stroke="#567f45" stroke-width="7" stroke-linecap="round"/><path d="M55 104 Q38 100 32 86 Q50 86 55 98 Z" fill="#74a25f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M55 122 Q72 118 78 104 Q60 104 55 116 Z" fill="#74a25f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><g stroke="#243352" stroke-width="4" fill="#e05a48"><ellipse cx="55" cy="20" rx="13" ry="17"/><ellipse cx="30" cy="38" rx="13" ry="17" transform="rotate(-70 30 38)"/><ellipse cx="80" cy="38" rx="13" ry="17" transform="rotate(70 80 38)"/><ellipse cx="38" cy="62" rx="13" ry="17" transform="rotate(-140 38 62)"/><ellipse cx="72" cy="62" rx="13" ry="17" transform="rotate(140 72 62)"/></g><circle cx="55" cy="44" r="14" fill="#f2cf5b" stroke="#243352" stroke-width="4"/></svg>',
     boat: '<svg viewBox="0 0 170 110" preserveAspectRatio="xMidYMax meet"><path d="M0 96 Q12 88 24 96 Q36 104 48 96 Q60 88 72 96 Q84 104 96 96 Q108 88 120 96 Q132 104 144 96 Q156 88 170 96 L170 110 L0 110 Z" fill="#7fa8d9" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M16 74 L154 74 Q148 96 128 98 L44 98 Q24 96 16 74 Z" fill="#d95f5f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><rect x="56" y="46" width="58" height="28" rx="5" fill="#fdf6ea" stroke="#243352" stroke-width="4.5"/><rect x="66" y="54" width="12" height="10" rx="2" fill="#9fc4e0" stroke="#243352" stroke-width="3"/><rect x="90" y="54" width="12" height="10" rx="2" fill="#9fc4e0" stroke="#243352" stroke-width="3"/><rect x="78" y="26" width="9" height="20" fill="#e8b04b" stroke="#243352" stroke-width="3.5"/><path d="M82 26 Q84 16 82 10" stroke="#b9c7d8" stroke-width="4" fill="none" stroke-linecap="round"/></svg>',
@@ -974,6 +1042,18 @@
     }
     if (kind === "book") {
       fig.dataset.design = (story.inventory.book && story.inventory.book.design) || "circle";
+    }
+    if (kind === "avatar" || kind === "friendchar") {
+      const slot = kind === "avatar" ? story.inventory.avatar : story.inventory.friend;
+      const fallback = kind === "avatar" ? PEOPLE[0] : PEOPLE[1];
+      const person = PEOPLE.find((p) => slot && p.id === slot.id) || fallback;
+      fig.innerHTML = OBJ_SVG[person.svg] || "";
+      if (kind === "friendchar" && story.friendName) {
+        const tag = el("i", "obj-name");
+        tag.textContent = story.friendName;
+        fig.appendChild(tag);
+      }
+      return fig;
     }
     fig.innerHTML = OBJ_SVG[kind] || "";
     return fig;
@@ -1242,6 +1322,11 @@
     const target = objButton(beat.object, beat.zone, (beat.tag ? "price tag on the " : "") + OBJ_NAME[beat.object]);
     if (beat.tag) { const t = el("i", "obj-tag"); t.appendChild(el("span", "obj-tag-txt", beat.tagText || "?")); target.appendChild(t); }
     if (beat.clock) target.dataset.clock = beat.clock;   // clock-hand positions for time beats
+    if (beat.prop) {   // a second object carried by / beside the target
+      const prop = objectFigure(beat.prop);
+      prop.classList.add("obj-prop");
+      target.appendChild(prop);
+    }
     if (beat.otherBook) {   // NOT your book — someone else's cover, so これは ほんです stays "a book"
       const mine = (story.inventory.book && story.inventory.book.design) || BOOKS[0].id;
       const fig = target.querySelector(".obj-book");
@@ -1451,6 +1536,98 @@
         overlay.feedback.textContent = (COIN_JP[beat.target] || "") + " — you counted it.";
         overlay.feedback.className = "story-feedback success";
         showContinue("Say it →", finishBeat);
+      });
+      row.appendChild(btn);
+    });
+    overlay.stage.appendChild(row);
+  }
+
+  // ---- claimPerson: choose yourself / choose your friend --------------------
+  function renderClaimPersonBeat(beat, finishBeat) {
+    overlay.title.textContent = beat.instruction;
+    overlay.copy.textContent = beat.copy || "";
+    // you can't be your own friend — each role excludes the other's pick
+    const other = beat.role === "friend" ? story.inventory.avatar : story.inventory.friend;
+    const taken = other ? other.id : null;
+    const row = el("div", "story-people-row");
+    PEOPLE.filter((p) => p.id !== taken).forEach((person) => {
+      const btn = el("button", "story-person-choice");
+      btn.type = "button";
+      btn.setAttribute("aria-label", person.name);
+      const fig = el("span", "obj obj-person");
+      fig.innerHTML = OBJ_SVG[person.svg];
+      btn.appendChild(fig);
+      btn.addEventListener("click", () => {
+        row.querySelectorAll(".story-person-choice").forEach((node) => node.classList.remove("selected"));
+        btn.classList.add("selected");
+        story.inventory[beat.role] = { id: person.id };
+        saveStory();
+        attachAnswer(beat, beat.askLabel || "Now say it:");
+        overlay.feedback.textContent = beat.feedback || "";
+        overlay.feedback.className = "story-feedback success";
+        showContinue(beat.cta || "Continue →", finishBeat);
+      });
+      row.appendChild(btn);
+    });
+    overlay.stage.appendChild(row);
+  }
+
+  // ---- nameInput: type your friend's name — it sticks forever ---------------
+  function renderNameInputBeat(beat, finishBeat) {
+    overlay.title.textContent = beat.instruction;
+    overlay.copy.textContent = beat.copy || "";
+    const wrap = el("div", "story-name-wrap");
+    wrap.appendChild(objectFigure("friendchar"));
+    const input = document.createElement("input");
+    input.type = "text";
+    input.maxLength = 12;
+    input.placeholder = "Their name…";
+    input.className = "story-name-input";
+    input.value = story.friendName || "";
+    const ok = el("button", "primary story-name-ok", "That's their name →");
+    ok.type = "button";
+    ok.addEventListener("click", () => {
+      const v = input.value.trim();
+      if (!v) { input.focus(); return; }
+      story.friendName = v;
+      saveStory();
+      wrap.querySelector(".obj-name")?.remove();
+      const tag = el("i", "obj-name");
+      tag.textContent = v;
+      wrap.querySelector(".obj").appendChild(tag);
+      attachAnswer(beat, "Now ask it out loud:");
+      overlay.feedback.textContent = v + " it is.";
+      overlay.feedback.className = "story-feedback success";
+      showContinue("Say it →", finishBeat);
+    });
+    wrap.append(input, ok);
+    overlay.stage.appendChild(wrap);
+  }
+
+  // ---- numberTap: tap each number, hear it, then say the run ----------------
+  function renderNumberTapBeat(beat, finishBeat) {
+    overlay.title.textContent = beat.instruction;
+    overlay.copy.textContent = beat.copy || "Tap each number to hear it.";
+    const row = el("div", "story-num-row");
+    const doneSet = new Set();
+    beat.nums.forEach(([digit, kana]) => {
+      const btn = el("button", "story-num");
+      btn.type = "button";
+      btn.setAttribute("aria-label", String(digit));
+      btn.appendChild(el("span", "num-digit", String(digit)));
+      btn.appendChild(el("span", "num-kana", kana));
+      btn.addEventListener("click", () => {
+        btn.classList.add("heard");
+        if (window.HanasouSpeak) window.HanasouSpeak(kana);
+        if (!doneSet.has(digit)) {
+          doneSet.add(digit);
+          if (doneSet.size === beat.nums.length) {
+            attachAnswer(beat, "All of them — now say the run:");
+            overlay.feedback.textContent = "You heard every one.";
+            overlay.feedback.className = "story-feedback success";
+            showContinue("Say them →", finishBeat);
+          }
+        }
       });
       row.appendChild(btn);
     });

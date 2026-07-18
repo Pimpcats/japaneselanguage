@@ -1567,6 +1567,7 @@
   // Station identity for a lesson — line colour/letter, station number within
   // its level, name + romaji, and progress. Lets the "Recommended next" banner
   // (built in ui-polish.js) replicate the station-sign card it leads to.
+  window.HanasouSpeak = (text) => speak(text);   // story beats tap-to-hear (numbers, kana)
   window.__hanaStationInfo = function (lessonId) {
     const L = lessonById[lessonId];
     if (!L) return null;

@@ -856,6 +856,71 @@ button.primary.story-continue {
 .obj-japanmap { width: 12em; height: 12em; }
 .obj-telephone { width: 5em; height: 4.2em; }
 
+/* choose-your-person row (avatar / friend) */
+.story-people-row {
+  display: flex; justify-content: center; align-items: flex-end; gap: 0.9rem;
+  padding: 1.1rem 0.4rem 1.3rem; flex-wrap: wrap;
+}
+.story-person-choice {
+  background: #fdf6ea; border: 3px solid var(--story-ink); border-radius: 16px;
+  box-shadow: 0 3px 0 var(--story-ink);
+  padding: 0.55rem 0.5rem 0.3rem; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.story-person-choice:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--story-ink); }
+.story-person-choice.selected {
+  background: #eaf4ec;
+  filter: drop-shadow(0 0 8px rgba(46, 125, 91, 0.5));
+}
+.story-person-choice .obj-person { width: 4.6em; height: 6.6em; font-size: 14px; }
+
+/* every person object keeps a sensible size in scenes */
+.obj-avatar, .obj-friendchar { width: 6em; height: 8.6em; }
+/* a carried prop sits beside its owner */
+.obj-prop {
+  position: absolute !important;
+  width: 62%; height: 62%;
+  right: -46%; bottom: 0;
+}
+/* the friend's saved name rides above them */
+.obj-name {
+  position: absolute; top: -1.2em; left: 50%; transform: translateX(-50%) rotate(-2deg);
+  font: 800 13px/1.3 var(--rounded, sans-serif); font-style: normal;
+  background: #fff8e1; color: var(--story-ink);
+  border: 2px solid var(--story-ink); border-radius: 0.5em;
+  padding: 0.1em 0.5em; white-space: nowrap; z-index: 3;
+}
+
+/* type-their-name input */
+.story-name-wrap { display: grid; place-items: center; gap: 0.9rem; padding: 1.2rem 0.6rem 1.4rem; }
+.story-name-wrap .obj-friendchar { font-size: 15px; }
+.story-name-input {
+  width: min(78%, 240px);
+  font: 700 18px/1.2 inherit; text-align: center;
+  color: var(--story-ink); background: #fdf6ea;
+  border: 3px solid var(--story-ink); border-radius: 12px;
+  padding: 0.55rem 0.8rem; box-shadow: inset 0 2px 0 rgba(36, 51, 82, 0.12);
+}
+.story-name-input:focus { outline: 3px solid var(--story-blue, #4a7fb5); outline-offset: 2px; }
+
+/* number tiles: digit big, kana appears once heard */
+.story-num-row {
+  display: flex; justify-content: center; gap: 0.55rem;
+  padding: 1.3rem 0.4rem 1.5rem; flex-wrap: wrap;
+}
+.story-num {
+  min-width: 54px; padding: 0.5rem 0.4rem 0.45rem;
+  background: #fdf6ea; border: 3px solid var(--story-ink); border-radius: 14px;
+  box-shadow: 0 3px 0 var(--story-ink); cursor: pointer;
+  display: grid; gap: 0.15rem; justify-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.story-num:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--story-ink); }
+.story-num .num-digit { font: 800 26px/1 var(--mono, monospace); color: var(--story-ink); }
+.story-num .num-kana { font: 700 13px/1.2 inherit; color: transparent; min-height: 1.2em; }
+.story-num.heard { background: #eaf4ec; }
+.story-num.heard .num-kana { color: #2e7d5b; }
+
 /* onboarding tour panel art */
 .story-info-art { display: grid; place-items: center; padding: 1rem 0 1.2rem; }
 .story-info-art .obj-person-img { height: 110px; width: auto; }

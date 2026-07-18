@@ -329,6 +329,25 @@ to reveal-and-listen when unavailable.
 - Scene art is CSS-drawn (books, bags, desk, hand) + existing chibi assets. No
   external images. `HanasouStory.reset()` clears only story state (not SRS).
 
+## Identity layer (owner direction, 2026-07)
+
+- **You and your friend are characters**: `claimPerson` beats let the learner
+  pick an avatar (intro lesson, はじめまして) and a friend (l0-dakuten,
+  ともだちの でんわ) from four SVG people (`PEOPLE` in
+  interactive-learning.js); each role excludes the other's pick. The friend
+  gets a TYPED name (`nameInput` beat on おなまえは なんですか？, stored in
+  `story.friendName`, capped 12 chars) shown as a tag over their head in every
+  later scene. `objectFigure("avatar"/"friendchar")` resolves the stored
+  choice; `beat.prop` attaches a carried object (usflag, schooldesk,
+  telephone). Extend this: any my/friend sentence should show these characters.
+- **numberTap beats** (numbers lesson): tap a digit tile → もち子 says it
+  (`window.HanasouSpeak`, exposed from app.js speak) and the kana appears;
+  after all five the sentence run attaches. Age was split out of numbers into
+  the `age` lesson (〜さい, regular counting; はたち deferred — owner decision
+  2026-07: no rare forms early).
+- A one-time 4-panel welcome tour (`TOUR` in interactive-learning.js) fires
+  before the very first l0-a card — keep it to four panels, never re-fires.
+
 ## Known debt / open items (keep this list honest)
 
 - The three 〜ざるを得ない sentences contain the kanji 得 without furigana.
