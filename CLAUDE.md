@@ -319,7 +319,10 @@ to reveal-and-listen when unavailable.
   `can-do` (a car you can't drive). Abstract sentences
   (think/because/want, grammar-only morphology, keigo) stay as normal cards.
 - Scenes are CSS 3D (perspective floor + wall/counter) with an em-scaled
-  object library (book/bag/clock/cup/water/coffee/mystery/cow/octopus/cat/
+  object library — every object is inline SVG (`OBJ_SVG` in
+  interactive-learning.js, 2026-07: interim hand-drawn vector art until real
+  illustrations land; wrappers keep their em sizes so zone scaling is
+  unchanged; clock hands/book covers/cat paw are CSS-addressable SVG groups) (book/bag/clock/cup/water/coffee/mystery/cow/octopus/cat/
   star/peach/bird/flower/bigface/persimmon…) — distance is font-size. Vary objects per beat; don't make everything the same item, and
   don't make everything pointing — pick the interaction verb the sentence
   actually performs (verbs now include `coins` — pick the countable stack).

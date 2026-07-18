@@ -264,6 +264,14 @@ button.primary.story-continue {
 }
 .story-obj.wrong { animation: story-wrong 0.35s ease; }
 .obj { position: relative; display: block; }
+.obj svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* book cover motif — picked by data-design on the wrapper */
+.obj-book .bd { display: none; }
+.obj-book[data-design="circle"] .bd-circle,
+.obj-book[data-design="stripes"] .bd-stripes,
+.obj-book[data-design="window"] .bd-window { display: block; }
+/* the raised paw glows so it reads as THE thing to tap */
+.obj-cat .cat-paw { filter: drop-shadow(0 0 4px rgba(227, 181, 0, 0.75)); }
 /* soft contact shadow under every object */
 .obj::before {
   content: "";
@@ -323,12 +331,10 @@ button.primary.story-continue {
   box-shadow: inset 0 0 0 0.14em #fff;
 }
 .obj-clock .clock-hand-h, .obj-clock .clock-hand-m {
-  position: absolute; left: 50%; top: 2.4em;
-  width: 0.24em; background: var(--story-ink); border-radius: 999px;
-  transform-origin: 50% 100%;
+  transform-box: fill-box; transform-origin: 50% 100%;
 }
-.obj-clock .clock-hand-h { height: 1.1em; transform: translate(-50%, -100%) rotate(45deg); }
-.obj-clock .clock-hand-m { height: 1.6em; transform: translate(-50%, -100%) rotate(160deg); }
+.obj-clock .clock-hand-h { transform: rotate(45deg); }
+.obj-clock .clock-hand-m { transform: rotate(160deg); }
 
 /* teacup */
 .obj-cup { width: 4.6em; height: 4.4em; }
@@ -618,10 +624,10 @@ button.primary.story-continue {
 }
 
 /* clock-hand variants — beats set data-clock on the button to tell a time */
-.story-obj[data-clock="t7"] .clock-hand-h { transform: translate(-50%, -100%) rotate(-150deg); }
-.story-obj[data-clock="t7"] .clock-hand-m { transform: translate(-50%, -100%) rotate(0deg); }
-.story-obj[data-clock="t830"] .clock-hand-h { transform: translate(-50%, -100%) rotate(-105deg); }
-.story-obj[data-clock="t830"] .clock-hand-m { transform: translate(-50%, -100%) rotate(180deg); }
+.story-obj[data-clock="t7"] .clock-hand-h { transform: rotate(-150deg); }
+.story-obj[data-clock="t7"] .clock-hand-m { transform: rotate(0deg); }
+.story-obj[data-clock="t830"] .clock-hand-h { transform: rotate(-105deg); }
+.story-obj[data-clock="t830"] .clock-hand-m { transform: rotate(180deg); }
 
 /* a large indoor cow */
 .obj-cow { width: 9em; height: 6.4em; }
