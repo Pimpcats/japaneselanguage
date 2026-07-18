@@ -908,6 +908,7 @@
     else delete overlay.root.dataset.count;
     overlay.stage.className = "story-stage story-stage-" + beat.type;
     overlay.stage.innerHTML = "";
+    overlay.stage.hidden = false;
     overlay.panel.querySelectorAll(":scope > .story-answer, :scope > .story-ask").forEach((node) => node.remove());
     overlay.feedback.textContent = "";
     overlay.feedback.className = "story-feedback";
@@ -1711,6 +1712,7 @@
   function renderInfoBeat(beat, finishBeat) {
     overlay.title.textContent = beat.instruction;
     overlay.copy.textContent = beat.copy || "";
+    overlay.stage.hidden = !beat.art;   // text-only panels: no empty scene box
     if (beat.art) {
       const stageArt = el("div", "story-info-art");
       stageArt.appendChild(objectFigure(beat.art));
