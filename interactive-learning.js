@@ -351,6 +351,69 @@
         answer: { jp: "しんじゅくまで いちまい おねがいします。", romaji: "shinjuku made ichi-mai onegaishimasu", en: "One ticket to Shinjuku, please." } },
     },
 
+    // ---- Let's…: she's already at the table --------------------------
+    "lets": {
+      "Let's eat together.": { id: "lets-eat", type: "ask", scene: "room", zone: "partner", object: "sushi",
+        askLabel: "Invite her:", cta: "Say it →", feedback: "いっしょに — together.",
+        instruction: "Lunch for two",
+        copy: "もち子 is here and so is the food. Tap it and invite her.",
+        answer: { jp: "いっしょに たべましょう。", romaji: "issho ni tabemashou", en: "Let's eat together." } },
+    },
+
+    // ---- て-form: something worth pointing at ---------------------------
+    "te-form": {
+      "Look!": { id: "te-mite", type: "ask", scene: "room", zone: "near", object: "bird",
+        askLabel: "Call it:", cta: "Say it →", feedback: "みて — casual, quick.",
+        instruction: "A bird just landed",
+        copy: "Right there, right now — tap it and get her to look.",
+        answer: { jp: "みて！", romaji: "mite", en: "Look!" } },
+    },
+
+    // ---- ている: caught mid-action ----------------------------
+    "te-iru": {
+      "I'm reading a book.": { id: "teiru-book", type: "ask", scene: "room", zone: "near", object: "book",
+        askLabel: "Say what you're doing:", cta: "Say it →", feedback: "〜て います — in progress, right now.",
+        instruction: "Your book is open",
+        copy: "You're in the middle of it. Tap the book and say what you're doing.",
+        answer: { jp: "ほんを よんで います。", romaji: "hon o yonde imasu", en: "I'm reading a book." } },
+    },
+
+    // ---- Experience: ask about hers ----------------------------------------
+    "experience": {
+      "Have you ever had sushi?": { id: "exp-sushi", type: "ask", scene: "room", zone: "partner", object: "sushi",
+        askLabel: "Ask her:", cta: "Ask →", feedback: "たこと ある — ever done it?",
+        instruction: "もち子 eyes the sushi",
+        copy: "Has she ever tried it? Tap the sushi and ask.",
+        answer: { jp: "すし たべたこと ある？", romaji: "sushi tabeta koto aru?", en: "Have you ever had sushi?" } },
+    },
+
+    // ---- How far: the station is a dot on the horizon -----------------------
+    "how-far": {
+      "Is it far?": { id: "far-eki", type: "ask", scene: "street", zone: "far", object: "station",
+        askLabel: "Ask:", cta: "Ask →", feedback: "とおい — far. It looks it.",
+        instruction: "The station is way down there",
+        copy: "Tiny with distance. Tap it and ask.",
+        answer: { jp: "とおいですか？", romaji: "tooi desu ka", en: "Is it far?" } },
+    },
+
+    // ---- Not expensive: the same clock, humbled ------------------------------
+    "adj-negative": {
+      "It's not expensive.": { id: "neg-clock", type: "ask", scene: "shop", object: "clock", tag: true, tagText: "100円",
+        askLabel: "Say it:", cta: "Say it →", feedback: "たかくない — い drops, くない steps in.",
+        instruction: "That clock again — look at the tag now",
+        copy: "Once 98,000円. Today: 100円. Tap it and say what it isn't.",
+        answer: { jp: "たかくないです。", romaji: "takakunai desu", en: "It's not expensive." } },
+    },
+
+    // ---- Can't do: the car you can't drive -----------------------------------
+    "can-do": {
+      "I can't drive.": { id: "cando-car", type: "ask", scene: "street", zone: "near", object: "car",
+        askLabel: "Admit it:", cta: "Say it →", feedback: "できません — can't (yet).",
+        instruction: "Here's a car. There's a problem.",
+        copy: "No licence. Tap the car and admit it.",
+        answer: { jp: "うんてんが できません。", romaji: "unten ga dekimasen", en: "I can't drive." } },
+    },
+
     // ---- This, that & whose: a room you point around --------------------
     "this-that": {
       "What is this?": {
@@ -503,6 +566,14 @@
 
     // ---- Money & prices: read the tag, say the price ----------------------
     "money": {
+      "It's 100 yen.": { id: "coins-100", type: "coins", options: [100, 300, 500], target: 100,
+        instruction: "Which stack is 100円?",
+        copy: "Count the coins — each one is 100円.",
+        answer: { jp: "ひゃくえんです。", romaji: "hyaku-en desu", en: "It's 100 yen." } },
+      "It's 500 yen.": { id: "coins-500", type: "coins", options: [100, 300, 500], target: 500,
+        instruction: "And which stack is 500円?",
+        copy: "Count again — ひゃく, にひゃく…",
+        answer: { jp: "ごひゃくえんです。", romaji: "gohyaku-en desu", en: "It's 500 yen." } },
       "The coffee is 300 yen.": {
         id: "money-coffee", type: "order",
         items: ["coffee", "water"], target: "coffee",
@@ -736,6 +807,7 @@
     else if (beat.type === "order") renderOrderBeat(beat, finishBeat);
     else if (beat.type === "count") renderCountBeat(beat, finishBeat);
     else if (beat.type === "pick") renderPickBeat(beat, finishBeat);
+    else if (beat.type === "coins") renderCoinsBeat(beat, finishBeat);
   }
 
   function showContinue(text, finishBeat) {
@@ -1293,6 +1365,46 @@
 
   // ---- pick: two of the same thing, different SIZE — tap the right one -------
   // Wrong taps teach the opposite adjective.
+  // ---- coins: count the money — the stack you can SEE is the amount --------
+  const HUNDREDS = ["ひゃく", "にひゃく", "さんびゃく", "よんひゃく", "ごひゃく"];
+  const COIN_JP = { 100: "ひゃくえん", 300: "さんびゃくえん", 500: "ごひゃくえん", 1000: "せんえん" };
+  function coinStack(n) {
+    const fig = el("span", "obj obj-coins");
+    fig.setAttribute("aria-hidden", "true");
+    for (let i = 0; i < n; i += 1) fig.appendChild(el("i", "coin" + (i === n - 1 ? " coin-top" : "")));
+    return fig;
+  }
+  function renderCoinsBeat(beat, finishBeat) {
+    overlay.title.textContent = beat.instruction;
+    overlay.copy.textContent = beat.copy || "Count the coins — each one is 100円.";
+    const row = el("div", "story-coins-row");
+    beat.options.forEach((amount) => {
+      const n = Math.round(amount / 100);
+      const btn = el("button", "story-coin-stack");
+      btn.type = "button";
+      btn.setAttribute("aria-label", n + " hundred-yen coin" + (n > 1 ? "s" : ""));
+      btn.appendChild(coinStack(n));
+      btn.addEventListener("click", () => {
+        if (btn.disabled) return;
+        if (amount !== beat.target) {   // wrong stack: count it out loud — the error teaches
+          btn.classList.remove("wrong"); void btn.offsetWidth; btn.classList.add("wrong");
+          overlay.feedback.textContent = "Count them: " + HUNDREDS.slice(0, n).join("、") +
+            " — that’s " + (COIN_JP[amount] || amount + "円") + ". Find " + (COIN_JP[beat.target] || beat.target + "円") + ".";
+          overlay.feedback.className = "story-feedback try-again";
+          return;
+        }
+        row.querySelectorAll(".story-coin-stack").forEach((node) => { node.disabled = true; if (node !== btn) node.classList.add("dimmed"); });
+        btn.classList.add("correct");
+        attachAnswer(beat, "Now say it:");
+        overlay.feedback.textContent = (COIN_JP[beat.target] || "") + " — you counted it.";
+        overlay.feedback.className = "story-feedback success";
+        showContinue("Say it →", finishBeat);
+      });
+      row.appendChild(btn);
+    });
+    overlay.stage.appendChild(row);
+  }
+
   function renderPickBeat(beat, finishBeat) {
     overlay.title.textContent = beat.instruction;
     overlay.copy.textContent = "Same thing, different size — the adjective is the difference.";

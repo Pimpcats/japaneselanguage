@@ -284,7 +284,7 @@ to reveal-and-listen when unavailable.
   distances (by your hand / beside もち子 / far shelf). Wrong taps TEACH the
   zone word ("that one is next to もち子 — that would be それ") instead of just
   refusing. Extend this pattern: errors should teach the system.
-- Lessons with authored scenes (39): `this-that`, `shop`, `where` (the
+- Lessons with authored scenes (46): `this-that`, `shop`, `where` (the
   original three rich ones), plus `counters` (count), `cafe` (multi-order,
   menu, count), `money` (price tags), `object` (pick up what you drink/read),
   `likes`, `wants`, `adj-noun` (pick big/small), `numbers` (ask her age),
@@ -308,13 +308,21 @@ to reveal-and-listen when unavailable.
   しんじゅく). Presentation follows the sentence, not a default table (owner):
   sushi is angled so it reads as sushi, the telling-time clock fills the room,
   これは ほんです deliberately shows a NOT-your-book cover (`otherBook:true`)
-  while わたしの ほん shows the claimed one. Abstract sentences
+  while わたしの ほん shows the claimed one. Second creative sweep (owner:
+  "think creatively"): `money` gains the **coins verb** — multiple-choice
+  stacks of 100円 coins (1/3/5), the amount is something you COUNT; wrong
+  taps count the stack out loud (ひゃく、にひゃく… — that's さんびゃくえん).
+  Plus `lets` (eat together with もち子), `te-form` (bird lands → みて！),
+  `te-iru` (your open book → よんで います), `experience` (ask if she's had
+  sushi), `how-far` (station tiny on the horizon → とおいですか), 
+  `adj-negative` (the 98,000円 clock marked down to 100円 → たかくないです),
+  `can-do` (a car you can't drive). Abstract sentences
   (think/because/want, grammar-only morphology, keigo) stay as normal cards.
 - Scenes are CSS 3D (perspective floor + wall/counter) with an em-scaled
   object library (book/bag/clock/cup/water/coffee/mystery/cow/octopus/cat/
   star/peach/bird/flower/bigface/persimmon…) — distance is font-size. Vary objects per beat; don't make everything the same item, and
   don't make everything pointing — pick the interaction verb the sentence
-  actually performs.
+  actually performs (verbs now include `coins` — pick the countable stack).
 - Scene art is CSS-drawn (books, bags, desk, hand) + existing chibi assets. No
   external images. `HanasouStory.reset()` clears only story state (not SRS).
 

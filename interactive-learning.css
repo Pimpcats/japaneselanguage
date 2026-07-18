@@ -1022,6 +1022,41 @@ button.primary.story-continue {
   background: #fff; border: 2px solid rgba(31, 45, 77, 0.45); z-index: 1;
 }
 
+/* coin stacks — the amount is something you can count with your eyes.
+   Fixed font-size so every stack's coins are identical and legible. */
+.story-coins-row {
+  display: flex; justify-content: center; align-items: flex-end; gap: 1.4rem;
+  padding: 1.4rem 0.5rem 1.6rem;
+}
+.story-coin-stack {
+  background: none; border: none; padding: 0.6rem 0.5rem 0.9rem; cursor: pointer;
+  border-radius: 14px;
+  -webkit-tap-highlight-color: transparent;
+}
+.story-coin-stack:disabled { opacity: 1; }
+.story-coin-stack.dimmed { opacity: 0.35; filter: grayscale(0.5); }
+.story-coin-stack.correct { transform: translateY(-4px); filter: drop-shadow(0 0 9px rgba(46, 125, 91, 0.55)); }
+.story-coin-stack.wrong { animation: story-wrong 0.35s ease; }
+.obj-coins { position: relative; display: block; width: 4.6em; height: 4.4em; font-size: 16px; }
+.obj-coins .coin {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  width: 4.2em; height: 1.5em;
+  background: linear-gradient(180deg, #f0e7c8, #d8c99c);
+  border: 2px solid rgba(31, 45, 77, 0.7);
+  border-radius: 50%;
+}
+.obj-coins .coin:nth-child(1) { bottom: 0; }
+.obj-coins .coin:nth-child(2) { bottom: 0.55em; }
+.obj-coins .coin:nth-child(3) { bottom: 1.1em; }
+.obj-coins .coin:nth-child(4) { bottom: 1.65em; }
+.obj-coins .coin:nth-child(5) { bottom: 2.2em; }
+.obj-coins .coin-top::after {
+  content: "100"; position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font: 800 0.72em/1 var(--mono, monospace); color: rgba(31, 45, 77, 0.6);
+  font-style: normal;
+}
+
 /* a little table for things to sit on, centre of the room */
 .scene-zone-table {
   left: 50%; transform: translateX(-50%);
