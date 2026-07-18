@@ -948,6 +948,12 @@ button.primary.story-continue {
 .story-bchip.wrong { animation: story-wrong 0.35s ease; }
 .story-bchip.hint { outline: 3px solid #e3b500; outline-offset: 2px; }
 
+/* back/home stay reachable above any open beat. In practice the visible
+   controls are the floating practice-nav circles (the header hides in car
+   mode) — raise both above the overlay. */
+body.story-open #app-header { position: relative; z-index: 4500; }
+body.story-open .practice-nav { z-index: 4500; }
+
 /* the walkthrough card — a working example, spotlighted region by region */
 .story-stage-cardDemo {
   display: block; padding: 0.6rem 0.4rem 0.6rem;

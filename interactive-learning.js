@@ -898,6 +898,7 @@
     if (!beat || overlayOpen) return false;
     overlayOpen = true;
     document.body.classList.add("story-open");
+
     renderBeat(beat, onDone);
     return true;
   }
@@ -971,6 +972,13 @@
       if (window.HanasouSpeak) window.HanasouSpeak(beat.answer.jp);
     }
   }
+
+  // The header back/home buttons stay tappable above the overlay (CSS) and
+  // dismiss any open beat so navigation never gets trapped behind a scene.
+  document.addEventListener("click", (event) => {
+    const btn = event.target.closest && event.target.closest("#back-btn, #home-btn, .practice-nav-btn");
+    if (btn && document.body.classList.contains("story-open")) closeOverlay();
+  }, true);
 
   const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -1884,6 +1892,12 @@
       }
       if (!beat) return false;
       return openBeat(beat, null);
+    },
+    // Replay the welcome tour + first sound panel (Settings button).
+    replayTour: function () {
+      delete story.completed["tour-1"];
+      delete story.soundsSeen["l0-a"];
+      saveStory();
     },
     // Dev helper: clear ONLY the story inventory (not lesson/SRS progress).
     getState: () => JSON.parse(JSON.stringify(story)),

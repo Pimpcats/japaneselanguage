@@ -1567,6 +1567,13 @@
   // Station identity for a lesson — line colour/letter, station number within
   // its level, name + romaji, and progress. Lets the "Recommended next" banner
   // (built in ui-polish.js) replicate the station-sign card it leads to.
+  const replayTourBtn = document.getElementById("replay-tour-btn");
+  if (replayTourBtn) replayTourBtn.addEventListener("click", () => {
+    if (window.HanasouStory && HanasouStory.replayTour) HanasouStory.replayTour();
+    const first = window.LESSONS.find((x) => x.id === "l0-a");
+    if (first) startLesson(first);
+  });
+
   window.HanasouSpeak = (text) => speak(text);   // story beats tap-to-hear (numbers, kana)
   // The folded-in "new sounds" panel (interactive-learning.js) reads each
   // lesson's newly introduced kana + romaji from here.
