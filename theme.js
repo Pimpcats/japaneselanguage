@@ -151,9 +151,10 @@
   // ---- recorded reward sounds (mp3 assets) with synth fallback ------------
   // Real produced sounds the user drops into assets/. If a file is missing or
   // can't play (offline before first fetch), we fall back to the synth jingle.
+  // One sound only (owner, 2026-07): the cozy platform chime on lesson
+  // complete. No correct-answer sound, no synth fallback.
   const SFX = {
-    correct:  { url: A + "sfx-correct.mp3",         vol: 0.6 },
-    complete: { url: A + "sfx-lesson-complete.mp3", vol: 0.65 },
+    complete: { url: A + "sfx-chime.wav", vol: 0.65 },
   };
   function playSample(spec, fallback) {
     let fell = false;
@@ -166,8 +167,7 @@
       if (pr && pr.catch) pr.catch(fb);
     } catch (e) { fb(); }
   }
-  const playCorrect  = () => playSample(SFX.correct, jingle);
-  const playComplete = () => playSample(SFX.complete, jingle);
+  const playComplete = () => playSample(SFX.complete, null);
 
   // ------------------------------------------------------------- confetti --
   const COLORS = ["#ef6fa7", "#f8a8c6", "#f2be45", "#79c8ec", "#3e8e41", "#fff"];
@@ -211,7 +211,7 @@
       const g = +grade.dataset.grade;
       const [pose, say] = GRADE_REACT[g] || GRADE_REACT[1];
       react(pose, say);
-      if (g === 2) { stampCard(); playCorrect(); confetti(); }   // got it → upgrade sound
+      if (g === 2) { stampCard(); confetti(); }   // got it → visual only (owner: chime only)
       else pop(g === 0 ? 300 : 480);
       return;
     }
@@ -229,7 +229,7 @@
       }
       if (buildAnswer.classList.contains("solved") && !buildAnswer.dataset.cheered) {
         buildAnswer.dataset.cheered = "1";
-        stampCard(); playCorrect(); confetti(); react("cheer", "かんせい！|Kansei!");
+        stampCard(); confetti(); react("cheer", "かんせい！|Kansei!");
       }
       if (!buildAnswer.classList.contains("solved")) delete buildAnswer.dataset.cheered;
     }).observe(buildAnswer, { childList: true, attributes: true, attributeFilter: ["class"] });
