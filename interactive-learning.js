@@ -89,6 +89,10 @@
       instruction: "One symbol, one sound",
       copy: "Japanese is written in kana. Each symbol is always the same sound — no surprises. This level teaches five a day, and the abc letters stay above every kana until you know it. They fade as you learn.",
       cta: "Next →",
+      next: { id: "tour-structure", type: "info",
+        instruction: "How sentences work",
+        copy: "Japanese sentences are little stacks. Name your topic and mark it with は (written ha, always SAID wa): ねこは しろい — cat + wa + white = the cat is white. Polite sentences add です at the end. You'll meet each piece one lesson at a time.",
+        cta: "Next →",
       next: { id: "tour-3", type: "info",
         instruction: "The card",
         copy: "Tap the sheet to reveal and hear the answer — tap again to replay. Swipe right when you got it, left to see it again sooner. That is the whole system: no streaks, no timers, no pressure.",
@@ -97,7 +101,7 @@
           instruction: "The world taps back",
           copy: "Sometimes the room comes alive — a shop, a street, a thing to point at. Do the action, then say the line. Acting it out is how words stick.",
           cta: "Start →",
-          next: HOUSE_BEAT } } } };
+          next: HOUSE_BEAT } } } } };
 
   const BEFORE_PROMPT = {
     // ---- Level 0 · か row: see the remarkable thing, call it out ----------

@@ -89,6 +89,7 @@ window.LESSONS = [
       { jp: "あい", romaji: "ai", en: "love", pos: "n" },
       { jp: "いい", romaji: "ii", en: "good", pos: "adj" },
       { jp: "あおい", romaji: "aoi", en: "blue", pos: "adj" },
+      { jp: "ええ", romaji: "ee", en: "yeah (casual yes)", pos: "expr" },
       { jp: "いいえ", romaji: "iie", en: "no", pos: "expr" },
     ],
     sentences: [
@@ -96,6 +97,12 @@ window.LESSONS = [
         words: [{jp:"いい",en:"good",pos:"adj"},{jp:"いえ",en:"house",pos:"n"}] },
       { en: "No.", jp: "いいえ。", romaji: "iie.",
         words: [{jp:"いいえ",en:"no",pos:"expr"}] },
+      { en: "A blue house!", jp: "あおい いえ！", romaji: "aoi ie!",
+        words: [{jp:"あおい",en:"blue",pos:"adj"},{jp:"いえ",en:"house",pos:"n"}] },
+      { en: "Up!", jp: "うえ！", romaji: "ue!",
+        words: [{jp:"うえ",en:"up / above",pos:"n"}] },
+      { en: "Yeah.", jp: "ええ。", romaji: "ee.",
+        words: [{jp:"ええ",en:"yeah",pos:"expr"}] },
     ],
   },
   {
@@ -121,6 +128,8 @@ window.LESSONS = [
         words: [{jp:"いい",en:"good",pos:"adj"},{jp:"こえ",en:"voice",pos:"n"}] },
       { en: "A big chrysanthemum!", jp: "おおきい きく！", romaji: "ookii kiku!",
         words: [{jp:"おおきい",en:"big",pos:"adj"},{jp:"きく",en:"chrysanthemum",pos:"n"}] },
+      { en: "A big pond!", jp: "おおきい いけ！", romaji: "ookii ike!",
+        words: [{jp:"おおきい",en:"big",pos:"adj"},{jp:"いけ",en:"pond",pos:"n"}] },
     ],
   },
   {
@@ -148,6 +157,8 @@ window.LESSONS = [
         words: [{jp:"おおきい",en:"big",pos:"adj"},{jp:"せかい",en:"world",pos:"n"}] },
       { en: "No way!", jp: "うそ！", romaji: "uso!",
         words: [{jp:"うそ",en:"no way!",pos:"expr"}] },
+      { en: "A nice morning!", jp: "いい あさ！", romaji: "ii asa!",
+        words: [{jp:"いい",en:"good",pos:"adj"},{jp:"あさ",en:"morning",pos:"n"}] },
     ],
   },
   {
@@ -174,6 +185,8 @@ window.LESSONS = [
         words: [{jp:"いつ",en:"when",pos:"expr"}] },
       { en: "A small hand!", jp: "ちいさい て！", romaji: "chiisai te!",
         words: [{jp:"ちいさい",en:"small",pos:"adj"},{jp:"て",en:"hand",pos:"n"}] },
+      { en: "Tasty octopus!", jp: "おいしい たこ！", romaji: "oishii tako!",
+        words: [{jp:"おいしい",en:"tasty",pos:"adj"},{jp:"たこ",en:"octopus",pos:"n"}] },
     ],
   },
   {
@@ -194,6 +207,10 @@ window.LESSONS = [
         words: [{jp:"いぬ",en:"dog",pos:"n"},{jp:"の",en:"[of]",pos:"prt"},{jp:"かお",en:"face",pos:"n"}] },
       { en: "What?", jp: "なに？", romaji: "nani?",
         words: [{jp:"なに",en:"what",pos:"expr"}] },
+      { en: "The cat's paw!", jp: "ねこの て！", romaji: "neko no te!",
+        words: [{jp:"ねこ",en:"cat",pos:"n"},{jp:"の",en:"'s",pos:"prt"},{jp:"て",en:"hand / paw",pos:"n"}] },
+      { en: "The dog's house!", jp: "いぬの いえ！", romaji: "inu no ie!",
+        words: [{jp:"いぬ",en:"dog",pos:"n"},{jp:"の",en:"'s",pos:"prt"},{jp:"いえ",en:"house",pos:"n"}] },
     ],
   },
   {
@@ -222,6 +239,8 @@ window.LESSONS = [
         words: [{jp:"はい",en:"yes",pos:"expr"}] },
       { en: "A tiny belly button!", jp: "ちいさい おへそ！", romaji: "chiisai oheso!",
         words: [{jp:"ちいさい",en:"small",pos:"adj"},{jp:"おへそ",en:"belly button",pos:"n"}] },
+      { en: "A nice person!", jp: "いい ひと！", romaji: "ii hito!",
+        words: [{jp:"いい",en:"good",pos:"adj"},{jp:"ひと",en:"person",pos:"n"}] },
     ],
   },
   {
@@ -236,6 +255,7 @@ window.LESSONS = [
       { jp: "あめ", romaji: "ame", en: "rain / candy", pos: "n" },
       { jp: "うみ", romaji: "umi", en: "sea", pos: "n" },
       { jp: "むし", romaji: "mushi", en: "insect", pos: "n" },
+      { jp: "め", romaji: "me", en: "eye", pos: "n" },
     ],
     sentences: [
       { en: "The sea is blue.", jp: "うみは あおい。", romaji: "umi wa aoi.",
@@ -244,6 +264,10 @@ window.LESSONS = [
         words: [{jp:"まち",en:"town",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ちいさい",en:"small",pos:"adj"}] },
       { en: "The peach is tasty.", jp: "ももは おいしい。", romaji: "momo wa oishii.",
         words: [{jp:"もも",en:"peach",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"おいしい",en:"tasty",pos:"adj"}] },
+      { en: "The bug is small.", jp: "むしは ちいさい。", romaji: "mushi wa chiisai.",
+        words: [{jp:"むし",en:"bug",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ちいさい",en:"small",pos:"adj"}] },
+      { en: "The eyes are big.", jp: "めは おおきい。", romaji: "me wa ookii.",
+        words: [{jp:"め",en:"eye",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"おおきい",en:"big",pos:"adj"}] },
     ],
   },
   {
@@ -255,6 +279,9 @@ window.LESSONS = [
       { jp: "やま", romaji: "yama", en: "mountain", pos: "n" },
       { jp: "ふゆ", romaji: "fuyu", en: "winter", pos: "n" },
       { jp: "つよい", romaji: "tsuyoi", en: "strong", pos: "adj" },
+      { jp: "やさい", romaji: "yasai", en: "vegetables", pos: "n" },
+      { jp: "ゆき", romaji: "yuki", en: "snow", pos: "n" },
+      { jp: "つめたい", romaji: "tsumetai", en: "cold (to the touch)", pos: "adj" },
       { jp: "さむい", romaji: "samui", en: "cold", pos: "adj" },
     ],
     sentences: [
@@ -262,6 +289,12 @@ window.LESSONS = [
         words: [{jp:"やま",en:"mountain",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"たかい",en:"tall",pos:"adj"}] },
       { en: "Winter is cold.", jp: "ふゆは さむい。", romaji: "fuyu wa samui.",
         words: [{jp:"ふゆ",en:"winter",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"さむい",en:"cold",pos:"adj"}] },
+      { en: "The vegetables are tasty.", jp: "やさいは おいしい。", romaji: "yasai wa oishii.",
+        words: [{jp:"やさい",en:"vegetables",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"おいしい",en:"tasty",pos:"adj"}] },
+      { en: "The snow is cold.", jp: "ゆきは つめたい。", romaji: "yuki wa tsumetai.", hint: "つめたい = cold to the touch",
+        words: [{jp:"ゆき",en:"snow",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"つめたい",en:"cold (touch)",pos:"adj"}] },
+      { en: "A strong cow!", jp: "つよい うし！", romaji: "tsuyoi ushi!",
+        words: [{jp:"つよい",en:"strong",pos:"adj"},{jp:"うし",en:"cow",pos:"n"}] },
     ],
   },
   {
@@ -284,6 +317,10 @@ window.LESSONS = [
         words: [{jp:"それ",en:"that",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"くるま",en:"car",pos:"n"}] },
       { en: "The cherry blossoms are white.", jp: "さくらは しろい。", romaji: "sakura wa shiroi.",
         words: [{jp:"さくら",en:"cherry blossom",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"しろい",en:"white",pos:"adj"}] },
+      { en: "That (over there) is a mountain.", jp: "あれは やま。", romaji: "are wa yama.",
+        words: [{jp:"あれ",en:"that (far)",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"やま",en:"mountain",pos:"n"}] },
+      { en: "This is a cherry blossom.", jp: "これは さくら。", romaji: "kore wa sakura.",
+        words: [{jp:"これ",en:"this",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"さくら",en:"cherry blossom",pos:"n"}] },
     ],
   },
   {
@@ -303,6 +340,10 @@ window.LESSONS = [
         words: [{jp:"わたし",en:"I",pos:"n"},{jp:"の",en:"[of]",pos:"prt"},{jp:"ねこ",en:"cat",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"しろい",en:"white",pos:"adj"}] },
       { en: "Japan is far away.", jp: "にほんは とおい。", romaji: "nihon wa tooi.",
         words: [{jp:"にほん",en:"Japan",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"とおい",en:"far",pos:"adj"}] },
+      { en: "My hand!", jp: "わたしの て！", romaji: "watashi no te!",
+        words: [{jp:"わたし",en:"I / me",pos:"n"},{jp:"の",en:"'s",pos:"prt"},{jp:"て",en:"hand",pos:"n"}] },
+      { en: "My house is small.", jp: "わたしの いえは ちいさい。", romaji: "watashi no ie wa chiisai.",
+        words: [{jp:"わたし",en:"I / me",pos:"n"},{jp:"の",en:"'s",pos:"prt"},{jp:"いえ",en:"house",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ちいさい",en:"small",pos:"adj"}] },
     ],
   },
   {
@@ -325,6 +366,10 @@ window.LESSONS = [
         words: [{jp:"えいが",en:"movie",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"たのしい",en:"fun",pos:"adj"},{jp:"です",en:"is",pos:"cop"}] },
       { en: "My friend's telephone.", jp: "ともだちの でんわ。", romaji: "tomodachi no denwa.",
         words: [{jp:"ともだち",en:"friend",pos:"n"},{jp:"の",en:"[of]",pos:"prt"},{jp:"でんわ",en:"telephone",pos:"n"}] },
+      { en: "The window is big.", jp: "まどは おおきいです。", romaji: "mado wa ookii desu.",
+        words: [{jp:"まど",en:"window",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"おおきい",en:"big",pos:"adj"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "This is bread.", jp: "これは ぱんです。", romaji: "kore wa pan desu.",
+        words: [{jp:"これ",en:"this",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ぱん",en:"bread",pos:"n"},{jp:"です",en:"is",pos:"cop"}] },
     ],
   },
   // ============================================================
