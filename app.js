@@ -1568,6 +1568,10 @@
   // its level, name + romaji, and progress. Lets the "Recommended next" banner
   // (built in ui-polish.js) replicate the station-sign card it leads to.
   window.HanasouSpeak = (text) => speak(text);   // story beats tap-to-hear (numbers, kana)
+  // The folded-in "new sounds" panel (interactive-learning.js) reads each
+  // lesson's newly introduced kana + romaji from here.
+  window.__hanaNewKana = (lessonId) =>
+    (LESSON_NEW_KANA[lessonId] || []).map((ch) => [ch, (KANA_INDEX.get(ch) || {}).romaji || ""]);
   window.__hanaStationInfo = function (lessonId) {
     const L = lessonById[lessonId];
     if (!L) return null;
@@ -1731,10 +1735,8 @@
           b.addEventListener("click", (e) => { e.stopPropagation(); activeLesson = L; fn(); });
           acts.appendChild(b);
         };
-        mkAct("act-words", "📖", "Words", () => openIntro(L));
         mkAct("act-practice", "▶", "Ride", () => startLesson(L));
         mkAct("act-catchup", "🔁", "Catch up", startCatchup);
-        mkAct("act-build", "🧩", "Build", () => startLesson(L, { build: true }));
         card.appendChild(acts);
 
         card.addEventListener("click", () => { activeLesson = L; startLesson(L); });
@@ -2145,7 +2147,11 @@
     // learning.js). It overlays the just-rendered card; dismissing it reveals
     // the normal card underneath, fully intact. No-op if no beat applies.
     if (window.HanasouStory && HanasouStory.beforeCard) {
-      HanasouStory.beforeCard({ en: s.en, jp: s.jp, lessonId: session.lessonId, mode: session.mode, build: !!session.build, drive: !!settings.driveMode });
+      const pc = prog.cards[current.id];
+      HanasouStory.beforeCard({ en: s.en, jp: s.jp, romaji: s.romaji, words: s.words || [],
+        lessonId: session.lessonId, mode: session.mode, build: !!session.build,
+        drive: !!settings.driveMode, warmup: !!current.warmup,
+        lastGrade: pc ? lastGradeOf(pc) : null });
     }
   }
 

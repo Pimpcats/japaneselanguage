@@ -921,6 +921,33 @@ button.primary.story-continue {
 .story-num.heard { background: #eaf4ec; }
 .story-num.heard .num-kana { color: #2e7d5b; }
 
+/* build-as-repair: assemble the missed sentence */
+.story-build-line {
+  min-height: 2.6em;
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.35rem;
+  padding: 0.9rem 0.6rem 0.4rem;
+  font-size: 20px; font-weight: 700; color: var(--story-ink);
+}
+.story-bword {
+  background: #eaf4ec; border: 2px solid rgba(46, 125, 91, 0.55); border-radius: 0.4em;
+  padding: 0.08em 0.35em;
+}
+.story-build-bank {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem;
+  padding: 0.6rem 0.5rem 1.4rem;
+}
+.story-bchip {
+  font: 700 19px/1.2 inherit; color: var(--story-ink);
+  background: #fdf6ea; border: 3px solid var(--story-ink); border-radius: 12px;
+  box-shadow: 0 3px 0 var(--story-ink);
+  padding: 0.35em 0.55em; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.story-bchip:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--story-ink); }
+.story-bchip.placed { opacity: 0.25; box-shadow: none; }
+.story-bchip.wrong { animation: story-wrong 0.35s ease; }
+.story-bchip.hint { outline: 3px solid #e3b500; outline-offset: 2px; }
+
 /* onboarding tour panel art */
 .story-info-art { display: grid; place-items: center; padding: 1rem 0 1.2rem; }
 .story-info-art .obj-person-img { height: 110px; width: auto; }

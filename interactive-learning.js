@@ -17,6 +17,7 @@
   "use strict";
 
   const STORAGE_KEY = "hanasou.story.v1";
+  let builtThisSession = false;
 
   // ---- the learner's claimable items ---------------------------------------
   const PEOPLE = [
@@ -820,6 +821,7 @@
   const story = loadStory();
   story.inventory = story.inventory || {};
   story.completed = story.completed || {};
+  story.soundsSeen = story.soundsSeen || {};
 
   let overlayOpen = false;
   const shownThisSession = new Set();
@@ -935,6 +937,8 @@
     else if (beat.type === "claimPerson") renderClaimPersonBeat(beat, finishBeat);
     else if (beat.type === "nameInput") renderNameInputBeat(beat, finishBeat);
     else if (beat.type === "numberTap") renderNumberTapBeat(beat, finishBeat);
+    else if (beat.type === "sounds") renderSoundsBeat(beat, finishBeat);
+    else if (beat.type === "build") renderBuildBeat(beat, finishBeat);
   }
 
   function showContinue(text, finishBeat) {
@@ -1634,6 +1638,75 @@
     overlay.stage.appendChild(row);
   }
 
+  // ---- sounds: this lesson's new kana, tap to hear (the folded-in Words) ---
+  function renderSoundsBeat(beat, finishBeat) {
+    overlay.title.textContent = "New sounds today";
+    overlay.copy.textContent = "Tap each one — もち子 says it. The abc stays over every kana until you know it.";
+    const row = el("div", "story-num-row");
+    const heard = new Set();
+    beat.tiles.forEach(([kana, romaji]) => {
+      const btn = el("button", "story-num");
+      btn.type = "button";
+      btn.setAttribute("aria-label", romaji || kana);
+      btn.appendChild(el("span", "num-digit", kana));
+      btn.appendChild(el("span", "num-kana", romaji));
+      btn.addEventListener("click", () => {
+        btn.classList.add("heard");
+        if (window.HanasouSpeak) window.HanasouSpeak(kana);
+        heard.add(kana);
+        if (heard.size === beat.tiles.length) {
+          story.soundsSeen[beat.lessonId] = true;
+          saveStory();
+          overlay.feedback.textContent = "That's all of today's sounds.";
+          overlay.feedback.className = "story-feedback success";
+          showContinue("Start →", finishBeat);
+        }
+      });
+      row.appendChild(btn);
+    });
+    overlay.stage.appendChild(row);
+  }
+
+  // ---- build: assemble the sentence you missed, chip by chip ----------------
+  function renderBuildBeat(beat, finishBeat) {
+    overlay.title.textContent = "Rebuild this one";
+    overlay.copy.textContent = "You missed it last time. Tap the words in order — then say it.";
+    const line = el("div", "story-build-line");
+    const bank = el("div", "story-build-bank");
+    let nextIdx = 0, misses = 0;
+    const chips = beat.words.map((w, i) => {
+      const chip = el("button", "story-bchip", w.jp);
+      chip.type = "button";
+      chip.dataset.pos = String(i);
+      chip.addEventListener("click", () => {
+        if (chip.disabled) return;
+        if (i !== nextIdx) {              // wrong order: shake; repeated misses point at the next chip
+          chip.classList.remove("wrong"); void chip.offsetWidth; chip.classList.add("wrong");
+          misses += 1;
+          if (misses >= 2) {
+            const hint = chips[nextIdx];
+            hint.classList.remove("hint"); void hint.offsetWidth; hint.classList.add("hint");
+          }
+          return;
+        }
+        misses = 0;
+        chip.disabled = true;
+        chip.classList.add("placed");
+        line.appendChild(el("span", "story-bword", w.jp));
+        nextIdx += 1;
+        if (nextIdx === beat.words.length) {
+          attachAnswer(beat, "Rebuilt — now say it:");
+          overlay.feedback.textContent = "That's the shape of it.";
+          overlay.feedback.className = "story-feedback success";
+          showContinue("Say it →", finishBeat);
+        }
+      });
+      return chip;
+    });
+    chips.map((c) => [Math.random(), c]).sort((a, b) => a[0] - b[0]).forEach(([, c]) => bank.appendChild(c));
+    overlay.stage.append(line, bank);
+  }
+
   // ---- info: onboarding panels — no interaction, just orientation ----------
   function renderInfoBeat(beat, finishBeat) {
     overlay.title.textContent = beat.instruction;
@@ -1698,6 +1771,7 @@
     onSession: function (_mode, _lessonId, _build) {
       if (overlayOpen) closeOverlay();
       shownThisSession.clear();
+      builtThisSession = false;
     },
     // After a successful self-grade. Returns true if it takes over the flow
     // (it will call `done` when the learner finishes); false to advance now.
@@ -1711,8 +1785,31 @@
     // dismissing reveals the intact card underneath.
     beforeCard: function (info) {
       if (!info || info.mode !== "lesson" || info.build || info.drive) return false;   // 🚗 drive = flashcards only
-      const beat = resolveBeat(BEFORE_PROMPT, info.lessonId, info.en);
-      if (shouldSkip(beat)) return false;
+      let beat = resolveBeat(BEFORE_PROMPT, info.lessonId, info.en);
+      if (shouldSkip(beat)) beat = null;
+      // Build-as-repair (owner: Build is folded into the flow, 2026-07): a
+      // sentence you MISSED last time comes back as an assemble-it-first
+      // puzzle, then the untouched speaking card. Never on first sight, never
+      // on warmup rides, at most one per session.
+      if (!beat && !info.warmup && info.lastGrade !== null && info.lastGrade <= 1 &&
+          info.words && info.words.length >= 3 && !builtThisSession) {
+        builtThisSession = true;
+        beat = { id: "build:" + info.jp, type: "build",
+          words: info.words, answer: { jp: info.jp, romaji: info.romaji, en: info.en } };
+      }
+      // Folded-in alphabet (owner: the Words section is gone, 2026-07): the
+      // first time a Level 0 lesson runs, its NEW sounds appear as tap-to-hear
+      // tiles before the first card. Romaji-over-kana handles "during";
+      // this is the "before".
+      if (/^l0-/.test(info.lessonId) && !story.soundsSeen[info.lessonId] &&
+          window.__hanaNewKana) {
+        const tiles = window.__hanaNewKana(info.lessonId);
+        if (tiles.length) {
+          beat = { id: "sounds:" + info.lessonId, type: "sounds",
+            lessonId: info.lessonId, tiles: tiles, next: beat || undefined };
+        }
+      }
+      if (!beat) return false;
       return openBeat(beat, null);
     },
     // Dev helper: clear ONLY the story inventory (not lesson/SRS progress).

@@ -246,13 +246,20 @@ to reveal-and-listen when unavailable.
   match on title/section/grammar/vocab, stable per-id fallback) on a per-theme
   wash, with the title on a soft bottom caption and a ▶/✓ corner flag. Covers
   are heuristic and OVERRIDABLE — `L.cover` (emoji) or `L.image` (a real photo
-  path) pins any lesson. Along the bottom of each card is a **four-launcher row**
-  (owner: "a great way to jump into the different ways to practice", 2026-07):
-  📖 Words · ▶ Practice · 🎭 Talk · 🧩 Build. Tapping the *picture* jumps
-  straight into Practice; the buttons launch each activity. The lesson-intro
-  screen (`openIntro`/`#lesson-intro`) is now **opt-in behind 📖 Words only** —
-  never force it on a card tap (that was the owner's complaint: it used to gate
-  every tap). The old `.lesson-chip` grid and the Japan-map/road-of-nodes
+  path) pins any lesson. Along the bottom of each card is a launcher row —
+  now just ▶ Ride · 🔁 Catch up (owner, 2026-07: 📖 Words and 🧩 Build are
+  FOLDED INTO the lesson flow, not separate destinations — see below; 🎭 Talk
+  was replaced by Catch up earlier). Tapping the *picture* jumps straight into
+  Practice. The lesson-intro screen (`openIntro`) is now unreachable from
+  cards (kept in code); never resurrect it as a gate.
+  **Folded-in alphabet**: the first run of any Level 0 lesson opens with a
+  "New sounds today" panel — its newly-introduced kana as tap-to-hear tiles
+  (`sounds` beat, data via `window.__hanaNewKana`, seen-state in
+  `story.soundsSeen`). Romaji-over-kana remains the "during".
+  **Build-as-repair**: a sentence missed last time (lastGrade ≤ 1, ≥3 words,
+  not a warmup ride, no other beat on the card, max one per session) comes
+  back as an assemble-the-chips puzzle (`build` beat) before its speaking
+  card. Build is no longer a separate mode entry. The old `.lesson-chip` grid and the Japan-map/road-of-nodes
   journey are RETIRED. "Ahead" cards are styling only — every lesson stays tappable.
 - The Donkey-Kong-style map plan (`docs/ART_ROADMAP.md`, panels for
   `assets/map/`) is ON HOLD pending the owner rethinking the map — ask before
