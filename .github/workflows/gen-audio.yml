@@ -60,8 +60,12 @@ jobs:
             # usual "Reload" banner for the new audio — same as any other
             # update — instead of slipping it in silently.
             perl -i -pe 's/(hanasou-v)(\d+)/$1 . ($2 + 1)/e' sw.js
-            echo "Service worker bumped to: $(grep -o 'hanasou-v[0-9]*' sw.js)"
-            git add audio sw.js
+            # Keep index.html's ?v= stamps in lockstep — the lessons linter
+            # (and the deploy gate) require the two to match exactly.
+            NEWV=$(grep -o 'hanasou-v[0-9]*' sw.js | grep -o '[0-9]*')
+            perl -i -pe "s/\?v=\d+/?v=$NEWV/g" index.html
+            echo "Service worker + index bumped to: v$NEWV"
+            git add audio sw.js index.html
             git commit -m "Regenerate audio clips"
             # The synth takes minutes — the branch often moves underneath us.
             # Rebase our clip commit on whatever landed and retry, instead of
