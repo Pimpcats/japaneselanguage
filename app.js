@@ -676,7 +676,7 @@
     "ちいさい": "warp-small", "ちいさな": "warp-small",
     // たかい is dual-meaning and resolved by gloss in warpClass:
     // "tall" stands tall, "expensive" shines gold.
-    "やすい": "warp-cheap",         // sits small and low
+    "やすい": "warp-cheap",         // wears a yellow bargain sticker
     "ながい": "warp-long",
     "とおい": "warp-far",
     "ちかい": "warp-near",

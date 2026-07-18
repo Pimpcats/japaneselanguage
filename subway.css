@@ -365,7 +365,21 @@ body.drive-mode .wc-emoji { font-size: 1.7rem; margin-bottom: 0.18rem; }
    via scaleX — which only shrinks inward — so it can never paint over the
    content above or beside it. */
 .warp-tall { display: inline-block; font-size: 1.3em; transform: scaleX(0.74); transform-origin: 50% 100%; }
-.warp-cheap { font-size: 0.78em; opacity: 0.85; vertical-align: bottom; }
+/* Answer word-blocks wrap as whole words — a pill must never split mid-word
+   (です breaking into で／す reads as two words). */
+#answer-kana .ck { white-space: nowrap; }
+
+/* やすい — a bargain: the yellow discount sticker slapped on at the market.
+   Overrides the adjective's purple tint the same way warp-gold does — the
+   sticker IS the meaning. */
+.warp-cheap {
+  display: inline-block;
+  background: linear-gradient(180deg, #ffe27a, #ffd43e) !important;
+  border-color: #d9a800 !important;
+  color: #b3401f !important;
+  transform: rotate(-2.5deg);
+  box-shadow: 0 2px 0 rgba(31, 45, 77, 0.22);
+}
 .warp-long { letter-spacing: 0.32em; }
 .warp-far { font-size: 0.7em; opacity: 0.55; }
 .warp-near { font-size: 1.18em; }
