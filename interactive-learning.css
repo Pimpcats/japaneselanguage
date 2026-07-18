@@ -1046,24 +1046,28 @@ button.primary.story-continue {
 .scene-table::before { left: 1em; }
 .scene-table::after { right: 1em; }
 
-/* the shop price tag with a ? */
+/* the shop price tag — FIXED pixel size so the price is readable at any
+   object distance (em would shrink it with the zone scale; the owner could
+   not read 100\u5186 on a phone) */
 .obj-tag {
-  position: absolute; top: -1.1em; right: -1.7em;
-  width: 1.9em; height: 1.4em;
-  background: #fff1c9; border: 2px solid rgba(31, 45, 77, 0.65);
-  border-radius: 0.25em;
-  transform: rotate(12deg);
+  position: absolute; top: -1.15em; right: -1.4em;
+  font-size: 16px;
+  width: auto; min-width: 2.2em; height: 1.5em;
+  padding: 0 0.3em;
+  background: #fff8e1; border: 2px solid var(--story-ink);
+  border-radius: 0.3em;
+  transform: rotate(10deg);
+  box-shadow: 0 2px 0 rgba(31, 45, 77, 0.25);
   font-style: normal;
+  z-index: 3;
 }
 .obj-tag::before {
-  content: ""; position: absolute; left: -0.8em; top: 0.55em; width: 0.9em; height: 2px;
+  content: ""; position: absolute; left: -0.7em; top: 0.6em; width: 0.8em; height: 2px;
   background: rgba(31, 45, 77, 0.55); transform: rotate(-24deg);
 }
-.obj-tag { width: auto; min-width: 1.9em; padding: 0 0.25em; }
+.obj-tag { display: inline-grid; place-items: center; }   /* size to the price text */
 .obj-tag-txt {
-  position: absolute; inset: 0;
-  display: grid; place-items: center;
-  font: 800 0.8em/1 var(--mono, monospace); color: var(--story-ink);
+  font: 800 0.95em/1 var(--mono, monospace); color: var(--story-ink);
   font-style: normal; white-space: nowrap;
 }
 
