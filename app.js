@@ -1570,10 +1570,19 @@
   window.HanasouSpeak = (text) => speak(text);   // story beats tap-to-hear (numbers, kana)
   // The folded-in "new sounds" panel (interactive-learning.js) reads each
   // lesson's newly introduced kana + romaji from here.
+  // Row lessons PROMISE their whole row (owner: the さ lesson must show all
+  // five). The panel uses the row itself; content-computed introductions
+  // still drive romaji fading. を appears here long before content can use it.
+  const L0_ROWS = {
+    "l0-a": "あいうえお", "l0-ka": "かきくけこ", "l0-sa": "さしすせそ",
+    "l0-ta": "たちつてと", "l0-na": "なにぬねの", "l0-ha": "はひふへほ",
+    "l0-ma": "まみむめも", "l0-ya": "やゆよ", "l0-ra": "らりるれろ",
+    "l0-wa": "わをん",
+  };
   window.__hanaNewKana = (lessonId) => {
     const order = [...KANA_INDEX.keys()];   // KANA rows insert in gojūon order
-    return (LESSON_NEW_KANA[lessonId] || [])
-      .slice()
+    const chars = L0_ROWS[lessonId] ? [...L0_ROWS[lessonId]] : (LESSON_NEW_KANA[lessonId] || []).slice();
+    return chars
       .sort((x, y) => order.indexOf(x) - order.indexOf(y))
       .map((ch) => [ch, (KANA_INDEX.get(ch) || {}).romaji || ""]);
   };
