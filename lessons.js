@@ -17,69 +17,69 @@
 // yet renders as "Coming soon".
 window.LEVELS = [
   {
-    id: "L0", name: "Level 0", title: "First sounds",
+    id: "L0", name: "Level 0", title: "First Sounds",
     blurb: "The alphabet, five letters and ten words a day — letters → words → short sentences",
     tiers: [
-      { name: "First sounds", blurb: "Build the alphabet through easy words", themes: ["The sounds"] },
+      { name: "First Sounds", blurb: "Build the alphabet through easy words", themes: ["The Sounds"] },
     ],
   },
   {
     id: "L1", name: "Level 1", title: "Foundations",
     blurb: "Survival Japanese — greetings, shopping & daily life · N5",
     tiers: [
-      { name: "First steps",        blurb: "First words & survival phrases", themes: ["First contact", "Getting things"] },
-      { name: "Everyday actions",    blurb: "Verbs & everyday actions",       themes: ["Doing things", "Daily life"] },
-      { name: "Past, wants & plans", blurb: "The past, wants & plans",        themes: ["The past", "Wants & plans"] },
-      { name: "Describing",          blurb: "Adjectives & description",       themes: ["Describing things"] },
+      { name: "First steps",        blurb: "First words & survival phrases", themes: ["First Contact", "Getting Things"] },
+      { name: "Everyday actions",    blurb: "Verbs & everyday actions",       themes: ["Doing Things", "Daily Life"] },
+      { name: "Past, wants & plans", blurb: "The past, wants & plans",        themes: ["The Past", "Wants & Plans"] },
+      { name: "Describing",          blurb: "Adjectives & description",       themes: ["Describing Things"] },
     ],
   },
   {
-    id: "L2", name: "Level 2", title: "Connecting & doing",
+    id: "L2", name: "Level 2", title: "Connecting & Doing",
     blurb: "The て-form — link ideas, make requests, say what's happening · N5→N4",
     tiers: [
-      { name: "Connecting ideas", blurb: "Join thoughts with the て-form", themes: ["The て-form", "Linking ideas"] },
+      { name: "Connecting ideas", blurb: "Join thoughts with the て-form", themes: ["The て-form", "Linking Ideas"] },
     ],
   },
   {
-    id: "L3", name: "Level 3", title: "Getting around",
+    id: "L3", name: "Level 3", title: "Getting Around",
     blurb: "Directions, transport & travel trouble · N4",
     tiers: [
-      { name: "Getting around", blurb: "Find your way & handle hiccups", themes: ["Finding your way", "Tickets & trouble"] },
+      { name: "Getting Around", blurb: "Find your way & handle hiccups", themes: ["Finding Your Way", "Tickets & Trouble"] },
     ],
   },
   {
-    id: "L4", name: "Level 4", title: "Real conversations",
+    id: "L4", name: "Level 4", title: "Real Conversations",
     blurb: "Casual speech, opinions & reactions · N4→N3",
     tiers: [
-      { name: "Real conversations", blurb: "Talk like you mean it", themes: ["Talking casually", "Reacting & relating"] },
+      { name: "Real Conversations", blurb: "Talk like you mean it", themes: ["Talking Casually", "Reacting & Relating"] },
     ],
   },
   {
-    id: "L5", name: "Level 5", title: "Nuance & plans",
+    id: "L5", name: "Level 5", title: "Nuance & Plans",
     blurb: "If, can, plans & how things seem · N3",
     tiers: [
-      { name: "Nuance & plans", blurb: "Conditions, ability & impressions", themes: ["If & necessity", "Plans & impressions"] },
+      { name: "Nuance & Plans", blurb: "Conditions, ability & impressions", themes: ["If & Necessity", "Plans & Impressions"] },
     ],
   },
   {
     id: "L6", name: "Level 6", title: "Expert",
     blurb: "Passive, causative & explaining yourself · N2",
     tiers: [
-      { name: "Expert", blurb: "Things that happen to you, and how to explain them", themes: ["Things happen to you", "Explaining & nuance"] },
+      { name: "Expert", blurb: "Things that happen to you, and how to explain them", themes: ["Things Happen to You", "Explaining & Nuance"] },
     ],
   },
   {
     id: "L7", name: "Level 7", title: "Master",
     blurb: "Keigo & native-level expression · N1",
     tiers: [
-      { name: "Master", blurb: "Honorifics, humility & formal nuance", themes: ["Keigo & politeness", "Native connectives"] },
+      { name: "Master", blurb: "Honorifics, humility & formal nuance", themes: ["Keigo & Politeness", "Native Connectives"] },
     ],
   },
 ];
 
 window.LESSONS = [
   {
-    id: "l0-a", section: "The sounds", title: "あ・い・う・え・お — the first five",
+    id: "l0-a", section: "The Sounds", title: "あ・い・う・え・お — the first five",
     grammar: "あ い う え お",
     grammarNote:
       "Your first five sounds: あ(a) い(i) う(u) え(e) お(o). Every word here uses only these letters — say each one out loud as you spell it.",
@@ -106,7 +106,7 @@ window.LESSONS = [
     ],
   },
   {
-    id: "l0-ka", section: "The sounds", title: "か・き・く・け・こ",
+    id: "l0-ka", section: "The Sounds", title: "か・き・く・け・こ",
     grammar: "か き く け こ",
     grammarNote:
       "The k-row: か(ka) き(ki) く(ku) け(ke) こ(ko). Ten letters in — real words appear: かお, いけ, こえ…",
@@ -133,7 +133,7 @@ window.LESSONS = [
     ],
   },
   {
-    id: "l0-sa", section: "The sounds", title: "さ・し・す・せ・そ",
+    id: "l0-sa", section: "The Sounds", title: "さ・し・す・せ・そ",
     grammar: "さ し す せ そ",
     grammarNote:
       "The s-row: さ(sa) し(shi — not si!) す(su) せ(se) そ(so). Now you can spell すし.",
@@ -162,7 +162,7 @@ window.LESSONS = [
     ],
   },
   {
-    id: "l0-ta", section: "The sounds", title: "た・ち・つ・て・と",
+    id: "l0-ta", section: "The Sounds", title: "た・ち・つ・て・と",
     grammar: "た ち つ て と",
     grammarNote:
       "The t-row: た(ta) ち(chi) つ(tsu) て(te) と(to). とけい, たこ — the words get useful fast.",
@@ -190,7 +190,7 @@ window.LESSONS = [
     ],
   },
   {
-    id: "l0-na", section: "The sounds", title: "な・に・ぬ・ね・の",
+    id: "l0-na", section: "The Sounds", title: "な・に・ぬ・ね・の",
     grammar: "な に ぬ ね の  ·  [A]の[B]",
     grammarNote:
       "The n-row: な(na) に(ni) ぬ(nu) ね(ne) の(no). And your first grammar: の links two things — ねこの あし is the cat's foot.",
@@ -214,7 +214,7 @@ window.LESSONS = [
     ],
   },
   {
-    id: "l0-ha", section: "The sounds", title: "は・ひ・ふ・へ・ほ — and は says wa",
+    id: "l0-ha", section: "The Sounds", title: "は・ひ・ふ・へ・ほ — and は says wa",
     grammar: "は ひ ふ へ ほ  ·  [A]は [B]",
     grammarNote:
       "The h-row: は(ha) ひ(hi) ふ(fu) へ(he) ほ(ho). The star: は — written ha but SAID wa when it marks the topic. はなは あかい — the flower is red. Your first full sentences!",
@@ -244,7 +244,7 @@ window.LESSONS = [
     ],
   },
   {
-    id: "l0-ma", section: "The sounds", title: "ま・み・む・め・も",
+    id: "l0-ma", section: "The Sounds", title: "ま・み・む・め・も",
     grammar: "ま み む め も",
     grammarNote:
       "The m-row: ま(ma) み(mi) む(mu) め(me) も(mo). More は-sentences with everything you own so far.",
@@ -271,7 +271,7 @@ window.LESSONS = [
     ],
   },
   {
-    id: "l0-ya", section: "The sounds", title: "や・ゆ・よ",
+    id: "l0-ya", section: "The Sounds", title: "や・ゆ・よ",
     grammar: "や ゆ よ",
     grammarNote:
       "Just three this time: や(ya) ゆ(yu) よ(yo). A gentle day — enjoy the mountain weather.",
@@ -298,7 +298,7 @@ window.LESSONS = [
     ],
   },
   {
-    id: "l0-ra", section: "The sounds", title: "ら・り・る・れ・ろ — これ・それ・あれ",
+    id: "l0-ra", section: "The Sounds", title: "ら・り・る・れ・ろ — これ・それ・あれ",
     grammar: "ら り る れ ろ  ·  これ・それ・あれ",
     grammarNote:
       "The r-row: ら(ra) り(ri) る(ru) れ(re) ろ(ro) — a soft tap between r and l. It unlocks the pointing words: これ (this) and それ (that).",
@@ -324,7 +324,7 @@ window.LESSONS = [
     ],
   },
   {
-    id: "l0-wa", section: "The sounds", title: "わ・を・ん — meet わたし",
+    id: "l0-wa", section: "The Sounds", title: "わ・を・ん — meet わたし",
     grammar: "わ を ん",
     grammarNote:
       "The last base letters: わ(wa) を(o — the object marker you'll meet later) ん(n — the only letter with no vowel). わたし is you!",
@@ -347,7 +347,7 @@ window.LESSONS = [
     ],
   },
   {
-    id: "l0-dakuten", section: "The sounds", title: "てんてん ゛— new sounds from old",
+    id: "l0-dakuten", section: "The Sounds", title: "てんてん ゛— new sounds from old",
     grammar: "か→が  た→だ  は→ば・ぱ  ·  です",
     grammarNote:
       "Two little marks make new sounds from letters you know: ゛(てんてん) turns か→が(ga), さ→ざ(za), た→だ(da), は→ば(ba); ゜(まる) makes ぱ(pa). And だ-row gives you で — which unlocks です, the polite is/am you'll use everywhere from now on.",
@@ -377,8 +377,8 @@ window.LESSONS = [
   // ============================================================
   {
     id: "intro",
-    section: "First contact",
-    title: "Hello & introductions",
+    section: "First Contact",
+    title: "Hello & Introductions",
     grammar: "X は Y です  ·  か",
     grammarNote:
       "は marks the topic (what you're talking about) — written は (ha) but always SAID wa. です means is/am. Add か at the very end to turn a statement into a question.",
@@ -407,8 +407,8 @@ window.LESSONS = [
   },
   {
     id: "greetings",
-    section: "First contact",
-    title: "Greetings & courtesies",
+    section: "First Contact",
+    title: "Greetings & Courtesies",
     grammar: "あいさつ — set phrases",
     grammarNote:
       "These greetings never change form — learn each as one chunk. ございます makes おはよう and ありがとう more polite.",
@@ -444,8 +444,8 @@ window.LESSONS = [
   },
   {
     id: "this-that",
-    section: "First contact",
-    title: "This, that & “whose”",
+    section: "First Contact",
+    title: "This, That & “Whose”",
     grammar: "これ・それ・あれ  ·  の",
     grammarNote:
       "これ = this (by me), それ = that (by you), あれ = that (over there), どれ = which. の links two nouns: わたしの ほん = my book.",
@@ -477,8 +477,8 @@ window.LESSONS = [
   },
   {
     id: "numbers",
-    section: "First contact",
-    title: "Numbers 1–10 & beyond",
+    section: "First Contact",
+    title: "Numbers 1–10 & Beyond",
     grammar: "すうじ 1–10  ·  10+n  ·  n×10",
     grammarNote:
       "The core numbers 1–10 power everything — prices, time, counting. Past ten it's pure assembly: 11 is ten-one (じゅういち), 12 is ten-two. The tens are the same trick backwards: 20 is two-tens (にじゅう), 30 three-tens.",
@@ -514,8 +514,8 @@ window.LESSONS = [
   },
   {
     id: "age",
-    section: "First contact",
-    title: "How old? (〜さい)",
+    section: "First Contact",
+    title: "How Old? (〜さい)",
     grammar: "〜さい  ·  なんさいですか",
     grammarNote:
       "Age is a number plus さい: きゅうさい = nine years old. Ten squeezes to じゅっさい. Ask with なんさいですか. Numbers past ten stay regular — にじゅうごさい is 25. (Twenty years old has a special word — it comes later.)",
@@ -544,8 +544,8 @@ window.LESSONS = [
   },
   {
     id: "shop",
-    section: "Getting things",
-    title: "At a shop — ordering & prices",
+    section: "Getting Things",
+    title: "At a Shop — Ordering & Prices",
     grammar: "〜を ください  ·  〜は いくらですか",
     grammarNote:
       "を marks the thing you want; add ください to politely ask for it. To ask a price: [thing] は いくらですか？",
@@ -574,8 +574,8 @@ window.LESSONS = [
   },
   {
     id: "money",
-    section: "Getting things",
-    title: "Money & prices",
+    section: "Getting Things",
+    title: "Money & Prices",
     grammar: "ひゃく・せん  ·  〜えん  ·  いくら",
     grammarNote:
       "Bigger numbers: ひゃく = 100, せん = 1000. Prices take 〜えん (yen). Watch the sound-shift: 300 is さんびゃく, not さんひゃく.",
@@ -610,8 +610,8 @@ window.LESSONS = [
   },
   {
     id: "counters",
-    section: "Getting things",
-    title: "Counting things (ひとつ…)",
+    section: "Getting Things",
+    title: "Counting Things (ひとつ…)",
     grammar: "ひとつ〜とお  ·  〜を [かず] ください",
     grammarNote:
       "The all-purpose counter: ひとつ(1), ふたつ(2), みっつ(3), よっつ(4), いつつ(5)… up to とお(10). Order things with [thing]を [number] ください.",
@@ -643,8 +643,8 @@ window.LESSONS = [
   },
   {
     id: "where",
-    section: "Getting things",
-    title: "Where is it? (ここ・どこ)",
+    section: "Getting Things",
+    title: "Where Is It? (ここ・どこ)",
     grammar: "ここ・そこ・あそこ・どこ  ·  〜に あります／います",
     grammarNote:
       "ここ=here, そこ=there (by you), あそこ=over there, どこ=where. あります = there is (things); います = there is (people/animals). The place takes に.",
@@ -677,8 +677,8 @@ window.LESSONS = [
   },
   {
     id: "cafe",
-    section: "Getting things",
-    title: "At the café (putting it together)",
+    section: "Getting Things",
+    title: "At the Café (Putting It Together)",
     grammar: "review  ·  〜と〜  ·  おねがいします",
     grammarNote:
       "Combine ordering, counting and prices. と joins nouns (A と B = A and B); おねがいします is a polite “please” for requests.",
@@ -707,8 +707,8 @@ window.LESSONS = [
   },
   {
     id: "verbs",
-    section: "Doing things",
-    title: "Doing things (〜ます)",
+    section: "Doing Things",
+    title: "Doing Things (〜ます)",
     grammar: "polite present 〜ます",
     grammarNote:
       "〜ます is the polite present — it covers what you do, habits, and the near future (“I do / I'll do”). Each verb has its own ます-form; learn these core ones first.",
@@ -737,8 +737,8 @@ window.LESSONS = [
   },
   {
     id: "object",
-    section: "Doing things",
-    title: "What you do it to (を)",
+    section: "Doing Things",
+    title: "What You Do It To (を)",
     grammar: "〜を 〜ます  (object + verb)",
     grammarNote:
       "を marks the direct object — the thing the verb acts on: [thing]を [verb]ます. The object comes before the verb.",
@@ -767,8 +767,8 @@ window.LESSONS = [
   },
   {
     id: "negative",
-    section: "Doing things",
-    title: "Saying no & asking (〜ません／〜ますか)",
+    section: "Doing Things",
+    title: "Saying No & Asking (〜ません／〜ますか)",
     grammar: "〜ません (don't)  ·  〜ますか (do you…?)",
     grammarNote:
       "Make a verb negative by swapping ます for ません. Turn any statement into a yes/no question by adding か on the end: 〜ますか.",
@@ -797,8 +797,8 @@ window.LESSONS = [
   },
   {
     id: "coming-going",
-    section: "Doing things",
-    title: "Coming & going (〜に いきます)",
+    section: "Doing Things",
+    title: "Coming & Going (〜に いきます)",
     grammar: "[place]に いきます／きます／かえります",
     grammarNote:
       "Movement verbs take a destination marked with に: [place]に いきます = go to [place]. きます = come; かえります = return / go home.",
@@ -831,8 +831,8 @@ window.LESSONS = [
   // ============================================================
   {
     id: "routine",
-    section: "Daily life",
-    title: "My daily routine",
+    section: "Daily Life",
+    title: "My Daily Routine",
     grammar: "present 〜ます  ·  time に  ·  で (by)",
     grammarNote:
       "〜ます is the polite present — also used for habits and the near future. Put に after a clock time, and で after a means of transport.",
@@ -863,8 +863,8 @@ window.LESSONS = [
   },
   {
     id: "telling-time",
-    section: "Daily life",
-    title: "Telling time (なんじ)",
+    section: "Daily Life",
+    title: "Telling Time (なんじ)",
     grammar: "いま なんじ  ·  〜じ・はん  ·  ごぜん／ごご",
     grammarNote:
       "Ask the time with いま なんじですか. Hours take 〜じ; はん = half past. ごぜん = AM, ごご = PM. Pin an action to a time with に.",
@@ -895,8 +895,8 @@ window.LESSONS = [
   },
   {
     id: "frequency",
-    section: "Daily life",
-    title: "How often (よく・ときどき)",
+    section: "Daily Life",
+    title: "How Often (よく・ときどき)",
     grammar: "よく・ときどき  ·  あまり／ぜんぜん 〜ません",
     grammarNote:
       "Frequency words sit before the verb: よく = often, ときどき = sometimes. あまり and ぜんぜん pair with a negative verb — あまり〜ません = not much, ぜんぜん〜ません = not at all.",
@@ -925,8 +925,8 @@ window.LESSONS = [
   },
   {
     id: "activities",
-    section: "Daily life",
-    title: "Where you do it (〜で)",
+    section: "Daily Life",
+    title: "Where You Do It (〜で)",
     grammar: "[place]で [verb]  ·  あさ／よる",
     grammarNote:
       "で also marks WHERE an action happens: [place]で [verb]. (Same particle as “by train” — both uses share で.) あさ = morning, よる = night.",
@@ -955,8 +955,8 @@ window.LESSONS = [
   },
   {
     id: "past-1",
-    section: "The past",
-    title: "What did you do yesterday?",
+    section: "The Past",
+    title: "What Did You Do Yesterday?",
     grammar: "past 〜ました  ·  を / に / と",
     grammarNote:
       "For the past, the polite ending becomes 〜ました. Mark the thing you act on with を, the person you meet with に, and “together with” someone with と.",
@@ -992,8 +992,8 @@ window.LESSONS = [
   },
   {
     id: "past-negative",
-    section: "The past",
-    title: "Didn't do it (〜ませんでした)",
+    section: "The Past",
+    title: "Didn't Do It (〜ませんでした)",
     grammar: "〜ませんでした (didn't)  ·  なにも + neg",
     grammarNote:
       "The past negative is 〜ませんでした (“didn't”). Add か for a past question: 〜ましたか. なにも + a negative verb = “nothing”.",
@@ -1022,8 +1022,8 @@ window.LESSONS = [
   },
   {
     id: "was-were",
-    section: "The past",
-    title: "It was… (でした)",
+    section: "The Past",
+    title: "It Was… (でした)",
     grammar: "でした (was/were)  ·  〜じゃ ありませんでした",
     grammarNote:
       "The past of です is でした (“was / were”). For “wasn't,” use 〜じゃ ありませんでした. These work with nouns, not verbs.",
@@ -1052,8 +1052,8 @@ window.LESSONS = [
   },
   {
     id: "sequence",
-    section: "The past",
-    title: "And then… (それから)",
+    section: "The Past",
+    title: "And Then… (それから)",
     grammar: "それから (and then)  ·  chaining 〜ました",
     grammarNote:
       "Tell a story in order with それから (“after that / then”). Each step stays a full 〜ました sentence — no fancy conjugation needed yet.",
@@ -1082,8 +1082,8 @@ window.LESSONS = [
   },
   {
     id: "wants",
-    section: "Wants & plans",
-    title: "What I want to do",
+    section: "Wants & Plans",
+    title: "What I Want to Do",
     grammar: "〜たい (want to)  ·  〜が ほしい (want a thing)",
     grammarNote:
       "Verb-stem + たい says you want to DO something (のむ → のみたい). For wanting a THING (a noun), use [thing] が ほしい.",
@@ -1113,7 +1113,7 @@ window.LESSONS = [
   },
   {
     id: "lets",
-    section: "Wants & plans",
+    section: "Wants & Plans",
     title: "Let's… (〜ましょう／〜ませんか)",
     grammar: "〜ましょう (let's)  ·  〜ませんか (shall we?)",
     grammarNote:
@@ -1143,8 +1143,8 @@ window.LESSONS = [
   },
   {
     id: "likes",
-    section: "Wants & plans",
-    title: "Likes & dislikes (すき／きらい)",
+    section: "Wants & Plans",
+    title: "Likes & Dislikes (すき／きらい)",
     grammar: "〜が すき／きらい (です)  ·  だいすき",
     grammarNote:
       "Mark what you like with が: [thing]が すきです. For dislikes use きらいです, and for “love it” だいすきです. (すき and きらい act like な-adjectives.)",
@@ -1173,8 +1173,8 @@ window.LESSONS = [
   },
   {
     id: "can-do",
-    section: "Wants & plans",
-    title: "Can do (できます)",
+    section: "Wants & Plans",
+    title: "Can Do (できます)",
     grammar: "〜が できます (can)  ·  すこし／じょうず",
     grammarNote:
       "できます = “can do / be able to”. For an activity-noun, use [noun]が できます: にほんごが できます = “I can (speak) Japanese”. すこし = a little; じょうず = good at.",
@@ -1207,8 +1207,8 @@ window.LESSONS = [
   // ============================================================
   {
     id: "adjectives",
-    section: "Describing things",
-    title: "Describing things (い-adjectives)",
+    section: "Describing Things",
+    title: "Describing Things (い-adjectives)",
     grammar: "い-adjectives  ·  past 〜かった",
     grammarNote:
       "い-adjectives end in 〜い (たかい = expensive). For the past, drop the い and add 〜かった (たかかった = was expensive). とても = very.",
@@ -1237,8 +1237,8 @@ window.LESSONS = [
   },
   {
     id: "adj-noun",
-    section: "Describing things",
-    title: "Big, small, new… (adj + noun)",
+    section: "Describing Things",
+    title: "Big, Small, New… (adj + noun)",
     grammar: "[い-adj][noun]  ·  どんな",
     grammarNote:
       "Put an い-adjective straight in front of the noun it describes: おおきい いえ = a big house. Ask “what kind of…?” with どんな.",
@@ -1267,7 +1267,7 @@ window.LESSONS = [
   },
   {
     id: "na-adj",
-    section: "Describing things",
+    section: "Describing Things",
     title: "な-adjectives (きれい・げんき)",
     grammar: "な-adjectives  ·  [adj]な [noun]",
     grammarNote:
@@ -1297,8 +1297,8 @@ window.LESSONS = [
   },
   {
     id: "adj-negative",
-    section: "Describing things",
-    title: "Not so… (〜くない／〜じゃない)",
+    section: "Describing Things",
+    title: "Not So… (〜くない／〜じゃない)",
     grammar: "い-adj 〜くない  ·  な-adj/noun じゃない",
     grammarNote:
       "Make an い-adjective negative by dropping い and adding 〜くない (たかい→たかくない). いい is irregular → よくない. な-adjectives and nouns use 〜じゃ ない instead.",
@@ -1365,7 +1365,7 @@ window.LESSONS = [
   {
     id: "te-please",
     section: "The て-form",
-    title: "Please do X (〜てください)",
+    title: "Please Do X (〜てください)",
     grammar: "〜てください",
     grammarNote:
       "Add ください to a verb's て-form to politely ask someone to do something. These are the phrases you'll lean on most as a learner and traveller.",
@@ -1398,7 +1398,7 @@ window.LESSONS = [
   {
     id: "te-iru",
     section: "The て-form",
-    title: "In progress (〜ています)",
+    title: "In Progress (〜ています)",
     grammar: "〜ています",
     grammarNote:
       "て-form + います describes an action happening right now (たべています = “I'm eating”) or an ongoing state (すんでいます = “I live”). Casually, drop the い: なにしてる？ = “what're you up to?”",
@@ -1430,8 +1430,8 @@ window.LESSONS = [
   },
   {
     id: "because",
-    section: "Linking ideas",
-    title: "Because / so (〜から・〜ので)",
+    section: "Linking Ideas",
+    title: "Because / So (〜から・〜ので)",
     grammar: "〜から  ·  〜ので",
     grammarNote:
       "Put から after the reason, then the result: [reason]から、[result]。 ので is a softer, more polite “since”. The reason always comes first — the opposite order from English.",
@@ -1463,8 +1463,8 @@ window.LESSONS = [
   },
   {
     id: "but-kedo",
-    section: "Linking ideas",
-    title: "But / though (〜が・〜けど)",
+    section: "Linking Ideas",
+    title: "But / Though (〜が・〜けど)",
     grammar: "〜が  ·  〜けど",
     grammarNote:
       "Join two clauses with が or けど for “but / though”: [clause]が、[contrasting clause]。 けど is the everyday, casual one; が is a touch more formal.",
@@ -1496,8 +1496,8 @@ window.LESSONS = [
   },
   {
     id: "permission",
-    section: "Linking ideas",
-    title: "May I? / You mustn't (〜てもいい・〜ては だめ)",
+    section: "Linking Ideas",
+    title: "May I? / You Mustn't (〜てもいい・〜ては だめ)",
     grammar: "〜てもいいですか  ·  〜ては だめ／いけません",
     grammarNote:
       "て-form + もいいですか asks permission (“may I…?”). て-form + は だめ／いけません says it's not allowed. どうぞ is the friendly “go ahead”.",
@@ -1529,8 +1529,8 @@ window.LESSONS = [
   },
   {
     id: "sequence-te",
-    section: "Linking ideas",
-    title: "Do A, then B (〜て、… ・ 〜たり)",
+    section: "Linking Ideas",
+    title: "Do A, Then B (〜て、… ・ 〜たり)",
     grammar: "〜て、〜  ·  〜たり〜たり",
     grammarNote:
       "Chain actions with the て-form: A して、B して、C します。 For a loose “things like A and B” list, use 〜たり〜たり して/します.",
@@ -1562,8 +1562,8 @@ window.LESSONS = [
   },
   {
     id: "timing",
-    section: "Linking ideas",
-    title: "When / before / after (〜とき・まえに・あとで)",
+    section: "Linking Ideas",
+    title: "When / Before / After (〜とき・まえに・あとで)",
     grammar: "〜とき  ·  〜まえに  ·  〜あとで",
     grammarNote:
       "[verb/plain]とき = “when…”. [dictionary verb]まえに = “before doing…”. [noun]の あとで = “after…”. Nouns also take の: しょくじの まえに = “before the meal”.",
@@ -1599,7 +1599,7 @@ window.LESSONS = [
   // ============================================================
   {
     id: "directions",
-    section: "Finding your way",
+    section: "Finding Your Way",
     title: "Directions (みぎ・ひだり・まっすぐ)",
     grammar: "〜を みぎ／ひだりに まがる  ·  まっすぐ",
     grammarNote:
@@ -1635,8 +1635,8 @@ window.LESSONS = [
   },
   {
     id: "transport",
-    section: "Finding your way",
-    title: "Getting there (〜で・〜から〜まで)",
+    section: "Finding Your Way",
+    title: "Getting There (〜で・〜から〜まで)",
     grammar: "[vehicle]で いきます  ·  〜から〜まで",
     grammarNote:
       "で marks the means: でんしゃで = by train. 〜から〜まで = from … to …. のりかえ = a transfer/change. あるいて = on foot.",
@@ -1671,8 +1671,8 @@ window.LESSONS = [
   },
   {
     id: "does-this-go",
-    section: "Finding your way",
-    title: "Does this go to…? (〜に いきますか)",
+    section: "Finding Your Way",
+    title: "Does This Go to…? (〜に いきますか)",
     grammar: "この〜は [place]に いきますか",
     grammarNote:
       "Point and ask: この バスは [place]に いきますか？ = “Does this bus go to …?” Swap バス for でんしゃ. でぐち = exit, ホーム = platform.",
@@ -1707,8 +1707,8 @@ window.LESSONS = [
   },
   {
     id: "how-far",
-    section: "Finding your way",
-    title: "How far / how long (どのくらい)",
+    section: "Finding Your Way",
+    title: "How Far / How Long (どのくらい)",
     grammar: "〜まで どのくらい かかりますか",
     grammarNote:
       "どのくらい = “how much / how long”. かかります = it takes (time or money). ぐらい = about/approximately. あるいて [time] = [time] on foot.",
@@ -1743,8 +1743,8 @@ window.LESSONS = [
   },
   {
     id: "tickets",
-    section: "Tickets & trouble",
-    title: "Buying tickets (〜まで 〜まい)",
+    section: "Tickets & Trouble",
+    title: "Buying Tickets (〜まで 〜まい)",
     grammar: "[place]まで [number]まい  ·  おうふく／かたみち",
     grammarNote:
       "At the counter: [destination]まで [count]まい おねがいします。 まい counts flat things like tickets. おうふく = round trip, かたみち = one-way.",
@@ -1779,8 +1779,8 @@ window.LESSONS = [
   },
   {
     id: "travel-trouble",
-    section: "Tickets & trouble",
-    title: "When things go wrong (まよう・なくす)",
+    section: "Tickets & Trouble",
+    title: "When Things Go Wrong (まよう・なくす)",
     grammar: "みちに まよう  ·  〜に のりおくれる  ·  〜を なくす",
     grammarNote:
       "みちに まよいました = “I'm lost.” [train]に のりおくれました = “I missed the …”. [thing]を なくしました = “I lost my …”. Pair with すみません to get help fast.",
@@ -1815,8 +1815,8 @@ window.LESSONS = [
   },
   {
     id: "had-better",
-    section: "Tickets & trouble",
-    title: "You'd better… (〜たほうがいい)",
+    section: "Tickets & Trouble",
+    title: "You'd Better… (〜たほうがいい)",
     grammar: "〜た ほうがいい  ·  〜ない ほうがいい",
     grammarNote:
       "[verb た-form]ほうがいい = “you'd better / it's better to …” — friendly advice. The negative is [verb ない-form]ほうがいい = “better not to …”. きをつけて = take care!",
@@ -1855,8 +1855,8 @@ window.LESSONS = [
   // ============================================================
   {
     id: "plain-form",
-    section: "Talking casually",
-    title: "Casual speech (plain form)",
+    section: "Talking Casually",
+    title: "Casual Speech (plain form)",
     grammar: "plain form  ·  だ",
     grammarNote:
       "With friends, drop です／ます. たべます→たべる, いきます→いく; です→だ (or nothing). Questions just rise in tone — no か needed: なにする？ = “whatcha doing?”",
@@ -1885,8 +1885,8 @@ window.LESSONS = [
   },
   {
     id: "making-plans",
-    section: "Talking casually",
-    title: "Making plans (〜ない？・〜よう)",
+    section: "Talking Casually",
+    title: "Making Plans (〜ない？・〜よう)",
     grammar: "〜ない？ (wanna…?)  ·  〜よう (let's)",
     grammarNote:
       "Casual invites: [verb]ない？ = “wanna …?” (いかない？ = “wanna go?”). Casual “let's” is the volitional 〜よう／〜おう: いこう = “let's go.” こんど = sometime / next time.",
@@ -1913,8 +1913,8 @@ window.LESSONS = [
   },
   {
     id: "i-think",
-    section: "Talking casually",
-    title: "I think… (〜と おもう)",
+    section: "Talking Casually",
+    title: "I Think… (〜と おもう)",
     grammar: "[plain]と おもう／おもいます",
     grammarNote:
       "Give an opinion with plain form + と おもう: [sentence]と おもう = “I think (that) …”. What you think stays in plain form even when おもいます is polite.",
@@ -1941,8 +1941,8 @@ window.LESSONS = [
   },
   {
     id: "quoting",
-    section: "Talking casually",
-    title: "They said… (〜って・〜と いう)",
+    section: "Talking Casually",
+    title: "They Said… (〜って・〜と いう)",
     grammar: "[plain]と いいました  ·  〜って",
     grammarNote:
       "Report speech with と いう: [words]と いいました = “(they) said …”. Casually って replaces と: こないって = “(they) said they're not coming.”",
@@ -1969,7 +1969,7 @@ window.LESSONS = [
   },
   {
     id: "favors",
-    section: "Reacting & relating",
+    section: "Reacting & Relating",
     title: "Favors (あげる・くれる・もらう)",
     grammar: "〜て あげる／くれる／もらう",
     grammarNote:
@@ -1997,7 +1997,7 @@ window.LESSONS = [
   },
   {
     id: "comparing",
-    section: "Reacting & relating",
+    section: "Reacting & Relating",
     title: "Comparing (〜より・〜のほうが・いちばん)",
     grammar: "A より B の ほうが …  ·  いちばん",
     grammarNote:
@@ -2025,8 +2025,8 @@ window.LESSONS = [
   },
   {
     id: "reactions",
-    section: "Reacting & relating",
-    title: "Reactions & aizuchi (そうなんだ・まじで)",
+    section: "Reacting & Relating",
+    title: "Reactions & Aizuchi (そうなんだ・まじで)",
     grammar: "あいづち — reactions",
     grammarNote:
       "Aizuchi are the little reactions that show you're listening — sprinkle them in. そうなんだ = “oh really”, なるほど = “I see”, まじで = “seriously?”, すごい = “wow”.",
@@ -2057,8 +2057,8 @@ window.LESSONS = [
   // ============================================================
   {
     id: "conditionals",
-    section: "If & necessity",
-    title: "If / when (〜たら・〜なら)",
+    section: "If & Necessity",
+    title: "If / When (〜たら・〜なら)",
     grammar: "〜たら  ·  〜なら",
     grammarNote:
       "〜たら is the all-purpose “if/when”: take the past た-form and add ら — やすかったら = “if it's cheap”, ついたら = “when I arrive”. 〜なら = “if (that's the case)”, often reacting to what someone just said.",
@@ -2085,8 +2085,8 @@ window.LESSONS = [
   },
   {
     id: "have-to",
-    section: "If & necessity",
-    title: "Gotta / don't have to (〜なきゃ・〜なくてもいい)",
+    section: "If & Necessity",
+    title: "Gotta / Don't Have To (〜なきゃ・〜なくてもいい)",
     grammar: "〜なきゃ／なければ ならない  ·  〜なくてもいい",
     grammarNote:
       "Obligation: 〜なければ ならない (formal) → casual 〜なきゃ／〜ないと: いかなきゃ = “I gotta go.” No obligation: [verb ない-stem]+なくてもいい = “you don't have to …”.",
@@ -2113,8 +2113,8 @@ window.LESSONS = [
   },
   {
     id: "potential",
-    section: "If & necessity",
-    title: "Can do it (〜られる・〜える)",
+    section: "If & Necessity",
+    title: "Can Do It (〜られる・〜える)",
     grammar: "potential form 〜られる／〜える",
     grammarNote:
       "“Be able to”: る-verbs → 〜られる (たべる→たべられる); う-verbs shift the final sound to え + る (はなす→はなせる, いく→いける). する→できる, くる→こられる. The thing you can do takes が.",
@@ -2141,8 +2141,8 @@ window.LESSONS = [
   },
   {
     id: "intend",
-    section: "Plans & impressions",
-    title: "Planning to (〜つもり・〜よてい)",
+    section: "Plans & Impressions",
+    title: "Planning To (〜つもり・〜よてい)",
     grammar: "〜つもり  ·  〜よてい",
     grammarNote:
       "[plain verb]つもり = “I intend / plan to …”. [verb]よてい = a scheduled plan. Negative intent: [verb ない-form]+つもり = “I don't plan to …”.",
@@ -2169,8 +2169,8 @@ window.LESSONS = [
   },
   {
     id: "seems",
-    section: "Plans & impressions",
-    title: "Looks / seems like (〜そう・〜みたい)",
+    section: "Plans & Impressions",
+    title: "Looks / Seems Like (〜そう・〜みたい)",
     grammar: "〜そう  ·  〜みたい  ·  〜らしい",
     grammarNote:
       "By appearance: [adj stem]+そう = “looks …” (おいしそう = “looks tasty”). [plain]みたい = “seems like / like a …”. [plain]らしい = “apparently / I hear …”.",
@@ -2199,8 +2199,8 @@ window.LESSONS = [
   },
   {
     id: "try-doing",
-    section: "Plans & impressions",
-    title: "Give it a try (〜てみる・〜ちゃう)",
+    section: "Plans & Impressions",
+    title: "Give It a Try (〜てみる・〜ちゃう)",
     grammar: "〜てみる  ·  〜てしまう／〜ちゃう",
     grammarNote:
       "〜てみる = “try doing / give it a go” (たべてみる = “try eating it”). 〜てしまう = do completely or by accident; casual 〜ちゃう: わすれちゃった = “I forgot (oops).”",
@@ -2227,8 +2227,8 @@ window.LESSONS = [
   },
   {
     id: "experience",
-    section: "Plans & impressions",
-    title: "Have you ever…? (〜たことがある)",
+    section: "Plans & Impressions",
+    title: "Have You Ever…? (〜たことがある)",
     grammar: "[verb た-form]ことが ある",
     grammarNote:
       "[verb た-form]+ことが ある = “have done / have the experience of …”. Casual question: 〜たこと ある？ = “have you ever …?” Never: 〜たこと ない = “I've never …”.",
@@ -2259,8 +2259,8 @@ window.LESSONS = [
   // ============================================================
   {
     id: "passive",
-    section: "Things happen to you",
-    title: "It was done to me (passive 〜られる)",
+    section: "Things Happen to You",
+    title: "It Was Done to Me (passive 〜られる)",
     grammar: "passive 〜れる／〜られる",
     grammarNote:
       "Passive: う-verbs → 〜れる (いう→いわれる), る-verbs → 〜られる (みる→みられる); する→される, くる→こられる. The doer takes に. Often used for things done *to* you — frequently unwelcome (the “suffering passive”).",
@@ -2287,8 +2287,8 @@ window.LESSONS = [
   },
   {
     id: "causative",
-    section: "Things happen to you",
-    title: "Make / let someone do (causative 〜させる)",
+    section: "Things Happen to You",
+    title: "Make / Let Someone Do (causative 〜させる)",
     grammar: "causative 〜せる／〜させる",
     grammarNote:
       "Causative = make or let someone do. う-verbs → 〜せる (まつ→またせる), る-verbs → 〜させる (たべる→たべさせる); する→させる, くる→こさせる. 〜させてください = “please let me …”.",
@@ -2317,8 +2317,8 @@ window.LESSONS = [
   },
   {
     id: "causative-passive",
-    section: "Things happen to you",
-    title: "Made to do it (〜させられる)",
+    section: "Things Happen to You",
+    title: "Made to Do It (〜させられる)",
     grammar: "causative-passive 〜させられる",
     grammarNote:
       "Causative + passive = “was made to do (against my will)”. う-verbs often contract to 〜される: のむ→のまされる, またせる→またされる. のまされた = “I was made to drink.”",
@@ -2345,8 +2345,8 @@ window.LESSONS = [
   },
   {
     id: "should-supposed",
-    section: "Explaining & nuance",
-    title: "Should / supposed to (〜べき・〜はず)",
+    section: "Explaining & Nuance",
+    title: "Should / Supposed To (〜べき・〜はず)",
     grammar: "〜べきだ  ·  〜はずだ",
     grammarNote:
       "〜べきだ = “should / ought to” (strong advice): いくべきだ = “you should go.” 〜はずだ = “supposed to / must be (logically)”: くるはずだ = “he's supposed to come.” 〜はずがない = “there's no way …”.",
@@ -2373,8 +2373,8 @@ window.LESSONS = [
   },
   {
     id: "even-though",
-    section: "Explaining & nuance",
-    title: "Even though / no matter (〜のに・〜ても)",
+    section: "Explaining & Nuance",
+    title: "Even Though / No Matter (〜のに・〜ても)",
     grammar: "〜のに  ·  〜ても",
     grammarNote:
       "〜のに = “even though / despite”, often with frustration: べんきょうしたのに おちた = “I studied, yet I failed.” 〜ても = “even if / no matter”: いくら〜ても = “no matter how much …”.",
@@ -2401,8 +2401,8 @@ window.LESSONS = [
   },
   {
     id: "you-ni",
-    section: "Explaining & nuance",
-    title: "Came to / make a point of (〜ようになる・〜ようにする)",
+    section: "Explaining & Nuance",
+    title: "Came to / Make a Point Of (〜ようになる・〜ようにする)",
     grammar: "〜ようになる  ·  〜ようにする",
     grammarNote:
       "〜ようになる = a change over time: came to (be able to) — はなせるようになった = “I became able to speak.” 〜ようにする = make an effort / a point of — あるくようにする = “I make a point of walking.”",
@@ -2429,8 +2429,8 @@ window.LESSONS = [
   },
   {
     id: "wake",
-    section: "Explaining & nuance",
-    title: "That's why / not that (〜わけだ・〜わけではない)",
+    section: "Explaining & Nuance",
+    title: "That's Why / Not That (〜わけだ・〜わけではない)",
     grammar: "〜わけだ  ·  〜わけではない",
     grammarNote:
       "〜わけだ = “that's why / so it follows”: だから たかいわけだ = “so that's why it's expensive.” 〜わけではない／〜わけじゃない = “it's not that / not necessarily”: きらいなわけじゃない = “it's not that I dislike it.”",
@@ -2461,8 +2461,8 @@ window.LESSONS = [
   // ============================================================
   {
     id: "sonkeigo",
-    section: "Keigo & politeness",
-    title: "Honorifics — elevating others (尊敬語)",
+    section: "Keigo & Politeness",
+    title: "Honorifics — Elevating Others (尊敬語)",
     grammar: "尊敬語 — respectful verbs",
     grammarNote:
       "Sonkeigo raises the person you're speaking to or about. Special verbs: いる/くる/いく→いらっしゃる, する→なさる, いう→おっしゃる, みる→ごらんになる, たべる/のむ→めしあがる.",
@@ -2489,8 +2489,8 @@ window.LESSONS = [
   },
   {
     id: "kenjougo",
-    section: "Keigo & politeness",
-    title: "Humble forms — lowering yourself (謙譲語)",
+    section: "Keigo & Politeness",
+    title: "Humble Forms — Lowering Yourself (謙譲語)",
     grammar: "謙譲語 — humble verbs",
     grammarNote:
       "Kenjougo lowers your own actions before someone of higher status. いく/くる→まいる, いう→もうす, する→いたす, みる→はいけんする, きく/たずねる→うかがう, もらう/たべる→いただく.",
@@ -2519,8 +2519,8 @@ window.LESSONS = [
   },
   {
     id: "business-keigo",
-    section: "Keigo & politeness",
-    title: "Polite requests (〜ていただけますか)",
+    section: "Keigo & Politeness",
+    title: "Polite Requests (〜ていただけますか)",
     grammar: "〜ていただけますか  ·  おそれいりますが",
     grammarNote:
       "The softest way to ask: 〜ていただけますか／〜ていただけませんか = “could you possibly …?” Soften further with おそれいりますが = “I'm sorry to trouble you, but …”. かしこまりました = “certainly / understood.”",
@@ -2547,8 +2547,8 @@ window.LESSONS = [
   },
   {
     id: "zaru-o-enai",
-    section: "Native connectives",
-    title: "Can't help but (〜ざるを得ない・〜ずにはいられない)",
+    section: "Native Connectives",
+    title: "Can't Help But (〜ざるを得ない・〜ずにはいられない)",
     grammar: "〜ざるを得ない  ·  〜ずにはいられない",
     grammarNote:
       "〜ざるを得ない = “have no choice but to …” (formal, reluctant): みとめざるを得ない = “I have to admit it.” 〜ずにはいられない = “can't help …ing”: わらわずにはいられない = “I can't help laughing.” (する→せざる／せずに)",
@@ -2575,8 +2575,8 @@ window.LESSONS = [
   },
   {
     id: "ni-oite",
-    section: "Native connectives",
-    title: "In / on the occasion of (〜において・〜にあたって)",
+    section: "Native Connectives",
+    title: "In / On the Occasion Of (〜において・〜にあたって)",
     grammar: "〜において  ·  〜にあたって",
     grammarNote:
       "Formal/written. 〜において = “in / at / in the field of”: かいぎにおいて = “at the meeting.” 〜にあたって = “on the occasion of / when undertaking”: しゅっぱつにあたって = “on departing.”",
@@ -2603,8 +2603,8 @@ window.LESSONS = [
   },
   {
     id: "monono",
-    section: "Native connectives",
-    title: "Although / that said (〜ものの・〜とはいえ)",
+    section: "Native Connectives",
+    title: "Although / That Said (〜ものの・〜とはいえ)",
     grammar: "〜ものの  ·  〜とはいえ",
     grammarNote:
       "〜ものの = “although / even though” (formal): やくそくしたものの、いけなかった = “although I promised, I couldn't go.” 〜とはいえ = “that said / even though”: ふゆとはいえ、あたたかい = “even though it's winter, it's warm.”",
@@ -2632,8 +2632,8 @@ window.LESSONS = [
   },
   {
     id: "kagiri",
-    section: "Native connectives",
-    title: "As far as / while (〜かぎり・〜つつ)",
+    section: "Native Connectives",
+    title: "As Far As / While (〜かぎり・〜つつ)",
     grammar: "〜かぎり  ·  〜つつ  ·  〜にほかならない",
     grammarNote:
       "〜かぎり = “as far as / as long as”: しるかぎり = “as far as I know.” 〜つつ = formal “while”: しりつつ = “while knowing.” 〜にほかならない = “is nothing other than”: どりょくのけっかにほかならない = “it's nothing but the result of effort.”",

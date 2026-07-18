@@ -34,7 +34,7 @@
     review: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.25 8.5A7.5 7.5 0 1 0 20 12"/><path d="M19.25 4.75V8.5H15.5"/><path d="M12 8.25V12l2.5 1.5"/></svg>',
     library: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.25 5.25h5.5v13.5h-5.5zM13.25 5.25h5.5v13.5h-5.5z"/><path d="M7.25 8h1.5M15.25 8h1.5"/></svg>',
     progress: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18.75V13.5h3v5.25zM10.5 18.75V9h3v9.75zM16 18.75V5.25h3v13.5z"/></svg>',
-    settings: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 3.5v2.2M12 18.3v2.2M4.6 7.8l1.9 1.1M17.5 15.1l1.9 1.1M4.6 16.2l1.9-1.1M17.5 8.9l1.9-1.1"/></svg>',
+    settings: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6.1"/><circle cx="12" cy="12" r="2.3"/><path d="M12 3.3v2.6M12 18.1v2.6M20.7 12h-2.6M5.9 12H3.3M18.1 5.9l-1.8 1.8M7.7 16.3l-1.8 1.8M18.1 18.1l-1.8-1.8M7.7 7.7L5.9 5.9"/></svg>',
   };
 
   function make(tag, className, text) {
