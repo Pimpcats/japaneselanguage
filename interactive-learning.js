@@ -81,27 +81,27 @@
     instruction: "Look at that house",
     copy: "What a place. Tap it, then call it out.",
     answer: { jp: "いい いえ！", romaji: "ii ie", en: "What a nice house!" } };
-  const TOUR = { id: "tour-1", type: "info", once: true,
-    instruction: "ようこそ — welcome!",
-    copy: "はなそう teaches you to SPEAK. Every card shows English — you say it in Japanese out loud, then tap to hear もち子 say it for real.",
-    art: "mochiko", cta: "Next →",
-    next: { id: "tour-2", type: "info",
+  // The welcome tour, composed at fire time so today's sound tiles can slot
+  // in AFTER it (owner: intro first, then the letters). Panel 3 is the live
+  // card walkthrough — it teaches subject→object→verb on a working example.
+  const TOUR_PANELS = [
+    { id: "tour-1", type: "info", once: true,
+      instruction: "ようこそ — welcome!",
+      copy: "はなそう teaches you to SPEAK. Every card shows English — you say it in Japanese out loud, then tap to hear もち子 say it for real.",
+      art: "mochiko", cta: "Next →" },
+    { id: "tour-2", type: "info",
       instruction: "One symbol, one sound",
       copy: "Japanese is written in kana. Each symbol is always the same sound — no surprises. This level teaches five a day, and the abc letters stay above every kana until you know it. They fade as you learn.",
-      cta: "Next →",
-      next: { id: "tour-structure", type: "info",
-        instruction: "How sentences work",
-        copy: "Japanese sentences are little stacks. Name your topic and mark it with は (written ha, always SAID wa): ねこは しろい — cat + wa + white = the cat is white. Polite sentences add です at the end. You'll meet each piece one lesson at a time.",
-        cta: "Next →",
-      next: { id: "tour-3", type: "info",
-        instruction: "The card",
-        copy: "Tap the sheet to reveal and hear the answer — tap again to replay. Swipe right when you got it, left to see it again sooner. That is the whole system: no streaks, no timers, no pressure.",
-        cta: "Next →",
-        next: { id: "tour-4", type: "info",
-          instruction: "The world taps back",
-          copy: "Sometimes the room comes alive — a shop, a street, a thing to point at. Do the action, then say the line. Acting it out is how words stick.",
-          cta: "Start →",
-          next: HOUSE_BEAT } } } } };
+      cta: "Next →" },
+    { id: "tour-demo", type: "cardDemo",
+      instruction: "Here's a card" },
+    { id: "tour-4", type: "info",
+      instruction: "The world taps back",
+      copy: "Sometimes the room comes alive — a shop, a street, a thing to point at. Do the action, then say the line. Acting it out is how words stick.",
+      cta: "Start →" },
+  ];
+  const chainBeats = (panels, tail) =>
+    panels.reduceRight((next, p) => Object.assign({}, p, { next }), tail);
 
   const BEFORE_PROMPT = {
     // ---- Level 0 · か row: see the remarkable thing, call it out ----------
@@ -272,7 +272,7 @@
 
     // ---- The very first lesson: welcome tour, then the nice house ----------
     "l0-a": {
-      "What a nice house!": () => (story.completed["tour-1"] ? HOUSE_BEAT : TOUR),
+      "What a nice house!": () => (story.completed["tour-1"] ? HOUSE_BEAT : chainBeats(TOUR_PANELS, HOUSE_BEAT)),
     },
 
     // ---- The tall mountain --------------------------------------------------
@@ -944,6 +944,7 @@
     else if (beat.type === "numberTap") renderNumberTapBeat(beat, finishBeat);
     else if (beat.type === "sounds") renderSoundsBeat(beat, finishBeat);
     else if (beat.type === "build") renderBuildBeat(beat, finishBeat);
+    else if (beat.type === "cardDemo") renderCardDemoBeat(beat, finishBeat);
   }
 
   function showContinue(text, finishBeat) {
@@ -1653,8 +1654,8 @@
       const btn = el("button", "story-num");
       btn.type = "button";
       btn.setAttribute("aria-label", romaji || kana);
+      btn.appendChild(el("span", "num-kana num-kana-above", romaji));
       btn.appendChild(el("span", "num-digit", kana));
-      btn.appendChild(el("span", "num-kana", romaji));
       btn.addEventListener("click", () => {
         btn.classList.add("heard");
         if (window.HanasouSpeak) window.HanasouSpeak(kana);
@@ -1710,6 +1711,60 @@
     });
     chips.map((c) => [Math.random(), c]).sort((a, b) => a[0] - b[0]).forEach(([, c]) => bank.appendChild(c));
     overlay.stage.append(line, bank);
+  }
+
+  // ---- cardDemo: a working example card, walked through region by region.
+  // Teaches subject → object → verb on a real sentence while showing how the
+  // card itself is used. Everything but the focused region dims.
+  function renderCardDemoBeat(beat, finishBeat) {
+    overlay.title.textContent = beat.instruction || "Here's a card";
+    overlay.copy.textContent = "";
+    const card = el("div", "demo-card");
+    const rPrompt = el("div", "demo-region demo-prompt");
+    rPrompt.append(el("span", "demo-label", "SAY THIS IN JAPANESE"), el("div", "demo-en", "I drink water."));
+    const rAnswer = el("div", "demo-region demo-answer");
+    rAnswer.appendChild(el("span", "demo-label", "MODEL ANSWER"));
+    const jpLine = el("div", "demo-jp");
+    const WORDS = [
+      ["watashi wa", "わたしは", "s"],
+      ["mizu o", "みずを", "o"],
+      ["nomimasu", "のみます", "v"],
+    ];
+    for (const [rom, jp, role] of WORDS) {
+      const wSpan = el("span", "demo-w demo-role-" + role);
+      wSpan.append(el("i", "demo-rom", rom), document.createTextNode(jp));
+      jpLine.appendChild(wSpan);
+    }
+    rAnswer.appendChild(jpLine);
+    const rGrade = el("div", "demo-region demo-grade");
+    rGrade.append(el("span", "", "← nope"), el("span", "demo-dot", "·"), el("span", "", "got it →"));
+    card.append(rPrompt, rAnswer, rGrade);
+    const bubble = el("div", "demo-bubble");
+    overlay.stage.append(card, bubble);
+
+    const STEPS = [
+      { focus: [rPrompt], html: "The card asks in English. Say it in Japanese <b>out loud</b> first — then tap the card to check." },
+      { focus: [rAnswer], html: "Tap and もち子 says the answer. The little letters ride above each kana until you know it — then they fade." },
+      { focus: [rAnswer], role: "s", html: "<b>わたしは</b> — <i>I</i>. The one doing it comes first. は marks it (written ha, said <b>wa</b>)." },
+      { focus: [rAnswer], role: "o", html: "<b>みずを</b> — <i>water</i>. The thing it happens to. を marks the object." },
+      { focus: [rAnswer], role: "v", html: "<b>のみます</b> — <i>drink</i>. The verb comes <b>LAST</b>. Subject → object → verb, every time." },
+      { focus: [rGrade], html: "Got it? Swipe right. Missed it? Swipe left and it comes back sooner. No streaks, no timers." },
+    ];
+    let step = 0;
+    const show = () => {
+      const st = STEPS[step];
+      [rPrompt, rAnswer, rGrade].forEach((r) => r.classList.toggle("demo-dim", !st.focus.includes(r)));
+      jpLine.querySelectorAll(".demo-w").forEach((wEl) => {
+        wEl.classList.toggle("demo-lit", !!st.role && wEl.classList.contains("demo-role-" + st.role));
+        wEl.classList.toggle("demo-faded", !!st.role && !wEl.classList.contains("demo-role-" + st.role));
+      });
+      bubble.innerHTML = st.html;
+      showContinue(step < STEPS.length - 1 ? "Next →" : "Continue →", () => {
+        if (step < STEPS.length - 1) { step += 1; show(); }
+        else finishBeat();
+      });
+    };
+    show();
   }
 
   // ---- info: onboarding panels — no interaction, just orientation ----------
@@ -1811,8 +1866,16 @@
           window.__hanaNewKana) {
         const tiles = window.__hanaNewKana(info.lessonId);
         if (tiles.length) {
-          beat = { id: "sounds:" + info.lessonId, type: "sounds",
-            lessonId: info.lessonId, tiles: tiles, next: beat || undefined };
+          const soundsBeat = { id: "sounds:" + info.lessonId, type: "sounds",
+            lessonId: info.lessonId, tiles: tiles };
+          if (beat && beat.id === "tour-1") {
+            // very first lesson: welcome tour FIRST, then today's letters
+            soundsBeat.next = HOUSE_BEAT;
+            beat = chainBeats(TOUR_PANELS, soundsBeat);
+          } else {
+            soundsBeat.next = beat || undefined;
+            beat = soundsBeat;
+          }
         }
       }
       if (!beat) return false;
