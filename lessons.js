@@ -506,6 +506,10 @@ window.LESSONS = [
         words: [{jp:"じゅういち",en:"11",pos:"n"},{jp:"じゅうに",en:"12",pos:"n"},{jp:"じゅうさん",en:"13",pos:"n"}] },
       { en: "Twenty, thirty, forty.", jp: "にじゅう、さんじゅう、よんじゅう。", romaji: "nijuu, sanjuu, yonjuu.", hint: "n × 10",
         words: [{jp:"にじゅう",en:"20",pos:"n"},{jp:"さんじゅう",en:"30",pos:"n"},{jp:"よんじゅう",en:"40",pos:"n"}] },
+      { en: "Ninety-nine!", jp: "きゅうじゅうきゅう！", romaji: "kyuujuukyuu!", hint: "9 tens and a 9",
+        words: [{jp:"きゅうじゅうきゅう",en:"99",pos:"n"}] },
+      { en: "Ten, twenty, one hundred.", jp: "じゅう、にじゅう、ひゃく。", romaji: "juu, nijuu, hyaku.",
+        words: [{jp:"じゅう",en:"10",pos:"n"},{jp:"にじゅう",en:"20",pos:"n"},{jp:"ひゃく",en:"100",pos:"n"}] },
     ],
   },
   {
@@ -518,6 +522,10 @@ window.LESSONS = [
     vocab: [
       { jp: "なんさい", romaji: "nan-sai", en: "how old", pos: "n" },
       { jp: "さい", romaji: "sai", en: "years old (counter)", pos: "n" },
+      { jp: "こども", romaji: "kodomo", en: "child", pos: "n" },
+      { jp: "おとな", romaji: "otona", en: "adult", pos: "n" },
+      { jp: "わかい", romaji: "wakai", en: "young", pos: "adj" },
+      { jp: "とし", romaji: "toshi", en: "age / years", pos: "n" },
     ],
     sentences: [
       { en: "How old are you?", jp: "なんさいですか？", romaji: "nan-sai desu ka?",
@@ -530,6 +538,8 @@ window.LESSONS = [
         words: [{jp:"ともだち",en:"friend",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"なんさい",en:"how old",pos:"n"},{jp:"です",en:"is",pos:"cop"},{jp:"か",en:"[?]",pos:"prt"}] },
       { en: "I'm twenty-five years old.", jp: "にじゅうごさいです。", romaji: "nijuu-go-sai desu.", hint: "past ten it stays regular",
         words: [{jp:"にじゅうご",en:"25",pos:"n"},{jp:"さい",en:"years old",pos:"n"},{jp:"です",en:"am",pos:"cop"}] },
+      { en: "The child is five years old.", jp: "こどもは ごさいです。", romaji: "kodomo wa go-sai desu.",
+        words: [{jp:"こども",en:"child",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ご",en:"5",pos:"n"},{jp:"さい",en:"years old",pos:"n"},{jp:"です",en:"is",pos:"cop"}] },
     ],
   },
   {
@@ -1333,6 +1343,7 @@ window.LESSONS = [
       { jp: "きて",   romaji: "kite",   en: "come  (来る)", pos: "v" },
       { jp: "やめて", romaji: "yamete", en: "stop it  (やめる)", pos: "v" },
       { jp: "こっち", romaji: "kocchi", en: "over here / this way", pos: "n" },
+      { jp: "がんばって", romaji: "ganbatte", en: "hang in there / go for it  (頑張る)", pos: "v" },
     ],
     sentences: [
       { en: "Look!", jp: "みて！", romaji: "mite!", hint: "bare て-form = casual request",
@@ -1345,6 +1356,10 @@ window.LESSONS = [
         words: [{jp:"こっち",en:"over here",pos:"n"},{jp:"きて",en:"come",pos:"v"}] },
       { en: "Stop it.", jp: "やめて。", romaji: "yamete.",
         words: [{jp:"やめて",en:"stop it",pos:"v"}] },
+      { en: "Hang in there!", jp: "がんばって！", romaji: "ganbatte!",
+        words: [{jp:"がんばって",en:"hang in there",pos:"v"}] },
+      { en: "Look at this.", jp: "これ みて。", romaji: "kore mite.",
+        words: [{jp:"これ",en:"this",pos:"n"},{jp:"みて",en:"look",pos:"v"}] },
     ],
   },
   {
@@ -1361,6 +1376,7 @@ window.LESSONS = [
       { jp: "おしえて", romaji: "oshiete",  en: "tell / teach me  (教える)", pos: "v" },
       { jp: "ゆっくり", romaji: "yukkuri",  en: "slowly", pos: "adv" },
       { jp: "もう いちど", romaji: "mou ichido", en: "once more", pos: "adv" },
+      { jp: "たすけて", romaji: "tasukete", en: "help me  (助ける)", pos: "v" },
     ],
     sentences: [
       { en: "Please wait a moment.", jp: "ちょっと まって ください。", romaji: "chotto matte kudasai.",
@@ -1373,6 +1389,10 @@ window.LESSONS = [
         words: [{jp:"おしえて",en:"tell me",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
       { en: "Please help me.", jp: "たすけて ください。", romaji: "tasukete kudasai.", hint: "たすける = to help",
         words: [{jp:"たすけて",en:"help",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
+      { en: "Please say it slowly.", jp: "ゆっくり いって ください。", romaji: "yukkuri itte kudasai.",
+        words: [{jp:"ゆっくり",en:"slowly",pos:"adv"},{jp:"いって",en:"say it",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
+      { en: "Please tell me once more.", jp: "もう いちど おしえて ください。", romaji: "mou ichido oshiete kudasai.",
+        words: [{jp:"もう いちど",en:"once more",pos:"adv"},{jp:"おしえて",en:"tell me",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
     ],
   },
   {
@@ -1389,6 +1409,7 @@ window.LESSONS = [
       { jp: "すんで",     romaji: "sunde",      en: "living  (住む)", pos: "v" },
       { jp: "はたらいて", romaji: "hataraite",  en: "working  (働く)", pos: "v" },
       { jp: "して",       romaji: "shite",      en: "doing  (する)", pos: "v" },
+      { jp: "のんで", romaji: "nonde", en: "drinking  (飲む)", pos: "v" },
     ],
     sentences: [
       { en: "What are you doing?", jp: "なにを して いますか？", romaji: "nani o shite imasu ka?", hint: "casual: なにしてる？",
@@ -1403,6 +1424,8 @@ window.LESSONS = [
         words: [{jp:"ぎんこう",en:"bank",pos:"n"},{jp:"で",en:"[at]",pos:"prt"},{jp:"はたらいて",en:"working",pos:"v"},{jp:"います",en:"[ongoing]",pos:"aux"}] },
       { en: "I'm reading a book.", jp: "ほんを よんで います。", romaji: "hon o yonde imasu.",
         words: [{jp:"ほん",en:"book",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"よんで",en:"reading",pos:"v"},{jp:"います",en:"[ongoing]",pos:"aux"}] },
+      { en: "I'm drinking coffee.", jp: "コーヒーを のんで います。", romaji: "koohii o nonde imasu.",
+        words: [{jp:"コーヒー",en:"coffee",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"のんで",en:"drinking",pos:"v"},{jp:"います",en:"am",pos:"aux"}] },
     ],
   },
   {
@@ -1419,6 +1442,7 @@ window.LESSONS = [
       { jp: "やすい",     romaji: "yasui",     en: "cheap", pos: "adj" },
       { jp: "さむい",     romaji: "samui",     en: "cold", pos: "adj" },
       { jp: "どうして",   romaji: "doushite",  en: "why", pos: "adv" },
+      { jp: "あめ", romaji: "ame", en: "rain", pos: "n" },
     ],
     sentences: [
       { en: "I'm tired, so I'm going home.", jp: "つかれたから、かえります。", romaji: "tsukareta kara, kaerimasu.",
@@ -1433,6 +1457,8 @@ window.LESSONS = [
         words: [{jp:"やすい",en:"cheap",pos:"adj"},{jp:"から",en:"because",pos:"conj"},{jp:"かいます",en:"will buy",pos:"v"}] },
       { en: "Why? — Because it's tasty.", jp: "どうして？ — おいしいから。", romaji: "doushite? — oishii kara.",
         words: [{jp:"どうして",en:"why",pos:"adv"},{jp:"おいしい",en:"tasty",pos:"adj"},{jp:"から",en:"because",pos:"conj"}] },
+      { en: "It's raining, so I'm not going.", jp: "あめだから、いきません。", romaji: "ame da kara, ikimasen.",
+        words: [{jp:"あめ",en:"rain",pos:"n"},{jp:"だ",en:"is",pos:"cop"},{jp:"から",en:"so / because",pos:"prt"},{jp:"いきません",en:"won't go",pos:"v"}] },
     ],
   },
   {
@@ -1449,6 +1475,7 @@ window.LESSONS = [
       { jp: "むずかしい", romaji: "muzukashii", en: "difficult", pos: "adj" },
       { jp: "たのしい",   romaji: "tanoshii",   en: "fun", pos: "adj" },
       { jp: "けど",       romaji: "kedo",       en: "but / though", pos: "conj" },
+      { jp: "じかん", romaji: "jikan", en: "time", pos: "n" },
     ],
     sentences: [
       { en: "It's expensive, but I'll buy it.", jp: "たかいですが、かいます。", romaji: "takai desu ga, kaimasu.",
@@ -1461,6 +1488,10 @@ window.LESSONS = [
         words: [{jp:"にほんご",en:"Japanese",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"むずかしい",en:"hard",pos:"adj"},{jp:"けど",en:"but",pos:"conj"},{jp:"たのしい",en:"fun",pos:"adj"}] },
       { en: "Sorry, but I don't understand.", jp: "すみませんが、わかりません。", romaji: "sumimasen ga, wakarimasen.",
         words: [{jp:"すみません",en:"sorry",pos:"expr"},{jp:"が",en:"but",pos:"conj"},{jp:"わかりません",en:"don't understand",pos:"v"}] },
+      { en: "It's cheap, but tasty.", jp: "やすいけど、おいしい。", romaji: "yasui kedo, oishii.",
+        words: [{jp:"やすい",en:"cheap",pos:"adj"},{jp:"けど",en:"but",pos:"prt"},{jp:"おいしい",en:"tasty",pos:"adj"}] },
+      { en: "I want to, but there's no time.", jp: "ほしいけど、じかんが ない。", romaji: "hoshii kedo, jikan ga nai.",
+        words: [{jp:"ほしい",en:"want (it)",pos:"adj"},{jp:"けど",en:"but",pos:"prt"},{jp:"じかん",en:"time",pos:"n"},{jp:"が",en:"[subject]",pos:"prt"},{jp:"ない",en:"there isn't",pos:"adj"}] },
     ],
   },
   {
@@ -1476,6 +1507,8 @@ window.LESSONS = [
       { jp: "さわって", romaji: "sawatte", en: "touch  (触る)", pos: "v" },
       { jp: "しゃしん", romaji: "shashin", en: "photo", pos: "n" },
       { jp: "どうぞ",   romaji: "douzo",   en: "go ahead / please", pos: "expr" },
+      { jp: "はいって", romaji: "haitte", en: "enter / come in  (入る)", pos: "v" },
+      { jp: "たばこ", romaji: "tabako", en: "tobacco / smoking", pos: "n" },
     ],
     sentences: [
       { en: "May I take a photo here?", jp: "ここで しゃしんを とっても いいですか？", romaji: "koko de shashin o totte mo ii desu ka?",
@@ -1488,6 +1521,10 @@ window.LESSONS = [
         words: [{jp:"ここ",en:"here",pos:"n"},{jp:"で",en:"[at]",pos:"prt"},{jp:"しゃしん",en:"photo",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"とって",en:"take",pos:"v"},{jp:"は",en:"[as for]",pos:"prt"},{jp:"いけません",en:"must not",pos:"aux"}] },
       { en: "Don't touch, please.", jp: "さわっては だめです。", romaji: "sawatte wa dame desu.",
         words: [{jp:"さわって",en:"touch",pos:"v"},{jp:"は",en:"[as for]",pos:"prt"},{jp:"だめ",en:"no good",pos:"adj"},{jp:"です",en:"is",pos:"cop"}] },
+      { en: "May I come in?", jp: "はいっても いいですか？", romaji: "haitte mo ii desu ka?",
+        words: [{jp:"はいって",en:"come in",pos:"v"},{jp:"も",en:"even",pos:"prt"},{jp:"いい",en:"okay",pos:"adj"},{jp:"です",en:"is",pos:"cop"},{jp:"か",en:"[?]",pos:"prt"}] },
+      { en: "No smoking here.", jp: "ここで たばこは だめです。", romaji: "koko de tabako wa dame desu.",
+        words: [{jp:"ここ",en:"here",pos:"n"},{jp:"で",en:"at",pos:"prt"},{jp:"たばこ",en:"smoking",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"だめ",en:"no good",pos:"adj"},{jp:"です",en:"is",pos:"cop"}] },
     ],
   },
   {
@@ -1504,6 +1541,7 @@ window.LESSONS = [
       { jp: "やすんで", romaji: "yasunde",  en: "rest  (休む)", pos: "v" },
       { jp: "あそんで", romaji: "asonde",   en: "hang out / play  (遊ぶ)", pos: "v" },
       { jp: "しゅうまつ", romaji: "shuumatsu", en: "weekend", pos: "n" },
+      { jp: "おふろ", romaji: "ofuro", en: "bath", pos: "n" },
     ],
     sentences: [
       { en: "I get up, eat, and head out.", jp: "おきて、たべて、でかけます。", romaji: "okite, tabete, dekakemasu.",
@@ -1514,6 +1552,12 @@ window.LESSONS = [
         words: [{jp:"ごはん",en:"food / a meal",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"たべて",en:"eat",pos:"v"},{jp:"あそび",en:"hang out",pos:"v"},{jp:"ましょう",en:"let's",pos:"aux"}] },
       { en: "On weekends I read and watch movies and such.", jp: "しゅうまつは、ほんを よんだり えいがを みたり します。", romaji: "shuumatsu wa, hon o yondari eiga o mitari shimasu.", hint: "〜たり〜たり = “things like…”",
         words: [{jp:"しゅうまつ",en:"weekend",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ほん",en:"book",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"よんだり",en:"read (and)",pos:"v"},{jp:"えいが",en:"movie",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"みたり",en:"watch (and)",pos:"v"},{jp:"します",en:"do",pos:"v"}] },
+      { en: "I get up in the morning and drink coffee.", jp: "あさ おきて、コーヒーを のみます。", romaji: "asa okite, koohii o nomimasu.",
+        words: [{jp:"あさ",en:"morning",pos:"n"},{jp:"おきて",en:"get up",pos:"v"},{jp:"コーヒー",en:"coffee",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"のみます",en:"drink",pos:"v"}] },
+      { en: "I take a bath and go to bed.", jp: "おふろに はいって、ねます。", romaji: "ofuro ni haitte, nemasu.",
+        words: [{jp:"おふろ",en:"bath",pos:"n"},{jp:"に",en:"in",pos:"prt"},{jp:"はいって",en:"get in",pos:"v"},{jp:"ねます",en:"sleep",pos:"v"}] },
+      { en: "On weekends I hang out and rest and such.", jp: "しゅうまつは、あそんだり やすんだり します。", romaji: "shuumatsu wa, asondari yasundari shimasu.",
+        words: [{jp:"しゅうまつ",en:"weekend",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"あそんだり",en:"hang out and…",pos:"v"},{jp:"やすんだり",en:"rest and…",pos:"v"},{jp:"します",en:"do",pos:"v"}] },
     ],
   },
   {
@@ -1530,6 +1574,7 @@ window.LESSONS = [
       { jp: "ひま",     romaji: "hima",    en: "free (time)", pos: "adj" },
       { jp: "しょくじ", romaji: "shokuji", en: "a meal", pos: "n" },
       { jp: "でんわ",   romaji: "denwa",   en: "phone / a call", pos: "n" },
+      { jp: "は", romaji: "ha", en: "teeth  (歯)", pos: "n" },
     ],
     sentences: [
       { en: "I brush my teeth before bed.", jp: "ねるまえに、はを みがきます。", romaji: "neru mae ni, ha o migakimasu.",
@@ -1542,6 +1587,10 @@ window.LESSONS = [
         words: [{jp:"たべる",en:"eat",pos:"v"},{jp:"まえに",en:"before",pos:"conj"},{jp:"て",en:"hands",pos:"n"},{jp:"を",en:"[object]",pos:"prt"},{jp:"あらって",en:"wash",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
       { en: "I'll call you later.", jp: "あとで でんわします。", romaji: "ato de denwa shimasu.",
         words: [{jp:"あとで",en:"later",pos:"conj"},{jp:"でんわ",en:"a call",pos:"n"},{jp:"します",en:"do / make",pos:"v"}] },
+      { en: "Please call before you head out.", jp: "でかけるまえに、でんわして ください。", romaji: "dekakeru mae ni, denwa shite kudasai.",
+        words: [{jp:"でかける",en:"head out",pos:"v"},{jp:"まえに",en:"before",pos:"prt"},{jp:"でんわして",en:"call",pos:"v"},{jp:"ください",en:"please",pos:"aux"}] },
+      { en: "When you're free, let's hang out.", jp: "ひまな とき、あそびましょう。", romaji: "hima na toki, asobimashou.",
+        words: [{jp:"ひま",en:"free",pos:"adj"},{jp:"な",en:"[link]",pos:"prt"},{jp:"とき",en:"when",pos:"n"},{jp:"あそびましょう",en:"let's hang out",pos:"v"}] },
     ],
   },
 
