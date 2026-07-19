@@ -1582,3 +1582,34 @@ body.story-open .practice-nav { z-index: 4500; }
   background: url("assets/story/basket.png") center bottom / contain no-repeat;
   filter: drop-shadow(0 3px 3px rgba(31, 45, 77, 0.18));
 }
+
+/* ---- drawn backdrops: the three stages are now sketch art ------------------ */
+/* The ink drawings carry the wall/floor/counter; the gradient layers go quiet
+   but stay in the DOM — zones still position everything. */
+.story-scene-room { background: url("assets/story/bg-room.png") center / cover no-repeat #fdfcf8; }
+.story-scene-street { background: url("assets/story/bg-street.png") center / cover no-repeat #fdfcf8; }
+.story-scene-shop { background: url("assets/story/bg-shop.png") center / cover no-repeat #fdfcf8; }
+.story-scene-room .scene-wall, .story-scene-room .scene-floor,
+.story-scene-street .scene-wall, .story-scene-street .scene-floor, .story-scene-street .scene-skyline,
+.story-scene-shop .scene-wall, .story-scene-shop .scene-floor {
+  background: none; border: none; box-shadow: none;
+}
+.story-scene-shop .scene-counter { background: none; border: none; box-shadow: none; }
+/* the drawn shop counter's top edge sits higher than the old CSS one */
+.story-scene-shop .scene-zone-counter { bottom: 42.5%; }
+/* shopkeeper stands BEHIND the drawn counter: bottom-clip her legs */
+.scene-mochiko-shop { bottom: 36%; clip-path: inset(0 0 34% 0); height: 96px; }
+
+/* drawn shelf + table replace the CSS wood */
+.scene-shelf-board {
+  width: 8.5em; height: 2.4em; margin-top: -0.1em;
+  background: url("assets/story/shelf.png") top center / contain no-repeat;
+  border: none; box-shadow: none; border-radius: 0;
+}
+.scene-table {
+  width: 13em; height: 5.2em; margin-top: -1.1em;
+  background: url("assets/story/table.png") top center / contain no-repeat;
+  border: none; border-radius: 0;
+}
+.scene-table::before, .scene-table::after { display: none; }
+.scene-zone-table .story-obj { position: relative; z-index: 1; }
