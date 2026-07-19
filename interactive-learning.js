@@ -1072,6 +1072,7 @@
     sea: "sea", winter: "winter", sakura: "sakura", flower: "flower", redflower: "redflower",
     mountain: "mountain", sun: "sun", moon: "moon", star: "star",
     japanmap: "japanmap", usflag: "usflag", mystery: "mystery",
+    bigface: "bigface", redface: "redface",
   };
   const BOOK_IMGS = '<img class="obj-sketch bi-circle" src="assets/story/book-circle.png" alt="">' +
     '<img class="obj-sketch bi-stripes" src="assets/story/book-stripes.png" alt="">' +
