@@ -93,8 +93,6 @@
       instruction: "One symbol, one sound",
       copy: "Japanese is written in kana. Each symbol is always the same sound — no surprises. This level teaches five a day, and the abc letters stay above every kana until you know it. They fade as you learn.",
       cta: "Next →" },
-    { id: "tour-demo", type: "cardDemo",
-      instruction: "Here's a card" },
     { id: "tour-4", type: "info",
       instruction: "The world taps back",
       copy: "Sometimes the room comes alive — a shop, a street, a thing to point at. Do the action, then say the line. Acting it out is how words stick.",
@@ -844,6 +842,9 @@
   function markBeatDone(beat) {
     shownThisSession.add(beat.id);
     if (beat.once) story.completed[beat.id] = true;
+    if (beat.thenCardTour && !story.completed["card-tour"]) {
+      setTimeout(startCardTour, 350);   // let the overlay close first
+    }
     saveStory();
   }
   function shouldSkip(beat) {
@@ -945,7 +946,6 @@
     else if (beat.type === "numberTap") renderNumberTapBeat(beat, finishBeat);
     else if (beat.type === "sounds") renderSoundsBeat(beat, finishBeat);
     else if (beat.type === "build") renderBuildBeat(beat, finishBeat);
-    else if (beat.type === "cardDemo") renderCardDemoBeat(beat, finishBeat);
   }
 
   function showContinue(text, finishBeat) {
@@ -1725,57 +1725,65 @@
     overlay.stage.append(line, bank);
   }
 
-  // ---- cardDemo: a working example card, walked through region by region.
-  // Teaches subject → object → verb on a real sentence while showing how the
-  // card itself is used. Everything but the focused region dims.
-  function renderCardDemoBeat(beat, finishBeat) {
-    overlay.title.textContent = beat.instruction || "Here's a card";
-    overlay.copy.textContent = "";
-    const card = el("div", "demo-card");
-    const rPrompt = el("div", "demo-region demo-prompt");
-    rPrompt.append(el("span", "demo-label", "SAY THIS IN JAPANESE"), el("div", "demo-en", "I drink water."));
-    const rAnswer = el("div", "demo-region demo-answer");
-    rAnswer.appendChild(el("span", "demo-label", "MODEL ANSWER"));
-    const jpLine = el("div", "demo-jp");
-    const WORDS = [
-      ["watashi wa", "わたしは", "s"],
-      ["mizu o", "みずを", "o"],
-      ["nomimasu", "のみます", "v"],
-    ];
-    for (const [rom, jp, role] of WORDS) {
-      const wSpan = el("span", "demo-w demo-role-" + role);
-      wSpan.append(el("i", "demo-rom", rom), document.createTextNode(jp));
-      jpLine.appendChild(wSpan);
-    }
-    rAnswer.appendChild(jpLine);
-    const rGrade = el("div", "demo-region demo-grade");
-    rGrade.append(el("span", "", "← nope"), el("span", "demo-dot", "·"), el("span", "", "got it →"));
-    card.append(rPrompt, rAnswer, rGrade);
-    const bubble = el("div", "demo-bubble");
-    overlay.stage.append(card, bubble);
+  // ---- the live-card tour: spotlight the REAL card, region by region -------
+  // (owner: use an actual card, not a mock.) A dimming layer with a cut-out
+  // follows each region of the first real card; bubbles explain each area
+  // using the card's own sentence and word chips.
+  function startCardTour() {
+    story.completed["card-tour"] = true;
+    saveStory();
+    const cardEl = document.getElementById("card");
+    const promptEl = document.getElementById("prompt-en");
+    if (!cardEl || !promptEl) return;
 
-    const STEPS = [
-      { focus: [rPrompt], html: "The card asks in English. Say it in Japanese <b>out loud</b> first — then tap the card to check." },
-      { focus: [rAnswer], html: "Tap and もち子 says the answer. The little letters ride above each kana until you know it — then they fade." },
-      { focus: [rAnswer], role: "s", html: "<b>わたしは</b> — <i>I</i>. The one doing it comes first. は marks it (written ha, said <b>wa</b>)." },
-      { focus: [rAnswer], role: "o", html: "<b>みずを</b> — <i>water</i>. The thing it happens to. を marks the object." },
-      { focus: [rAnswer], role: "v", html: "<b>のみます</b> — <i>drink</i>. The verb comes <b>LAST</b>. Subject → object → verb, every time." },
-      { focus: [rGrade], html: "Got it? Swipe right. Missed it? Swipe left and it comes back sooner. No streaks, no timers." },
-    ];
-    let step = 0;
-    const show = () => {
-      const st = STEPS[step];
-      [rPrompt, rAnswer, rGrade].forEach((r) => r.classList.toggle("demo-dim", !st.focus.includes(r)));
-      jpLine.querySelectorAll(".demo-w").forEach((wEl) => {
-        wEl.classList.toggle("demo-lit", !!st.role && wEl.classList.contains("demo-role-" + st.role));
-        wEl.classList.toggle("demo-faded", !!st.role && !wEl.classList.contains("demo-role-" + st.role));
-      });
-      bubble.innerHTML = st.html;
-      showContinue(step < STEPS.length - 1 ? "Next →" : "Continue →", () => {
-        if (step < STEPS.length - 1) { step += 1; show(); }
-        else finishBeat();
-      });
+    const layer = el("div", "coach-layer");
+    const spot = el("div", "coach-spot");
+    const bubble = el("div", "coach-bubble");
+    const nextBtn = el("button", "primary coach-next", "Next →");
+    nextBtn.type = "button";
+    layer.append(spot, bubble, nextBtn);
+    document.body.appendChild(layer);
+
+    const aim = (target, pad) => {
+      const r = target.getBoundingClientRect();
+      const p = pad || 10;
+      spot.style.left = (r.left - p) + "px";
+      spot.style.top = (r.top - p) + "px";
+      spot.style.width = (r.width + p * 2) + "px";
+      spot.style.height = (r.height + p * 2) + "px";
+      bubble.style.top = Math.min(r.bottom + 16, window.innerHeight - 200) + "px";
     };
+    const chipWords = () => {
+      const parts = [];
+      for (const chip of [...document.querySelectorAll("#word-breakdown .word-chip")].slice(0, 4)) {
+        const jp = chip.querySelector(".wc-jp");
+        const gloss = chip.querySelector(".wc-en");
+        if (jp) parts.push("<b>" + jp.textContent.trim() + "</b>" + (gloss ? " = " + gloss.textContent.trim() : ""));
+      }
+      return parts.join(" · ");
+    };
+
+    const steps = [
+      () => { aim(promptEl, 14); bubble.innerHTML = "This is a real card. It asks in English — say it in Japanese <b>out loud</b> before anything else."; },
+      () => {
+        if (document.getElementById("reveal-area").hidden) cardEl.click();   // real reveal: もち子 speaks
+        bubble.innerHTML = "Tapping the sheet reveals the answer and もち子 says it — tap again any time to replay. The abc rides above each kana until you know it.";
+        setTimeout(() => aim(document.getElementById("answer-kana"), 12), 150);
+      },
+      () => {
+        const chips = document.getElementById("word-breakdown");
+        aim(chips && chips.childElementCount ? chips : cardEl, 12);
+        bubble.innerHTML = "Every word is a chip — tap one to hear just that word. This sentence: " + (chipWords() || "each piece, one chip.");
+      },
+      () => { aim(cardEl, 6); bubble.innerHTML = "Now grade yourself: swipe <b>right</b> = got it, swipe <b>left</b> = see it again sooner. That's the whole system — your turn."; },
+    ];
+    let i = 0;
+    const show = () => { steps[i](); nextBtn.textContent = i < steps.length - 1 ? "Next →" : "Got it →"; };
+    nextBtn.addEventListener("click", () => {
+      if (i < steps.length - 1) { i += 1; show(); }
+      else layer.remove();
+    });
+    window.addEventListener("resize", () => { if (layer.isConnected) show(); });
     show();
   }
 
@@ -1881,8 +1889,9 @@
           const soundsBeat = { id: "sounds:" + info.lessonId, type: "sounds",
             lessonId: info.lessonId, tiles: tiles };
           if (beat && beat.id === "tour-1") {
-            // very first lesson: welcome tour FIRST, then today's letters
-            soundsBeat.next = HOUSE_BEAT;
+            // very first lesson: welcome tour → today's letters → the house
+            // scene → then a spotlight tour over the REAL card underneath.
+            soundsBeat.next = Object.assign({}, HOUSE_BEAT, { thenCardTour: true });
             beat = chainBeats(TOUR_PANELS, soundsBeat);
           } else {
             soundsBeat.next = beat || undefined;
@@ -1896,6 +1905,7 @@
     // Replay the welcome tour + first sound panel (Settings button).
     replayTour: function () {
       delete story.completed["tour-1"];
+      delete story.completed["card-tour"];
       delete story.soundsSeen["l0-a"];
       saveStory();
     },

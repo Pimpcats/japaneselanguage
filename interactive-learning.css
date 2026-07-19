@@ -954,6 +954,31 @@ button.primary.story-continue {
 body.story-open #app-header { position: relative; z-index: 4500; }
 body.story-open .practice-nav { z-index: 4500; }
 
+/* live-card coach tour: dimming layer with a spotlight cut-out */
+.coach-layer { position: fixed; inset: 0; z-index: 4300; pointer-events: none; }
+.coach-spot {
+  position: absolute; border-radius: 16px;
+  box-shadow: 0 0 0 200vmax rgba(26, 34, 54, 0.55);
+  border: 3px solid #e3b500;
+  transition: all 0.3s ease;
+}
+.coach-bubble {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  width: min(88vw, 340px);
+  background: #fff; border: 3px solid var(--story-ink); border-radius: 14px;
+  box-shadow: 0 3px 0 var(--story-ink);
+  padding: 0.65rem 0.85rem;
+  font: 600 15px/1.5 inherit; color: var(--story-ink);
+  transition: top 0.3s ease;
+}
+.coach-bubble b { color: #b3401f; }
+.coach-next {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: max(18px, env(safe-area-inset-bottom));
+  pointer-events: auto;
+  min-width: 60%;
+}
+
 /* the walkthrough card — a working example, spotlighted region by region */
 .story-stage-cardDemo {
   display: block; padding: 0.6rem 0.4rem 0.6rem;
