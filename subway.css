@@ -455,3 +455,10 @@ body.drive-mode #app-header, body.drive-mode #app-banner { display: none !import
 
 /* kanji furigana stays legible in the drill reading */
 body.drive-mode #answer-kana ruby rt { color: var(--ink-soft); }
+
+/* the drawn lesson cover sits in the sign's empty middle band */
+.station-sign .st-art {
+  flex: 1 1 0; min-height: 0; align-self: center;
+  max-width: 58%; object-fit: contain;
+  margin: 0.05rem 0 0.25rem; pointer-events: none;
+}

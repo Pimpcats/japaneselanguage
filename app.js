@@ -1738,6 +1738,15 @@
         head2.appendChild(names);
         card.appendChild(head2);
 
+        // the sign's landmark art — the lesson's drawn cover fills the middle band
+        const art = document.createElement("img");
+        art.className = "st-art";
+        art.src = "assets/covers/" + L.id + ".png";
+        art.alt = "";
+        art.loading = "lazy";
+        art.onerror = () => art.remove();
+        card.appendChild(art);
+
         // prev / next stations, like a real platform sign
         const pn = document.createElement("div");
         pn.className = "st-prevnext";
