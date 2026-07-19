@@ -1062,8 +1062,26 @@
   // ---- object factory: SVG from the library; chibi images for people --------
   // Hand-drawn sketch PNGs (generated art in assets/story/) override the
   // built-in SVG per key; anything not in OBJ_IMG falls back to OBJ_SVG.
-  const OBJ_IMG = { P_aki: "aki", P_beni: "beni", P_kai: "kai", P_yuki: "yuki" };
+  const OBJ_IMG = {
+    P_aki: "aki", P_beni: "beni", P_kai: "kai", P_yuki: "yuki",
+    sushi: "sushi", peach: "peach", cup: "cup", water: "water", coffee: "coffee", menu: "menu",
+    dogface: "dogface", whitecat: "whitecat", cat: "cat", cow: "cow", octopus: "octopus", bird: "bird",
+    bag: "bag", telephone: "telephone", umbrella: "umbrella", ticket: "ticket", chair: "chair",
+    house: "house", station: "station", town: "town", schooldesk: "schooldesk", wc: "wc",
+    signal: "signal", car: "car", train: "train", bus: "bus", boat: "boat",
+    sea: "sea", winter: "winter", sakura: "sakura", flower: "flower", redflower: "redflower",
+    mountain: "mountain", sun: "sun", moon: "moon", star: "star",
+    japanmap: "japanmap", usflag: "usflag", mystery: "mystery",
+  };
+  const BOOK_IMGS = '<img class="obj-sketch bi-circle" src="assets/story/book-circle.png" alt="">' +
+    '<img class="obj-sketch bi-stripes" src="assets/story/book-stripes.png" alt="">' +
+    '<img class="obj-sketch bi-window" src="assets/story/book-window.png" alt="">';
+  // clock = sketch face + the original rotating hands (CSS drives them via data-clock)
+  const CLOCK_IMG = '<img class="obj-sketch" src="assets/story/clockface.png" alt="">' +
+    '<svg class="clock-hands" viewBox="0 0 100 108"><g class="clock-hand-h"><rect x="47" y="30" width="6" height="24" rx="3" fill="#2a2c33"/></g><g class="clock-hand-m"><rect x="47.5" y="20" width="5" height="34" rx="2.5" fill="#2a2c33"/></g><circle cx="50" cy="54" r="4.5" fill="#2a2c33"/></svg>';
   function objArtHTML(key) {
+    if (key === "book") return BOOK_IMGS;
+    if (key === "clock") return CLOCK_IMG;
     const name = OBJ_IMG[key];
     if (name) return '<img class="obj-sketch" src="assets/story/' + name + '.png" alt="">';
     return OBJ_SVG[key] || "";
@@ -1113,8 +1131,10 @@
     button.type = "button";
     button.dataset.design = book.id;
     button.setAttribute("aria-label", book.name + " book");
-    const cover = el("span", "story-book-cover");
-    cover.append(el("i", "story-book-mark"), el("i", "story-book-pages"));
+    const cover = document.createElement("img");
+    cover.className = "story-book-img";
+    cover.src = "assets/story/book-" + book.id + ".png";
+    cover.alt = "";
     button.appendChild(cover);
     return button;
   }

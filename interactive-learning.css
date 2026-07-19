@@ -1245,8 +1245,8 @@ body.story-open .practice-nav { z-index: 4500; }
 .obj-coins .coin {
   position: absolute; left: 50%; transform: translateX(-50%);
   width: 4.2em; height: 1.5em;
-  background: linear-gradient(180deg, #f0e7c8, #d8c99c);
-  border: 2px solid rgba(31, 45, 77, 0.7);
+  background: linear-gradient(180deg, #fffdf5, #efe8d6);
+  border: 2.5px solid #2a2c33;
   border-radius: 50%;
 }
 .obj-coins .coin:nth-child(1) { bottom: 0; }
@@ -1556,3 +1556,25 @@ body.story-open .practice-nav { z-index: 4500; }
   .story-obj.wrong,
   .story-hand { animation: none !important; transition: none !important; }
 }
+
+/* ---- generated sketch art (assets/story/) — overrides for special objects -- */
+/* books: three stacked cover images, data-design picks the visible one */
+.obj-book { background: none; border: none; border-radius: 0; overflow: visible; }
+.obj-book[data-design] { background: none; }
+.obj-book img.obj-sketch { display: none; position: absolute; inset: 0; }
+.obj-book[data-design="circle"] .bi-circle,
+.obj-book[data-design="stripes"] .bi-stripes,
+.obj-book[data-design="window"] .bi-window { display: block; }
+
+/* the book chooser buttons show the same sketch covers */
+.story-book { box-shadow: none; }
+.story-book-img {
+  display: block; width: 100%; height: 100%;
+  object-fit: contain; object-position: center bottom;
+  filter: drop-shadow(0 3px 3px rgba(31, 45, 77, 0.18));
+}
+.story-book.selected .story-book-img { filter: drop-shadow(0 0 9px rgba(46, 125, 91, 0.55)); }
+
+/* clock: sketch face with the rotating ink hands overlaid */
+.obj-clock img.obj-sketch { object-position: center; }
+.obj-clock .clock-hands { position: absolute; inset: 0; width: 100%; height: 100%; }
