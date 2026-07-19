@@ -1613,3 +1613,7 @@ body.story-open .practice-nav { z-index: 4500; }
 }
 .scene-table::before, .scene-table::after { display: none; }
 .scene-zone-table .story-obj { position: relative; z-index: 1; }
+
+/* おおきい beats: the claimed-big object fills the scene like the big clock */
+.story-obj.obj-hero { font-size: 30px !important; z-index: 2; }
+.scene-zone-partner .story-obj.obj-hero { font-size: 24px !important; }

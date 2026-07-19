@@ -106,7 +106,7 @@
     "l0-ka": {
       "A big face!": {
         id: "l0-bigface", type: "ask",
-        scene: "room", zone: "partner", object: "bigface",
+        scene: "room", zone: "partner", object: "bigface", hero: true,
         askLabel: "Call it out:", cta: "Say it →", feedback: "You can't NOT say something.",
         instruction: "Whoa — that guy…",
         copy: "That is quite a face. Tap it, then call it out.",
@@ -122,7 +122,7 @@
       },
       "A big station!": {
         id: "l0-eki", type: "ask",
-        scene: "street", zone: "near", object: "station",
+        scene: "street", zone: "near", object: "station", hero: true,
         askLabel: "Call it out:", cta: "Say it →", feedback: "えき — you'll say this word in Japan constantly.",
         instruction: "Look at the size of that station",
         copy: "It fills the street. Tap it, then call it out.",
@@ -137,7 +137,7 @@
         instruction: "Fresh sushi, right in front of you",
         copy: "It looks perfect. Tap it, then call it out.",
         answer: { jp: "おいしい すし！", romaji: "oishii sushi", en: "Tasty sushi!" } },
-      "A big cow!": { id: "l0-cow", type: "ask", scene: "room", zone: "partner", object: "cow",
+      "A big cow!": { id: "l0-cow", type: "ask", scene: "room", zone: "partner", object: "cow", hero: true,
         askLabel: "Call it out:", cta: "Say it →", feedback: "It is ENORMOUS.",
         instruction: "There is a cow indoors",
         copy: "A very large cow. Tap it, then call it out.",
@@ -173,7 +173,7 @@
         instruction: "One enormous red flower",
         copy: "It fills the room. Tap it and say its colour.",
         answer: { jp: "はなは あかい。", romaji: "hana wa akai", en: "The flower is red." } },
-      "The boat is big.": { id: "l0-fune", type: "ask", scene: "street", zone: "near", object: "boat",
+      "The boat is big.": { id: "l0-fune", type: "ask", scene: "street", zone: "near", object: "boat", hero: true,
         askLabel: "Call it out:", cta: "Say it →", feedback: "ふね — boat. A big one.",
         instruction: "Down at the water — a boat",
         copy: "It barely fits in view. Tap it and say it.",
@@ -1380,6 +1380,7 @@
     const scene = buildScene(beat.scene || "room");
     if (beat.night) scene.classList.add("night");
     const target = objButton(beat.object, beat.zone, (beat.tag ? "price tag on the " : "") + OBJ_NAME[beat.object]);
+    if (beat.hero) target.classList.add("obj-hero");   // おおきい beats: the object dominates the scene
     if (beat.tag) { const t = el("i", "obj-tag"); t.appendChild(el("span", "obj-tag-txt", beat.tagText || "?")); target.appendChild(t); }
     if (beat.clock) target.dataset.clock = beat.clock;   // clock-hand positions for time beats
     if (beat.prop) {   // a second object carried by / beside the target

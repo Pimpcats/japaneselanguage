@@ -355,7 +355,7 @@ body.no-romaji button.vocab-row { grid-template-columns: 7.2rem 1fr; }
   filter: drop-shadow(0 5px 0 rgba(74, 51, 40, 0.16));
   transition: opacity 0.2s;
 }
-#kohai-helper img { width: 100%; display: block; }
+#kohai-helper img { width: auto; height: 108px; display: block; margin: 0 auto; }
 #kohai-helper .kh-bubble {
   display: inline-block; background: #fff; border: 2.5px solid var(--ink); border-radius: 12px;
   padding: 0.25rem 0.5rem; font-size: 0.72rem; font-weight: 900; color: var(--ink);
