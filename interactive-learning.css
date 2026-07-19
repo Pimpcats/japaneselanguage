@@ -1572,3 +1572,13 @@ body.story-open .practice-nav { z-index: 4500; }
 /* clock: sketch face with the rotating ink hands overlaid */
 .obj-clock img.obj-sketch { object-position: center; }
 .obj-clock .clock-hands { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* sketch hand + basket replace the CSS-drawn ones (aim rotations unchanged) */
+.story-hand { background: url("assets/story/hand.png") center bottom / contain no-repeat; filter: drop-shadow(0 3px 3px rgba(31, 45, 77, 0.18)); }
+.story-hand::before, .story-hand::after { display: none; }
+.scene-basket {
+  border: none; border-radius: 0;
+  width: 104px; height: 96px;
+  background: url("assets/story/basket.png") center bottom / contain no-repeat;
+  filter: drop-shadow(0 3px 3px rgba(31, 45, 77, 0.18));
+}
