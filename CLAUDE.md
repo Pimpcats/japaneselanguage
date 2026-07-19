@@ -138,6 +138,13 @@ the clip, falling back to device `speechSynthesis` if missing.
 
 ## Content rules (lessons.js)
 
+- **Vocabulary must be immediately useful** (owner, 2026-07): the app gets
+  people speaking and NAVIGATING right away. Each level is a learning stage —
+  early levels teach only common, everyday words (えき, かお, みず…), never
+  exotica (かき persimmon and きく chrysanthemum were cut from Level 0 for
+  this). Before adding a word ask: would a visitor to Japan say this in their
+  first month? Also: never claim a colour the art doesn't show.
+
 - Shape: `{ id, section, title, grammar, grammarNote, vocab:[{jp,romaji,en,pos}],
   sentences:[{en, jp, romaji, hint?, words:[{jp,en,pos}]}] }`. A lesson teaches
   ONE grammar point; sentences recombine its vocab.

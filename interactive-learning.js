@@ -33,8 +33,8 @@
   ];
 
   // ---- object library (all CSS-drawn; people use the app's chibi art) ------
-  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower" };
-  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", dogface: "いぬ", redflower: "はな", boat: "ふね", sea: "うみ", town: "まち", winter: "ふゆ", sakura: "さくら", whitecat: "ねこ", japanmap: "にほん", telephone: "でんわ", mountain: "やま", sun: "たいよう", moon: "つき", chair: "いす", signal: "しんごう", train: "でんしゃ", bus: "バス", umbrella: "かさ", ticket: "きっぷ", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", redface: "a very red face", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower" };
+  const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", redface: "かお", dogface: "いぬ", redflower: "はな", boat: "ふね", sea: "うみ", town: "まち", winter: "ふゆ", sakura: "さくら", whitecat: "ねこ", japanmap: "にほん", telephone: "でんわ", mountain: "やま", sun: "たいよう", moon: "つき", chair: "いす", signal: "しんごう", train: "でんしゃ", bus: "バス", umbrella: "かさ", ticket: "きっぷ", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
 
   // ---- zones: distance IS the grammar --------------------------------------
   // things: これ・それ・あれ  ·  places: ここ・そこ・あそこ
@@ -112,13 +112,21 @@
         copy: "That is quite a face. Tap it, then call it out.",
         answer: { jp: "おおきい かお！", romaji: "ookii kao", en: "A big face!" },
       },
-      "A red persimmon!": {
-        id: "l0-kaki", type: "ask",
-        scene: "room", zone: "table", object: "persimmon",
-        askLabel: "Call it out:", cta: "Say it →", feedback: "So red. Say it!",
-        instruction: "On the table — small, round, red",
-        copy: "A persimmon, perfectly ripe. Tap it, then call it out.",
-        answer: { jp: "あかい かき！", romaji: "akai kaki", en: "A red persimmon!" },
+      "A red face!": {
+        id: "l0-akakao", type: "ask",
+        scene: "room", zone: "partner", object: "redface",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "Bright red. He knows.",
+        instruction: "He saw you looking…",
+        copy: "Now he's blushing bright red. Tap him, then call it out.",
+        answer: { jp: "あかい かお！", romaji: "akai kao", en: "A red face!" },
+      },
+      "A big station!": {
+        id: "l0-eki", type: "ask",
+        scene: "street", zone: "near", object: "station",
+        askLabel: "Call it out:", cta: "Say it →", feedback: "えき — you'll say this word in Japan constantly.",
+        instruction: "Look at the size of that station",
+        copy: "It fills the street. Tap it, then call it out.",
+        answer: { jp: "おおきい えき！", romaji: "ookii eki", en: "A big station!" },
       },
     },
 
@@ -1002,6 +1010,7 @@
   // scale, same ink-outline language as the painted frames. (Interim art
   // until real illustrations land — owner, 2026-07.)
   const OBJ_SVG = {
+    redface: '<svg viewBox="0 0 110 130" preserveAspectRatio="xMidYMax meet"><rect x="38" y="98" width="34" height="28" rx="8" fill="#7f9ec0" stroke="#243352" stroke-width="4.5"/><circle cx="55" cy="54" r="48" fill="#f5b09a" stroke="#243352" stroke-width="5"/><ellipse cx="38" cy="50" rx="4.5" ry="7" fill="#243352"/><ellipse cx="72" cy="50" rx="4.5" ry="7" fill="#243352"/><path d="M42 76 Q55 70 68 76" fill="none" stroke="#243352" stroke-width="5" stroke-linecap="round"/><circle cx="27" cy="64" r="10" fill="rgba(224,90,72,.55)"/><circle cx="83" cy="64" r="10" fill="rgba(224,90,72,.55)"/><path d="M20 30 Q24 24 30 26 M80 26 Q86 24 90 30" stroke="#243352" stroke-width="4" fill="none" stroke-linecap="round"/></svg>',
     P_aki: '<svg viewBox="0 0 90 130" preserveAspectRatio="xMidYMax meet"><path d="M24 96 Q22 74 45 74 Q68 74 66 96 L64 122 Q63 126 58 126 L32 126 Q27 126 26 122 Z" fill="#74a25f" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><circle cx="45" cy="42" r="28" fill="#f8d4ac" stroke="#243352" stroke-width="4.5"/><path d="M18 40 Q14 16 34 12 L38 22 L46 10 L54 22 L60 12 Q74 18 72 40 Q60 24 45 24 Q30 24 18 40 Z" fill="#d97b3c" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><ellipse cx="36" cy="44" rx="3" ry="4.4" fill="#243352"/><ellipse cx="54" cy="44" rx="3" ry="4.4" fill="#243352"/><path d="M38 56 Q45 61 52 56" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/></svg>',
     P_beni: '<svg viewBox="0 0 90 130" preserveAspectRatio="xMidYMax meet"><path d="M26 94 Q24 74 45 74 Q66 74 64 94 L70 122 Q71 126 65 126 L25 126 Q19 126 20 122 Z" fill="#d95f5f" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><circle cx="45" cy="42" r="28" fill="#f6cea2" stroke="#243352" stroke-width="4.5"/><path d="M16 52 Q10 14 45 12 Q80 14 74 52 Q72 34 66 30 Q68 44 62 26 Q56 40 45 24 Q34 40 28 26 Q22 44 24 30 Q18 34 16 52 Z" fill="#3b3040" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><ellipse cx="36" cy="46" rx="3" ry="4.4" fill="#243352"/><ellipse cx="54" cy="46" rx="3" ry="4.4" fill="#243352"/><path d="M38 58 Q45 63 52 58" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/></svg>',
     P_kai: '<svg viewBox="0 0 90 130" preserveAspectRatio="xMidYMax meet"><path d="M24 96 Q22 74 45 74 Q68 74 66 96 L64 122 Q63 126 58 126 L32 126 Q27 126 26 122 Z" fill="#4a7fb5" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><circle cx="45" cy="44" r="27" fill="#eab98a" stroke="#243352" stroke-width="4.5"/><path d="M16 40 Q16 14 45 14 Q74 14 74 40 L74 34 Q74 44 66 42 Q60 26 45 26 Q30 26 24 42 Q16 44 16 34 Z" fill="#5c86bd" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M70 30 Q86 28 88 36 Q84 42 72 40 Z" fill="#5c86bd" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><ellipse cx="36" cy="48" rx="3" ry="4.4" fill="#243352"/><ellipse cx="54" cy="48" rx="3" ry="4.4" fill="#243352"/><path d="M38 60 Q45 65 52 60" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/></svg>',
