@@ -1060,6 +1060,14 @@
     ticket: '<svg viewBox="0 0 110 64" preserveAspectRatio="xMidYMax meet"><path d="M14 6 L96 6 Q102 6 102 12 L102 52 Q102 58 96 58 L14 58 Q8 58 8 52 L8 12 Q8 6 14 6 Z" fill="#fdf6ea" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M14 6 L26 6 L26 58 L14 58 Q8 58 8 52 L8 12 Q8 6 14 6 Z" fill="#d95f5f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M36 22 L88 22 M36 33 L74 33 M36 44 L82 44" stroke="rgba(36,51,82,.4)" stroke-width="3.5" stroke-linecap="round"/><circle cx="92" cy="16" r="4" fill="#fff" stroke="#243352" stroke-width="3"/></svg>',
   };
   // ---- object factory: SVG from the library; chibi images for people --------
+  // Hand-drawn sketch PNGs (generated art in assets/story/) override the
+  // built-in SVG per key; anything not in OBJ_IMG falls back to OBJ_SVG.
+  const OBJ_IMG = { P_aki: "aki", P_beni: "beni", P_kai: "kai", P_yuki: "yuki" };
+  function objArtHTML(key) {
+    const name = OBJ_IMG[key];
+    if (name) return '<img class="obj-sketch" src="assets/story/' + name + '.png" alt="">';
+    return OBJ_SVG[key] || "";
+  }
   function objectFigure(kind) {
     const fig = el("span", "obj obj-" + kind);
     fig.setAttribute("aria-hidden", "true");
@@ -1078,7 +1086,7 @@
       const slot = kind === "avatar" ? story.inventory.avatar : story.inventory.friend;
       const fallback = kind === "avatar" ? PEOPLE[0] : PEOPLE[1];
       const person = PEOPLE.find((p) => slot && p.id === slot.id) || fallback;
-      fig.innerHTML = OBJ_SVG[person.svg] || "";
+      fig.innerHTML = objArtHTML(person.svg);
       if (kind === "friendchar" && story.friendName) {
         const tag = el("i", "obj-name");
         tag.textContent = story.friendName;
@@ -1086,7 +1094,7 @@
       }
       return fig;
     }
-    fig.innerHTML = OBJ_SVG[kind] || "";
+    fig.innerHTML = objArtHTML(kind);
     return fig;
   }
   function objButton(kind, zone, label) {
@@ -1586,7 +1594,7 @@
       btn.type = "button";
       btn.setAttribute("aria-label", person.name);
       const fig = el("span", "obj obj-person");
-      fig.innerHTML = OBJ_SVG[person.svg];
+      fig.innerHTML = objArtHTML(person.svg);
       btn.appendChild(fig);
       btn.addEventListener("click", () => {
         row.querySelectorAll(".story-person-choice").forEach((node) => node.classList.remove("selected"));

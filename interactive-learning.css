@@ -265,6 +265,11 @@ button.primary.story-continue {
 .story-obj.wrong { animation: story-wrong 0.35s ease; }
 .obj { position: relative; display: block; }
 .obj svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.obj img.obj-sketch {
+  display: block; width: 100%; height: 100%;
+  object-fit: contain; object-position: center bottom;
+  filter: drop-shadow(0 3px 3px rgba(31, 45, 77, 0.18));
+}
 /* book cover motif — picked by data-design on the wrapper */
 .obj-book .bd { display: none; }
 .obj-book[data-design="circle"] .bd-circle,
