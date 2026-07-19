@@ -1093,7 +1093,7 @@
     if (kind === "friend" || kind === "mochiko") {
       const img = document.createElement("img");
       img.className = "obj-person-img";
-      img.src = kind === "friend" ? "assets/chibi_cheer.png" : "assets/chibi_think.png";
+      img.src = kind === "friend" ? "assets/story/mochiko-cheer.png" : "assets/story/mochiko-think.png";
       img.alt = "";
       fig.appendChild(img);
       return fig;
@@ -1331,7 +1331,7 @@
     if (sceneKind === "room") farZone.appendChild(el("i", "scene-shelf-board"));
     const partnerZone = el("div", "scene-zone scene-zone-partner");
     // If もち子 herself is the partner-zone tappable, don't draw her twice.
-    if (layout.partner !== "mochiko") partnerZone.appendChild(mochikoImg("assets/chibi_think.png"));
+    if (layout.partner !== "mochiko") partnerZone.appendChild(mochikoImg("assets/story/mochiko-think.png"));
     partnerZone.appendChild(objButton(layout.partner, "partner"));
     const nearZone = el("div", "scene-zone scene-zone-near");
     const hand = el("div", "story-hand");
@@ -1394,7 +1394,7 @@
     }
 
     if (beat.scene === "shop") {
-      scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
+      scene.appendChild(mochikoImg("assets/story/mochiko-cheer.png", "scene-mochiko scene-mochiko-shop"));
       const counterZone = el("div", "scene-zone scene-zone-counter");
       counterZone.appendChild(target);
       scene.appendChild(counterZone);
@@ -1407,7 +1407,7 @@
     } else if (beat.zone === "partner") {
       const partnerZone = el("div", "scene-zone scene-zone-partner");
       // If もち子 herself is the one you're asking, she IS the tappable.
-      if (beat.object !== "mochiko") partnerZone.appendChild(mochikoImg("assets/chibi_think.png"));
+      if (beat.object !== "mochiko") partnerZone.appendChild(mochikoImg("assets/story/mochiko-think.png"));
       partnerZone.appendChild(target);
       scene.appendChild(partnerZone);
     } else if (beat.zone === "wall") {
@@ -1447,7 +1447,7 @@
 
     const sceneKind = beat.scene || "shop";
     const scene = buildScene(sceneKind);
-    if (sceneKind === "shop") scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
+    if (sceneKind === "shop") scene.appendChild(mochikoImg("assets/story/mochiko-cheer.png", "scene-mochiko scene-mochiko-shop"));
     const counterZone = el("div", "scene-zone scene-zone-counter");
     for (const kind of beat.items) {
       const btn = objButton(kind, "counter");
@@ -1524,7 +1524,7 @@
     overlay.title.textContent = beat.instruction;
     overlay.copy.textContent = "Tap one at a time. The counter word appears with every tap.";
     const scene = buildScene("shop");
-    scene.appendChild(mochikoImg("assets/chibi_cheer.png", "scene-mochiko scene-mochiko-shop"));
+    scene.appendChild(mochikoImg("assets/story/mochiko-cheer.png", "scene-mochiko scene-mochiko-shop"));
     const counterZone = el("div", "scene-zone scene-zone-counter scene-zone-count");
     // ぜんぶ (finalWord) means ALL of them — the row must hold exactly n, so
     // nothing is left behind. Counted beats get spares to choose from.

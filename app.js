@@ -1792,7 +1792,7 @@
       bubble = document.createElement("button");
       bubble.id = "mochiko-intro";
       bubble.innerHTML =
-        '<img class="mb-art" src="assets/chibi_cheer.png" alt="もち子さん" />' +
+        '<img class="mb-art" src="assets/story/mochiko-cheer.png" alt="もち子さん" />' +
         '<span class="mb-bubble"><b class="mb-jp"></b><small class="mb-en"></small></span>';
       bubble.addEventListener("click", () => { if (bubble.dataset.jp) speak(bubble.dataset.jp, { lang: "ja-JP" }); });
       el.intro.insertBefore(bubble, el.intro.firstChild);

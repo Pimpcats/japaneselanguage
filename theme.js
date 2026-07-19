@@ -10,10 +10,10 @@
 
   // ---------------------------------------------------------------- Kōhai --
   const POSES = {
-    happy: "chibi_thumbs.png",
-    cheer: "chibi_cheer.png",
-    sad:   "chibi_cry.png",
-    think: "chibi_think.png",
+    happy: "story/mochiko-thumbs.png",
+    cheer: "story/mochiko-cheer.png",
+    sad:   "story/mochiko-cry.png",
+    think: "story/mochiko-think.png",
   };
   const helper = document.createElement("div");
   helper.id = "kohai-helper";

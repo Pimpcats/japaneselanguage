@@ -1598,7 +1598,7 @@ body.story-open .practice-nav { z-index: 4500; }
 /* the drawn shop counter's top edge sits higher than the old CSS one */
 .story-scene-shop .scene-zone-counter { bottom: 42.5%; }
 /* shopkeeper stands BEHIND the drawn counter: bottom-clip her legs */
-.scene-mochiko-shop { bottom: 36%; clip-path: inset(0 0 34% 0); height: 96px; }
+.scene-mochiko-shop { bottom: 19%; clip-path: inset(0 0 46% 0); height: 132px; }
 
 /* drawn shelf + table replace the CSS wood */
 .scene-shelf-board {
