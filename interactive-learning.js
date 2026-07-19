@@ -32,7 +32,7 @@
     { id: "window", name: "window cover" },
   ];
 
-  // ---- object library (all CSS-drawn; people use the app's chibi art) ------
+  // ---- object library (sketch-ink sprites; SVG fallback for unconverted) ----
   const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", redface: "a very red face", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower" };
   const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", redface: "かお", dogface: "いぬ", redflower: "はな", boat: "ふね", sea: "うみ", town: "まち", winter: "ふゆ", sakura: "さくら", whitecat: "ねこ", japanmap: "にほん", telephone: "でんわ", mountain: "やま", sun: "たいよう", moon: "つき", chair: "いす", signal: "しんごう", train: "でんしゃ", bus: "バス", umbrella: "かさ", ticket: "きっぷ", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
 
@@ -88,7 +88,7 @@
     { id: "tour-1", type: "info", once: true,
       instruction: "ようこそ — welcome!",
       copy: "はなそう teaches you to SPEAK. Every card shows English — you say it in Japanese out loud, then tap to hear もち子 say it for real.",
-      art: "mochiko", cta: "Next →" },
+      art: "mochikoCheer", cta: "Next →" },
     { id: "tour-2", type: "info",
       instruction: "One symbol, one sound",
       copy: "Japanese is written in kana. Each symbol is always the same sound — no surprises. This level teaches five a day, and the abc letters stay above every kana until you know it. They fade as you learn.",
@@ -1059,7 +1059,7 @@
     umbrella: '<svg viewBox="0 0 110 122" preserveAspectRatio="xMidYMax meet"><path d="M55 12 L55 2" stroke="#243352" stroke-width="5" stroke-linecap="round"/><path d="M7 54 Q13 16 55 14 Q97 16 103 54 Q92 44 82 54 Q72 44 62 54 Q58 48 55 48 Q52 48 48 54 Q38 44 28 54 Q18 44 7 54 Z" fill="#5c86bd" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M55 14 L55 48" stroke="rgba(36,51,82,.4)" stroke-width="2.5"/><path d="M55 54 L55 104 Q55 116 44 116 Q35 116 35 106" fill="none" stroke="#243352" stroke-width="10" stroke-linecap="round"/><path d="M55 54 L55 104 Q55 116 44 116 Q35 116 35 106" fill="none" stroke="#8a6642" stroke-width="6" stroke-linecap="round"/></svg>',
     ticket: '<svg viewBox="0 0 110 64" preserveAspectRatio="xMidYMax meet"><path d="M14 6 L96 6 Q102 6 102 12 L102 52 Q102 58 96 58 L14 58 Q8 58 8 52 L8 12 Q8 6 14 6 Z" fill="#fdf6ea" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M14 6 L26 6 L26 58 L14 58 Q8 58 8 52 L8 12 Q8 6 14 6 Z" fill="#d95f5f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M36 22 L88 22 M36 33 L74 33 M36 44 L82 44" stroke="rgba(36,51,82,.4)" stroke-width="3.5" stroke-linecap="round"/><circle cx="92" cy="16" r="4" fill="#fff" stroke="#243352" stroke-width="3"/></svg>',
   };
-  // ---- object factory: SVG from the library; chibi images for people --------
+  // ---- object factory: sketch images via OBJ_IMG; OBJ_SVG fallback ----------
   // Hand-drawn sketch PNGs (generated art in assets/story/) override the
   // built-in SVG per key; anything not in OBJ_IMG falls back to OBJ_SVG.
   const OBJ_IMG = {
@@ -1090,10 +1090,10 @@
   function objectFigure(kind) {
     const fig = el("span", "obj obj-" + kind);
     fig.setAttribute("aria-hidden", "true");
-    if (kind === "friend" || kind === "mochiko") {
+    if (kind === "friend" || kind === "mochiko" || kind === "mochikoCheer") {
       const img = document.createElement("img");
       img.className = "obj-person-img";
-      img.src = kind === "friend" ? "assets/story/mochiko-cheer.png" : "assets/story/mochiko-think.png";
+      img.src = kind === "mochiko" ? "assets/story/mochiko-think.png" : "assets/story/mochiko-cheer.png";
       img.alt = "";
       fig.appendChild(img);
       return fig;

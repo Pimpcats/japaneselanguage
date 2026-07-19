@@ -23,7 +23,7 @@ window.Audio = function () { return { play() { return Promise.resolve(); }, paus
 let failed = 0;
 const check = (name, cond) => { console.log((cond ? "ok  " : "FAIL"), name); if (!cond) failed++; };
 
-for (const f of ["lessons.js", "kana.js", "emoji.js", "app.js", "theme.js", "collection.js"]) {
+for (const f of ["lessons.js", "kana.js", "emoji.js", "app.js", "theme.js", "stampbook.js"]) {
   try { window.eval(readFileSync(f, "utf8")); check("load " + f, true); }
   catch (e) { check("load " + f + " — " + e.message, false); }
 }

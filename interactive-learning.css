@@ -2,7 +2,7 @@
    A full-screen overlay (a cream storybook panel) shown between speaking
    cards, containing little CSS-drawn 3D environments — a room, a shop
    counter — where the learner answers by DOING. No external images
-   (もち子 uses the app's own chibi assets). */
+   (もち子 uses the conductor sketch art). */
 :root {
   --story-ink: #1f2d4d;
   --story-blue: #315f9e;
@@ -460,7 +460,7 @@ button.primary.story-continue {
   color: #fff; font-style: normal;
 }
 
-/* people — the app's own chibi art, tappable */
+/* people — conductor もち子 sketch art, tappable */
 .obj-friend, .obj-mochiko { width: 5.5em; height: 8.5em; }
 .obj-person-img {
   position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);

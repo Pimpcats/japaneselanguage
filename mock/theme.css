@@ -317,7 +317,7 @@ body.no-romaji button.vocab-row { grid-template-columns: 7.2rem 1fr; }
 #lesson-done .done-emoji { display: none; }
 #lesson-done::before {
   content: ""; display: block; width: min(220px, 60%); aspect-ratio: 1; margin: 0 auto;
-  background: url("../assets/chibi_cheer.png") center / contain no-repeat;
+  background: url("../assets/story/mochiko-cheer.png") center / contain no-repeat;
   filter: drop-shadow(0 6px 0 rgba(74, 51, 40, 0.18));
 }
 #lesson-done h2 { color: var(--accent); }

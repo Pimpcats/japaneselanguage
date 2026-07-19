@@ -166,6 +166,7 @@
 
     const progressHub = make("div", "home-hub");
     progressHub.id = "hub-progress";
+    progressHub.id = "hub-progress";
     progressHub.hidden = true;
     progressHub.appendChild(sectionHeading("Your activity", "Progress without the pressure.", "A simple view of consistency, mastery, and time spent with Japanese."));
     const masteryCard = make("section", "mastery-card");

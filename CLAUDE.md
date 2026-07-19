@@ -42,7 +42,7 @@ never corporate, never noisy. Learning is the point; charm is the vehicle.
 | `lessons.js` | ALL content: `window.LEVELS` (levels→tiers→themes) + `window.LESSONS` (vocab + sentences with word breakdowns) + `window.VERBS` |
 | `theme.js` | Additive kawaii layer: header banner + control bar (moves `#back-btn`, `#card-counter`, `#mastery`, `#topbar-right` into `#ctrl-bar`), confetti/jingle FX (`window.HanaFX`), MP3 reward sounds with synth fallback. Uses MutationObservers on screen `[hidden]` attrs — it never patches app.js functions |
 | `theme.css` | The entire visual theme, layered over `styles.css` base. `styles.css` is the old plain look; prefer overriding in `theme.css` |
-| `collection.js` | Self-contained sticker/stamp add-on; listens to the `hanasou:finish` CustomEvent |
+| `stampbook.js/.css` | スタンプ帳: station stamps, one per completed LEVEL (owner, 2026-07 — replaces the retired per-lesson collection.js). Self-contained; listens to `hanasou:finish`, reads progress read-only, state in `hanasou.stamps.v1`. Flip-book UI opens from the Progress hub; vermillion eki-stamp SVGs are drawn in-code |
 | `interactive-learning.js/.css` | Story-beat add-on (see its section): short touch interactions between drill cards, driven by three optional hooks app.js calls (`HanasouStory.onSession`/`afterGrade`/`beforeCard`). State in `hanasou.story.v1`, never in SRS data |
 | `sw.js` | Service worker: `CACHE = "hanasou-vNN"`, precaches shell + all audio, network-first for navigations & `audio/manifest.json`, SWR for the rest |
 | `tools/gen_audio.mjs` | Build-time VOICEVOX synthesis (see Audio) |

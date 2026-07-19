@@ -170,19 +170,17 @@
   const playComplete = () => playSample(SFX.complete, null);
 
   // ------------------------------------------------------------- confetti --
-  const COLORS = ["#ef6fa7", "#f8a8c6", "#f2be45", "#79c8ec", "#3e8e41", "#fff"];
+  const COLORS = ["#b5372a", "#2a3143", "#d9a441", "#f4efe4", "#8a4a3b"];
   function confetti(n = 26) {
     let layer = document.getElementById("confetti-layer");
     if (!layer) { layer = document.createElement("div"); layer.id = "confetti-layer"; document.body.appendChild(layer); }
     for (let i = 0; i < n; i++) {
-      const star = i % 6 === 0;
       const c = document.createElement("div");
-      c.className = "cf" + (star ? " star" : "");
+      c.className = "cf";
       c.style.left = Math.random() * 100 + "%";
       const dur = 1.1 + Math.random() * 1.1;
       c.style.animationDuration = dur + "s";
-      if (star) c.style.background = "url(" + A + "star_stamp.png) center/contain no-repeat";
-      else c.style.background = COLORS[i % COLORS.length];
+      c.style.background = COLORS[i % COLORS.length];
       layer.appendChild(c);
       setTimeout(() => c.remove(), dur * 1000 + 80);
     }
@@ -190,15 +188,6 @@
 
   // ------------------------------------------------- stamp press & flip ----
   const card = document.getElementById("card");
-  function stampCard() {
-    if (!card) return;
-    const st = document.createElement("img");
-    st.className = "stamp-hit";
-    st.src = A + "star_stamp.png";
-    st.alt = "";
-    card.appendChild(st);
-    setTimeout(() => st.remove(), 1400);
-  }
   function flipCard() {
     if (!card) return;
     card.classList.remove("card-flip"); void card.offsetWidth; card.classList.add("card-flip");
@@ -211,7 +200,7 @@
       const g = +grade.dataset.grade;
       const [pose, say] = GRADE_REACT[g] || GRADE_REACT[1];
       react(pose, say);
-      if (g === 2) { stampCard(); confetti(); }   // got it → visual only (owner: chime only)
+      if (g === 2) confetti();   // got it → visual only (owner: chime only)
       else pop(g === 0 ? 300 : 480);
       return;
     }
