@@ -218,7 +218,7 @@
       }
       if (buildAnswer.classList.contains("solved") && !buildAnswer.dataset.cheered) {
         buildAnswer.dataset.cheered = "1";
-        stampCard(); confetti(); react("cheer", "かんせい！|Kansei!");
+        confetti(); react("cheer", "かんせい！|Kansei!");
       }
       if (!buildAnswer.classList.contains("solved")) delete buildAnswer.dataset.cheered;
     }).observe(buildAnswer, { childList: true, attributes: true, attributeFilter: ["class"] });
@@ -236,7 +236,7 @@
       const em = document.createElement("img");
       em.className = "tier-emblem";
       em.alt = "";
-      em.onerror = () => { em.onerror = null; em.src = A + "star_stamp.png"; };
+      em.onerror = () => em.remove();   // no tier art yet → no emblem, never a broken image
       em.src = A + "tier-" + slug + ".png";
       head.prepend(em);
     });

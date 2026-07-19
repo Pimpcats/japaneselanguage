@@ -462,3 +462,12 @@ body.drive-mode #answer-kana ruby rt { color: var(--ink-soft); }
   max-width: 58%; object-fit: contain;
   margin: 0.05rem 0 0.25rem; pointer-events: none;
 }
+
+/* done-theme seal: drawn in code, matches the stamp book's vermillion ink */
+.theme-stamp {
+  display: inline-grid; place-items: center;
+  width: 1.7rem; height: 1.7rem;
+  border: 2.5px solid #b5372a; border-radius: 50%;
+  color: #b5372a; font-weight: 800; font-size: 0.85rem;
+  transform: rotate(-8deg);
+}

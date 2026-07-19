@@ -1586,9 +1586,9 @@ body.story-open .practice-nav { z-index: 4500; }
 /* ---- drawn backdrops: the three stages are now sketch art ------------------ */
 /* The ink drawings carry the wall/floor/counter; the gradient layers go quiet
    but stay in the DOM — zones still position everything. */
-.story-scene-room { background: url("assets/story/bg-room.png") center / cover no-repeat #fdfcf8; }
-.story-scene-street { background: url("assets/story/bg-street.png") center / cover no-repeat #fdfcf8; }
-.story-scene-shop { background: url("assets/story/bg-shop.png") center / cover no-repeat #fdfcf8; }
+.story-scene-room { background: url("assets/story/bg-room.png") center / auto 100% no-repeat #fdfcf8; }
+.story-scene-street { background: url("assets/story/bg-street.png") center / auto 100% no-repeat #fdfcf8; }
+.story-scene-shop { background: url("assets/story/bg-shop.png") center / auto 100% no-repeat #fdfcf8; }
 .story-scene-room .scene-wall, .story-scene-room .scene-floor,
 .story-scene-street .scene-wall, .story-scene-street .scene-floor, .story-scene-street .scene-skyline,
 .story-scene-shop .scene-wall, .story-scene-shop .scene-floor {

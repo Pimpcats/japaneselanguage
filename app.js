@@ -1676,8 +1676,8 @@
       head.appendChild(span("theme-ico", REGION_ICONS[regionIdx % REGION_ICONS.length]));
       head.appendChild(span("theme-name", r.theme));
       if (r.done) {
-        const stamp = document.createElement("img");
-        stamp.className = "theme-stamp"; stamp.src = "assets/star_stamp.png"; stamp.alt = "done";
+        const stamp = span("theme-stamp", "済");   // a little vermillion seal, no image
+        stamp.setAttribute("aria-label", "done");
         head.appendChild(stamp);
       } else {
         head.appendChild(span("theme-count", r.lessons.filter(isDoneL).length + "/" + r.lessons.length));
