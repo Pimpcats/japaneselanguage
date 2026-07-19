@@ -160,26 +160,30 @@ the clip, falling back to device `speechSynthesis` if missing.
 
 ## Visual language (hard-won — do not rediscover these by trial and error)
 
-- Ink-outlined "pop" style: `border: 2.5–3px solid var(--ink)` + hard drop
-  shadow `0 3–4px 0 var(--ink)`; press = translateY + shadow collapse. ALL
-  interactive elements get this treatment, including header icon buttons.
-- The drill card frame is a `border-image` 9-slice (`assets/frame.png`). The
-  cream fill must be `background-color` + `background-clip: padding-box` on the
-  card itself — NOT a `::before` layer (negative z-index children paint OVER
-  border-image; padding-box is what keeps fill inside the frame, no bleed).
-- The header is one painted sign (`assets/sign.png` stretched over
-  `#app-header`): title text in the top band, striped awning divider, controls
-  (back/home · progress/mastery · gear) inside the lower band. It is NOT sticky —
-  it scrolls with the page. Everything must fit inside the sign's white area.
-- The gear is a toggle: opens Settings, tapping again returns to the exact
-  previous screen. Collection 📖 lives on Home only.
-- Preload any new hero asset in `index.html` (`<link rel="preload">`) and add it
-  to the SW SHELL list — assets visibly popping in reads cheap.
-- Muted text must stay readable: `--muted` is intentionally dark (#6b5847);
-  don't lighten text on the translucent street background.
-- Reward sounds are real MP3s (`assets/sfx-correct.mp3`,
-  `assets/sfx-lesson-complete.mp3`) with a synth fallback in theme.js. Don't
-  replace them with pure synthesis — it was tried and sounded cheap.
+- **The art direction is sketchbook manga ink** (owner decision, 2026-07):
+  loose pen lines, hatch shading, paper white, no color fill (red ink only
+  where a sentence claims red; the sea carries a faint blue wash because
+  うみは あおい). ALL art is generated in ChatGPT from a shared style-anchor
+  prompt on green screens, cut with `tools/cut_sheet.py` (chroma-key, trim,
+  512px cap, 256-color quantize), and dropped into `assets/story/` (scene
+  objects, people, backdrops, props) or `assets/covers/<lessonId>.png`
+  (one cover per lesson, shown on its station-sign card). The engine maps
+  keys→images in `OBJ_IMG` (interactive-learning.js) with OBJ_SVG as
+  fallback; books/clock have special multi-image handling there.
+- The three stages (room/street/shop) are drawn backdrops (`bg-*.png`) set
+  as `background-image` on `.story-scene-*`; the old gradient wall/floor
+  layers are transparent but keep their zone geometry. The shop's item zone
+  and もち子 are aligned to the drawn counter (her legs clip behind it).
+- The painted kawaii chrome (sign.png, awning, frame.png 9-slice,
+  street_soft veil) is RETIRED — deleted from the repo; the subway theme's
+  clean transit chrome replaced it. Don't reintroduce painted chrome.
+- Ink-outlined "pop" style for interactive elements: `border: 2.5–3px solid
+  var(--ink)` + hard drop shadow; press = translateY + shadow collapse.
+- Preload any new hero asset in `index.html` (`<link rel="preload">`) and add
+  it to the SW SHELL list — assets visibly popping in reads cheap. Every
+  assets/story and assets/covers file must be in SHELL (offline PWA).
+- The ONLY reward sound is `assets/sfx-chime.wav` (owner's chime) after
+  lesson complete. No synth fallback, no per-answer sound.
 
 ## Sentence practice = car mode ONLY (app.js)
 
