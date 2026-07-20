@@ -88,7 +88,8 @@ async function run() {
         const target = await pointTarget();
         sawPoint[target] = true;
         await page.screenshot({ path: SHOTS + "/5-point-" + target + ".png" });
-        const wrongZone = ["near", "partner", "far"].find((z) => z !== target);
+        const zones = await page.evaluate(() => [...document.querySelectorAll(".story-obj[data-zone]")].map((n) => n.dataset.zone));
+        const wrongZone = zones.find((z) => z !== target);
         await page.locator(`.story-obj[data-zone="${wrongZone}"]`).click();
         await page.waitForTimeout(250);
         const fb = await page.evaluate(() => document.querySelector(".story-feedback").textContent);
@@ -195,11 +196,14 @@ async function run() {
         const target = await pointTarget();
         if (whereShot === 1) { await page.screenshot({ path: SHOTS + "/9-street-scene.png" }); whereShot++; }
         if (await page.evaluate(() => !!document.querySelector(".story-panel > .story-ask"))) askBlockSeen = true;
-        const wrongZone = ["near", "partner", "far"].find((z) => z !== target);
-        await page.locator(`.story-obj[data-zone="${wrongZone}"]`).click();
-        await page.waitForTimeout(250);
-        const fb = await page.evaluate(() => document.querySelector(".story-feedback").textContent);
-        if (/ここ|そこ|あそこ/.test(fb) && await continueHidden()) placeWordTaught = true;
+        const zones2 = await page.evaluate(() => [...document.querySelectorAll(".story-obj[data-zone]")].map((n) => n.dataset.zone));
+        const wrongZone = zones2.find((z) => z !== target);
+        if (wrongZone) {
+          await page.locator(`.story-obj[data-zone="${wrongZone}"]`).click();
+          await page.waitForTimeout(250);
+          const fb = await page.evaluate(() => document.querySelector(".story-feedback").textContent);
+          if (/ここ|そこ|あそこ/.test(fb) && await continueHidden()) placeWordTaught = true;
+        }
         await page.locator(`.story-obj[data-zone="${target}"]`).click();
         await page.waitForSelector(".story-continue:not([hidden])");
         whereAnswers.push(await answerJp());

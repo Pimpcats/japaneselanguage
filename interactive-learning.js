@@ -612,26 +612,26 @@
       },
       "It's over there.": {
         id: "where-spot-wc", type: "point", words: "place", scene: "street", target: "far",
-        layout: { near: "water", partner: "mochiko", far: "wc" },
+        layout: { partner: "mochiko", far: "wc" },
         instruction: "There it is! Point at the restroom sign",
         answer: { jp: "あそこです。", romaji: "asoko desu", en: "It's over there." },
       },
       "The station is here.": {
         id: "where-station-here", type: "point", words: "place", scene: "street", target: "near",
-        layout: { near: "station", partner: "mochiko", far: "wc" },
+        layout: { near: "station", partner: "mochiko" },
         instruction: "You're standing right at the station",
         answer: { jp: "えきは ここです。", romaji: "eki wa koko desu", en: "The station is here." },
       },
       "Yes, it's here.": {
         id: "where-water-here", type: "point", words: "place", scene: "street", target: "near",
         ask: { jp: "みずは ありますか？", romaji: "mizu wa arimasu ka", en: "Is there (any) water?" },
-        layout: { near: "water", partner: "mochiko", far: "wc" },
+        layout: { near: "water", partner: "mochiko" },
         instruction: "もち子 wants water — you have some!",
         answer: { jp: "はい、ここに あります。", romaji: "hai, koko ni arimasu", en: "Yes, it's here." },
       },
       "My friend is over there.": {
         id: "where-friend", type: "point", words: "place", scene: "street", target: "far",
-        layout: { near: "water", partner: "mochiko", far: "friend" },
+        layout: { partner: "mochiko", far: "friend" },
         instruction: "Your friend is waving — spot them!",
         answer: { jp: "ともだちは あそこに います。", romaji: "tomodachi wa asoko ni imasu", en: "My friend is over there." },
       },
@@ -1050,7 +1050,7 @@
     water: '<svg viewBox="0 0 70 118" preserveAspectRatio="xMidYMax meet"><rect x="24" y="2" width="22" height="13" rx="3" fill="#5c86bd" stroke="#243352" stroke-width="4"/><path d="M21 21 Q16 30 16 44 L16 100 Q16 112 28 112 L42 112 Q54 112 54 100 L54 44 Q54 30 49 21 Q45 15 35 15 Q25 15 21 21 Z" fill="#cfe4f4" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><rect x="17" y="60" width="36" height="22" fill="#fdf6ea" stroke="#243352" stroke-width="3.5"/><path d="M25 32 Q23 40 23 48" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".8"/></svg>',
     coffee: '<svg viewBox="0 0 110 100" preserveAspectRatio="xMidYMax meet"><ellipse cx="48" cy="88" rx="38" ry="7" fill="#e8ddc4" stroke="#243352" stroke-width="4"/><path d="M32 16 Q36 8 32 2 M48 18 Q52 10 48 4" stroke="#b9c7d8" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M14 36 L82 36 Q86 68 62 78 L34 78 Q10 68 14 36 Z" fill="#8a5a3b" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><ellipse cx="48" cy="36" rx="34" ry="7" fill="#5d3a24" stroke="#243352" stroke-width="4"/><path d="M84 42 Q100 42 98 54 Q96 66 79 63" fill="none" stroke="#243352" stroke-width="5"/></svg>',
     mystery: '<svg viewBox="0 0 100 110" preserveAspectRatio="xMidYMax meet"><path d="M14 96 Q8 74 26 60 Q40 48 60 50 Q86 54 90 78 Q92 98 74 102 Q40 108 14 96 Z" fill="#9b8ec4" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M44 52 Q38 32 52 26 Q60 22 64 30 Q74 24 78 34 Q82 44 70 48 Q56 54 44 52 Z" fill="#8577b5" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><text x="52" y="90" font-size="32" font-weight="800" fill="#fdf6ea" text-anchor="middle" font-family="sans-serif">?</text></svg>',
-    wc: '<svg viewBox="0 0 90 130" preserveAspectRatio="xMidYMax meet"><rect x="41" y="42" width="8" height="84" rx="3" fill="#8a8f99" stroke="#243352" stroke-width="4"/><rect x="10" y="6" width="70" height="44" rx="9" fill="#4a7fb5" stroke="#243352" stroke-width="5"/><text x="45" y="38" font-size="24" font-weight="800" fill="#fff" text-anchor="middle" font-family="sans-serif">WC</text></svg>',
+    wc: '<svg viewBox="0 0 100 130" preserveAspectRatio="xMidYMax meet"><rect x="46" y="70" width="8" height="56" rx="3" fill="#c9c3b3" stroke="#243352" stroke-width="4"/><rect x="8" y="6" width="84" height="74" rx="9" fill="#fbfaf6" stroke="#243352" stroke-width="5"/><g fill="#243352"><circle cx="30" cy="24" r="6.5"/><path d="M23 34 h14 l-2 22 h-3 l-1 -14 h-2 l-1 14 h-3 z"/><circle cx="62" cy="24" r="6.5"/><path d="M55 36 l7 -3 l7 3 l-3 16 h-3 l1 12 h-8 l1 -12 h-3 z"/></g><line x1="46" y1="18" x2="46" y2="60" stroke="#243352" stroke-width="2.5"/><text x="80" y="52" font-size="30" font-weight="800" fill="#c0392b" text-anchor="middle" font-family="sans-serif">?</text></svg>',
     station: '<svg viewBox="0 0 130 112" preserveAspectRatio="xMidYMax meet"><path d="M8 44 L65 12 L122 44 Z" fill="#d95f5f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><rect x="18" y="44" width="94" height="62" fill="#fdf6ea" stroke="#243352" stroke-width="5"/><rect x="52" y="68" width="26" height="38" rx="3" fill="#8a6642" stroke="#243352" stroke-width="4"/><rect x="26" y="54" width="18" height="16" rx="2" fill="#cfe4f4" stroke="#243352" stroke-width="3.5"/><rect x="86" y="54" width="18" height="16" rx="2" fill="#cfe4f4" stroke="#243352" stroke-width="3.5"/><rect x="42" y="22" width="46" height="15" rx="4" fill="#fdf6ea" stroke="#243352" stroke-width="3.5"/><text x="65" y="34" font-size="11" font-weight="800" fill="#243352" text-anchor="middle" font-family="sans-serif">えき</text></svg>',
     menu: '<svg viewBox="0 0 100 120" preserveAspectRatio="xMidYMax meet"><path d="M22 112 L36 62 M78 112 L64 62" stroke="#8a6642" stroke-width="6" stroke-linecap="round"/><rect x="18" y="8" width="64" height="78" rx="6" fill="#3f4a3c" stroke="#243352" stroke-width="5"/><text x="50" y="30" font-size="14" font-weight="800" fill="#fdf6ea" text-anchor="middle" font-family="sans-serif">メニュー</text><path d="M28 46 L72 46 M28 58 L64 58 M28 70 L70 70" stroke="#fdf6ea" stroke-width="4" stroke-linecap="round" opacity=".8"/></svg>',
     sushi: '<svg viewBox="0 0 130 92" preserveAspectRatio="xMidYMax meet"><path d="M18 60 Q16 46 32 42 L98 38 Q114 40 114 52 Q114 66 98 70 L36 74 Q20 72 18 60 Z" fill="#fdf6ea" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M28 54 Q32 50 36 54 M48 60 Q52 56 56 60 M72 56 Q76 52 80 56" stroke="rgba(36,51,82,.25)" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M12 40 Q10 28 26 24 L100 18 Q118 18 120 30 Q121 40 108 44 L30 50 Q14 50 12 40 Z" fill="#f4845f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M28 32 Q46 26 62 28 M44 42 Q64 36 82 34 M92 26 Q104 24 110 28" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".75"/><path d="M56 22 L74 20 L78 54 L60 56 Z" fill="#2f4032" stroke="#243352" stroke-width="4" stroke-linejoin="round"/></svg>',
@@ -1083,7 +1083,7 @@
     sushi: "sushi", peach: "peach", cup: "cup", water: "water", coffee: "coffee", menu: "menu",
     dogface: "dogface", whitecat: "whitecat", cat: "cat", cow: "cow", octopus: "octopus", bird: "bird",
     bag: "bag", telephone: "telephone", umbrella: "umbrella", ticket: "ticket", chair: "chair",
-    house: "house", station: "station", town: "town", schooldesk: "schooldesk", wc: "wc",
+    house: "house", station: "station", town: "town", schooldesk: "schooldesk",
     signal: "signal", car: "car", train: "train", bus: "bus", boat: "boat",
     sea: "sea", winter: "winter", sakura: "sakura", flower: "flower", redflower: "redflower",
     mountain: "mountain", sun: "sun", moon: "moon", star: "star",
@@ -1106,7 +1106,7 @@
   function objectFigure(kind) {
     const fig = el("span", "obj obj-" + kind);
     fig.setAttribute("aria-hidden", "true");
-    if (kind === "friend" || kind === "mochiko" || kind === "mochikoCheer") {
+    if (kind === "mochiko" || kind === "mochikoCheer") {
       const img = document.createElement("img");
       img.className = "obj-person-img";
       img.src = kind === "mochiko" ? "assets/story/mochiko-think.png" : "assets/story/mochiko-cheer.png";
@@ -1117,7 +1117,7 @@
     if (kind === "book") {
       fig.dataset.design = (story.inventory.book && story.inventory.book.design) || "circle";
     }
-    if (kind === "avatar" || kind === "friendchar") {
+    if (kind === "avatar" || kind === "friendchar" || kind === "friend") {
       const slot = kind === "avatar" ? story.inventory.avatar : story.inventory.friend;
       const fallback = kind === "avatar" ? PEOPLE[0] : PEOPLE[1];
       const person = PEOPLE.find((p) => slot && p.id === slot.id) || fallback;
@@ -1342,18 +1342,26 @@
     const scene = buildScene(sceneKind);
     const layout = beat.layout || { near: "book", partner: "bag", far: "clock" };
 
-    const farZone = el("div", "scene-zone scene-zone-far");
-    farZone.appendChild(objButton(layout.far, "far"));
-    if (sceneKind === "room") farZone.appendChild(el("i", "scene-shelf-board"));
-    const partnerZone = el("div", "scene-zone scene-zone-partner");
-    // If もち子 herself is the partner-zone tappable, don't draw her twice.
-    if (layout.partner !== "mochiko") partnerZone.appendChild(mochikoImg("assets/story/mochiko-think.png"));
-    partnerZone.appendChild(objButton(layout.partner, "partner"));
-    const nearZone = el("div", "scene-zone scene-zone-near");
-    const hand = el("div", "story-hand");
-    hand.setAttribute("aria-hidden", "true");
-    nearZone.append(objButton(layout.near, "near"), hand);
-    scene.append(farZone, partnerZone, nearZone);
+    // Only render the zones a beat actually uses — no arbitrary floating
+    // decoys (owner, 2026-07). A point beat shows もち子 (そこ, by her) and the
+    // target at its distance; that's enough to teach ここ/そこ/あそこ.
+    if (layout.far) {
+      const farZone = el("div", "scene-zone scene-zone-far");
+      farZone.appendChild(objButton(layout.far, "far"));
+      if (sceneKind === "room") farZone.appendChild(el("i", "scene-shelf-board"));
+      scene.appendChild(farZone);
+    }
+    if (layout.partner) {
+      const partnerZone = el("div", "scene-zone scene-zone-partner");
+      if (layout.partner !== "mochiko") partnerZone.appendChild(mochikoImg("assets/story/mochiko-think.png"));
+      partnerZone.appendChild(objButton(layout.partner, "partner"));
+      scene.appendChild(partnerZone);
+    }
+    if (layout.near) {
+      const nearZone = el("div", "scene-zone scene-zone-near");
+      nearZone.appendChild(objButton(layout.near, "near"));
+      scene.appendChild(nearZone);
+    }
     overlay.stage.appendChild(scene);
 
     // "the かばん" for things; "もち子 herself" for the person
@@ -1379,7 +1387,6 @@
           if (node !== btn) node.classList.add("dimmed");
         });
         btn.classList.add("correct");
-        hand.dataset.aim = zone;
         attachAnswer(beat, words[beat.target] + " — now say it:");
         overlay.feedback.textContent = "You're pointing right at it!";
         overlay.feedback.className = "story-feedback success";
