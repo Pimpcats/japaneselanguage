@@ -1779,6 +1779,7 @@
     const promptEl = document.getElementById("prompt-en");
     if (!cardEl || !promptEl) return;
 
+    document.body.classList.add("coach-open");   // guided: only Next drives the card
     const layer = el("div", "coach-layer");
     const spot = el("div", "coach-spot");
     const bubble = el("div", "coach-bubble");
@@ -1824,7 +1825,7 @@
     const show = () => { steps[i](); nextBtn.textContent = i < steps.length - 1 ? "Next →" : "Got it →"; };
     nextBtn.addEventListener("click", () => {
       if (i < steps.length - 1) { i += 1; show(); }
-      else layer.remove();
+      else { layer.remove(); document.body.classList.remove("coach-open"); }
     });
     window.addEventListener("resize", () => { if (layer.isConnected) show(); });
     show();

@@ -901,7 +901,8 @@ button.primary.story-continue {
 .story-name-wrap .obj-friendchar { font-size: 15px; }
 .story-name-input {
   width: min(78%, 240px);
-  font: 700 18px/1.2 inherit; text-align: center;
+  font-weight: 700; font-size: 18px; line-height: 1.2; font-family: inherit;
+  text-align: center;
   color: var(--story-ink); background: #fdf6ea;
   border: 3px solid var(--story-ink); border-radius: 12px;
   padding: 0.55rem 0.8rem; box-shadow: inset 0 2px 0 rgba(36, 51, 82, 0.12);
@@ -1623,12 +1624,29 @@ body.story-open .practice-nav { z-index: 4500; }
 .story-scene-plain { background: linear-gradient(170deg, #fbf9f2, #f2edde); }
 .story-scene-plain .scene-wall, .story-scene-plain .scene-floor { display: none; }
 .scene-zone-center {
-  position: absolute; inset: 0;
+  position: absolute; inset: 5%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
 }
-.scene-zone-center .story-obj.obj-hero { font-size: 30px !important; }
+.scene-zone-center .story-obj { width: 88%; height: 90%; display: flex; align-items: center; justify-content: center; }
+.scene-zone-center .story-obj .obj { width: 100% !important; height: 100% !important; }
 
 /* the pointing hand is retired for now (owner) — keep its box so order-beat
    fly-to destinations still have geometry, just paint nothing */
 .story-hand { background: none !important; filter: none !important; }
+
+/* professional pass (owner, 2026-07):
+   1. sticker separation — tappable ink sprites get a white cut-out edge so
+      they never blend into the ink backdrops */
+.story-scene .obj img.obj-sketch {
+  filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.95))
+          drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.95))
+          drop-shadow(0 3px 4px rgba(31, 45, 77, 0.22));
+}
+/* 2. mobile-first sizes — nothing to squint at */
+.scene-zone-near { font-size: 17px; }
+.scene-zone-partner { font-size: 12px; }
+.scene-zone-table { font-size: 15px; }
+.scene-zone-counter { font-size: 13px; }
+.story-scene-room .scene-zone-counter { font-size: 13px; }
+/* 3. guided card tour: taps on the card do nothing; Next drives it */
+body.coach-open #card { pointer-events: none; }
