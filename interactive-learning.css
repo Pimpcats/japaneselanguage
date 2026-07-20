@@ -1617,3 +1617,18 @@ body.story-open .practice-nav { z-index: 4500; }
 /* おおきい beats: the claimed-big object fills the scene like the big clock */
 .story-obj.obj-hero { font-size: 30px !important; z-index: 2; }
 .scene-zone-partner .story-obj.obj-hero { font-size: 24px !important; }
+
+/* ---- plain stage: no backdrop, one centered object (owner: not everything
+   needs a background) ---- */
+.story-scene-plain { background: linear-gradient(170deg, #fbf9f2, #f2edde); }
+.story-scene-plain .scene-wall, .story-scene-plain .scene-floor { display: none; }
+.scene-zone-center {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.scene-zone-center .story-obj.obj-hero { font-size: 30px !important; }
+
+/* the pointing hand is retired for now (owner) — keep its box so order-beat
+   fly-to destinations still have geometry, just paint nothing */
+.story-hand { background: none !important; filter: none !important; }

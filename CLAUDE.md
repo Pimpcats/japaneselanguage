@@ -348,6 +348,12 @@ to reveal-and-listen when unavailable.
   `adj-negative` (the 98,000円 clock marked down to 100円 → たかくないです),
   `can-do` (a car you can't drive). Abstract sentences
   (think/because/want, grammar-only morphology, keigo) stay as normal cards.
+- `hero: true` on a beat renders its object dominating the scene — any
+  sentence claiming おおきい must LOOK big (station, face, cow, boat).
+  `scene: "plain"` is a backdrop-less centered stage for standalone objects
+  (house, faces) — not everything needs a background (owner, 2026-07). The
+  pointing hand is retired: `.story-hand` paints nothing (geometry kept for
+  order-beat fly-to destinations).
 - Scenes are CSS 3D (perspective floor + wall/counter) with an em-scaled
   object library — every object is inline SVG (`OBJ_SVG` in
   interactive-learning.js, 2026-07: interim hand-drawn vector art until real

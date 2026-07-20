@@ -76,7 +76,7 @@
     },
   };
 
-  const HOUSE_BEAT = { id: "l0-ie", type: "ask", scene: "street", zone: "partner", object: "house",
+  const HOUSE_BEAT = { id: "l0-ie", type: "ask", scene: "plain", zone: "center", object: "house", hero: true,
     askLabel: "Call it out:", cta: "Say it →", feedback: "いい = nice. いえ = house.",
     instruction: "Look at that house",
     copy: "What a place. Tap it, then call it out.",
@@ -106,7 +106,7 @@
     "l0-ka": {
       "A big face!": {
         id: "l0-bigface", type: "ask",
-        scene: "room", zone: "partner", object: "bigface", hero: true,
+        scene: "plain", zone: "center", object: "bigface", hero: true,
         askLabel: "Call it out:", cta: "Say it →", feedback: "You can't NOT say something.",
         instruction: "Whoa — that guy…",
         copy: "That is quite a face. Tap it, then call it out.",
@@ -114,7 +114,7 @@
       },
       "A red face!": {
         id: "l0-akakao", type: "ask",
-        scene: "room", zone: "partner", object: "redface",
+        scene: "plain", zone: "center", object: "redface", hero: true,
         askLabel: "Call it out:", cta: "Say it →", feedback: "Bright red. He knows.",
         instruction: "He saw you looking…",
         copy: "Now he's blushing bright red. Tap him, then call it out.",
@@ -1405,6 +1405,10 @@
       table.setAttribute("aria-hidden", "true");
       tableZone.append(target, table);
       scene.appendChild(tableZone);
+    } else if (beat.scene === "plain") {
+      const centerZone = el("div", "scene-zone scene-zone-center");
+      centerZone.appendChild(target);
+      scene.appendChild(centerZone);
     } else if (beat.zone === "partner") {
       const partnerZone = el("div", "scene-zone scene-zone-partner");
       // If もち子 herself is the one you're asking, she IS the tappable.
