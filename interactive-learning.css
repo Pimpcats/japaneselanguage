@@ -567,7 +567,29 @@ button.primary.story-continue {
   white-space: nowrap;
   animation: story-enter 0.2s ease both;
 }
-.scene-zone-count { flex-wrap: wrap; row-gap: 1.4em; }
+/* ---- counting board: exactly N items on a clean paper stage, no scene ---- */
+.story-scene-count { background: linear-gradient(170deg, #fbf9f2, #f2edde); }
+.count-row {
+  position: absolute; inset: 8% 5%;
+  display: flex; flex-wrap: wrap; align-content: center; justify-content: center;
+  gap: 1.9em 1.4em; font-size: 20px;
+}
+.count-row[data-n="1"] { font-size: 34px; }
+.count-row[data-n="2"] { font-size: 30px; }
+.count-row[data-n="3"] { font-size: 26px; }
+.count-row[data-n="4"], .count-row[data-n="5"] { font-size: 23px; }
+.count-row[data-n="6"] { font-size: 20px; }
+.count-row[data-n="7"], .count-row[data-n="8"] { font-size: 17px; gap: 1.5em 1.1em; }
+.count-row[data-n="9"], .count-row[data-n="10"] { font-size: 15px; gap: 1.4em 0.9em; }
+.count-slot {
+  position: relative; width: 3.4em; height: 3.4em;
+  display: flex; align-items: flex-end; justify-content: center;
+  cursor: pointer; transition: transform 0.15s ease;
+}
+.count-slot .obj { width: 100%; height: 100%; }
+.count-slot .obj img.obj-sketch { filter: drop-shadow(0 2px 3px rgba(31,45,77,.2)); }
+.count-slot.counted { transform: translateY(-4px); }
+.count-slot.counted .obj { filter: drop-shadow(0 0 7px rgba(46,125,91,0.5)); }
 
 /* pick: same object at two sizes, side by side */
 .story-pick-row {
@@ -1629,6 +1651,9 @@ body.story-open .practice-nav { z-index: 4500; }
 }
 .scene-zone-center .story-obj { width: 88%; height: 90%; display: flex; align-items: center; justify-content: center; }
 .scene-zone-center .story-obj .obj { width: 100% !important; height: 100% !important; }
+/* もち子 as the centred subject (age etc): a clear standing figure, not huge */
+.scene-zone-center .obj-mochiko, .scene-zone-center .obj-friend { width: auto; height: 92%; }
+.scene-zone-center .obj-mochiko img, .scene-zone-center .obj-friend img { width: auto; height: 100%; }
 
 /* the pointing hand is retired for now (owner) — keep its box so order-beat
    fly-to destinations still have geometry, just paint nothing */

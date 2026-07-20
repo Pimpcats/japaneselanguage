@@ -66,7 +66,7 @@
   const CLAIM_BEAT = { id: "claim-book", type: "claim", item: "book", once: true, next: PLACE_BEAT };
 
   // Counter words for the count act (tap items one by one).
-  const COUNTS = ["ひとつ", "ふたつ", "みっつ", "よっつ", "いつつ"];
+  const COUNTS = ["ひとつ", "ふたつ", "みっつ", "よっつ", "いつつ", "むっつ", "ななつ", "やっつ", "ここのつ", "とお"];
 
   const AFTER_PROMPT = {
     "this-that": {
@@ -640,9 +640,15 @@
     // ---- Counting things: tap them one by one — the count IS the word ----
     "counters": {
       "One, please.": {
-        id: "count-one", type: "count", item: "cup", n: 1,
-        instruction: "Just one tea — tap it",
-        answer: { jp: "ひとつ ください。", romaji: "hitotsu kudasai", en: "One, please." },
+        id: "count-systems", type: "info",
+        instruction: "One counter for everything",
+        copy: "Japan has a few ways to count — but this one, ひとつ ふたつ みっつ… up to とお (ten), works for almost anything. Learn it first; you'll use it every day.",
+        cta: "Start counting →",
+        next: {
+          id: "count-one", type: "count", item: "cup", n: 1,
+          instruction: "Just one tea — tap it",
+          answer: { jp: "ひとつ ください。", romaji: "hitotsu kudasai", en: "One, please." },
+        },
       },
       "Two coffees, please.": {
         id: "count-two", type: "count", item: "coffee", n: 2,
@@ -654,9 +660,19 @@
         instruction: "Three waters — count them off",
         answer: { jp: "みずを みっつ ください。", romaji: "mizu o mittsu kudasai", en: "Three waters, please." },
       },
+      "Four, please.": {
+        id: "count-four", type: "count", item: "sushi", n: 4,
+        instruction: "Four pieces — count each one",
+        answer: { jp: "よっつ ください。", romaji: "yottsu kudasai", en: "Four, please." },
+      },
+      "Five, please.": {
+        id: "count-five", type: "count", item: "sushi", n: 5,
+        instruction: "Five pieces — keep counting",
+        answer: { jp: "いつつ ください。", romaji: "itsutsu kudasai", en: "Five, please." },
+      },
       "All of it, please.": {
-        id: "count-all", type: "count", item: "sushi", n: 4, finalWord: "ぜんぶ",
-        instruction: "You want every last one — tap them all",
+        id: "count-all", type: "count", item: "sushi", n: 10, finalWord: "とお",
+        instruction: "You want every last one — count all ten",
         answer: { jp: "ぜんぶ ください。", romaji: "zenbu kudasai", en: "All of it, please." },
       },
     },
@@ -800,7 +816,7 @@
     "age": {
       "How old are you?": {
         id: "age-ask", type: "ask",
-        scene: "room", zone: "partner", object: "mochiko", askLabel: "Ask her:",
+        scene: "plain", zone: "center", object: "mochiko", askLabel: "Ask her:",
         instruction: "How old IS もち子, anyway?",
         copy: "Only one way to find out. Tap her and ask.",
         answer: { jp: "なんさいですか？", romaji: "nan-sai desu ka", en: "How old are you?" },
@@ -1527,38 +1543,38 @@
   // ---- count: tap them one at a time — the counting IS the word --------------
   function renderCountBeat(beat, finishBeat) {
     overlay.title.textContent = beat.instruction;
-    overlay.copy.textContent = "Tap one at a time. The counter word appears with every tap.";
-    const scene = buildScene("shop");
-    scene.appendChild(mochikoImg("assets/story/mochiko-cheer.png", "scene-mochiko scene-mochiko-shop"));
-    const counterZone = el("div", "scene-zone scene-zone-counter scene-zone-count");
-    // ぜんぶ (finalWord) means ALL of them — the row must hold exactly n, so
-    // nothing is left behind. Counted beats get spares to choose from.
-    const total = beat.finalWord ? beat.n : Math.max(beat.n + 1, 4);
-    for (let i = 0; i < total; i += 1) counterZone.appendChild(objButton(beat.item, "counter"));
-    scene.appendChild(counterZone);
+    overlay.copy.textContent = "Tap them one at a time — say each counter word as it pops up.";
+    // A clean counting board: NO scene, just exactly N items in a centred row
+    // so the count is unmistakable (owner, 2026-07). Each tap pops its counter
+    // word above the item and speaks it, teaching ひとつ…とお in order.
+    const scene = el("div", "story-scene story-scene-count");
+    const row = el("div", "count-row");
+    row.dataset.n = String(beat.n);
+    for (let i = 0; i < beat.n; i += 1) {
+      const slot = el("div", "count-slot");
+      slot.appendChild(objectFigure(beat.item));
+      row.appendChild(slot);
+    }
+    scene.appendChild(row);
     overlay.stage.appendChild(scene);
 
     let counted = 0;
-    counterZone.querySelectorAll(".story-obj").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        if (btn.disabled || counted >= beat.n) return;
-        btn.disabled = true;
-        btn.classList.add("correct");
-        const isLast = counted === beat.n - 1;
-        const word = (isLast && beat.finalWord) ? beat.finalWord : COUNTS[counted] || String(counted + 1);
-        btn.appendChild(el("span", "count-chip", word));
+    row.querySelectorAll(".count-slot").forEach((slot) => {
+      slot.addEventListener("click", () => {
+        if (slot.classList.contains("counted") || counted >= beat.n) return;
+        slot.classList.add("counted");
+        const word = COUNTS[counted] || String(counted + 1);
+        slot.appendChild(el("span", "count-chip", word));
+        if (window.HanasouSpeak) window.HanasouSpeak(word);   // hear each number
         counted += 1;
         if (counted >= beat.n) {
-          counterZone.querySelectorAll(".story-obj").forEach((node) => {
-            node.disabled = true;
-            if (!node.classList.contains("correct")) node.classList.add("dimmed");
-          });
-          attachAnswer(beat, (beat.finalWord || COUNTS[beat.n - 1]) + " — now say it:");
-          overlay.feedback.textContent = "Counted!";
+          const last = beat.finalWord || COUNTS[beat.n - 1];
+          attachAnswer(beat, last + " — now say it:");
+          overlay.feedback.textContent = "…" + last + "! That's " + beat.n + ".";
           overlay.feedback.className = "story-feedback success";
           showContinue("Say it →", finishBeat);
         } else {
-          overlay.feedback.textContent = word + "… keep going.";
+          overlay.feedback.textContent = word + "…";
           overlay.feedback.className = "story-feedback success";
         }
       });

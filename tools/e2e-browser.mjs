@@ -225,6 +225,11 @@ async function run() {
   // ===== GENERIC CRAWLER: the 9 newly authored lessons =====
   async function handleBeatGeneric() {
     const cls = await beatType();
+    if (cls.includes("story-info")) {   // a teaching panel — just advance it
+      await page.waitForSelector(".story-continue:not([hidden])", { timeout: 5000 });
+      await clickContinue();
+      return "(info)";
+    }
     if (cls.includes("story-pick")) {
       const t = await pointTarget();
       await page.locator(`.story-obj[data-mod="${t}"]`).click();
@@ -241,11 +246,12 @@ async function run() {
         await btns.nth(i % n).click(); await page.waitForTimeout(200);
       }
     } else if (cls.includes("story-count")) {
-      for (let i = 0; i < 9; i++) {
+      for (let i = 0; i < 12; i++) {
         if (!(await continueHidden())) break;
-        const btns = page.locator(".story-obj:not([disabled])");
-        const n = await btns.count(); if (!n) break;
-        await btns.first().click(); await page.waitForTimeout(150);
+        const n = await page.evaluate(() => document.querySelectorAll(".count-slot:not(.counted)").length);
+        if (!n) break;
+        await page.evaluate(() => document.querySelector(".count-slot:not(.counted)").click());
+        await page.waitForTimeout(110);
       }
     } else if (cls.includes("story-coins")) {
       for (let i = 0; i < 4; i++) {
@@ -280,7 +286,7 @@ async function run() {
   }
 
   const NEW_LESSONS = [
-    ["counters", 4, "Foundations"], ["cafe", 3, "Foundations"], ["money", 4, "Foundations"],
+    ["counters", 6, "Foundations"], ["cafe", 3, "Foundations"], ["money", 4, "Foundations"],
     ["object", 3, "Foundations"], ["likes", 2, "Foundations"], ["wants", 1, "Foundations"],
     ["adj-noun", 2, "Foundations"], ["numbers", 2, "Foundations"], ["te-please", 1, "Connecting"],
   ];
@@ -295,6 +301,7 @@ async function run() {
         if (id === "counters" && !shot) { await page.screenshot({ path: SHOTS + "/10-" + id + ".png" }); shot = true; }
         if (id === "adj-noun" && !shot) { await page.screenshot({ path: SHOTS + "/10-" + id + ".png" }); shot = true; }
         const ans = await handleBeatGeneric();
+        if (ans === "(info)") continue;   // teaching panels don't count as tied beats
         fired += 1;
         if (!ans || ans === "(no answer block)") allTied = false;
         continue;
