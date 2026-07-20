@@ -1890,6 +1890,31 @@
   }, true);
 
   // ---- Hooks called by app.js at the drill's natural seams -----------------
+  // DEV audit hook (harmless in prod; used by tools/art-audit): list every
+  // authored beat and open one directly by index for screenshotting.
+  window.__hanaBeats = function () {
+    const out = [];
+    for (const [phase, map] of [["after", AFTER_PROMPT], ["before", BEFORE_PROMPT]]) {
+      for (const lessonId of Object.keys(map)) {
+        for (const en of Object.keys(map[lessonId])) {
+          out.push({ phase, lessonId, en });
+        }
+      }
+    }
+    return out;
+  };
+  window.__hanaOpenBeatAt = function (i) {
+    const list = window.__hanaBeats();
+    const e = list[i];
+    if (!e) return null;
+    const map = e.phase === "after" ? AFTER_PROMPT : BEFORE_PROMPT;
+    let beat = map[e.lessonId][normalize(e.en)] || map[e.lessonId][e.en];
+    if (typeof beat === "function") beat = beat();
+    if (!beat) return null;
+    if (overlayOpen) closeOverlay();
+    openBeat(beat, function () {});
+    return { lessonId: e.lessonId, en: e.en, type: beat.type, scene: beat.scene, zone: beat.zone, object: beat.object, hero: !!beat.hero };
+  };
   window.HanasouStory = {
     // A new drill session started — reset the per-run "already shown" set so
     // replayable beats reappear on a fresh run.

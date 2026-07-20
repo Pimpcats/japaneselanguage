@@ -1650,3 +1650,45 @@ body.story-open .practice-nav { z-index: 4500; }
 .story-scene-room .scene-zone-counter { font-size: 13px; }
 /* 3. guided card tour: taps on the card do nothing; Next drives it */
 body.coach-open #card { pointer-events: none; }
+
+/* ============================================================================
+   ART RECALIBRATION (owner pro-pass, 2026-07): the zone scales were tuned for
+   the old tiny CSS art + chibi. The sketch sprites and the conductor need a
+   mobile-first size bump so nothing is small, off-centre, or lost against the
+   drawn backdrops. These rules are LAST so they win on source order.
+   ========================================================================= */
+
+/* もち子 the conductor — a clear presence, never a speck to the side */
+.scene-mochiko { height: 132px !important; }
+.story-scene-street .scene-zone-partner .scene-mochiko,
+.story-scene-room .scene-zone-partner .scene-mochiko { height: 128px !important; }
+.scene-mochiko-shop { height: 168px !important; bottom: 16% !important; right: 7% !important; clip-path: inset(0 0 44% 0) !important; }
+@media (max-width: 520px) {
+  .scene-mochiko { height: 112px !important; }
+  .scene-mochiko-shop { height: 150px !important; }
+}
+
+/* near zone: centre it and grow — the subject sits front-and-centre on the floor */
+.scene-zone-near { left: 50% !important; bottom: 6% !important; font-size: 21px !important; }
+/* partner zone: the tappable beside her reads clearly */
+.scene-zone-partner { font-size: 15px !important; gap: 0.4rem; }
+/* table objects: a real object on the table, not a speck */
+.scene-zone-table { font-size: 18px !important; bottom: 26% !important; }
+/* wall objects (flower, sea, redflower): centred and sizeable */
+.scene-zone-wall { font-size: 18px !important; }
+
+/* street landmarks must dominate their scene, not blend into the drawn houses */
+.story-scene-street .scene-zone-near { font-size: 20px !important; }
+.obj-station { width: 8.5em !important; height: 6.6em !important; }
+.obj-car { width: 8.4em !important; height: 5em !important; }
+.obj-signal { width: 5.2em !important; height: 8em !important; }
+.obj-train, .obj-bus { }
+/* a far landmark (station on the horizon) must still be identifiable, not a dot */
+.story-scene-street .scene-zone-far { font-size: 9px !important; bottom: 34% !important; }
+
+/* the chair sits ON the floor, not floating at hand height */
+.scene-zone-partner .obj-chair { align-self: flex-end; transform: translateY(3.4em) rotate(-3deg); }
+
+/* hero objects (おおきい claims) dominate even harder now */
+.story-obj.obj-hero { font-size: 34px !important; }
+.scene-zone-partner .story-obj.obj-hero { font-size: 26px !important; }
