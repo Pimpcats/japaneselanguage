@@ -75,7 +75,7 @@
   const SCALE = {
     mochiko: 1, friend: 1, avatar: 1, friendchar: 1,
     station: 2.6, house: 2.1, town: 2.8, mountain: 2.9, sakura: 1.9,
-    boat: 2.2, train: 1.7, bus: 1.8, car: 1.35, signal: 1.7,
+    boat: 2.2, train: 1.7, bus: 1.8, car: 1.35, signal: 1.35,
     cow: 1.15, octopus: 0.5, cat: 0.6, whitecat: 0.6, dogface: 0.95, bird: 0.34,
     chair: 0.95, schooldesk: 1.0, table: 0.7,
     cup: 0.3, water: 0.32, coffee: 0.32, book: 0.3, bag: 0.5, sushi: 0.24,
@@ -115,9 +115,45 @@
         btn.classList.add("obj-scaled");
       });
       scene.querySelectorAll(".scene-mochiko").forEach((m) => { m.style.height = (H * 0.30) + "px"; });
+      fitRow(scene, objs);              // shrink + centre so nothing (incl. tags) clips the frame
     };
     requestAnimationFrame(apply);
     setTimeout(apply, 60);                            // re-apply once layout settles
+  }
+  // After sizing, make sure the whole row — objects PLUS their price tags and
+  // arrows, which stick out past the object box — fits inside the stage. Wide
+  // multi-item rows (three price tags) and edge tags (くうこう on the bus) were
+  // clipping; shrink to fit the width, then slide the row to re-centre the span.
+  function fitRow(scene, objs) {
+    const row = scene.querySelector(".ground-row");
+    if (!row) return;
+    const span = () => {
+      const sr = scene.getBoundingClientRect();
+      let minL = Infinity, maxR = -Infinity;
+      // measure EVERY thing on the line — objects, もち子/props, arrows, and the
+      // price tags that hang past an object's box — so centring keeps them all in
+      scene.querySelectorAll(".ground-row > *, .ground-row .obj-tag").forEach((n) => {
+        const r = n.getBoundingClientRect();
+        if (r.width < 1) return;
+        minL = Math.min(minL, r.left - sr.left);
+        maxR = Math.max(maxR, r.right - sr.left);
+      });
+      return { sr, minL, maxR };
+    };
+    row.style.transform = "";
+    const nObj = row.querySelectorAll(":scope > .story-obj").length;
+    if (nObj >= 3) row.style.gap = "3%";              // crowded rows sit tighter so items stay big
+    let { sr, minL, maxR } = span();
+    if (!isFinite(minL)) return;
+    const avail = sr.width * 0.94;
+    const cur = maxR - minL;
+    if (cur > avail) {                 // too wide → scale every object down to fit
+      const f = avail / cur;
+      objs.forEach((b) => { const h = parseFloat(b.style.height); if (h) b.style.height = (h * f) + "px"; });
+      ({ sr, minL, maxR } = span());
+    }
+    const off = sr.width / 2 - (minL + maxR) / 2;   // slide so the content span is centred
+    if (Math.abs(off) > 1) row.style.transform = "translateX(" + off + "px)";
   }
 
   // face close-ups fill the frame alone; small held/food/abstract items float
@@ -463,7 +499,7 @@
 
     // ---- Permission: ask before you sit -------------------------------------
     "permission": {
-      "May I sit here?": { id: "perm-chair", type: "ask", scene: "room", zone: "partner", object: "chair",
+      "May I sit here?": { id: "perm-chair", type: "ask", scene: "room", zone: "partner", object: "chair", flipHer: true,
         askLabel: "Ask her:", cta: "Ask →", feedback: "〜てもいいですか — you asked first.",
         instruction: "One empty chair, next to もち子",
         copy: "You'd like to sit. Tap the chair to ask if it's okay.",

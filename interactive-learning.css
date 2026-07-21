@@ -1060,8 +1060,14 @@ body.story-open .practice-nav { z-index: 4500; }
 .story-num.heard .num-kana-above { color: #2e7d5b; }
 
 /* onboarding tour panel art */
-.story-info-art { display: grid; place-items: center; padding: 1rem 0 1.2rem; }
-.story-info-art .obj-person-img { height: 110px; width: auto; }
+.story-info-art { position: relative; display: grid; place-items: end center; padding: 1.2rem 0 1.4rem; }
+.story-info-art .obj-person-img { height: 132px; width: auto; position: relative; z-index: 1; }
+/* a soft ground so the greeter stands on the floor instead of floating */
+.story-info-art::after {
+  content: ""; position: absolute; left: 50%; bottom: 1.0rem; transform: translateX(-50%);
+  width: 108px; height: 13px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(31,45,77,0.22), transparent 72%);
+}
 
 /* night variant — beats set beat.night for moon / stars */
 .story-scene.night .scene-wall { background: linear-gradient(180deg, #27334f 0%, #58688a 88%); }
