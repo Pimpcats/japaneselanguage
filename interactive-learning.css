@@ -1798,6 +1798,5 @@ body.coach-open #card { pointer-events: none; }
 .story-obj .x-mark{ position:absolute; inset:0; z-index:4; pointer-events:none; }
 .story-obj .x-mark svg{ width:100%; height:100%; display:block; }
 /* sun/moon/star hang small and high — up in the sky, far away */
-.ground-row { position: relative; }
 .ground-row .sky-item { position: absolute; top: 8%; right: 16%; align-self: flex-start; }
 .story-obj.sky-item.obj-scaled { }
