@@ -68,6 +68,76 @@
   // Counter words for the count act (tap items one by one).
   const COUNTS = ["ひとつ", "ふたつ", "みっつ", "よっつ", "いつつ", "むっつ", "ななつ", "やっつ", "ここのつ", "とお"];
 
+  // ---- real-world scale: every object sized against a standing person (=1.0),
+  // so proportions make sense — a station towers, a cup fits in a hand. Scenes
+  // share ONE person-unit and ground line; distance shrinks by perspective, not
+  // by hand-tuning. Objects absent here keep their own CSS size (plain/hero art).
+  const SCALE = {
+    mochiko: 1, friend: 1, avatar: 1, friendchar: 1,
+    station: 2.6, house: 2.1, town: 2.8, mountain: 2.9, sakura: 1.9,
+    boat: 2.2, train: 1.7, bus: 1.8, car: 1.35, signal: 1.7,
+    cow: 1.15, octopus: 0.5, cat: 0.6, whitecat: 0.6, dogface: 0.95, bird: 0.34,
+    chair: 0.95, schooldesk: 1.0, table: 0.7,
+    cup: 0.3, water: 0.32, coffee: 0.32, book: 0.3, bag: 0.5, sushi: 0.24,
+    peach: 0.3, mystery: 0.42, umbrella: 0.95, ticket: 0.22, telephone: 0.38,
+    menu: 0.6, coin100: 0.16, clock: 0.6, flower: 0.5, redflower: 0.62,
+    sea: 1.2, sun: 0.85, moon: 0.75, star: 0.28, japanmap: 1.3, usflag: 0.7,
+    wc: 1.25,
+  };
+  // depth in the scene: near = right up front, far = at the horizon (perspective)
+  const DIST = { near: 1.0, partner: 0.82, table: 0.85, wall: 0.72, counter: 0.72, far: 0.46, center: 1.0 };
+  function scaleScene(scene) {
+    const apply = () => {
+      const H = scene.clientHeight || 300;
+      const objs = [...scene.querySelectorAll(".scene-zone .story-obj, .ground-row .story-obj")].filter((b) => SCALE[b.dataset.object] != null);
+      if (!objs.length) return;
+      const hasPerson = scene.querySelector(".scene-mochiko") ||
+        objs.some((b) => ["mochiko", "friend", "avatar", "friendchar"].includes(b.dataset.object));
+      let unit;
+      if (hasPerson) {
+        unit = H * 0.30;                 // a person is the yardstick; real proportions
+      } else {
+        // no person on stage → the object IS the subject. Size it to read well,
+        // keeping multiple objects proportional to each other.
+        const maxScale = Math.max(...objs.map((b) => SCALE[b.dataset.object]));
+        unit = (H * 0.46) / maxScale;    // biggest object ≈ 46% of the scene
+      }
+      objs.forEach((btn) => {
+        const sc = SCALE[btn.dataset.object];
+        // grounded/floated subjects present at their scale; only zoned (point)
+        // beats use perspective distance.
+        const inGround = btn.closest(".ground-row");
+        const d = inGround ? 1 : (DIST[btn.dataset.zone] != null ? DIST[btn.dataset.zone] : 1);
+        btn.style.height = (unit * sc * d) + "px";
+        btn.style.width = "auto";
+        btn.classList.add("obj-scaled");
+      });
+      scene.querySelectorAll(".scene-mochiko").forEach((m) => { m.style.height = (H * 0.30) + "px"; });
+    };
+    requestAnimationFrame(apply);
+    setTimeout(apply, 60);                            // re-apply once layout settles
+  }
+
+  // face close-ups fill the frame alone; small held/food/abstract items float
+  // presented on the plain stage; everything else stands grounded on the line.
+  const CLOSEUP = new Set(["bigface", "redface", "dogface"]);
+  const FLOAT = new Set(["sushi", "peach", "cup", "water", "coffee", "book", "bag",
+    "ticket", "mystery", "menu", "telephone", "coin100", "flower", "redflower",
+    "octopus", "clock", "umbrella", "star", "sun", "moon", "japanmap", "usflag"]);
+  // Compose subjects on a plain grounded stage: figures/objects sit on ONE
+  // ground line (soft contact shadow); small items float. No busy backdrop.
+  function placeOnGround(scene, figs) {
+    scene.className = "story-scene story-scene-ground" + (scene.classList.contains("night") ? " night" : "");
+    const row = el("div", "ground-row");
+    figs.forEach((fig) => {
+      const kind = fig.dataset ? fig.dataset.object : null;
+      if (kind && FLOAT.has(kind)) fig.classList.add("float-item");
+      else fig.classList.add("grounded");
+      row.appendChild(fig);
+    });
+    scene.appendChild(row);
+  }
+
   const AFTER_PROMPT = {
     "this-that": {
       // First time: choose your book, then put it on the desk — one flowing
@@ -623,10 +693,10 @@
         answer: { jp: "えきは ここです。", romaji: "eki wa koko desu", en: "The station is here." },
       },
       "Yes, it's here.": {
-        id: "where-water-here", type: "point", words: "place", scene: "street", target: "near",
+        id: "where-water-here", type: "point", words: "place", scene: "room", target: "near",
         ask: { jp: "みずは ありますか？", romaji: "mizu wa arimasu ka", en: "Is there (any) water?" },
         layout: { near: "water", partner: "mochiko" },
-        instruction: "もち子 wants water — you have some!",
+        instruction: "もち子 wants water — it's right here on the table",
         answer: { jp: "はい、ここに あります。", romaji: "hai, koko ni arimasu", en: "Yes, it's here." },
       },
       "My friend is over there.": {
@@ -1338,8 +1408,10 @@
     // A beat can carry the question this act answers (もち子 asks it first).
     if (beat.ask) overlay.stage.insertAdjacentElement("beforebegin", sentenceBlock("story-ask", "もち子 asks", beat.ask));
 
-    const sceneKind = beat.scene || "room";
-    const scene = buildScene(sceneKind);
+    const scene = buildScene(beat.scene || "room");
+    // plain grounded stage: distance is shown by perspective (near = big & low,
+    // far = small & set back), not by a busy town backdrop (owner, 2026-07)
+    scene.className = "story-scene story-scene-ground story-scene-perspective" + (beat.night ? " night" : "");
     const layout = beat.layout || { near: "book", partner: "bag", far: "clock" };
 
     // Only render the zones a beat actually uses — no arbitrary floating
@@ -1348,7 +1420,6 @@
     if (layout.far) {
       const farZone = el("div", "scene-zone scene-zone-far");
       farZone.appendChild(objButton(layout.far, "far"));
-      if (sceneKind === "room") farZone.appendChild(el("i", "scene-shelf-board"));
       scene.appendChild(farZone);
     }
     if (layout.partner) {
@@ -1363,6 +1434,7 @@
       scene.appendChild(nearZone);
     }
     overlay.stage.appendChild(scene);
+    scaleScene(scene);
 
     // "the かばん" for things; "もち子 herself" for the person
     const named = (kind) => (kind === "mochiko" ? "もち子 herself" : "the " + (OBJ_JP[kind] || OBJ_NAME[kind]));
@@ -1406,11 +1478,6 @@
     if (beat.hero) target.classList.add("obj-hero");   // おおきい beats: the object dominates the scene
     if (beat.tag) { const t = el("i", "obj-tag"); t.appendChild(el("span", "obj-tag-txt", beat.tagText || "?")); target.appendChild(t); }
     if (beat.clock) target.dataset.clock = beat.clock;   // clock-hand positions for time beats
-    if (beat.prop) {   // a second object carried by / beside the target
-      const prop = objectFigure(beat.prop);
-      prop.classList.add("obj-prop");
-      target.appendChild(prop);
-    }
     if (beat.otherBook) {   // NOT your book — someone else's cover, so これは ほんです stays "a book"
       const mine = (story.inventory.book && story.inventory.book.design) || BOOKS[0].id;
       const fig = target.querySelector(".obj-book");
@@ -1422,39 +1489,25 @@
       const counterZone = el("div", "scene-zone scene-zone-counter");
       counterZone.appendChild(target);
       scene.appendChild(counterZone);
-    } else if (beat.zone === "table") {
-      const tableZone = el("div", "scene-zone scene-zone-table");
-      const table = el("div", "scene-table");
-      table.setAttribute("aria-hidden", "true");
-      tableZone.append(target, table);
-      scene.appendChild(tableZone);
-    } else if (beat.scene === "plain") {
+    } else if (CLOSEUP.has(beat.object) || beat.scene === "plain") {
+      // a face fills the frame; nothing else (owner: "just a big face") — always
+      // on the plain stage, never a room behind it
+      scene.className = "story-scene story-scene-plain";
       const centerZone = el("div", "scene-zone scene-zone-center");
       centerZone.appendChild(target);
       scene.appendChild(centerZone);
-    } else if (beat.zone === "partner") {
-      const partnerZone = el("div", "scene-zone scene-zone-partner");
-      // If もち子 herself is the one you're asking, she IS the tappable.
-      if (beat.object !== "mochiko") partnerZone.appendChild(mochikoImg("assets/story/mochiko-think.png"));
-      partnerZone.appendChild(target);
-      scene.appendChild(partnerZone);
-    } else if (beat.zone === "wall") {
-      const wallZone = el("div", "scene-zone scene-zone-wall");
-      wallZone.appendChild(target);
-      scene.appendChild(wallZone);
-    } else if (beat.zone === "far") {
-      const farZone = el("div", "scene-zone scene-zone-far");
-      if (beat.object === "star" || beat.sky) farZone.classList.add("in-sky");   // stars/sun/moon hang in the sky
-      farZone.appendChild(target);
-      scene.appendChild(farZone);
     } else {
-      const nearZone = el("div", "scene-zone scene-zone-near");
-      const hand = el("div", "story-hand");
-      hand.setAttribute("aria-hidden", "true");
-      nearZone.append(target, hand);
-      scene.appendChild(nearZone);
+      // EVERYTHING else: a plain stage, subject grounded on ONE plane (or, for
+      // small held items, floated) — no room/street/town backdrop (owner, 2026-07).
+      // A prop stands BESIDE the subject on the same line, never overlaid on it.
+      const partnerFig = (beat.zone === "partner" && beat.object !== "mochiko")
+        ? mochikoImg("assets/story/mochiko-think.png", "scene-mochiko ground-figure") : null;
+      let propFig = null;
+      if (beat.prop) { propFig = objButton(beat.prop); propFig.classList.add("prop-figure"); propFig.style.pointerEvents = "none"; }
+      placeOnGround(scene, [partnerFig, propFig, target].filter(Boolean));
     }
     overlay.stage.appendChild(scene);
+    scaleScene(scene);
 
     target.addEventListener("click", () => {
       if (target.disabled) return;
@@ -1474,11 +1527,21 @@
     overlay.copy.textContent = beat.copy || "";
 
     const sceneKind = beat.scene || "shop";
+    const isShop = sceneKind === "shop";
     const scene = buildScene(sceneKind);
-    if (sceneKind === "shop") scene.appendChild(mochikoImg("assets/story/mochiko-cheer.png", "scene-mochiko scene-mochiko-shop"));
-    const counterZone = el("div", "scene-zone scene-zone-counter");
+    if (isShop) scene.appendChild(mochikoImg("assets/story/mochiko-cheer.png", "scene-mochiko scene-mochiko-shop"));
+    // shop = a real counter to order across; anything else = a plain grounded
+    // row of choices, no room floor behind them (owner, 2026-07)
+    let counterZone;
+    if (isShop) {
+      counterZone = el("div", "scene-zone scene-zone-counter");
+    } else {
+      scene.className = "story-scene story-scene-ground";
+      counterZone = el("div", "ground-row");
+    }
     for (const kind of beat.items) {
-      const btn = objButton(kind, "counter");
+      const btn = objButton(kind, isShop ? "counter" : null);
+      if (!isShop) btn.classList.add(FLOAT.has(kind) ? "float-item" : "grounded");
       if (beat.tags && beat.tags[kind]) {
         const t = el("i", "obj-tag");
         t.appendChild(el("span", "obj-tag-txt", beat.tags[kind]));
@@ -1487,17 +1550,18 @@
       counterZone.appendChild(btn);
     }
     scene.appendChild(counterZone);
-    // where taken items land: your basket (shop) or your hand (room)
+    // where taken items land: your basket (shop) or a spot by you (plain)
     let dest;
-    if (beat.dest === "hand") {
-      dest = el("div", "story-hand scene-dest-hand");
-      dest.setAttribute("aria-hidden", "true");
-    } else {
+    if (isShop) {
       dest = el("div", "scene-basket");
-      dest.setAttribute("aria-hidden", "true");
+    } else {
+      dest = el("div", "scene-dest-hand");
+      dest.style.cssText = "position:absolute;left:50%;bottom:4%;width:1px;height:1px;";
     }
+    dest.setAttribute("aria-hidden", "true");
     scene.appendChild(dest);
     overlay.stage.appendChild(scene);
+    scaleScene(scene);
 
     const wanted = beat.targets ? beat.targets.slice() : (beat.target ? [beat.target] : null);
     const taken = new Set();
@@ -1564,6 +1628,7 @@
     }
     scene.appendChild(row);
     overlay.stage.appendChild(scene);
+    scaleScene(scene);
 
     let counted = 0;
     row.querySelectorAll(".count-slot").forEach((slot) => {

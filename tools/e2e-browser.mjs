@@ -87,15 +87,16 @@ async function run() {
       } else if (cls.includes("story-point")) {
         const target = await pointTarget();
         sawPoint[target] = true;
+        await page.waitForTimeout(180);   // let the scale system settle
         await page.screenshot({ path: SHOTS + "/5-point-" + target + ".png" });
         const zones = await page.evaluate(() => [...document.querySelectorAll(".story-obj[data-zone]")].map((n) => n.dataset.zone));
         const wrongZone = zones.find((z) => z !== target);
-        await page.locator(`.story-obj[data-zone="${wrongZone}"]`).click();
+        await page.locator(`.story-obj[data-zone="${wrongZone}"]`).click({ force: true });
         await page.waitForTimeout(250);
         const fb = await page.evaluate(() => document.querySelector(".story-feedback").textContent);
         ok("point(" + target + "): wrong zone teaches the zone word", /これ|それ|あれ/.test(fb));
         ok("point(" + target + "): wrong zone does not advance", await continueHidden());
-        await page.locator(`.story-obj[data-zone="${target}"]`).click();
+        await page.locator(`.story-obj[data-zone="${target}"]`).click({ force: true });
         await page.waitForSelector(".story-continue:not([hidden])");
         const ans = await answerJp();
         const expected = target === "partner" ? "それは かばんです" : "あれは わたしの かばんです";
@@ -151,11 +152,11 @@ async function run() {
         const target = await pointTarget();   // "water" | "coffee" | "free"
         if (target !== "free") {
           const wrongKind = target === "water" ? "coffee" : "water";
-          await page.locator(`.story-obj[data-object="${wrongKind}"]`).click();
+          await page.locator(`.story-obj[data-object="${wrongKind}"]`).click({ force: true });
           await page.waitForTimeout(250);
           const fb = await page.evaluate(() => document.querySelector(".story-feedback").textContent);
           if (/みず|コーヒー|おちゃ/.test(fb) && await continueHidden()) orderWrongTaught = true;
-          await page.locator(`.story-obj[data-object="${target}"]`).click();
+          await page.locator(`.story-obj[data-object="${target}"]`).click({ force: true });
         } else {
           await page.locator(".story-obj").first().click();
         }
@@ -195,16 +196,17 @@ async function run() {
       } else if (cls.includes("story-point")) {
         const target = await pointTarget();
         if (whereShot === 1) { await page.screenshot({ path: SHOTS + "/9-street-scene.png" }); whereShot++; }
+        await page.waitForTimeout(180);   // let the scale system settle
         if (await page.evaluate(() => !!document.querySelector(".story-panel > .story-ask"))) askBlockSeen = true;
         const zones2 = await page.evaluate(() => [...document.querySelectorAll(".story-obj[data-zone]")].map((n) => n.dataset.zone));
         const wrongZone = zones2.find((z) => z !== target);
         if (wrongZone) {
-          await page.locator(`.story-obj[data-zone="${wrongZone}"]`).click();
+          await page.locator(`.story-obj[data-zone="${wrongZone}"]`).click({ force: true });
           await page.waitForTimeout(250);
           const fb = await page.evaluate(() => document.querySelector(".story-feedback").textContent);
           if (/ここ|そこ|あそこ/.test(fb) && await continueHidden()) placeWordTaught = true;
         }
-        await page.locator(`.story-obj[data-zone="${target}"]`).click();
+        await page.locator(`.story-obj[data-zone="${target}"]`).click({ force: true });
         await page.waitForSelector(".story-continue:not([hidden])");
         whereAnswers.push(await answerJp());
         if (whereShot === 2) { await page.screenshot({ path: SHOTS + "/9-street-correct.png" }); whereShot++; }
@@ -229,25 +231,30 @@ async function run() {
   // ===== GENERIC CRAWLER: the 9 newly authored lessons =====
   async function handleBeatGeneric() {
     const cls = await beatType();
+    await page.waitForTimeout(180);   // let the scale system settle before clicking
     if (cls.includes("story-info")) {   // a teaching panel — just advance it
       await page.waitForSelector(".story-continue:not([hidden])", { timeout: 5000 });
       await clickContinue();
       return "(info)";
     }
+    // in-page clicks bypass Playwright actionability, which fights the dynamic
+    // scale system (elements briefly resize as scaleScene settles)
+    const tap = (sel) => page.evaluate((s) => { const n = document.querySelector(s); if (n) n.click(); return !!n; }, sel);
     if (cls.includes("story-pick")) {
       const t = await pointTarget();
-      await page.locator(`.story-obj[data-mod="${t}"]`).click();
+      await tap(`.story-obj[data-mod="${t}"]`);
     } else if (cls.includes("story-point")) {
       const t = await pointTarget();
-      await page.locator(`.story-obj[data-zone="${t}"]`).click();
+      await tap(`.story-obj[data-zone="${t}"]`);
     } else if (cls.includes("story-order")) {
       const t = await pointTarget();
-      if (t !== "free" && t !== "multi") await page.locator(`.story-obj[data-object="${t}"]`).click();
+      if (t !== "free" && t !== "multi") await tap(`.story-obj[data-object="${t}"]`);
       else for (let i = 0; i < 8; i++) {
         if (!(await continueHidden())) break;
-        const btns = page.locator(".story-obj:not([disabled])");
-        const n = await btns.count(); if (!n) break;
-        await btns.nth(i % n).click(); await page.waitForTimeout(200);
+        const n = await page.evaluate(() => document.querySelectorAll(".story-obj:not([disabled])").length);
+        if (!n) break;
+        await page.evaluate((k) => document.querySelectorAll(".story-obj:not([disabled])")[k % document.querySelectorAll(".story-obj:not([disabled])").length].click(), i);
+        await page.waitForTimeout(200);
       }
     } else if (cls.includes("story-count")) {
       for (let i = 0; i < 12; i++) {
@@ -274,7 +281,7 @@ async function run() {
         await page.waitForTimeout(150);
       }
     } else if (cls.includes("story-ask")) {
-      await page.locator(".story-obj").first().click();
+      await tap(".story-obj");
     } else if (cls.includes("story-claim")) {
       await page.locator(".story-choice").first().click();
     } else if (cls.includes("story-place")) {
@@ -353,7 +360,7 @@ async function run() {
       if (cls.includes("story-claim")) { claimRepeated = true; await page.locator(".story-choice").first().click(); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
       if (cls.includes("story-place")) { placeReplayed = true; await page.locator('.story-slot[data-slot="0"]').click(); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
       if (cls.includes("story-ask")) { await page.locator(".story-obj").click(); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
-      if (cls.includes("story-point")) { pointReplayed = true; const t = await pointTarget(); await page.locator(`.story-obj[data-zone="${t}"]`).click(); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
+      if (cls.includes("story-point")) { pointReplayed = true; const t = await pointTarget(); await page.locator(`.story-obj[data-zone="${t}"]`).click({ force: true }); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
       if (cls.includes("story-identify")) { const chosen = (await storyState()).inventory.book.design; await page.locator(`.story-identify-choice[data-design="${chosen}"]`).click(); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
     }
     if (await isDone()) break;

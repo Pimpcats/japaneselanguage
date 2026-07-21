@@ -1717,3 +1717,60 @@ body.coach-open #card { pointer-events: none; }
 /* hero objects (おおきい claims) dominate even harder now */
 .story-obj.obj-hero { font-size: 34px !important; }
 .scene-zone-partner .story-obj.obj-hero { font-size: 26px !important; }
+
+/* proportion system: scaled scene objects size by real-world scale (JS sets
+   the height); the sketch art fills it keeping aspect. Shared ground line. */
+.story-obj.obj-scaled { width: auto !important; }
+.story-obj.obj-scaled .obj { width: auto !important; height: 100% !important; }
+.story-obj.obj-scaled .obj img.obj-sketch,
+.story-obj.obj-scaled .obj svg { width: auto; height: 100%; }
+.scene-mochiko { width: auto; }
+
+/* ---- plain grounded stage: the default for object/character beats.
+   Simple background, ONE ground line, subjects grounded (contact shadow) or
+   small items floated. No room/street/town backdrop (owner, 2026-07). ---- */
+.story-scene-ground { background: linear-gradient(176deg, #fcfaf3, #ece5d3); overflow: hidden; }
+.story-scene-ground .scene-wall, .story-scene-ground .scene-floor, .story-scene-ground .scene-skyline, .story-scene-ground .scene-counter { display: none !important; }
+.story-scene-ground.night { background: linear-gradient(180deg, #2b3450, #46506e); }
+.ground-row {
+  position: absolute; left: 0; right: 0; bottom: 15%;
+  display: flex; align-items: flex-end; justify-content: center; gap: 7%;
+}
+/* the single ground line everything sits on */
+.story-scene-ground::after {
+  content: ""; position: absolute; left: 8%; right: 8%; bottom: 15%;
+  height: 0; border-bottom: 2px solid rgba(31, 45, 77, 0.10);
+}
+.ground-row .story-obj, .ground-row .scene-mochiko { position: relative; }
+/* grounded subjects: a soft contact shadow so they sit on the plane, not float */
+.ground-row .grounded::after {
+  content: ""; position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%);
+  width: 78%; height: 12px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(31, 45, 77, 0.22), transparent 72%);
+  z-index: -1;
+}
+.ground-row .scene-mochiko.grounded { align-self: flex-end; }
+.ground-row .scene-mochiko.grounded::after {
+  content: ""; position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%);
+  width: 70%; height: 11px; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(31, 45, 77, 0.22), transparent 72%); z-index: -1;
+}
+/* small held/food/abstract items float, presented, above the line */
+.ground-row .float-item { align-self: center; margin-bottom: 6%; }
+
+/* point beats on the plain stage: perspective by position + the scale system.
+   near = big, low, centred-front · partner = beside もち子 · far = small, set back */
+.story-scene-perspective .scene-zone-near { left: 58%; transform: translateX(-50%); bottom: 15%; top: auto; right: auto; }
+.story-scene-perspective .scene-zone-partner { left: 7%; bottom: 15%; top: auto; right: auto; align-items: flex-end; }
+.story-scene-perspective .scene-zone-far { right: 11%; left: auto; bottom: 40%; top: auto; }
+.story-scene-perspective .scene-zone { align-items: flex-end; }
+.story-scene-perspective .scene-shelf-board { display: none; }
+/* a prop standing beside its subject on the ground line */
+.ground-row .prop-figure { align-self: flex-end; }
+
+/* もち子 (and friend) as a scaled tappable subject: her image must FILL the
+   scaled wrapper, not sit absolutely inside a collapsed box (breaks clicks) */
+.story-obj.obj-scaled .obj-mochiko, .story-obj.obj-scaled .obj-friend { width: auto; height: 100%; }
+.story-obj.obj-scaled .obj-person-img {
+  position: static; height: 100%; width: auto; transform: none; left: auto; bottom: auto; margin: 0 auto;
+}
