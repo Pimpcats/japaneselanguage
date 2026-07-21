@@ -1,0 +1,395 @@
+# はなそう (Hanasou) — Project Bible
+
+Read this before touching anything. It applies to any AI agent or human working
+on this repo. It encodes decisions already made with the owner — don't relitigate
+them, extend them.
+
+## What this is
+
+A kawaii-themed Japanese speaking PWA for one learner (the owner), built around
+**speaking out loud**: English prompt → say it in Japanese → reveal, hear the
+model answer, self-grade into a light SRS. Static site, no build step, no
+framework — plain HTML/CSS/JS served from GitHub Pages, installable, works
+fully offline.
+
+**The product's soul:** a cozy Japanese shop-street. Warm, hand-drawn, playful —
+never corporate, never noisy. Learning is the point; charm is the vehicle.
+
+## Non-negotiable principles
+
+1. **Speaking first.** Every feature should push the learner to produce Japanese
+   out loud. Reading/tapping is support, not the goal.
+2. **Fun, not gamified.** Rewards are *meaning made visible* (stamps for places
+   visited, a street that comes alive), never points-for-points' sake. No XP,
+   no leaderboards, no lives, no countdown timers, no artificial scarcity.
+   Celebrations are rare enough to stay special.
+3. **Japanese accuracy over convenience.** Grammar function-words (です, ます,
+   から, ください, まで, とき…) are taught as grammar points, NOT added to vocab
+   lists. Any word *named in a lesson's description* must actually appear in its
+   taught vocab. Sentences follow the lesson's single grammar point.
+4. **Quiet UI.** One idea per screen. Condense, nest, remove. The owner has
+   repeatedly asked for fewer labels, fewer bars, tighter spacing. When in
+   doubt, remove the element.
+5. **Nothing breaks.** The app is live and used daily. Deploys must never leave
+   the site broken or silent (see the audio re-voice procedure below).
+
+## Architecture (all vanilla, no build)
+
+| File | Role |
+|---|---|
+| `index.html` | All screens as `<section class="screen">`, shown/hidden by `app.js` |
+| `app.js` | Core logic: cards, SRS, drill, build mode, speaking quiz, mining, reader, sync. One IIFE; init runs at the bottom (`renderHome()`), so declaration order matters |
+| `lessons.js` | ALL content: `window.LEVELS` (levels→tiers→themes) + `window.LESSONS` (vocab + sentences with word breakdowns) + `window.VERBS` |
+| `theme.js` | Additive kawaii layer: header banner + control bar (moves `#back-btn`, `#card-counter`, `#mastery`, `#topbar-right` into `#ctrl-bar`), confetti/jingle FX (`window.HanaFX`), MP3 reward sounds with synth fallback. Uses MutationObservers on screen `[hidden]` attrs — it never patches app.js functions |
+| `theme.css` | The entire visual theme, layered over `styles.css` base. `styles.css` is the old plain look; prefer overriding in `theme.css` |
+| `stampbook.js/.css` | スタンプ帳: station stamps, one per completed LEVEL (owner, 2026-07 — replaces the retired per-lesson collection.js). Self-contained; listens to `hanasou:finish`, reads progress read-only, state in `hanasou.stamps.v1`. Flip-book UI opens from the Progress hub; vermillion eki-stamp SVGs are drawn in-code |
+| `interactive-learning.js/.css` | Story-beat add-on (see its section): short touch interactions between drill cards, driven by three optional hooks app.js calls (`HanasouStory.onSession`/`afterGrade`/`beforeCard`). State in `hanasou.story.v1`, never in SRS data |
+| `sw.js` | Service worker: `CACHE = "hanasou-vNN"`, precaches shell + all audio, network-first for navigations & `audio/manifest.json`, SWR for the rest |
+| `tools/gen_audio.mjs` | Build-time VOICEVOX synthesis (see Audio) |
+| `mock/` | A copy of the theme for design preview; `mock/theme.css` is GENERATED from `theme.css` (see deploy ritual) |
+
+State: everything in `localStorage` (`hanasou.v4` progress, `hanasou.settings`),
+optional token-based blob sync to a VPS at `/api/progress` with field-level merge.
+
+## The deploy ritual (do all of it, every visual/JS change)
+
+1. Edit `theme.css` / `app.js` / etc.
+2. `node --check app.js` (and any other JS you touched), AND the runtime smoke
+   test: `npm i --no-save jsdom && node tools/smoke.mjs` — it boots the app in
+   jsdom and clicks through home → lesson → talk. A v93 deploy shipped a
+   ReferenceError that node --check can't catch; the smoke test exists so that
+   never happens again.
+3. Sync the mock: `sed 's#url("assets/#url("../assets/#g' theme.css > mock/theme.css`
+4. Bump the version **everywhere it appears**: `?v=NN` in `index.html` (6 places)
+   and `hanasou-vNN` in `sw.js`. They move together.
+5. Commit with a plain, descriptive message. Push to the working branch AND the
+   deploy branch (see Branches).
+
+Skipping the bump means users keep the stale cached version. Skipping the mock
+sync makes the design preview drift.
+
+## Branches & hosting
+
+- **`main`** is canonical (site + CI). GitHub Pages publishes via the
+  **test-gated deploy workflow** (`.github/workflows/deploy.yml`): every push
+  to main runs node --check + the jsdom smoke test + the lessons linter, and
+  only publishes if all pass — a broken build leaves the site on the last good
+  version. The repo is private (owner has Pro).
+- Legacy branches `claude/*` are being retired; `claude/amazing-cannon-PPvmw`
+  was the old Pages/deploy branch. Don't create new long-lived branches.
+- The "art assets" commits on `claude/inspiring-carson-712EI` are CORRUPTED
+  (binaries pushed through a text pipeline — every high byte is EF BF BD, same
+  pixel dimensions as current art). Verified 2026-07-02: nothing mergeable;
+  the branch is safe to delete.
+- Live URL: https://pimpcats.github.io/japaneselanguage/
+- The GitHub MCP/API in cloud sessions can't delete branches or change repo
+  settings — those are owner dashboard actions. Say so instead of retrying.
+
+## Audio (the part that's easiest to break)
+
+Pipeline: `lessons.js` strings → `tools/gen_audio.mjs` → VOICEVOX engine →
+`audio/<sha1-of-text>.mp3` + `audio/manifest.json` → `speak()` in app.js plays
+the clip, falling back to device `speechSynthesis` if missing.
+
+- **Voice:** もち子さん, VOICEVOX speaker **20** (set in `gen-audio.yml` and the
+  script default). The owner picks the voice — never change it unprompted.
+- **Clip filenames hash the TEXT ONLY.** Changing the voice does NOT regenerate
+  clips — you must delete `audio/*.mp3` first, or the old voice is silently
+  reused. This is the #1 trap.
+- CI (`.github/workflows/gen-audio.yml`) runs on pushes to `main` touching
+  `lessons.js` / the tool / the workflow: spins up VOICEVOX in Docker,
+  synthesizes only missing clips, auto-bumps `sw.js`, commits with `[skip ci]`.
+  A full re-voice of ~1,470 clips takes ~30–45 min.
+- **Re-voice procedure (zero-downtime):** change speaker + delete clips on a
+  branch the live site is NOT serving, let CI regenerate there, only then point
+  the site at it. Never leave the live branch with deleted clips.
+- Every tappable word chip has its own clip so taps never fall back to the
+  robotic device voice. New sentences must come with `words:[]` breakdowns.
+- English is NEVER spoken aloud. Japanese audio only.
+
+## Kana & the beginner road (kana.js + app.js)
+
+- **Level 0 · First sounds** is the true-beginner on-ramp: 11 micro-lessons,
+  one gojūon row each (5 letters + ≤10 words a day — the owner's pacing rule),
+  every word/sentence spellable with ONLY letters taught so far (a checker
+  enforced this at authoring time — keep the constraint when editing), building
+  letters → words → adjective exclamations → は-sentences → これは とり。 →
+  the てんてん lesson that unlocks です and hands off to Level 1.
+
+- `kana.js` holds the full gojūon (hiragana + katakana + dakuten rows) with
+  romaji; every letter has its own もち子さん clip.
+- Each lesson INTRODUCES the kana its content uses for the first time
+  (computed from curriculum order, never hand-authored) — shown as a tappable
+  "New sounds" strip on the lesson intro.
+- `prog.kana` tracks letter strength: finishing a lesson (or tapping/answering
+  in Kana practice) marks its letters seen.
+- **Romaji fades automatically** (settings.kanaMode = "auto", the default): a
+  word shows romaji only while it contains a letter the learner hasn't met.
+  "always"/"never" override. Never remove this weaning mechanic.
+- The あア Kana section (Home) has the browse grid (tap to hear) and a
+  practice drill (letter → pick the sound, weak letters weighted heavier).
+- **Alphabet-over-letters** (2026-07, replaces the in-drill interludes): in car
+  mode (the only mode now) the model answer draws each kana's romaji right over
+  it as ruby (`driveAnswerHTML` → `moraRunHTML`, grouped by mora: きょ→kyo,
+  っか→kka), so the alphabet is taught in place as the sentence is read. This
+  superseded the old spell-it / sound interludes, which were removed when car
+  mode became universal (`startLesson` no longer inserts `kanaBuild`/`kanaSound`
+  cards; those renderers remain only for the standalone あア Kana practice).
+
+## Content rules (lessons.js)
+
+- **Vocabulary must be immediately useful** (owner, 2026-07): the app gets
+  people speaking and NAVIGATING right away. Each level is a learning stage —
+  early levels teach only common, everyday words (えき, かお, みず…), never
+  exotica (かき persimmon and きく chrysanthemum were cut from Level 0 for
+  this). Before adding a word ask: would a visitor to Japan say this in their
+  first month? Also: never claim a colour the art doesn't show.
+
+- Shape: `{ id, section, title, grammar, grammarNote, vocab:[{jp,romaji,en,pos}],
+  sentences:[{en, jp, romaji, hint?, words:[{jp,en,pos}]}] }`. A lesson teaches
+  ONE grammar point; sentences recombine its vocab.
+- Sentence `jp` is kana-first (spaces between phrases). Kanji only with
+  `kanji[reading]` furigana brackets.
+- Every content word used in sentences should exist in some lesson's vocab
+  (orphan check), and every word the grammarNote names must be taught. Grammar
+  glue (です/ます/particles) stays out of vocab — it's taught by the note.
+- `pos` values: n, v, adj, adv, prt, cop, expr, aux, conj — they drive the
+  colour-coding; get them right.
+- Adding/renaming lessons: `section` must match a theme listed in some level's
+  `tiers[].themes`, or the lesson is invisible.
+
+## Visual language (hard-won — do not rediscover these by trial and error)
+
+- **The art direction is sketchbook manga ink** (owner decision, 2026-07):
+  loose pen lines, hatch shading, paper white, no color fill (red ink only
+  where a sentence claims red; the sea carries a faint blue wash because
+  うみは あおい). ALL art is generated in ChatGPT from a shared style-anchor
+  prompt on green screens, cut with `tools/cut_sheet.py` (chroma-key, trim,
+  512px cap, 256-color quantize), and dropped into `assets/story/` (scene
+  objects, people, backdrops, props) or `assets/covers/<lessonId>.png`
+  (one cover per lesson, shown on its station-sign card). The engine maps
+  keys→images in `OBJ_IMG` (interactive-learning.js) with OBJ_SVG as
+  fallback; books/clock have special multi-image handling there.
+- The three stages (room/street/shop) are drawn backdrops (`bg-*.png`) set
+  as `background-image` on `.story-scene-*`; the old gradient wall/floor
+  layers are transparent but keep their zone geometry. The shop's item zone
+  and もち子 are aligned to the drawn counter (her legs clip behind it).
+- The painted kawaii chrome (sign.png, awning, frame.png 9-slice,
+  street_soft veil) is RETIRED — deleted from the repo; the subway theme's
+  clean transit chrome replaced it. Don't reintroduce painted chrome.
+- Ink-outlined "pop" style for interactive elements: `border: 2.5–3px solid
+  var(--ink)` + hard drop shadow; press = translateY + shadow collapse.
+- Preload any new hero asset in `index.html` (`<link rel="preload">`) and add
+  it to the SW SHELL list — assets visibly popping in reads cheap. Every
+  assets/story and assets/covers file must be in SHELL (offline PWA).
+- The ONLY reward sound is `assets/sfx-chime.wav` (owner's chime) after
+  lesson complete. No synth fallback, no per-answer sound.
+
+## Sentence practice = car mode ONLY (app.js)
+
+The lesson drill runs in ONE mode now (owner decision, 2026-07): **car mode**.
+There is no toggle, no other layout — `startSession` forces `session.drive`
+(except the opt-in 🧩 Build puzzle). Full-bleed one-viewport sheet, the painted
+`assets/frame.png` wrapping the whole edge (`body.drive-mode #app`), no buttons:
+tap the sheet to reveal + hear (tap again to replay), swipe ← nope / → got it to
+grade and advance. Produce-only (English → say it in Japanese), screen kept
+awake, word-breakdown chips kept, alphabet drawn over each letter. It NEVER
+touches the drive-vs-not distinction anymore; don't reintroduce a toggle or a
+"normal" drill. (The `keepAwake`/wake-lock and swipe handlers on `#card` power it.)
+
+## Speaking practice = "Talk with もち子さん" (app.js)
+
+The 🎭 talk launcher — one of the four buttons on every lesson card, and a
+button on the lesson-complete screen — is the single speaking entry point; the
+standalone speaking-quiz and listen-and-repeat buttons were removed at the
+owner's request (2026-07). Hand-written
+`window.SCENES` override; every other lesson auto-builds a conversation
+(`buildAutoScene`): her greeting → each lesson sentence as your line, with her
+reactions (`MOCHIKO.reactions`) between → a closing. Under the hood it's the
+same speech engine, but scenes are kept LIGHT so they read as dialogue not a
+test: her previous line echoes above your reply prompt, feedback is a warm
+in-character reaction (the % / kana-diff detail is tucked behind a "how did I
+sound?" tap), and her reply is the reward — no full scorecard per turn.
+
+Under the hood:
+
+English prompt → Web Speech API (`ja-JP`) transcription → compare by READING:
+both sides reduced to bare hiragana (kanji read via the vendored kuromoji
+tokenizer, digits spelled out to kana — 500円→ごひゃくえん), scored by edit
+distance. Thresholds: ≥70% pass, ≥45% close — deliberately forgiving, the
+recognizer mishears a mora or two even on clean speech. Quiz is
+pure practice — it must NEVER touch SRS scheduling (owner decision).
+Speech recognition needs real Safari/Chrome (not webviews); the quiz degrades
+to reveal-and-listen when unavailable.
+
+## Working with the owner
+
+- Ship small and iterate from screenshots; they test on an iPhone (Safari PWA)
+  and reply with photos. Expect "a bit more / too high / bleed" refinement
+  loops — that's the workflow, not scope creep.
+- Report honestly: if you couldn't visually verify (no browser in the sandbox),
+  say so and ask for a screenshot.
+- Big changes to live behaviour (SRS, deploy targets, voice): confirm first.
+  Styling/layout polish: just do it and deploy.
+- The owner's stack outside this repo: GitHub Pages + a local VOICEVOX for
+  auditioning voices. Keep everything runnable without Node build tooling.
+
+## The character & journey layer (owner-approved direction)
+
+- **もち子さん is a character, not just a voice**: she asks the quiz prompts,
+  praises perfect spoken answers, reacts between your lines, and stars in **conversation scenes**
+  (`window.SCENES` — her lines play aloud, your lines run the quiz mic flow).
+  She also greets on the lesson-intro reference (`window.MOCHIKO.greetings`,
+  bubble in `openIntro`), now reached opt-in via the card's 📖 Words button.
+  New scene lines for her need clips; reuse existing lesson sentences for the
+  learner's lines so their clips already exist (the lint enforces learner lines
+  are real lesson sentences). ALL of Level 1 (29 lessons) has hand-written
+  scenes — her lines genuinely respond (she answers prices, reacts to news,
+  asks follow-ups). Levels 2-7 still use the auto-built flow; converting them
+  is the standing direction: reinforce what was learned through natural
+  conversation.
+- **The level page is a rail of framed picture cards** (2026-07, owner
+  decision): compact theme headers, then each theme is a horizontal scroll-snap
+  `.lesson-rail` of `.lesson-card`s. A card is a framed picture — the painted
+  `assets/frame.png` IS its border (9-slice `border-image`, `background-clip:
+  padding-box` so the cover fills inside it), the cover is a per-lesson emoji
+  (or `L.image`) chosen from what the lesson teaches (`lessonCover`: keyword
+  match on title/section/grammar/vocab, stable per-id fallback) on a per-theme
+  wash, with the title on a soft bottom caption and a ▶/✓ corner flag. Covers
+  are heuristic and OVERRIDABLE — `L.cover` (emoji) or `L.image` (a real photo
+  path) pins any lesson. Cards carry NO launcher
+  buttons (owner, 2026-07: Words, Build, AND Catch up are all folded into the
+  lesson flow) — the picture IS the button; tapping it rides the lesson.
+  Catch-up remains reachable from the lesson-complete screen and rides
+  automatically as warmups. The lesson-intro screen (`openIntro`) is now unreachable from
+  cards (kept in code); never resurrect it as a gate.
+  **Folded-in alphabet**: the first run of any Level 0 lesson opens with a
+  "New sounds today" panel — its newly-introduced kana as tap-to-hear tiles
+  (`sounds` beat, data via `window.__hanaNewKana`, seen-state in
+  `story.soundsSeen`). Romaji-over-kana remains the "during".
+  **Build-as-repair**: a sentence missed last time (lastGrade ≤ 1, ≥3 words,
+  not a warmup ride, no other beat on the card, max one per session) comes
+  back as an assemble-the-chips puzzle (`build` beat) before its speaking
+  card. Build is no longer a separate mode entry. The old `.lesson-chip` grid and the Japan-map/road-of-nodes
+  journey are RETIRED. "Ahead" cards are styling only — every lesson stays tappable.
+- The Donkey-Kong-style map plan (`docs/ART_ROADMAP.md`, panels for
+  `assets/map/`) is ON HOLD pending the owner rethinking the map — ask before
+  doing any map/journey work. Don't generate placeholder scenery art unprompted.
+- **Real-world missions** (`window.MISSIONS`, shown on lesson complete) and the
+  **weekly rhythm dots** (7 forgiving days, `prog.practice`) replace
+  streak-guilt. Do not add streak pressure back.
+- Rewards-as-content (unlockable voice styles / scenes) is the approved future
+  direction for rewards — never points or XP.
+
+## Rhythm: daily warmups + soft pace (owner, 2026-07)
+
+- **Warmups ride once per day** (`prog.warmupDay` in buildWarmup): the first
+  session of the day carries up to 5 missed/due cards; every later session
+  that day starts clean. Grinding the same misses before each lesson was the
+  owner's complaint; once-a-day keeps the reinforcement without the slog.
+- **Soft daily pace** (`prog.pace` in startLesson): the first NEW lesson of
+  the day starts freely; tapping a second new lesson flashes
+  "今日はここまで — tap again to keep going" and proceeds on the second tap.
+  Never a hard lock. Cleared lessons replay without question. Do not turn
+  this into streaks or locks — it is a nudge, full stop.
+
+## Interactive story beats (interactive-learning.js — owner direction, 2026-07)
+
+- **The act must PRODUCE the exact sentence the learner then says.** A beat is
+  an action (choose / place / point / identify) whose completion attaches the
+  precise lesson sentence, then the untouched normal speaking card follows.
+  Interaction establishes meaning; the card still does the speaking work.
+- Beats are data entries keyed lesson→English-prompt (`AFTER_PROMPT` /
+  `BEFORE_PROMPT` are nested by lesson id, so the same prompt can carry
+  different beats in different lessons, and warmup rides never fire them).
+  Only in lesson mode (never review/build), and NEVER when 🚗 Drive mode is
+  on (settings.driveMode — Settings toggle: flashcards only, hands-free).
+  `next` chains beats (claim → place). A map value may be a function.
+- Interaction verbs: claim · place (drag/tap) · point (distance) · identify ·
+  ask (tap the unknown/person — curiosity is the question) · order (tap what
+  you want; flies to basket/hand; tags carry prices; `targets` for A-and-B) ·
+  count (tap items one by one, ひとつ/ふたつ chips appear) · pick (same object
+  two sizes; wrong tap teaches the opposite adjective).
+- これ・それ・あれ are taught by **pointing**: the same object at three
+  distances (by your hand / beside もち子 / far shelf). Wrong taps TEACH the
+  zone word ("that one is next to もち子 — that would be それ") instead of just
+  refusing. Extend this pattern: errors should teach the system.
+- Lessons with authored scenes (46): `this-that`, `shop`, `where` (the
+  original three rich ones), plus `counters` (count), `cafe` (multi-order,
+  menu, count), `money` (price tags), `object` (pick up what you drink/read),
+  `likes`, `wants`, `adj-noun` (pick big/small), `numbers` (ask her age),
+  `te-please` (stop もち子 walking off — まって ください), and the see-it-then-
+  say-it "ask" beats across Level 0 + Foundations: `l0-ka` (big face,
+  persimmon), `l0-sa` (sushi, cow), `l0-ta` (expensive clock, small octopus),
+  `l0-na` (cat's paw), `l0-ha` (stars in the sky), `l0-ma` (peach), `l0-ra`
+  (bird near you, car at a distance), `l0-wa` (my book), `l0-dakuten` (book
+  +です), `telling-time` (clock hands actually show 7:00 / 8:30 via
+  `beat.clock` → `data-clock` — shown as a BIG wall clock, `zone:"wall"`),
+  `na-adj` (potted flower), plus the 2026-07 all-curriculum sweep: `l0-a`
+  (nice house), `l0-ya` (tall mountain on the horizon), `greetings` (sun/moon
+  in the sky — `sky:true`, `night:true` darkens the scene), `verbs` (take the
+  food/drink — the act IS たべます/のみます), `coming-going` (house down the
+  road), `routine` (wall clock at 7:00), `was-were` (500円 tag = でした),
+  `but-kedo` (3,000円 sushi — pricey but tasty), `permission` (empty chair
+  next to もち子), `directions` (traffic light; station on the right),
+  `transport` (train; bus tagged くうこう), `does-this-go` (bus tagged えき？),
+  `had-better` (umbrella), `comparing` (three price tags, take the cheapest),
+  `seems` (sushi you haven't tasted → おいしそう), `tickets` (ticket tagged
+  しんじゅく). Presentation follows the sentence, not a default table (owner):
+  sushi is angled so it reads as sushi, the telling-time clock fills the room,
+  これは ほんです deliberately shows a NOT-your-book cover (`otherBook:true`)
+  while わたしの ほん shows the claimed one. Second creative sweep (owner:
+  "think creatively"): `money` gains the **coins verb** — multiple-choice
+  stacks of 100円 coins (1/3/5), the amount is something you COUNT; wrong
+  taps count the stack out loud (ひゃく、にひゃく… — that's さんびゃくえん).
+  Plus `lets` (eat together with もち子), `te-form` (bird lands → みて！),
+  `te-iru` (your open book → よんで います), `experience` (ask if she's had
+  sushi), `how-far` (station tiny on the horizon → とおいですか), 
+  `adj-negative` (the 98,000円 clock marked down to 100円 → たかくないです),
+  `can-do` (a car you can't drive). Abstract sentences
+  (think/because/want, grammar-only morphology, keigo) stay as normal cards.
+- `hero: true` on a beat renders its object dominating the scene — any
+  sentence claiming おおきい must LOOK big (station, face, cow, boat).
+  `scene: "plain"` is a backdrop-less centered stage for standalone objects
+  (house, faces) — not everything needs a background (owner, 2026-07). The
+  pointing hand is retired: `.story-hand` paints nothing (geometry kept for
+  order-beat fly-to destinations).
+- Scenes are CSS 3D (perspective floor + wall/counter) with an em-scaled
+  object library — every object is inline SVG (`OBJ_SVG` in
+  interactive-learning.js, 2026-07: interim hand-drawn vector art until real
+  illustrations land; wrappers keep their em sizes so zone scaling is
+  unchanged; clock hands/book covers/cat paw are CSS-addressable SVG groups) (book/bag/clock/cup/water/coffee/mystery/cow/octopus/cat/
+  star/peach/bird/flower/bigface/persimmon…) — distance is font-size. Vary objects per beat; don't make everything the same item, and
+  don't make everything pointing — pick the interaction verb the sentence
+  actually performs (verbs now include `coins` — pick the countable stack).
+- Scene art is CSS-drawn (books, bags, desk, hand) + existing chibi assets. No
+  external images. `HanasouStory.reset()` clears only story state (not SRS).
+
+## Identity layer (owner direction, 2026-07)
+
+- **You and your friend are characters**: `claimPerson` beats let the learner
+  pick an avatar (intro lesson, はじめまして) and a friend (l0-dakuten,
+  ともだちの でんわ) from four SVG people (`PEOPLE` in
+  interactive-learning.js); each role excludes the other's pick. The friend
+  gets a TYPED name (`nameInput` beat on おなまえは なんですか？, stored in
+  `story.friendName`, capped 12 chars) shown as a tag over their head in every
+  later scene. `objectFigure("avatar"/"friendchar")` resolves the stored
+  choice; `beat.prop` attaches a carried object (usflag, schooldesk,
+  telephone). Extend this: any my/friend sentence should show these characters.
+- **numberTap beats** (numbers lesson): tap a digit tile → もち子 says it
+  (`window.HanasouSpeak`, exposed from app.js speak) and the kana appears;
+  after all five the sentence run attaches. Age was split out of numbers into
+  the `age` lesson (〜さい, regular counting; はたち deferred — owner decision
+  2026-07: no rare forms early).
+- A one-time 4-panel welcome tour (`TOUR` in interactive-learning.js) fires
+  before the very first l0-a card — keep it to four panels, never re-fires.
+
+## Known debt / open items (keep this list honest)
+
+- The three 〜ざるを得ない sentences contain the kanji 得 without furigana.
+- `resetProgress` says "erase all progress" but keeps mined/immersion/known.
+- Speech recognition is unavailable in the installed iOS home-screen app
+  (WebKit limitation) — the quiz explains this and degrades gracefully.
+- Legacy `claude/*` branches await owner deletion; higher-res art sits unmerged
+  on `claude/inspiring-carson-712EI` (owner hasn't decided).
+- `_headers` is Cloudflare-only (harmless on Pages).

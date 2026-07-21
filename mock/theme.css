@@ -1,0 +1,892 @@
+/* はなそう THEME PREVIEW — layers over the real styles.css to re-skin the
+   live app (same DOM/IDs, every feature intact) in the kawaii shopping-street
+   look. Loaded only by /mock/; the live app never sees this file. */
+
+/* ---- 1. palette + fonts: the app reads these vars everywhere, so redefining
+   them recolors buttons, bars, badges, tiles, chips, rings… in one move. ---- */
+:root {
+  --bg: #fff7ea; --fg: #4a3328; --muted: #6b5847;   /* darkened for readability on the bg */
+  --accent: #ef6fa7; --accent-2: #f8a8c6; --on-accent: #5a1f3a;
+  --card: #ffffff; --card-2: #fff3f7; --line: #f3d3df;
+  --good: #3e8e41; --mid: #c98a00; --bad: #d8567f;
+  --ink: #4a3328; --cobalt: #2e5bcf; --gold: #f2be45; --sky: #79c8ec;
+  --display: "Mochiy Pop One", system-ui, sans-serif;
+  --body: "Zen Maru Gothic", ui-rounded, system-ui, sans-serif;
+  --shadow: 0 4px 0 rgba(74, 51, 40, 0.16);
+  --shadow-sm: 0 3px 0 rgba(74, 51, 40, 0.14);
+  --radius: 18px; --radius-sm: 14px;
+}
+
+/* ---- 2. street background under everything, with a cream veil for legibility ---- */
+html, body {
+  font-family: var(--body);
+  background: var(--bg) url("../assets/street_soft.jpg") center / cover fixed no-repeat;
+}
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1;
+  background: linear-gradient(rgba(255, 247, 234, 0.74), rgba(255, 247, 234, 0.9));
+}
+
+/* ---- 3. headings + labels in the display face ---- */
+#app-title, .settings-h, #lesson-title, .tier-name, .stat-num, #answer-kana,
+#lesson-done h2, .mastery-pct { font-family: var(--display); }
+#app-title { color: var(--accent); letter-spacing: 0.06em; white-space: nowrap; }
+/* darker pink labels + dark prose so text sitting on the street bg reads well */
+.label, .mastery-tag, .section-title { color: color-mix(in srgb, var(--accent) 70%, var(--ink)) !important; }
+.lesson-note { color: var(--ink) !important; font-weight: 600; }
+.tap-hint { opacity: 1 !important; color: var(--accent) !important; }
+.lesson-grammar { color: var(--ink); }
+
+/* sticky header: decorative sign banner on top, control bar (back/home/1·6/
+   settings) below it — the controls live off the sign, grouped with the 1/6. */
+#app { position: relative; }
+#topbar { display: none !important; }
+/* the painted sign spans the WHOLE header now, so the buttons + progress bar
+   sit inside it: text region up top, awning as a divider, controls in the
+   lower band of the sign. */
+#app-header {
+  position: static; z-index: 8; margin: 0 0 0.5rem;
+  background: url("../assets/sign.png") center / 100% 100% no-repeat;
+  filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
+  padding-bottom: 1.6rem;
+}
+#app-banner {
+  position: relative; width: 100%; height: clamp(96px, 27vw, 124px);
+}
+.ab-text {
+  position: absolute; left: 9%; right: 9%; top: 44%; bottom: 22%;
+  display: grid; place-items: center; text-align: center; z-index: 3; overflow: hidden;
+  font-family: var(--display); color: var(--accent);
+  font-size: clamp(0.82rem, 3.5vw, 1.18rem); line-height: 1.1;
+  text-shadow: 0 2px 0 rgba(239, 111, 167, 0.2);
+}
+.ab-awning {
+  position: absolute; left: 0; width: 100%; height: 28px; bottom: -5px; z-index: 2;
+  object-fit: fill; pointer-events: none;
+  filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.1));
+}
+/* control bar — inset so the buttons sit inside the sign's side borders */
+#ctrl-bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 8% 0; min-height: 2.4rem; }
+#ctrl-bar .cb-left { display: flex; gap: 0.4rem; align-items: center; }
+#ctrl-bar .cb-mid { flex: 1; display: flex; justify-content: center; align-items: center; }
+#ctrl-bar .cb-right { display: flex; gap: 0.4rem; align-items: center; }
+/* same chunky ink outline + hard drop-shadow as the rest of the buttons */
+#ctrl-bar .icon-btn {
+  width: 2.3rem; height: 2.3rem;
+  border: 2.5px solid var(--ink) !important; background: #fff !important; color: var(--ink) !important;
+  box-shadow: 0 3px 0 var(--ink); transition: transform 0.08s, box-shadow 0.08s;
+}
+#ctrl-bar .icon-btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+#ctrl-bar #settings-btn.active { background: var(--gold) !important; }
+/* the 1/6 ring rides in the same band as the icons, so keep it their height */
+#ctrl-bar .card-counter { width: 2.4rem; height: 2.4rem; font-size: 0.58rem; box-shadow: 0 3px 0 var(--ink); }
+#ctrl-bar #back-btn { font-size: 1.3rem; }
+#ctrl-bar #home-btn { font-size: 1.1rem; }
+/* mastery bar lives in the control bar's middle (between back/home and gear) */
+#ctrl-bar #mastery { width: 100%; margin: 0 !important; gap: 0.45rem; align-items: center; }
+#ctrl-bar #mastery .mastery-tag { display: none; }   /* drop the label so the bar fits */
+#ctrl-bar #mastery .mastery-bar { flex: 1; }
+#ctrl-bar #mastery .mastery-pct { font-size: 0.8rem; }
+/* the 1/6 counter moved into the control bar, so hide the empty drill row */
+#progress-row { display: none !important; }
+
+/* daily goal removed — hide the ring and its settings option */
+#daily-ring { display: none !important; }
+.setting-group:has(#goal-select) { display: none !important; }
+
+/* the banner shows the level/lesson now, so drop the in-content duplicates */
+#lesson-intro #lesson-title { display: none; }
+#lesson-grammar { display: none !important; }   /* the grammar note below explains it */
+.level-detail-title { display: none; }
+/* condense hard: the big cards ride at the very top — drop the level blurb/head */
+.level-detail-head { display: none !important; }
+
+/* condense the level page (the lesson-map's 2rem gaps wasted a lot of room)
+   and darken text that sits on the translucent street background */
+#home.screen { gap: 0.4rem; }
+#lesson-map { gap: 0.3rem !important; }
+.level-back { margin: 0 !important; }
+.mastery-pct { color: var(--ink) !important; }
+.mastery { gap: 0.5rem; }
+
+/* ---- 4. signature chunky "pop" buttons (ink outline + hard drop-shadow) ---- */
+button.primary, button.secondary {
+  border: 3px solid var(--ink); border-radius: 999px; font-weight: 900;
+  color: var(--ink); box-shadow: 0 4px 0 var(--ink);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+button.primary { background: var(--gold); }
+button.secondary { background: #fff; }
+button.primary:active, button.secondary:active { transform: translateY(4px); box-shadow: 0 0 0 var(--ink); }
+button.small { border-width: 2.5px; box-shadow: 0 3px 0 var(--ink); }
+button.link { color: var(--accent); font-weight: 700; }
+
+/* grade chips — compact height, all three stay on one row */
+#grade .grade-row { flex-wrap: nowrap; }
+button.grade {
+  border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink); background: #fff;
+  padding: 0.45rem 0.4rem; line-height: 1.1;
+}
+button.grade .grade-days { font-size: 0.55rem; margin-top: 0.02rem; }
+button.grade.nope { background: color-mix(in srgb, var(--bad) 16%, #fff); }
+button.grade.kinda { background: color-mix(in srgb, var(--gold) 22%, #fff); }
+button.grade.got { background: color-mix(in srgb, var(--sky) 22%, #fff); }
+/* drill action buttons (reveal & hear / again / lesson) sized to match the
+   nope·kinda·got-it grade buttons — equal width, same compact height */
+#drill #controls { gap: 0.5rem; }
+#drill #controls button.primary,
+#drill #controls button.secondary {
+  flex: 1; min-width: 0; padding: 0.7rem 0.6rem; font-size: 0.98rem; line-height: 1.1;
+}
+.review-chip { border: 2.5px solid var(--ink); box-shadow: var(--shadow-sm); background: #fff; }
+
+/* ---- 5. cards, tiles, panels: white with ink outline + hard shadow ---- */
+.stat-tile, button.lesson-tile, .setting-group, .howit, .imm-card,
+.mine-item, .tier-head, .reader-text, .reader-pop, .sw-update, .level-tab {
+  border: 2.5px solid var(--ink) !important;
+  box-shadow: var(--shadow) !important;
+  background: var(--card);
+}
+button.lesson-tile { border-width: 3px !important; border-radius: var(--radius); }
+.tier-head { background: linear-gradient(120deg, var(--card-2), #fff); }
+.tier-count, .tile-badge, .imm-streak, .mine-add, .ip1-badge, .combo, .lesson-grammar {
+  border: 2px solid var(--ink); color: var(--ink); font-family: var(--display); font-size: 0.62rem;
+}
+.lesson-grammar { background: var(--sky); color: var(--ink); }
+/* combo "🔥 N" badge: float it onto the card corner so it no longer takes a
+   whole line above the card (which left an empty gap until you hit a streak). */
+#drill { position: relative; }
+#combo {
+  position: absolute !important; top: 2rem; right: 0; z-index: 6; margin: 0 !important;
+  transform: rotate(4deg);
+}
+.combo { background: var(--gold); }
+
+/* progress + mastery bars: ink-outlined candy fills */
+#progress-bar, .mastery-bar, .tile-bar, .rc-bar, .mastery-bar { border: 2.5px solid var(--ink); background: #fff; }
+#progress-fill, .mastery-bar > i, #mastery-fill, .tile-bar > i, .rc-bar > i {
+  background: repeating-linear-gradient(45deg, var(--accent-2) 0 10px, var(--accent) 10px 20px) !important;
+}
+
+/* daily-goal ring → gold */
+.ring-fill { stroke: var(--accent) !important; }
+.daily-ring.complete .ring-fill { stroke: var(--gold) !important; }
+
+/* ---- 6. drill card: gold star-frame, sliced so it flexes with content ----
+   The painted frame is split into caps + side strips (assets/frame-*.png).
+   Caps scale with card WIDTH and the sides stretch in the middle band, so a
+   tall card on a phone never lets text slide under the painted border.
+   Slice thicknesses (relative to width): top 21.8%, bottom 16.2%, sides 14%. */
+#card {
+  position: relative;
+  /* The card BACKGROUND paints UNDER the border-image. padding-box clips it to
+     the area INSIDE the border, so the cream sits behind the painted frame and
+     can never bleed out past it, while still filling the whole opening. */
+  background-color: #fffdf6 !important;
+  background-clip: padding-box !important;
+  border-style: solid !important;
+  border-color: transparent !important;
+  border-width: 58px 42px 48px 42px !important;   /* visual thickness of each painted edge */
+  border-image: url("../assets/frame.png") 245 157 182 157 round !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  filter: drop-shadow(0 5px 0 rgba(74, 51, 40, 0.14));
+  padding: 0.4rem 0.6rem 0.7rem;
+}
+@media (max-width: 430px) { #card { border-width: 46px 34px 40px 34px !important; } }
+#prompt-en { color: var(--ink); font-weight: 900; }
+#answer-kana { line-height: 1.6; }
+/* keep the app's POS word colors exactly as-is — do NOT override .ck / .pos-* */
+
+/* word-breakdown chips: ink outline + Jisho link as a stamp */
+.word-chip { border-width: 2px; border-radius: 12px; }
+.wc-jisho { border: 2px solid var(--ink); color: var(--ink); font-weight: 900; box-shadow: 0 2px 0 rgba(74, 51, 40, 0.2); }
+.wc-analyze { border: 2px dashed var(--cobalt); color: var(--cobalt); font-weight: 900; }
+
+/* build-the-sentence chips */
+.build-chip { border: 2.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); }
+.build-answer { border: 2.5px dashed var(--accent); background: var(--card-2); }
+
+/* ---- How-it-works: compact sentence-structure diagram + colour legend ---- */
+#structure .str-diagram { gap: 0.22rem; margin: 0.55rem 0 0.3rem; }
+#structure .str-row { font-size: 0.8rem; }
+#structure .str-prt { padding: 0.05rem 0.5rem; }
+#structure .str-verb { padding: 0.22rem 0.55rem; font-size: 0.82rem; margin-top: 0.2rem; }
+.str-eg { margin: 0.55rem 0 0 !important; font-size: 0.82rem; line-height: 1.5; }
+
+.color-legend { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.5rem 0 0.2rem; }
+.color-legend .ck {
+  padding: 0.22rem 0.6rem; border-radius: 9px; border: 1.5px solid;
+  font-weight: 800; font-size: 0.82rem; line-height: 1.1;
+}
+.color-note { font-size: 0.76rem !important; opacity: 0.85; margin-top: 0.4rem !important; }
+
+/* sentence counter beside the progress bar during practice */
+#progress-row { display: flex; align-items: center; gap: 0.6rem; }
+#progress-row #progress-bar { flex: 1; }
+/* condensed drill: the line bar is replaced by a filling counter circle, and
+   the gaps are tightened so the card sits higher. */
+#drill { gap: 0.55rem; }
+#progress-row { justify-content: center; }
+#progress-row #progress-bar { display: none; }   /* replaced by the circle */
+.card-counter {
+  --p: 0; width: 3.1rem; height: 3.1rem; border-radius: 50%; padding: 0;
+  display: grid; place-items: center; line-height: 1; white-space: nowrap;
+  font-family: var(--display); font-size: 0.74rem; color: var(--ink);
+  border: 2.5px solid var(--ink); box-shadow: 0 3px 0 rgba(74, 51, 40, 0.16);
+  background:
+    radial-gradient(closest-side, #fff 70%, transparent 72%),
+    conic-gradient(var(--accent) calc(var(--p) * 1%), color-mix(in srgb, var(--accent) 20%, #fff) 0);
+}
+
+/* ---- tidy: even vocab rows (no wrapping → uniform height) + outlined ---- */
+button.vocab-row {
+  border: 2.5px solid var(--ink) !important;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  grid-template-columns: 7.2rem minmax(0, 1fr) auto;
+  align-items: center;
+  background: #fff;
+  column-gap: 0.6rem;
+}
+.vocab-row .v-jp { white-space: nowrap; }
+.vocab-row .v-romaji { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vocab-row .v-en { text-align: right; }
+body.no-romaji button.vocab-row { grid-template-columns: 7.2rem 1fr; }
+.vocab-row .v-en { justify-self: end; }
+
+/* ---- level overview: tappable level cards (each opens its own page) ---- */
+.level-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.7rem; }
+.level-card {
+  display: flex; flex-direction: column; gap: 0.15rem; text-align: left; cursor: pointer;
+  background: #fff; color: var(--ink); border: 3px solid var(--ink); border-radius: var(--radius);
+  padding: 0.85rem 0.9rem 0.9rem; box-shadow: 0 5px 0 rgba(74, 51, 40, 0.16);
+  border-top-width: 8px; transition: transform 0.08s, box-shadow 0.08s; min-height: 96px;
+}
+.level-card:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(74, 51, 40, 0.16); }
+.level-card.soon { opacity: 0.6; cursor: default; }
+.level-card.lv-0 { border-top-color: #ef6fa7; }
+.level-card.lv-1 { border-top-color: #2e5bcf; }
+.level-card.lv-2 { border-top-color: #3e8e41; }
+.level-card.lv-3 { border-top-color: #e0772e; }
+.level-card.lv-4 { border-top-color: #8a5cd0; }
+.level-card-name { font-family: var(--display); font-size: 0.66rem; color: var(--accent); letter-spacing: 0.04em; }
+.level-card-title { font-weight: 900; font-size: 0.98rem; line-height: 1.15; }
+.level-card-count { margin-top: auto; font-size: 0.66rem; font-weight: 800; color: var(--muted); }
+.level-card-soon { margin-top: auto; font-family: var(--display); font-size: 0.62rem; color: var(--muted); }
+
+/* level detail page: back is a minimal inline link, header is one tight row */
+.level-back {
+  align-self: flex-start; font: inherit; font-size: 0.82rem; font-weight: 900; color: var(--ink);
+  cursor: pointer; background: none; border: 0; box-shadow: none;
+  padding: 0.1rem 0; margin: 0.1rem 0 0.2rem; opacity: 0.85;
+}
+.level-back:active { opacity: 0.55; }
+.level-detail-head { margin: 0 0 0.15rem; }
+.level-detail-title { font-family: var(--display); color: var(--accent); font-size: 1.25rem; margin: 0 0 0.2rem; }
+.level-detail-head .level-blurb { margin: 0 !important; font-size: 0.72rem; line-height: 1.25; color: var(--muted); }
+
+/* ---- (legacy level-tabs styling, unused now that overview uses cards) ---- */
+.level-tabs {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem; overflow: visible !important; margin-bottom: 0 !important;
+}
+.level-tab {
+  border: 2.5px solid var(--ink) !important; border-radius: var(--radius-sm) !important;
+  background: #fff !important; box-shadow: 0 3px 0 rgba(74, 51, 40, 0.16);
+  flex: initial !important;
+}
+.level-tab.active { background: var(--gold) !important; }
+.level-tab-name { font-family: var(--display); color: var(--ink) !important; }
+.level-tab-title { white-space: normal !important; color: var(--ink); }
+
+/* confetti burst (theme.js) for correct answers + celebrations */
+#confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 60; }
+#confetti-layer .cf {
+  position: absolute; top: -8%; width: 12px; height: 16px; border-radius: 2px;
+  will-change: transform, opacity; animation: cf-fall linear forwards;
+}
+#confetti-layer .cf.star { width: 26px; height: 26px; border-radius: 0; }
+@keyframes cf-fall {
+  0% { transform: translateY(0) rotate(0); opacity: 1; }
+  100% { transform: translateY(112vh) rotate(720deg); opacity: 0.9; }
+}
+
+/* ---- 7. lesson complete: drop in cheering Kōhai ---- */
+#lesson-done .done-emoji { display: none; }
+#lesson-done::before {
+  content: ""; display: block; width: min(220px, 60%); aspect-ratio: 1; margin: 0 auto;
+  background: url("../assets/story/mochiko-cheer.png") center / contain no-repeat;
+  filter: drop-shadow(0 6px 0 rgba(74, 51, 40, 0.18));
+}
+#lesson-done h2 { color: var(--accent); }
+
+/* ---- 8. playful interactions ---- */
+/* sticker reveal: card tips toward you and pops flat — never goes edge-on */
+#card.card-flip { animation: card-reveal 0.5s cubic-bezier(0.2, 0.8, 0.25, 1); transform-origin: top center; }
+@keyframes card-reveal {
+  0% { transform: perspective(1000px) rotateX(-16deg) scale(0.97); opacity: 0.65; }
+  55% { transform: perspective(1000px) rotateX(5deg) scale(1.015); opacity: 1; }
+  100% { transform: perspective(1000px) rotateX(0) scale(1); }
+}
+
+/* star stamp-press when a card is nailed */
+.stamp-hit {
+  position: absolute; top: 6%; right: 7%; width: 64px; pointer-events: none;
+  transform: rotate(-12deg); animation: stamp-press 1.35s ease forwards; z-index: 4;
+  filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.25));
+}
+@keyframes stamp-press {
+  0% { transform: scale(2.4) rotate(-40deg); opacity: 0; }
+  35% { transform: scale(0.94) rotate(-12deg); opacity: 1; }
+  45% { transform: scale(1.06) rotate(-12deg); }
+  55%, 80% { transform: scale(1) rotate(-12deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-12deg) translateY(-6px); opacity: 0; }
+}
+
+/* tier emblems (theme.js slots them into .tier-head) */
+.tier-emblem { width: 42px; height: 42px; object-fit: contain; flex: none; filter: drop-shadow(0 2px 0 rgba(74, 51, 40, 0.18)); }
+
+/* ---- 9. floating mascot helper (injected by theme.js) ---- */
+#kohai-helper {
+  position: fixed; right: 0.6rem; bottom: 0.5rem; z-index: 50;
+  width: 104px; pointer-events: none; text-align: center;
+  filter: drop-shadow(0 5px 0 rgba(74, 51, 40, 0.16));
+  transition: opacity 0.2s;
+}
+#kohai-helper img { width: auto; height: 108px; display: block; margin: 0 auto; }
+#kohai-helper .kh-bubble {
+  display: inline-block; background: #fff; border: 2.5px solid var(--ink); border-radius: 12px;
+  padding: 0.25rem 0.5rem; font-size: 0.72rem; font-weight: 900; color: var(--ink);
+  margin: 0 auto 4px; box-shadow: 0 3px 0 rgba(74, 51, 40, 0.18); max-width: 130px; line-height: 1.2;
+}
+#kohai-helper .kh-bubble .romaji { display: block; font-size: 0.58rem; color: var(--accent); font-weight: 700; }
+#kohai-helper.pop img { animation: kh-pop 0.4s ease; }
+@keyframes kh-pop { 0% { transform: scale(0.85); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
+@media (max-width: 520px) { #kohai-helper { width: 84px; } }
+
+/* footer */
+footer { font-family: var(--display); color: var(--muted); }
+#voice-warn { font-family: var(--body); }
+
+/* ============ Sticker & Stamp collection (collection.js) ============ */
+#collection-btn { position: relative; }
+.col-badge {
+  position: absolute; top: -4px; right: -4px; min-width: 16px; height: 16px;
+  font-size: 0.6rem; font-weight: 900; line-height: 16px; text-align: center;
+  background: var(--accent); color: #fff; border: 2px solid #fff; border-radius: 999px; padding: 0 3px;
+}
+
+/* earn toast */
+.earn-toast { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; pointer-events: none; }
+.earn-card {
+  background: #fff; border: 3px solid var(--ink); border-radius: 20px; padding: 1rem 1.4rem; text-align: center;
+  box-shadow: 0 8px 0 rgba(74, 51, 40, 0.18); transform: scale(0.6) rotate(-4deg); opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.2, 1.4, 0.4, 1), opacity 0.25s;
+}
+.earn-toast.show .earn-card { transform: scale(1) rotate(-3deg); opacity: 1; }
+.earn-kicker { font-family: var(--display); font-size: 0.72rem; color: var(--accent); margin-bottom: 0.4rem; }
+.earn-art { width: 96px; height: 96px; object-fit: contain; filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.18)); }
+.earn-name { font-family: var(--display); font-size: 1.1rem; color: var(--ink); margin-top: 0.3rem; }
+.earn-en { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+
+/* collection overlay */
+#collection-overlay {
+  position: fixed; inset: 0; z-index: 70; background: rgba(74, 51, 40, 0.45);
+  display: flex; justify-content: center; align-items: flex-start; padding: 1.2rem 0.8rem;
+  overflow-y: auto; opacity: 0; transition: opacity 0.25s;
+}
+#collection-overlay.show { opacity: 1; }
+.col-sheet {
+  position: relative; width: min(560px, 100%);
+  background: var(--cream, #fff7ea) url("../assets/street_soft.jpg") center / cover fixed;
+  border: 3px solid var(--ink); border-radius: 22px; padding: 1.2rem 1rem 1.6rem;
+  box-shadow: 0 10px 0 rgba(74, 51, 40, 0.25);
+}
+.col-sheet > * { position: relative; }
+.col-sheet::before { content: ""; position: absolute; inset: 0; border-radius: 19px; background: rgba(255, 247, 234, 0.86); }
+.col-close {
+  position: absolute; top: 0.7rem; right: 0.7rem; z-index: 2; width: 2rem; height: 2rem; border-radius: 999px;
+  border: 2.5px solid var(--ink); background: #fff; font-weight: 900; box-shadow: 0 3px 0 var(--ink); cursor: pointer;
+}
+.col-title { font-family: var(--display); color: var(--accent); font-size: 1.5rem; text-align: center; }
+.col-sub { text-align: center; font-weight: 700; color: var(--muted); font-size: 0.8rem; margin-top: -0.1rem; }
+.col-progress { display: flex; justify-content: center; gap: 0.8rem; margin: 0.6rem 0 0.2rem; flex-wrap: wrap; }
+.col-progress span {
+  font-family: var(--display); font-size: 0.72rem; color: var(--ink); background: #fff;
+  border: 2px solid var(--ink); border-radius: 999px; padding: 0.2rem 0.7rem; box-shadow: 0 2px 0 rgba(74,51,40,.18);
+}
+.col-section-title { font-family: var(--display); color: var(--sakura-deep, #ef6fa7); font-size: 0.95rem; margin: 1rem 0 0.5rem; }
+
+.col-sticker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.55rem; }
+.col-sticker {
+  background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; padding: 0.5rem 0.3rem; text-align: center;
+  box-shadow: 0 3px 0 rgba(74, 51, 40, 0.15);
+}
+.col-sticker img { width: 58px; height: 58px; object-fit: contain; }
+.col-sticker:not(.got) img { filter: grayscale(1) brightness(0.7) opacity(0.35); }
+.cs-name { font-family: var(--display); font-size: 0.66rem; color: var(--ink); margin-top: 0.2rem; }
+.col-sticker:not(.got) .cs-name { color: var(--muted); }
+.cs-hint { font-size: 0.6rem; font-weight: 700; color: var(--muted); line-height: 1.2; margin-top: 0.1rem; }
+
+.passport-page { margin-bottom: 0.9rem; }
+.pp-head { font-family: var(--display); font-size: 0.78rem; color: var(--ink); display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; }
+.pp-count { font-size: 0.66rem; background: var(--gold); border: 2px solid var(--ink); border-radius: 999px; padding: 0.05rem 0.5rem; }
+.stamp-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.45rem; }
+.stamp-slot {
+  background: #fff; border: 2px dashed color-mix(in srgb, var(--ink) 40%, #fff); border-radius: 12px;
+  padding: 0.4rem 0.3rem; text-align: center; min-height: 74px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.15rem;
+}
+.stamp-slot.got { border-style: solid; border-color: var(--ink); box-shadow: 0 2px 0 rgba(74, 51, 40, 0.15); }
+.stamp-slot img { width: 42px; height: 42px; object-fit: contain; transform: rotate(-8deg); }
+.slot-dot { width: 30px; height: 30px; border-radius: 999px; border: 2px dashed color-mix(in srgb, var(--ink) 35%, #fff); }
+.slot-label { font-size: 0.58rem; font-weight: 700; color: var(--muted); line-height: 1.15; }
+.stamp-slot.got .slot-label { color: var(--ink); }
+
+/* ============ Level page: condensed lesson cards (app renderJourney) ========
+   The Japan map + road of nodes was retired — this is the same journey, tight:
+   compact theme headers, lessons as a wrapped grid of small tappable cards. */
+.lesson-list { display: flex; flex-direction: column; gap: 0.45rem; }
+
+.map-chapter { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin: 0.9rem 0 0; font-family: var(--display); color: var(--ink); font-size: 1rem; }
+.map-chapter-count { font-size: 0.62rem; background: var(--accent); color: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: 0.12rem 0.55rem; white-space: nowrap; }
+
+.theme-head { display: flex; align-items: center; gap: 0.4rem; margin: 0.1rem 0 0; padding: 0 0.15rem; }
+.theme-ico { font-size: 1rem; line-height: 1; }
+.theme-name { font-family: var(--display); font-size: 0.78rem; color: var(--ink); flex: 1; }
+.theme-count { font-size: 0.6rem; font-weight: 900; color: var(--muted); }
+.theme-stamp { width: 22px; height: 22px; object-fit: contain; transform: rotate(-10deg); }
+
+/* Lessons are framed picture cards (owner decision, 2026-07): the painted
+   frame IS the border, the cover fills it, the title rides a soft caption.
+   No intro screen — tapping the card starts practice; two tiny corner buttons
+   open Talk / Build. Each theme is a horizontal swipe-rail so the cards stay
+   big without turning the level into an endless vertical scroll. */
+.lesson-rail {
+  display: flex; gap: 0.5rem; overflow-x: auto; scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; padding: 0.15rem 0.1rem 0.35rem; margin: 0 -0.1rem;
+  scrollbar-width: none;
+}
+.lesson-rail::-webkit-scrollbar { display: none; }
+.lesson-card {
+  position: relative; box-sizing: border-box; cursor: pointer; color: var(--ink);
+  overflow: hidden;
+  background-color: #fbe9d2; background-clip: padding-box;
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+  border-style: solid; border-color: transparent;
+  border-width: 28px 22px 32px 22px;
+  border-image: url("../assets/frame.png") 245 157 182 157 round;
+  border-radius: 8px;
+  filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
+  transition: transform 0.08s;
+}
+/* Pimsleur-style: the card nearly fills the screen and you swipe between them.
+   Sized by viewport height so it dominates; the next card peeks at the edge. */
+.lesson-rail > .lesson-card {
+  flex: 0 0 92%; max-width: 560px;
+  height: min(700px, calc(100dvh - 11.5rem));
+  scroll-snap-align: center;
+}
+.lesson-card:active { transform: translateY(2px); }
+.lc-emoji {
+  position: absolute; left: 0; right: 0; top: 38%; transform: translateY(-50%);
+  display: grid; place-items: center;
+  font-size: 7.5rem; line-height: 1; filter: drop-shadow(0 3px 0 rgba(74, 51, 40, 0.16));
+}
+.lc-has-img .lc-emoji { display: none; }
+/* corner flag: ▶ current / ✓ done */
+.lc-flag {
+  position: absolute; left: 8px; top: 8px; z-index: 3;
+  width: 1.7rem; height: 1.7rem; display: grid; place-items: center;
+  font-size: 0.9rem; font-weight: 900; color: #fff; border: 2.5px solid var(--ink);
+  border-radius: 50%; box-shadow: 0 2px 0 var(--ink);
+}
+.lc-flag-now { background: var(--accent); }
+.lc-flag-done { background: var(--good); }
+.lc-done { filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14)) saturate(0.9); }
+.lc-ahead { opacity: 0.96; }
+/* caption + the four launchers along the bottom of the picture */
+.lc-cap {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: stretch; gap: 0.35rem;
+  padding: 1.4rem 0.45rem 0.5rem;
+  background: linear-gradient(transparent, rgba(255, 253, 246, 0.97) 42%);
+}
+.lc-title { font-family: var(--display); font-weight: 900; font-size: 1rem; line-height: 1.1; color: var(--ink); text-align: center; }
+.lc-actions { display: flex; justify-content: space-between; gap: 0.3rem; }
+.lc-act { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); }
+.lc-act-ico {
+  width: 52px; height: 52px; display: grid; place-items: center; font-size: 1.4rem; line-height: 1;
+  border: 2.5px solid var(--ink); border-radius: 50%; box-shadow: 0 3px 0 var(--ink);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.lc-act:active .lc-act-ico { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+.lc-act-lbl { font-family: var(--display); font-weight: 900; font-size: 0.56rem; }
+.act-words .lc-act-ico { background: color-mix(in srgb, var(--cobalt) 22%, #fff); }
+.act-practice .lc-act-ico { background: var(--accent); color: #fff; }
+.act-talk .lc-act-ico { background: color-mix(in srgb, var(--gold) 55%, #fff); }
+.act-build .lc-act-ico { background: color-mix(in srgb, var(--good) 26%, #fff); }
+
+/* 🏆 the level's ending challenge — full-width framed card, gold cover */
+.lc-challenge { aspect-ratio: auto; width: 100%; min-height: 96px; background-color: color-mix(in srgb, var(--gold) 32%, #fbe9d2); margin-top: 0.5rem; }
+.lc-challenge .lc-emoji { position: absolute; left: 1rem; right: auto; top: 50%; bottom: auto; font-size: 2.4rem; }
+.lc-challenge .lc-cap { position: static; background: none; padding: 0 0 0 3.2rem; flex-direction: column; }
+.lc-challenge .lc-title { text-align: left; }
+
+/* ---- "new version ready" prompt: centered modal-style, hard to miss ---- */
+.sw-update {
+  top: 50% !important; left: 50% !important; right: auto !important; bottom: auto !important;
+  transform: translate(-50%, -50%) !important;
+  flex-direction: column !important; gap: 0.9rem !important; text-align: center;
+  padding: 1.5rem 1.7rem !important; border-radius: 22px !important;
+  max-width: min(360px, calc(100vw - 2.5rem)) !important;
+  background: var(--gold) !important; color: var(--ink) !important;
+  border: 3px solid var(--ink) !important;
+  box-shadow: 0 8px 0 rgba(74, 51, 40, 0.28), 0 0 0 100vmax rgba(74, 51, 40, 0.45) !important;
+  animation: sw-pop 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+@keyframes sw-pop { 0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+.sw-update-text { font-family: var(--display); font-weight: 900 !important; font-size: 1.08rem !important; line-height: 1.3; }
+.sw-update-btn {
+  font-family: var(--display); font-weight: 900 !important; cursor: pointer;
+  background: #fff !important; color: var(--ink) !important; border: 2.5px solid var(--ink) !important;
+  border-radius: 999px !important; padding: 0.6rem 1.5rem !important; font-size: 1rem !important;
+  box-shadow: 0 4px 0 var(--ink) !important;
+}
+.sw-update-btn:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink) !important; }
+
+/* nested How-it-works sub-sections (structure + colours) */
+.howit-sub { margin-top: 0.5rem; }
+
+/* ---- speaking quiz ------------------------------------------------------- */
+#quiz { display: flex; flex-direction: column; gap: 0.7rem; }
+.quiz-progress {
+  align-self: center; font-family: var(--display); font-size: 0.8rem; color: var(--ink);
+  background: #fff; border: 2.5px solid var(--ink); border-radius: 999px;
+  padding: 0.2rem 0.8rem; box-shadow: 0 3px 0 rgba(74, 51, 40, 0.16);
+}
+#quiz-card {
+  background: #fffdf6; border: 2.5px solid var(--ink); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 1.1rem 1rem; text-align: center;
+  display: flex; flex-direction: column; gap: 0.6rem; align-items: center;
+}
+#quiz-en { font-size: 1.4rem; font-weight: 800; color: var(--ink); line-height: 1.25; }
+.quiz-hint { color: var(--muted); font-weight: 600; font-size: 0.9rem; }
+.quiz-heard { font-size: 1rem; color: var(--ink); }
+.quiz-heard b { font-weight: 900; }
+.quiz-verdict {
+  font-family: var(--display); font-weight: 700; font-size: 0.95rem;
+  border: 2.5px solid var(--ink); border-radius: 999px; padding: 0.35rem 0.9rem; box-shadow: 0 3px 0 var(--ink);
+}
+.quiz-verdict.pass  { background: color-mix(in srgb, var(--good) 26%, #fff); color: var(--ink); }
+.quiz-verdict.close { background: color-mix(in srgb, var(--gold) 28%, #fff); color: var(--ink); }
+.quiz-verdict.miss  { background: color-mix(in srgb, var(--bad) 18%, #fff);  color: var(--ink); }
+.quiz-answer { width: 100%; border-top: 2px dashed color-mix(in srgb, var(--ink) 30%, #fff); padding-top: 0.5rem; }
+#quiz-kana { font-size: 1.5rem; font-weight: 800; color: var(--ink); }
+#quiz-romaji { color: var(--muted); font-weight: 600; }
+#quiz-controls { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+#quiz-controls button.primary, #quiz-controls button.secondary { flex: 1; min-width: 0; padding: 0.7rem 0.6rem; font-size: 0.98rem; }
+#quiz-mic-btn.listening { background: var(--bad); color: #fff; animation: quizpulse 1s ease-in-out infinite; }
+@keyframes quizpulse { 0%, 100% { box-shadow: 0 4px 0 var(--ink); } 50% { box-shadow: 0 4px 0 var(--ink), 0 0 0 6px color-mix(in srgb, var(--bad) 35%, transparent); } }
+.quiz-summary { text-align: center; display: flex; flex-direction: column; gap: 0.6rem; align-items: center; padding-top: 1rem; }
+
+/* ---- POS teaching labels: the word's role written out under its meaning,
+   tinted like its chip, so the colour coding actually teaches ---- */
+.wc-pos {
+  display: block; font-size: 0.52rem; font-weight: 900; letter-spacing: 0.06em;
+  text-transform: uppercase; margin-top: 0.1rem; opacity: 0.75;
+}
+.vocab-row .v-en { display: flex; flex-direction: column; align-items: flex-end; gap: 0.05rem; }
+.vocab-row .v-pos {
+  font-size: 0.52rem; font-weight: 900; letter-spacing: 0.06em;
+  text-transform: uppercase; opacity: 0.7;
+}
+
+/* ---- speaking-quiz kana match: each target kana lights up if you said it ---- */
+.quiz-diff { margin-top: 0.35rem; line-height: 1.9; }
+.qd-label { font-size: 0.62rem; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.qd-ch {
+  display: inline-block; min-width: 1.25em; text-align: center; margin: 0 1px;
+  border-radius: 6px; font-weight: 800; font-size: 1.05rem; padding: 0 2px;
+}
+.qd-ok  { background: color-mix(in srgb, var(--good) 22%, #fff); color: var(--ink); border: 1.5px solid color-mix(in srgb, var(--good) 60%, var(--ink)); }
+.qd-bad { background: color-mix(in srgb, var(--bad) 16%, #fff); color: var(--ink); border: 1.5px dashed color-mix(in srgb, var(--bad) 55%, var(--ink)); }
+
+/* ---- もち子さん greeting bubble on lesson intros ---- */
+#mochiko-intro {
+  display: flex; align-items: flex-end; gap: 0.5rem; text-align: left;
+  background: none; border: none; padding: 0; cursor: pointer; width: 100%;
+}
+#mochiko-intro .mb-art { width: 64px; height: auto; flex: 0 0 auto; filter: drop-shadow(0 3px 0 rgba(74,51,40,0.15)); }
+#mochiko-intro .mb-bubble, .qm-bubble {
+  position: relative; flex: 1; background: #fff; border: 2.5px solid var(--ink);
+  border-radius: 14px; box-shadow: 0 3px 0 var(--ink); padding: 0.5rem 0.7rem;
+  display: flex; flex-direction: column; gap: 0.1rem;
+}
+#mochiko-intro .mb-bubble::before, .qm-bubble::before {
+  content: ""; position: absolute; left: -9px; bottom: 12px;
+  width: 14px; height: 14px; background: #fff;
+  border-left: 2.5px solid var(--ink); border-bottom: 2.5px solid var(--ink);
+  transform: rotate(45deg); border-bottom-left-radius: 4px;
+}
+#mochiko-intro .mb-jp, .qm-bubble b { font-size: 1rem; font-weight: 800; color: var(--ink); }
+#mochiko-intro .mb-en, .qm-bubble small { font-size: 0.72rem; color: var(--muted); font-weight: 600; }
+
+/* ---- scene mode: her speech bubble inside the quiz card ---- */
+#quiz-mochiko {
+  display: flex; align-items: flex-end; gap: 0.5rem; width: 100%; text-align: left; cursor: pointer;
+}
+#quiz-mochiko img { width: 72px; height: auto; flex: 0 0 auto; filter: drop-shadow(0 3px 0 rgba(74,51,40,0.15)); }
+#quiz-mochiko .qm-bubble b { font-size: 1.25rem; }
+
+/* ---- real-world mission on lesson complete ---- */
+.done-mission {
+  background: color-mix(in srgb, var(--good) 12%, #fff); border: 2.5px solid var(--ink);
+  border-radius: var(--radius-sm); box-shadow: 0 3px 0 var(--ink);
+  padding: 0.6rem 0.8rem; font-weight: 700; color: var(--ink) !important;
+}
+
+/* ---- weekly rhythm: seven forgiving dots, never a guilt streak ---- */
+.week-rhythm { display: flex; align-items: center; gap: 0.3rem; justify-content: center; padding: 0.1rem 0; }
+.wr-dot {
+  width: 0.72rem; height: 0.72rem; border-radius: 50%;
+  border: 2px solid var(--ink); background: #fff; opacity: 0.55;
+}
+.wr-dot.on { background: var(--gold); opacity: 1; }
+.wr-dot.today { box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--accent) 45%, transparent); }
+.wr-text { margin-left: 0.35rem; font-size: 0.74rem; font-weight: 800; color: var(--ink); }
+#stats.stats { border: none !important; box-shadow: none !important; background: none; padding: 0; }
+
+#stats .week-rhythm { flex: 1; }
+
+/* the one-tap hero on Home and the おかわり encore — the obvious next action */
+#review-btn.hero-btn { font-size: 1.02rem; padding: 0.95rem 1rem; margin-bottom: 0.35rem; }
+#encore-btn { margin-top: 0.5rem; }
+
+/* 🚗 drive mode — dash-mounted phone. ONE cohesive cream sheet, exactly one
+   viewport tall, nothing scrolls: the sign banner is gone, the slim control
+   bar (back · counter · gear) sits directly on the sheet, and the card loses
+   its frame and floats on the same surface. Tap reveals, ← nope / → got it. */
+body.drive-mode { overflow: hidden; }
+body.drive-mode #app {
+  max-width: 100%; height: 100dvh; min-height: 0; overflow: hidden;
+  padding: 0; background: #fffdf6;
+  /* the painted frame now wraps the whole sheet edge-to-edge, not the card */
+  border-style: solid; border-color: transparent;
+  border-width: 34px 24px 38px 24px;
+  border-image: url("../assets/frame.png") 245 157 182 157 round;
+}
+@media (max-width: 430px) {
+  body.drive-mode #app { border-width: 28px 20px 32px 20px; }
+}
+body.drive-mode #app-header { transform: none; margin: 0; padding: 0.25rem 0.3rem 0;
+  background: none; filter: none; }
+body.drive-mode #app-banner { display: none !important; }
+body.drive-mode #ctrl-bar { padding: 0.3rem 0.6rem 0.1rem; min-height: 2.2rem; }
+body.drive-mode #mastery, body.drive-mode #progress-row { display: none !important; }
+body.drive-mode #drill:not([hidden]) { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; padding: 0 0.7rem 0.55rem; }
+body.drive-mode #card {
+  cursor: pointer; flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  display: flex; flex-direction: column; justify-content: flex-start;
+  border: 0 !important; border-image: none !important; box-shadow: none !important;
+  background: transparent !important; padding: 1.1rem 1rem 0.4rem;
+  text-align: center;                       /* centred, anchored under the banner — no gap */
+  transition: transform 0.15s ease; touch-action: pan-y;
+}
+body.drive-mode #prompt-label, body.drive-mode #reveal-label { justify-content: center; }
+body.drive-mode #word-breakdown { justify-content: center; }
+body.drive-mode #prompt-en { font-size: 2.3rem; line-height: 1.3; }
+body.drive-mode #answer-kana { font-size: 2rem; line-height: 2.1; }
+/* per-mora romaji sits over each letter, so the single romaji line is redundant */
+body.drive-mode #answer-romaji { display: none !important; }
+/* the alphabet, drawn right over its letter — learn kana as you read the sentence */
+body.drive-mode #answer-kana ruby.mr { ruby-position: over; ruby-align: center; }
+body.drive-mode #answer-kana ruby.mr rt {
+  font-size: 0.42em; font-weight: 800; color: var(--muted);
+  letter-spacing: 0.01em; line-height: 1; padding-bottom: 0.12em;
+}
+/* no buttons in the car — tap the sheet to reveal / hear, swipe to grade */
+body.drive-mode #controls { display: none !important; }
+body.drive-mode #hint-row, body.drive-mode #combo,
+body.drive-mode #retire-btn { display: none !important; }
+/* tap reveals, swipe grades — no buttons needed in the car */
+body.drive-mode #reveal-btn, body.drive-mode #grade { display: none !important; }
+body.drive-mode #reveal-area::after {
+  content: "← nope　·　got it →";
+  display: block; text-align: center; margin-top: 0.9rem;
+  font-weight: 800; font-size: 0.95rem; color: var(--muted);
+}
+/* word chips stay — tapping one speaks that word, perfect in the car — just bigger */
+body.drive-mode .word-chip { font-size: 1.2rem; padding: 0.6rem 0.75rem; border-radius: 14px; }
+body.drive-mode footer { display: none !important; }
+/* the done screen shares the sheet: no scroll, big warm buttons */
+body.drive-mode #lesson-done:not([hidden]) { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 0.5rem 0.9rem; }
+body.drive-mode #encore-btn, body.drive-mode .done-actions button { min-height: 60px; }
+
+/* tiny running-version stamp in the sign's white band (top-right, clear of
+   the centered title) — lets the owner see at a glance if they're current */
+.ab-ver {
+  position: absolute; top: 27%; right: 11%; z-index: 3;
+  font-size: 0.52rem; font-weight: 900; letter-spacing: 0.05em;
+  color: color-mix(in srgb, var(--ink) 45%, #fff);
+}
+
+/* ---- kana learn & practice ------------------------------------------------ */
+.kana-btn { text-align: center; }
+.kana-tabs { display: flex; gap: 0.5rem; }
+.kana-tab {
+  flex: 1; border: 2.5px solid var(--ink); border-radius: 999px; background: #fff;
+  font-weight: 900; color: var(--ink); padding: 0.55rem 0.4rem; box-shadow: 0 3px 0 var(--ink);
+}
+.kana-tab.active { background: var(--gold); }
+.kana-note { margin: 0; }
+#kana-grid { display: flex; flex-direction: column; gap: 0.4rem; }
+.kana-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.kana-chip {
+  display: flex; flex-direction: column; align-items: center; gap: 0.02rem;
+  min-width: 3rem; padding: 0.3rem 0.4rem;
+  border: 2.5px solid var(--ink); border-radius: 12px; box-shadow: 0 3px 0 rgba(74, 51, 40, 0.2);
+  background: #f2ece0; opacity: 0.72;             /* not met yet: parchment */
+  transition: transform 0.08s;
+}
+.kana-chip:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0,0,0,0); }
+.kana-chip.seen { background: #fff; opacity: 1; } /* met: bright */
+.kana-chip .kc-char { font-family: var(--display); font-size: 1.3rem; color: var(--ink); line-height: 1.15; }
+.kana-chip .kc-romaji { font-size: 0.58rem; font-weight: 900; letter-spacing: 0.04em; color: var(--muted); text-transform: uppercase; }
+.kana-chip-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+/* practice: big letter, four sound choices */
+#kana-quiz { display: flex; flex-direction: column; gap: 0.8rem; align-items: center; padding-top: 0.4rem; }
+#kq-char {
+  font-family: var(--display); font-size: 5rem; line-height: 1.1; color: var(--ink);
+  background: #fffdf6; border: 3px solid var(--ink); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 0.8rem 2rem;
+}
+.kq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; width: 100%; }
+.kq-opt {
+  border: 2.5px solid var(--ink); border-radius: 999px; background: #fff;
+  font-weight: 900; font-size: 1.1rem; color: var(--ink); padding: 0.7rem 0.4rem;
+  box-shadow: 0 3px 0 var(--ink);
+}
+.kq-opt:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+.kq-opt.ok { background: color-mix(in srgb, var(--good) 30%, #fff); }
+.kq-opt.bad { background: color-mix(in srgb, var(--bad) 22%, #fff); }
+
+/* in-lesson sound-recognition interlude (rolled in from the old journey stop) */
+#kana-sound { display: flex; flex-direction: column; gap: 0.9rem; align-items: center; }
+.kana-sound-char {
+  font-family: var(--display); font-size: 4.4rem; line-height: 1.1; color: var(--ink);
+  background: #fffdf6; border: 3px solid var(--ink); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 0.6rem 1.8rem; cursor: pointer;
+}
+.kana-sound-char:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+.kana-sound-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; width: 100%; }
+
+/* romaji printed above Japanese fragments in teaching text (notes & hints) */
+#lesson-note ruby, #hint ruby, #quiz-hint ruby { ruby-position: over; }
+#lesson-note rt, #hint rt, #quiz-hint rt {
+  font-size: 0.52em; font-weight: 800; color: var(--muted);
+  letter-spacing: 0.02em; opacity: 0.9;
+}
+
+/* letters light up when you tap a word that uses them */
+.kana-chip.hl {
+  background: var(--gold); opacity: 1;
+  border-color: var(--ink); box-shadow: 0 3px 0 var(--ink);
+  transform: translateY(-2px);
+  transition: transform 0.12s, background 0.12s;
+}
+
+/* letters carried over from earlier lessons sit greyed behind the new ones —
+   a tapped word's highlight (gold) still overrides the dim */
+.kana-chip.kold { opacity: 0.38; filter: saturate(0.4); }
+
+/* sound strip stays pinned while you browse words & sentences below it */
+#new-kana {
+  position: sticky; top: 0.35rem; z-index: 6;
+  background: color-mix(in srgb, var(--bg) 88%, #fff);
+  border: 2.5px solid var(--ink); border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  padding: 0.45rem 0.55rem 0.55rem;
+}
+#new-kana .label { margin: 0 0 0.3rem; }
+
+/* tappable sentence rows on the lesson intro */
+.sentence-list { display: flex; flex-direction: column; gap: 0.45rem; }
+.sentence-row {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem;
+  text-align: left; background: #fff; border: 2.5px solid var(--ink);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow-sm);
+  padding: 0.5rem 0.7rem;
+}
+.sentence-row:active { transform: translateY(3px); box-shadow: 0 0 0 rgba(0,0,0,0); }
+.sentence-row .sr-jp { font-size: 1.05rem; font-weight: 800; color: var(--ink); line-height: 1.3; }
+.sentence-row .sr-romaji { font-size: 0.74rem; color: var(--muted); font-weight: 600; }
+.sentence-row .sr-en { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+
+/* compact strip: smaller chips so the pinned bar stays low-profile */
+#new-kana { padding: 0.35rem 0.45rem 0.4rem; }
+#new-kana .kana-chip { min-width: 2.15rem; padding: 0.14rem 0.28rem; border-width: 2px; box-shadow: 0 2px 0 rgba(74, 51, 40, 0.2); }
+#new-kana .kana-chip .kc-char { font-size: 1.02rem; }
+#new-kana .kana-chip .kc-romaji { font-size: 0.5rem; }
+#new-kana .kana-chip-row { gap: 0.28rem; }
+#new-kana .tap-hint { display: none; }   /* the hint line was half the height */
+
+/* known letters still light up GOLD when they belong to the tapped word —
+   but at their greyed-out opacity, so they participate quietly while the
+   NEW letters pop at full strength */
+.kana-chip.kold.hl,
+#new-kana .kana-chip.kold.hl {
+  background: var(--gold) !important;
+  opacity: 0.38 !important; filter: none !important;
+  transform: none !important;
+  box-shadow: 0 2px 0 rgba(74, 51, 40, 0.2) !important;
+}
+
+/* choice turns — pick WHAT to say, then say it in Japanese */
+#quiz-choices { display: flex; flex-direction: column; gap: 0.55rem; margin: 0.7rem 0 0.3rem; }
+#quiz-choices .qc-opt {
+  text-align: left; font-weight: 800; font-size: 1rem; color: var(--ink);
+  border: 2.5px solid var(--ink); border-radius: 13px; background: #fff;
+  box-shadow: 0 3px 0 var(--ink); padding: 0.75rem 0.9rem; cursor: pointer;
+}
+#quiz-choices .qc-opt:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+
+/* conversation feel: her line echoed above your reply prompt (dimmed, smaller),
+   and lighter feedback so a scene turn reads as dialogue, not a test */
+#quiz-mochiko.echo { opacity: 0.72; }
+#quiz-mochiko.echo img { width: 46px; }
+#quiz-mochiko.echo .qm-bubble b { font-size: 0.98rem; }
+#quiz-mochiko.echo .qm-bubble { background: color-mix(in srgb, var(--sky) 14%, #fff); }
+.scene-detail-toggle { font-size: 0.78rem; }
+.scene-detail { margin-top: 0.35rem; }
+
+/* ---- kana practice: each gojūon row is its own set, letters show 0/5 ---- */
+.kana-set {
+  border: 2.5px solid var(--ink); border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--bg) 92%, #fff);
+  box-shadow: var(--shadow-sm); padding: 0.4rem 0.5rem 0.5rem; margin-bottom: 0.5rem;
+}
+.kana-set-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+.kana-set-name { font-family: var(--display); font-size: 1rem; color: var(--ink); letter-spacing: 0.04em; }
+.kana-set-count { font-size: 0.6rem; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.kana-set-practice {
+  margin-left: auto; border: 2px solid var(--ink); border-radius: 999px;
+  background: var(--gold); color: var(--ink); font-weight: 900; font-size: 0.72rem;
+  padding: 0.28rem 0.7rem; box-shadow: 0 2px 0 var(--ink); white-space: nowrap;
+}
+.kana-set-practice:active { transform: translateY(2px); box-shadow: 0 0 0 var(--ink); }
+.kana-set-practice.done { background: color-mix(in srgb, var(--good) 30%, #fff); }
+
+/* per-letter 0/5 mastery bar (five pips) */
+.kc-mastery { display: flex; gap: 2px; margin-top: 0.2rem; }
+.kc-mastery i {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 18%, #fff); border: 0.5px solid color-mix(in srgb, var(--ink) 25%, #fff);
+}
+.kc-mastery i.on { background: var(--gold); border-color: var(--ink); }
+.kana-chip.mastered { background: color-mix(in srgb, var(--gold) 26%, #fff); }
+.kana-chip.mastered .kc-mastery i.on { background: var(--good); }
+/* the mastery bar only belongs on the full grid, never the compact lesson strip */
+#new-kana .kc-mastery { display: none; }

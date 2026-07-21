@@ -1,0 +1,79 @@
+name: Generate audio
+
+# Synthesizes Japanese audio clips with a VOICEVOX engine (on GitHub's runners)
+# for any spoken string that doesn't have one yet — lesson sentences, vocab, and
+# the verb form families — then commits the new clips back to the Pages branch.
+# Clip filenames are content hashes, so unchanged strings are reused and only
+# new strings cost synthesis time.
+
+on:
+  push:
+    branches: [main, claude/amazing-cannon-PPvmw]
+    paths:
+      - lessons.js
+      - kana.js
+      - tools/gen_audio.mjs
+      - .github/workflows/gen-audio.yml
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gen-audio-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  audio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Ensure ffmpeg
+        run: command -v ffmpeg >/dev/null || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
+      - name: Start VOICEVOX engine
+        run: |
+          docker run -d --name voicevox -p 127.0.0.1:50021:50021 voicevox/voicevox_engine:cpu-latest
+          echo "Waiting for the engine to come up…"
+          for i in $(seq 1 120); do
+            if curl -sf http://127.0.0.1:50021/version >/dev/null; then
+              echo "VOICEVOX ready: $(curl -s http://127.0.0.1:50021/version)"; exit 0
+            fi
+            sleep 2
+          done
+          echo "VOICEVOX did not become ready in time"; docker logs voicevox || true; exit 1
+
+      - name: Generate audio
+        run: VOICEVOX=http://127.0.0.1:50021 SPEAKER=20 node tools/gen_audio.mjs
+
+      - name: Commit regenerated audio
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain audio)" ]; then
+            # Bump the service-worker cache version so the app surfaces its
+            # usual "Reload" banner for the new audio — same as any other
+            # update — instead of slipping it in silently.
+            perl -i -pe 's/(hanasou-v)(\d+)/$1 . ($2 + 1)/e' sw.js
+            # Keep index.html's ?v= stamps in lockstep — the lessons linter
+            # (and the deploy gate) require the two to match exactly.
+            NEWV=$(grep -o 'hanasou-v[0-9]*' sw.js | grep -o '[0-9]*')
+            perl -i -pe "s/\?v=\d+/?v=$NEWV/g" index.html
+            echo "Service worker + index bumped to: v$NEWV"
+            git add audio sw.js index.html
+            git commit -m "Regenerate audio clips"
+            # The synth takes minutes — the branch often moves underneath us.
+            # Rebase our clip commit on whatever landed and retry, instead of
+            # dying and throwing away the synthesized audio.
+            for i in 1 2 3 4; do
+              git push && break
+              git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+            done
+          else
+            echo "Audio already up to date — nothing to commit."
+          fi

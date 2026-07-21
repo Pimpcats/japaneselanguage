@@ -36,8 +36,11 @@ and lessons attach to a theme via their `section`. One stage = one level.
 |-------|-------|--------|--------|
 | Level 1 — Foundations | 1 | First contact, Getting things, Doing things, Daily life, The past, Wants & plans, Describing things | **built** (37→29 lessons) |
 | Level 2 — Connecting & doing | 2 | The て-form, Linking ideas | **built** (te-form, 8 lessons) |
-| Level 3 — Getting around | 3 | Getting around | coming soon |
-| Level 4 — Real conversations | 4 | Real conversations | coming soon |
+| Level 3 — Getting around | 3 | Finding your way, Tickets & trouble | **built** (7 lessons) |
+| Level 4 — Real conversations | 4 | Talking casually, Reacting & relating | **built** (7 lessons) |
+| Level 5 — Nuance & plans | 5 | If & necessity, Plans & impressions | **built** (7 lessons) |
+| Level 6 — Expert | 6 | Things happen to you, Explaining & nuance | **built** (7 lessons, N2) |
+| Level 7 — Master | 7 | Keigo & politeness, Native connectives | **built** (7 lessons, N1) |
 
 **The て-form gap is now closed** — Level 2 added it (requests, "I'm doing X",
 because/but, permission, chaining, when/before/after). It was the single
@@ -74,8 +77,11 @@ timing). Introduces the て-form and the words that join thoughts together.
 
 ---
 
-### Stage 3 — Getting around · ≈ N4 · fills *Getting around* theme
-Pure daily-life-and-travel. Navigation and the small problems that come with it.
+### Stage 3 — Getting around · ≈ N4 · ✅ BUILT (Level 3)
+**Now live as Level 3**, split into two tier-themes: *Finding your way*
+(directions, transport, "does this go to…?", how far/long) and *Tickets &
+trouble* (buying tickets, lost/missed/lost-item, 〜たほうがいい advice).
+Pure daily-life-and-travel — navigation and the small problems that come with it.
 
 | Lesson | Grammar / focus | Example useful sentence |
 |--------|-----------------|-------------------------|
@@ -89,9 +95,11 @@ Pure daily-life-and-travel. Navigation and the small problems that come with it.
 
 ---
 
-### Stage 4 — Real conversations · ≈ N4→N3 · fills *Real conversations* theme
-Where speaking gets natural. **Plain/casual form** plus the social glue of
-opinions, favors, comparisons, and reactions. Heavy on the casual-social flavor.
+### Stage 4 — Real conversations · ≈ N4→N3 · ✅ BUILT (Level 4)
+**Now live as Level 4**, split into two tier-themes: *Talking casually* (plain
+form, 〜ない？/〜よう invites, 〜と おもう, って quoting) and *Reacting & relating*
+(あげる/くれる/もらう favors, より/のほうが/いちばん comparing, aizuchi reactions).
+Where speaking gets natural — the casual-social register.
 
 | Lesson | Grammar / focus | Example useful sentence |
 |--------|-----------------|-------------------------|
@@ -105,7 +113,12 @@ opinions, favors, comparisons, and reactions. Heavy on the casual-social flavor.
 
 ---
 
-### Stage 5 — Nuance & plans · ≈ N3 · new tier
+### Stage 5 — Nuance & plans · ≈ N3 · ✅ BUILT (Level 5)
+**Now live as Level 5**, split into two tier-themes: *If & necessity*
+(conditionals 〜たら/〜なら, obligation 〜なきゃ/〜なくてもいい, potential 〜られる/〜える)
+and *Plans & impressions* (〜つもり/〜よてい, 〜そう/〜みたい/〜らしい, 〜てみる/〜ちゃう,
+〜たことがある). Adds the nuance that makes you sound less like a beginner.
+
 | Focus | Grammar | Example useful sentence |
 |-------|---------|-------------------------|
 | If / when | 〜たら・〜ば・〜と・〜なら | やすかったら、かう。— *If it's cheap, I'll buy it.* |
@@ -118,17 +131,19 @@ opinions, favors, comparisons, and reactions. Heavy on the casual-social flavor.
 
 ---
 
-### Stage 6 — Expressing yourself · ≈ N2 · new tier
-Passive & causative (real uses: "I was told to…", "let me…"), connectives
-(のに / ても / ば〜ほど / によって), explaining (はず / わけ / べき), and softeners
-for slightly more formal situations.
+### Stage 6 — Expert · ≈ N2 · ✅ BUILT (Level 6)
+**Now live as Level 6**, two tier-themes: *Things happen to you* (passive
+〜られる, causative 〜させる, causative-passive 〜させられる) and *Explaining &
+nuance* (〜べき/〜はず, 〜のに/〜ても, 〜ようになる/〜ようにする, 〜わけ). Real uses —
+"I was scolded," "let me think," "you should apologize," "that's why."
 
 ---
 
-### Stage 7 — Native polish · ≈ N1 · new tier
-Keigo (sonkeigo / kenjougo) for work and service, formal/written connectives
-(において / にあたって / ものの), nuance particles, and idiomatic, discourse-level
-fluency drawn from native content.
+### Stage 7 — Master · ≈ N1 · ✅ BUILT (Level 7)
+**Now live as Level 7**, two tier-themes: *Keigo & politeness* (honorific 尊敬語,
+humble 謙譲語, business requests 〜ていただけますか) and *Native connectives*
+(〜ざるを得ない, 〜において/〜にあたって, 〜ものの/〜とはいえ, 〜かぎり/〜つつ/〜にほかならない).
+Service/work keigo plus the formal, written-register glue of native Japanese.
 
 ---
 
@@ -163,6 +178,8 @@ grammar point, then drills sentences that recombine those words:
 ## Suggested build order
 
 1. ~~**Stage 2** — te-form (Level 2).~~ ✅ done — biggest unlock.
-2. **Stage 3** — *Getting around* / Level 3 (daily-life/travel payoff). **← next**
-3. **Stage 4** — *Real conversations* / Level 4 (casual register).
-4. **Stages 5–7** — add Levels 5+ as the lower levels fill in.
+2. ~~**Stage 3** — *Getting around* / Level 3.~~ ✅ done.
+3. ~~**Stage 4** — *Real conversations* / Level 4.~~ ✅ done.
+4. ~~**Stage 5** — *Nuance & plans* / Level 5 (N3).~~ ✅ done.
+5. ~~**Stage 6** — *Expert* / Level 6 (N2).~~ ✅ done.
+6. ~~**Stage 7** — *Master* / Level 7 (N1).~~ ✅ done. **All 7 levels (N5→N1) are built.**

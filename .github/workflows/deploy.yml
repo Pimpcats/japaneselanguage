@@ -1,0 +1,62 @@
+name: Test & deploy
+
+# Every push to main runs the full check suite — syntax, a jsdom boot-and-click
+# smoke test, and the content/version linter — and ONLY publishes to GitHub
+# Pages if everything passes. A broken build leaves the live site on the last
+# good version instead of shipping the breakage (which happened once: v93
+# shipped a ReferenceError that blanked the app).
+#
+# Pages must be set to "GitHub Actions" as its source; configure-pages below
+# flips that automatically on the first run.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Syntax-check every script
+        run: |
+          for f in *.js tools/*.mjs; do node --check "$f"; done
+
+      - name: Smoke test — boot the app and click through it
+        run: |
+          npm install --no-save jsdom
+          node tools/smoke.mjs
+
+      - name: Lint lessons, scenes and version stamps
+        run: node tools/lint_lessons.mjs
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4

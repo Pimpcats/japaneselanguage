@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <title>はなそう — "got it" sound picker</title>
+    <style>
+      :root { --ink:#4a3328; --gold:#f2be45; --sakura:#ef6fa7; --cream:#fff7ea; }
+      * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+      body { margin:0; background:var(--cream); color:var(--ink); font-family:ui-rounded,system-ui,sans-serif;
+        min-height:100vh; padding:1.2rem 1rem 3rem; }
+      h1 { font-size:1.3rem; text-align:center; color:var(--sakura); margin:0.2rem 0 0.2rem; }
+      p.sub { text-align:center; margin:0 0 1.2rem; font-size:.85rem; color:#9a7d63; }
+      .grid { max-width:460px; margin:0 auto; display:flex; flex-direction:column; gap:0.7rem; }
+      button.sfx {
+        display:flex; align-items:center; gap:0.8rem; text-align:left; width:100%;
+        font:inherit; cursor:pointer; color:var(--ink);
+        background:#fff; border:3px solid var(--ink); border-radius:18px;
+        padding:0.9rem 1rem; box-shadow:0 5px 0 rgba(74,51,40,.16);
+        transition:transform .08s, box-shadow .08s;
+      }
+      button.sfx:active { transform:translateY(4px); box-shadow:0 1px 0 rgba(74,51,40,.16); }
+      button.sfx.playing { background:var(--gold); }
+      .play-ico { width:2.4rem; height:2.4rem; flex:none; border-radius:50%; background:var(--sakura); color:#fff;
+        display:grid; place-items:center; font-size:1.1rem; border:2.5px solid var(--ink); }
+      .sfx-name { font-weight:900; font-size:1.05rem; }
+      .sfx-desc { font-size:.78rem; color:#9a7d63; margin-top:.1rem; }
+      .info { display:flex; flex-direction:column; }
+      .footer { max-width:460px; margin:1.4rem auto 0; font-size:.82rem; color:#7a6a52; line-height:1.5; text-align:center; }
+      .vol { max-width:460px; margin:0 auto 1rem; display:flex; align-items:center; gap:.6rem; font-size:.8rem; color:#9a7d63; }
+      .vol input { flex:1; }
+    </style>
+  </head>
+  <body>
+    <h1>🔊 Pick the "got it" sound</h1>
+    <p class="sub">Tap any card to hear it. (Tap once first to enable audio.)</p>
+    <div class="vol"><span>🔈 volume</span><input id="vol" type="range" min="0" max="100" value="55" /></div>
+    <div class="grid" id="grid"></div>
+    <div class="footer">
+      Heard one you like? Tell me the name (or a tweak — brighter / shorter / more reverb)
+      and I'll set it as the reward in the app.
+    </div>
+
+    <script>
+    const SOUNDS = [
+      ["shimmer",   "★ Shimmer (rich)", "FM glockenspiel + pad + sparkle + reverb — produced"],
+      ["triumph",   "★ Triumph (rich)", "FM brass fanfare + cymbal + sub + reverb — produced"],
+      ["marimba",   "1 · Marimba",   "Warm wooden mallet arpeggio — soft, organic"],
+      ["musicbox",  "2 · Music box", "Twinkly high bells with shimmer — cute"],
+      ["fanfare",   "3 · Fanfare",   "Brass ta-da! — triumphant, celebratory"],
+      ["arcade",    "4 · Arcade",    "Game power-up run — punchy, retro"],
+      ["harp",      "5 · Harp gliss","Elegant ascending sweep — magical"],
+      ["chordstab", "6 · Chord stab","Big bright chord + sparkle — bold, full"],
+      ["bell",      "0 · Bell (current)", "The current chime, for comparison"],
+    ];
+
+    let actx = null, masterVol = 0.55;
+    function ctx() {
+      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === "suspended") actx.resume();
+      return actx;
+    }
+    function reverb(master, wet, dur) {
+      const a = ctx(), rev = a.createConvolver(), len = Math.floor(a.sampleRate * (dur || 1));
+      const buf = a.createBuffer(2, len, a.sampleRate);
+      for (let ch = 0; ch < 2; ch++) { const d = buf.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+      rev.buffer = buf; const w = a.createGain(); w.gain.value = wet; rev.connect(w).connect(master); return rev;
+    }
+    function tone(dest, type, freq, t, dur, vol, attack, detune) {
+      const a = ctx(), o = a.createOscillator(), g = a.createGain();
+      o.type = type; o.frequency.value = freq; o.detune.value = detune || 0;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol, t + (attack || 0.006));
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(dest); o.start(t); o.stop(t + dur + 0.05);
+    }
+    const N = { C5:523.25,D5:587.33,E5:659.25,F5:698.46,G5:783.99,A5:880,B5:987.77,C6:1046.5,E6:1318.5,G6:1568,G4:392,B4:493.88 };
+
+    // ---- richer "produced" voices (FM + layers + reverb + soft clip) ----
+    function fmVoice(dest, freq, t, dur, vol, ratio, index, idxEnd) {
+      const a = ctx(), car = a.createOscillator(), cg = a.createGain(), mod = a.createOscillator(), mg = a.createGain();
+      car.type = "sine"; car.frequency.value = freq; mod.type = "sine"; mod.frequency.value = freq * ratio;
+      mg.gain.setValueAtTime(freq * index, t); mg.gain.exponentialRampToValueAtTime(Math.max(1, freq * idxEnd), t + dur * 0.7);
+      mod.connect(mg).connect(car.frequency);
+      cg.gain.setValueAtTime(0.0001, t); cg.gain.exponentialRampToValueAtTime(vol, t + 0.006); cg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      car.connect(cg).connect(dest); car.start(t); car.stop(t + dur + 0.05); mod.start(t); mod.stop(t + dur + 0.05);
+    }
+    function padVoice(dest, freqs, t, dur, vol) {
+      const a = ctx(), lp = a.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1500; lp.Q.value = 0.6; lp.connect(dest);
+      freqs.forEach(f => [-8, 0, 8].forEach(c => { const o = a.createOscillator(), g = a.createGain(); o.type = "sawtooth"; o.frequency.value = f; o.detune.value = c;
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.14); g.gain.setValueAtTime(vol, t + dur - 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g).connect(lp); o.start(t); o.stop(t + dur + 0.05); }));
+    }
+    function noiseSwell(dest, t, dur, vol, freq) {
+      const a = ctx(), len = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const s = a.createBufferSource(); s.buffer = buf; const bp = a.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = freq; bp.Q.value = 0.6; const g = a.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + dur * 0.25); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(bp).connect(g).connect(dest); s.start(t); s.stop(t + dur);
+    }
+    function subThump(dest, freq, t, dur, vol) { const a = ctx(), o = a.createOscillator(), g = a.createGain(); o.type = "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(dest); o.start(t); o.stop(t + dur + 0.05); }
+
+    function play(kind) {
+      const a = ctx();
+      // master -> soft clip -> destination (glue), for the rich voices
+      const master = a.createGain(); master.gain.value = masterVol; const shaper = a.createWaveShaper();
+      const curve = new Float32Array(2048); for (let i = 0; i < 2048; i++) { const x = (i / 1024) - 1; curve[i] = Math.tanh(1.7 * x); }
+      shaper.curve = curve; shaper.oversample = "2x"; master.connect(shaper).connect(a.destination);
+      const bus = a.createGain(); bus.gain.value = 0.9; bus.connect(master);
+      const t0 = a.currentTime + 0.03;
+
+      if (kind === "shimmer" || kind === "triumph") {
+        const rev = reverb(master, kind === "shimmer" ? 0.34 : 0.3, kind === "shimmer" ? 1.7 : 1.6); bus.connect(rev);
+        const C4=261.63,E4=329.63,G4=392,C5=523.25,E5=659.25,G5=783.99,C6=1046.5,E6=1318.5,G6=1568,B4=493.88,D5=587.33;
+        if (kind === "shimmer") {
+          subThump(bus,C4/2,t0,0.5,0.22); padVoice(bus,[C4,E4,G4],t0,1.7,0.06);
+          [C5,E5,G5,C6].forEach((f,i)=>fmVoice(bus,f,t0+0.02+i*0.085,1.0-i*0.07,0.36,3.51,5,0.4));
+          [E6,G6,C6*2,E6*2].forEach((f,i)=>fmVoice(rev,f,t0+0.18+i*0.06,0.5,0.07,2.0,3,0.2));
+        } else {
+          subThump(bus,C4/2,t0,0.6,0.26); noiseSwell(rev,t0,1.4,0.05,7000);
+          const brass=(fs,t,dur,v)=>fs.forEach(f=>fmVoice(bus,f,t,dur,v,1.0,2.2,0.6));
+          brass([G4,B4,D5],t0,0.18,0.16); brass([C5,E5,G5,C6],t0+0.22,1.0,0.18);
+          fmVoice(bus,C6,t0+0.22,1.0,0.18,3.51,4,0.4);
+          [E6,G6,C6*2].forEach((f,i)=>fmVoice(rev,f,t0+0.5+i*0.07,0.45,0.06,2.0,3,0.2));
+        }
+        return;
+      }
+
+      if (kind === "marimba") {
+        bus.connect(reverb(master, 0.16, 1));
+        const mar = (f, t, v) => { tone(bus,"sine",f,t,0.34,v,0.004); tone(bus,"triangle",f,t,0.3,v*0.5,0.004); tone(bus,"sine",f*4.01,t,0.1,v*0.22,0.003); };
+        [N.C5,N.E5,N.G5,N.C6].forEach((f,i)=>mar(f,t0+i*0.085,0.5));
+      } else if (kind === "musicbox") {
+        bus.connect(reverb(master, 0.42, 1.2));
+        const mb = (f, t, v) => { tone(bus,"sine",f,t,1.0,v,0.005); tone(bus,"sine",f*2,t,0.6,v*0.4,0.005); tone(bus,"sine",f*5.4,t,0.25,v*0.12,0.004); };
+        [N.C6,N.E6,N.G6,N.C6*2].forEach((f,i)=>mb(f,t0+i*0.11,0.34));
+      } else if (kind === "fanfare") {
+        bus.connect(reverb(master, 0.26, 1));
+        const filt = a.createBiquadFilter(); filt.type = "lowpass"; filt.frequency.value = 3000; filt.connect(bus);
+        const lfo = a.createOscillator(), lg = a.createGain(); lfo.frequency.value = 6.5; lg.gain.value = 4; lfo.connect(lg); lfo.start(t0); lfo.stop(t0+1.6);
+        const chord = (fs, t, dur, v) => fs.forEach(f => { const o=a.createOscillator(), g=a.createGain(); o.type="sawtooth"; o.frequency.value=f; lg.connect(o.detune);
+          g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(v,t+0.02); g.gain.setValueAtTime(v,t+dur-0.1); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+          o.connect(g).connect(filt); o.start(t); o.stop(t+dur+0.05); });
+        chord([N.G4,N.B4,N.D5],t0,0.16,0.28); chord([N.C5,N.E5,N.G5,N.C6],t0+0.2,0.9,0.3);
+      } else if (kind === "arcade") {
+        const filt = a.createBiquadFilter(); filt.type="lowpass"; filt.frequency.value=4200; filt.connect(bus);
+        bus.connect(reverb(master, 0.12, 1));
+        [N.C5,N.E5,N.G5,N.C6,N.E6].forEach((f,i)=>tone(filt,"square",f,t0+i*0.05,0.12,0.3,0.004));
+        tone(filt,"square",N.G6,t0+5*0.05,0.28,0.3,0.004);
+      } else if (kind === "harp") {
+        bus.connect(reverb(master, 0.36, 1.3));
+        const scale=[N.G4,N.A5/2,N.B4,N.D5,N.E5,N.G5,N.A5,N.B5,N.D5*2,N.E6];
+        scale.forEach((f,i)=>{ const tt=t0+i*0.045, o=a.createOscillator(), g=a.createGain(); o.type="triangle"; o.frequency.value=f;
+          g.gain.setValueAtTime(0.0001,tt); g.gain.exponentialRampToValueAtTime(0.32,tt+0.005); g.gain.exponentialRampToValueAtTime(0.0001,tt+0.8);
+          o.connect(g).connect(bus); o.start(tt); o.stop(tt+0.85); });
+      } else if (kind === "chordstab") {
+        bus.connect(reverb(master, 0.4, 1.2));
+        const bell=(f,t,dur,v)=>[[1,1],[2,0.4],[3,0.2],[4.6,0.1],[6,0.05]].forEach(([r,g])=>tone(bus,"sine",f*r,t,dur,v*g,0.008,(Math.random()-.5)*5));
+        [N.C5,N.E5,N.G5,N.C6].forEach(f=>bell(f,t0,1.1,0.34)); bell(N.E6,t0+0.18,0.7,0.14); bell(N.G6,t0+0.3,0.5,0.1);
+      } else if (kind === "bell") {
+        bus.connect(reverb(master, 0.32, 1));
+        const bell=(f,t,dur,v)=>[[1,1],[2,0.45],[3,0.22],[4.6,0.1]].forEach(([r,g])=>tone(bus,"sine",f*r,t,dur,v*g,0.01,(Math.random()-.5)*5));
+        [N.C5,N.E5,N.G5,N.C6].forEach((f,i)=>bell(f,t0+i*0.07,0.95-i*0.07,0.42)); bell(2093,t0+0.26,0.5,0.14);
+      }
+    }
+
+    const grid = document.getElementById("grid");
+    for (const [kind, name, desc] of SOUNDS) {
+      const b = document.createElement("button");
+      b.className = "sfx";
+      b.innerHTML = '<span class="play-ico">▶</span><span class="info"><span class="sfx-name">' + name + '</span><span class="sfx-desc">' + desc + '</span></span>';
+      b.addEventListener("click", () => {
+        play(kind);
+        b.classList.add("playing");
+        setTimeout(() => b.classList.remove("playing"), 600);
+      });
+      grid.appendChild(b);
+    }
+    document.getElementById("vol").addEventListener("input", (e) => { masterVol = e.target.value / 100; });
+    </script>
+  </body>
+</html>
