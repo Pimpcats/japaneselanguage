@@ -79,7 +79,7 @@ async function run() {
         await clickContinue();
       } else if (cls.includes("story-ask")) {
         if (askAnswers.length === 0) await page.screenshot({ path: SHOTS + "/6-ask-mystery.png" });
-        await page.locator(".story-obj").click();
+        await page.waitForTimeout(160); await page.evaluate(() => document.querySelector(".story-obj").click());
         await page.waitForSelector(".story-continue:not([hidden])");
         askAnswers.push(await answerJp());
         if (askAnswers.length === 1) await page.screenshot({ path: SHOTS + "/6-ask-mystery-tapped.png" });
@@ -144,7 +144,7 @@ async function run() {
       if (cls.includes("story-ask")) {
         shopAsk = true;
         await page.screenshot({ path: SHOTS + "/7-shop-tag.png" });
-        await page.locator(".story-obj").click();
+        await page.waitForTimeout(160); await page.evaluate(() => document.querySelector(".story-obj").click());
         await page.waitForSelector(".story-continue:not([hidden])");
         ok("shop tag → これは いくらですか attached", (await answerJp()).includes("これは いくらですか"));
         await clickContinue();
@@ -158,7 +158,7 @@ async function run() {
           if (/みず|コーヒー|おちゃ/.test(fb) && await continueHidden()) orderWrongTaught = true;
           await page.locator(`.story-obj[data-object="${target}"]`).click({ force: true });
         } else {
-          await page.locator(".story-obj").first().click();
+          await page.waitForTimeout(160); await page.evaluate(() => document.querySelector(".story-obj").click());
         }
         await page.waitForSelector(".story-continue:not([hidden])");
         orderAnswers.push(await answerJp());
@@ -189,7 +189,7 @@ async function run() {
       const cls = await beatType();
       if (cls.includes("story-ask")) {
         if (whereShot === 0) { await page.screenshot({ path: SHOTS + "/9-street-ask.png" }); whereShot++; }
-        await page.locator(".story-obj").click();
+        await page.waitForTimeout(160); await page.evaluate(() => document.querySelector(".story-obj").click());
         await page.waitForSelector(".story-continue:not([hidden])");
         whereAnswers.push(await answerJp());
         await clickContinue();
@@ -359,7 +359,7 @@ async function run() {
       const cls = await beatType();
       if (cls.includes("story-claim")) { claimRepeated = true; await page.locator(".story-choice").first().click(); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
       if (cls.includes("story-place")) { placeReplayed = true; await page.locator('.story-slot[data-slot="0"]').click(); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
-      if (cls.includes("story-ask")) { await page.locator(".story-obj").click(); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
+      if (cls.includes("story-ask")) { await page.waitForTimeout(160); await page.evaluate(() => document.querySelector(".story-obj").click()); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
       if (cls.includes("story-point")) { pointReplayed = true; const t = await pointTarget(); await page.locator(`.story-obj[data-zone="${t}"]`).click({ force: true }); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
       if (cls.includes("story-identify")) { const chosen = (await storyState()).inventory.book.design; await page.locator(`.story-identify-choice[data-design="${chosen}"]`).click(); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
     }
@@ -379,7 +379,7 @@ async function run() {
   for (let step = 0; step < 90; step++) {
     if (await overlayOpen()) {
       const cls = await beatType();
-      if (cls.includes("story-ask")) { await page.locator(".story-obj").click(); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
+      if (cls.includes("story-ask")) { await page.waitForTimeout(160); await page.evaluate(() => document.querySelector(".story-obj").click()); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
       if (cls.includes("story-claim")) { await page.locator(".story-choice").first().click(); await page.waitForSelector(".story-continue:not([hidden])"); await clickContinue(); continue; }
       if (cls.includes("story-place")) {
         const piece = page.locator(".story-place-piece");

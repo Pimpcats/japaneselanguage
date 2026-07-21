@@ -109,6 +109,7 @@
         // beats use perspective distance.
         const inGround = btn.closest(".ground-row");
         const d = inGround ? 1 : (DIST[btn.dataset.zone] != null ? DIST[btn.dataset.zone] : 1);
+        if (btn.classList.contains("sky-item")) { btn.style.height = (H * 0.16) + "px"; btn.style.width = "auto"; btn.classList.add("obj-scaled"); return; }
         btn.style.height = (unit * sc * d) + "px";
         btn.style.width = "auto";
         btn.classList.add("obj-scaled");
@@ -132,7 +133,8 @@
     const row = el("div", "ground-row");
     figs.forEach((fig) => {
       const kind = fig.dataset ? fig.dataset.object : null;
-      if (kind && FLOAT.has(kind)) fig.classList.add("float-item");
+      if (kind === "star") fig.classList.add("sky-item");   // "far away" → small & high
+      else if (kind && FLOAT.has(kind)) fig.classList.add("float-item");
       else fig.classList.add("grounded");
       row.appendChild(fig);
     });
@@ -208,7 +210,7 @@
         instruction: "Fresh sushi, right in front of you",
         copy: "It looks perfect. Tap it, then call it out.",
         answer: { jp: "おいしい すし！", romaji: "oishii sushi", en: "Tasty sushi!" } },
-      "A big cow!": { id: "l0-cow", type: "ask", scene: "room", zone: "partner", object: "cow", hero: true,
+      "A big cow!": { id: "l0-cow", type: "ask", scene: "room", zone: "near", object: "cow", hero: true,
         askLabel: "Call it out:", cta: "Say it →", feedback: "It is ENORMOUS.",
         instruction: "There is a cow indoors",
         copy: "A very large cow. Tap it, then call it out.",
@@ -232,7 +234,7 @@
         instruction: "A dog, right up close",
         copy: "That is one happy face. Tap it and call it out.",
         answer: { jp: "いぬの かお！", romaji: "inu no kao", en: "The dog's face!" } },
-      "The cat's foot!": { id: "l0-neko", type: "ask", scene: "room", zone: "partner", object: "cat",
+      "The cat's foot!": { id: "l0-neko", type: "ask", scene: "room", zone: "near", object: "cat",
         askLabel: "Call it out:", cta: "Say it →", feedback: "の links owner to thing: cat's foot.",
         instruction: "The cat is showing you its paw",
         copy: "Tap the raised paw — の makes it the cat's.",
@@ -290,7 +292,7 @@
         answer: { jp: "それは くるま。", romaji: "sore wa kuruma", en: "That is a car. (casual)" } },
     },
     "l0-wa": {
-      "My cat is white.": { id: "l0-shironeko", type: "ask", scene: "room", zone: "partner", object: "whitecat",
+      "My cat is white.": { id: "l0-shironeko", type: "ask", scene: "room", zone: "near", object: "whitecat",
         askLabel: "Say it:", cta: "Say it →", feedback: "わたしの — yours. しろい — white.",
         instruction: "Your cat wandered in",
         copy: "White from ears to tail. Tap it — の makes it yours.",
