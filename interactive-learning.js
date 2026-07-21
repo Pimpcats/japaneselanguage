@@ -282,7 +282,7 @@
         instruction: "A little bird landed next to you",
         copy: "Right by your hand — これ. Tap it and say it, casual style.",
         answer: { jp: "これは とり。", romaji: "kore wa tori", en: "This is a bird. (casual)" } },
-      "That is a car. (casual)": { id: "l0-kuruma", type: "ask", scene: "street", zone: "partner", object: "car",
+      "That is a car. (casual)": { id: "l0-kuruma", type: "ask", scene: "street", zone: "near", object: "car",
         askLabel: "Say it:", cta: "Say it →", feedback: "それ — by her.",
         instruction: "A car pulled up next to もち子",
         copy: "By her, not you — それ. Tap it and say it.",
