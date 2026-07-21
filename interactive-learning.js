@@ -251,7 +251,7 @@
         instruction: "Down at the water — a boat",
         copy: "It barely fits in view. Tap it and say it.",
         answer: { jp: "ふねは おおきい。", romaji: "fune wa ookii", en: "The boat is big." } },
-      "The stars are far away.": { id: "l0-hoshi", type: "ask", scene: "street", zone: "far", object: "star", night: true,
+      "The stars are far away.": { id: "l0-hoshi", type: "ask", scene: "street", zone: "far", object: "star", night: true, starfield: true,
         askLabel: "Say it:", cta: "Say it →", feedback: "So far — とおい.",
         instruction: "Way up there — stars",
         copy: "Tiny with distance. Tap them and say it.",
@@ -275,7 +275,7 @@
         answer: { jp: "ももは おいしい。", romaji: "momo wa oishii", en: "The peach is tasty." } },
     },
     "l0-ra": {
-      "The cherry blossoms are white.": { id: "l0-sakura", type: "ask", scene: "street", zone: "partner", object: "sakura",
+      "The cherry blossoms are white.": { id: "l0-sakura", type: "ask", scene: "street", zone: "near", object: "sakura",
         askLabel: "Say it:", cta: "Say it →", feedback: "しろい — white petals everywhere.",
         instruction: "The trees are in bloom",
         copy: "White petals drifting down. Tap the tree and say it.",
@@ -1469,6 +1469,23 @@
   }
 
   // ---- ask: tap the unknown thing — curiosity IS the question ----------------
+  // a sky full of stars — many, different sizes, scattered (owner: "show a lot
+  // of stars of different sizes"). Deterministic layout so it never jumps.
+  function starfield(target) {
+    const field = el("div", "story-starfield");
+    const STARS = [[18,20,1.3],[34,55,0.7],[50,28,1.7],[64,64,0.9],[78,22,1.1],
+      [26,78,0.6],[46,72,1.0],[70,44,1.4],[86,58,0.8],[12,48,0.9],[58,14,0.7],
+      [90,34,1.0],[38,38,0.8],[80,80,0.6]];
+    STARS.forEach(([x, y, s]) => {
+      const st = el("span", "sf-star");
+      st.style.cssText = "left:" + x + "%;top:" + y + "%;width:" + (s * 1.6) + "em;height:" + (s * 1.6) + "em;";
+      st.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 1l2.9 7.3L22 9l-5.5 4.6L18.5 21 12 16.7 5.5 21l2-7.4L2 9l7.1-.7z" fill="#f7dc7d" stroke="#c9b25a" stroke-width="1"/></svg>';
+      field.appendChild(st);
+    });
+    field.appendChild(target);   // the tappable answer sits over the field
+    return field;
+  }
+
   function renderAskBeat(beat, finishBeat) {
     overlay.title.textContent = beat.instruction;
     overlay.copy.textContent = beat.copy || "";
@@ -1485,7 +1502,10 @@
       if (fig) fig.dataset.design = (BOOKS.find((b) => b.id !== mine) || BOOKS[0]).id;
     }
 
-    if (CLOSEUP.has(beat.object) || beat.scene === "plain") {
+    if (beat.starfield) {
+      scene.className = "story-scene story-scene-ground night";
+      scene.appendChild(starfield(target));
+    } else if (CLOSEUP.has(beat.object) || beat.scene === "plain") {
       // a face fills the frame; nothing else (owner: "just a big face") — always
       // on the plain stage, never a room behind it
       scene.className = "story-scene story-scene-plain";
