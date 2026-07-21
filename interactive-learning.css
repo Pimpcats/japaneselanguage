@@ -335,11 +335,11 @@ button.primary.story-continue {
   border: 0.28em solid var(--story-ink);
   box-shadow: inset 0 0 0 0.14em #fff;
 }
-.obj-clock .clock-hand-h, .obj-clock .clock-hand-m {
-  transform-box: fill-box; transform-origin: 50% 100%;
+.clock-svg .clock-hand-h, .clock-svg .clock-hand-m {
+  transform-box: view-box; transform-origin: 50px 50px; transition: transform .3s ease;
 }
-.obj-clock .clock-hand-h { transform: rotate(45deg); }
-.obj-clock .clock-hand-m { transform: rotate(160deg); }
+.clock-svg .clock-hand-h { transform: rotate(305deg); }
+.clock-svg .clock-hand-m { transform: rotate(60deg); }
 
 /* teacup */
 .obj-cup { width: 4.6em; height: 4.4em; }
@@ -651,9 +651,9 @@ button.primary.story-continue {
 }
 
 /* clock-hand variants — beats set data-clock on the button to tell a time */
-.story-obj[data-clock="t7"] .clock-hand-h { transform: rotate(-150deg); }
+.story-obj[data-clock="t7"] .clock-hand-h { transform: rotate(210deg); }
 .story-obj[data-clock="t7"] .clock-hand-m { transform: rotate(0deg); }
-.story-obj[data-clock="t830"] .clock-hand-h { transform: rotate(-105deg); }
+.story-obj[data-clock="t830"] .clock-hand-h { transform: rotate(255deg); }
 .story-obj[data-clock="t830"] .clock-hand-m { transform: rotate(180deg); }
 
 /* a large indoor cow */
@@ -1774,3 +1774,26 @@ body.coach-open #card { pointer-events: none; }
 .story-obj.obj-scaled .obj-person-img {
   position: static; height: 100%; width: auto; transform: none; left: auto; bottom: auto; margin: 0 auto;
 }
+
+.obj-clock .clock-svg { display:block; width:100%; height:100%; }
+
+/* ---- per-beat scene flags (owner corrections, 2026-07) ---- */
+/* face もち子 the other way (toward the vehicle she's boarding) */
+.ground-row .scene-mochiko.flip-h, .ground-row .obj-mochiko.flip-h img { transform: scaleX(-1); }
+.ground-row .scene-mochiko.flip-h { transform: scaleX(-1); }
+/* put the subject on the right side of the frame ("it's on the right") */
+.story-scene-ground.side-right .ground-row { justify-content: flex-end; padding-right: 9%; }
+/* a directional arrow beside the subject */
+.story-arrow{
+  align-self: center; width: 2.4em; height: 2.4em; flex: 0 0 auto;
+  background: no-repeat center/contain;
+}
+.story-arrow.arrow-right{
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><g fill="none" stroke="%23b5372a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20h26"/><path d="M22 9l12 11-12 11"/></g></svg>');
+}
+
+.scene-zone .scene-mochiko.flip-h { transform: scaleX(-1); }
+
+/* red ✕ over something you can't do (can't drive) */
+.story-obj .x-mark{ position:absolute; inset:0; z-index:4; pointer-events:none; }
+.story-obj .x-mark svg{ width:100%; height:100%; display:block; }

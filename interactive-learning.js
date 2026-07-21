@@ -100,7 +100,8 @@
         // no person on stage → the object IS the subject. Size it to read well,
         // keeping multiple objects proportional to each other.
         const maxScale = Math.max(...objs.map((b) => SCALE[b.dataset.object]));
-        unit = (H * 0.46) / maxScale;    // biggest object ≈ 46% of the scene
+        const heroBig = scene.querySelector(".story-obj.obj-hero") ? 0.66 : 0.46;
+        unit = (H * heroBig) / maxScale; // biggest object ≈ 46% (66% for hero/tall claims)
       }
       objs.forEach((btn) => {
         const sc = SCALE[btn.dataset.object];
@@ -146,7 +147,7 @@
     },
   };
 
-  const HOUSE_BEAT = { id: "l0-ie", type: "ask", scene: "plain", zone: "center", object: "house", hero: true,
+  const HOUSE_BEAT = { id: "l0-ie", type: "ask", scene: "room", zone: "partner", object: "house",
     askLabel: "Call it out:", cta: "Say it →", feedback: "いい = nice. いえ = house.",
     instruction: "Look at that house",
     copy: "What a place. Tap it, then call it out.",
@@ -358,7 +359,7 @@
         instruction: "Snow is falling",
         copy: "Someone built a snowman. Tap it and say what winter is.",
         answer: { jp: "ふゆは さむい。", romaji: "fuyu wa samui", en: "Winter is cold." } },
-      "The mountain is tall.": { id: "l0-yama", type: "ask", scene: "street", zone: "far", object: "mountain",
+      "The mountain is tall.": { id: "l0-yama", type: "ask", scene: "street", zone: "near", object: "mountain", hero: true,
         askLabel: "Say it:", cta: "Say it →", feedback: "たかい — it stands above the whole town.",
         instruction: "Beyond the town — a mountain",
         copy: "It rises over everything. Tap it and say it.",
@@ -469,12 +470,12 @@
 
     // ---- Directions: the light, and the right side --------------------------
     "directions": {
-      "Turn right at the next light.": { id: "dir-signal", type: "ask", scene: "street", zone: "partner", object: "signal",
+      "Turn right at the next light.": { id: "dir-signal", type: "ask", scene: "street", zone: "near", object: "signal", arrow: "right",
         askLabel: "Give the direction:", cta: "Say it →", feedback: "しんごう = the light. みぎ = right.",
         instruction: "There's the traffic light",
         copy: "That's where you turn. Tap the light and give the direction.",
         answer: { jp: "つぎの しんごうを みぎに まがって ください。", romaji: "tsugi no shingou o migi ni magatte kudasai", en: "Turn right at the next light." } },
-      "It's on the right.": { id: "dir-right", type: "ask", scene: "street", zone: "far", object: "station",
+      "It's on the right.": { id: "dir-right", type: "ask", scene: "street", zone: "near", object: "station", side: "right", arrow: "right",
         askLabel: "Point it out:", cta: "Say it →", feedback: "みぎ — on the right.",
         instruction: "The station came into view",
         copy: "Down the street, on the right side. Tap it and point it out.",
@@ -483,12 +484,12 @@
 
     // ---- Transport: で marks the ride -----------------------------------
     "transport": {
-      "I'll go by train.": { id: "trans-train", type: "ask", scene: "street", zone: "partner", object: "train",
+      "I'll go by train.": { id: "trans-train", type: "ask", scene: "street", zone: "partner", object: "train", flipHer: true,
         askLabel: "Say how:", cta: "Say it →", feedback: "で marks the ride.",
         instruction: "Your ride is here",
         copy: "で marks how you travel. Tap the train and say how you'll go.",
         answer: { jp: "でんしゃで いきます。", romaji: "densha de ikimasu", en: "I'll go by train." } },
-      "I'll take the bus to the airport.": { id: "trans-bus", type: "ask", scene: "street", zone: "partner", object: "bus", tag: true, tagText: "くうこう",
+      "I'll take the bus to the airport.": { id: "trans-bus", type: "ask", scene: "street", zone: "partner", object: "bus", flipHer: true, tag: true, tagText: "くうこう",
         askLabel: "Say the plan:", cta: "Say it →", feedback: "まで — as far as the airport.",
         instruction: "This bus goes to the airport",
         copy: "The sign shows where it ends up. Tap the bus and say the plan.",
@@ -570,7 +571,7 @@
 
     // ---- Experience: ask about hers ----------------------------------------
     "experience": {
-      "Have you ever had sushi?": { id: "exp-sushi", type: "ask", scene: "room", zone: "partner", object: "sushi",
+      "Have you ever had sushi?": { id: "exp-sushi", type: "ask", scene: "room", zone: "near", object: "sushi", tag: true, tagText: "?",
         askLabel: "Ask her:", cta: "Ask →", feedback: "たこと ある — ever done it?",
         instruction: "もち子 eyes the sushi",
         copy: "Has she ever tried it? Tap the sushi and ask.",
@@ -597,7 +598,7 @@
 
     // ---- Can't do: the car you can't drive -----------------------------------
     "can-do": {
-      "I can't drive.": { id: "cando-car", type: "ask", scene: "street", zone: "near", object: "car",
+      "I can't drive.": { id: "cando-car", type: "ask", scene: "street", zone: "near", object: "car", xOut: true,
         askLabel: "Admit it:", cta: "Say it →", feedback: "できません — can't (yet).",
         instruction: "Here's a car. There's a problem.",
         copy: "No licence. Tap the car and admit it.",
@@ -614,7 +615,7 @@
         answer: { jp: "これは なんですか？", romaji: "kore wa nan desu ka", en: "What is this?" },
       },
       "That (by you) is a bag.": {
-        id: "point-sore", type: "point", target: "partner",
+        id: "point-sore", type: "point", target: "partner", flipHer: true,
         layout: { near: "book", partner: "bag", far: "clock" },
         instruction: "Point at the bag next to もち子",
         answer: { jp: "それは かばんです。", romaji: "sore wa kaban desu", en: "That (by you) is a bag." },
@@ -1115,8 +1116,7 @@
     telephone: '<svg viewBox="0 0 120 100" preserveAspectRatio="xMidYMax meet"><path d="M18 92 Q10 92 12 78 Q16 52 42 44 L78 44 Q104 52 108 78 Q110 92 102 92 Z" fill="#3f4650" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><circle cx="60" cy="70" r="20" fill="#fdf6ea" stroke="#243352" stroke-width="4"/><g fill="#3f4650"><circle cx="60" cy="56" r="3.4"/><circle cx="72" cy="60" r="3.4"/><circle cx="76" cy="72" r="3.4"/><circle cx="70" cy="82" r="3.4"/><circle cx="48" cy="60" r="3.4"/><circle cx="44" cy="72" r="3.4"/><circle cx="50" cy="82" r="3.4"/></g><path d="M14 34 Q12 20 26 20 Q34 20 38 28 Q48 24 60 24 Q72 24 82 28 Q86 20 94 20 Q108 20 106 34 Q105 42 96 42 Q90 42 86 36 Q74 32 60 32 Q46 32 34 36 Q30 42 24 42 Q15 42 14 34 Z" fill="#d95f5f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/></svg>',
     book: '<svg viewBox="0 0 90 110" preserveAspectRatio="xMidYMax meet"><path d="M14 4 L74 4 Q80 4 80 10 L80 96 Q80 102 74 102 L14 102 Q8 102 8 96 L8 10 Q8 4 14 4 Z" fill="#5c86bd" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M18 6 L18 100" stroke="#243352" stroke-width="3" opacity=".45"/><g class="bd bd-circle"><circle cx="50" cy="48" r="17" fill="#fdf6ea" stroke="#243352" stroke-width="4"/></g><g class="bd bd-stripes"><path d="M28 30 L72 30 M28 46 L72 46 M28 62 L72 62" stroke="#fdf6ea" stroke-width="7" stroke-linecap="round"/></g><g class="bd bd-window"><rect x="33" y="31" width="34" height="34" rx="4" fill="#fdf6ea" stroke="#243352" stroke-width="4"/><path d="M50 31 L50 65 M33 48 L67 48" stroke="#243352" stroke-width="3"/></g></svg>',
     bag: '<svg viewBox="0 0 100 112" preserveAspectRatio="xMidYMax meet"><path d="M32 32 Q32 10 50 10 Q68 10 68 32" fill="none" stroke="#243352" stroke-width="6" stroke-linecap="round"/><path d="M18 34 Q14 32 16 42 L22 98 Q23 106 32 106 L68 106 Q77 106 78 98 L84 42 Q86 32 82 34 Z" fill="#d29a66" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><rect x="42" y="60" width="16" height="14" rx="3" fill="#fff1c9" stroke="#243352" stroke-width="4"/></svg>',
-    clock: '<svg viewBox="0 0 100 108" preserveAspectRatio="xMidYMax meet"><circle cx="50" cy="54" r="46" fill="#fffdf5" stroke="#243352" stroke-width="7"/><circle cx="50" cy="54" r="37" fill="none" stroke="#f0e7d2" stroke-width="3"/><circle cx="50" cy="18" r="2.6" fill="#243352"/><circle cx="86" cy="54" r="2.6" fill="#243352"/><circle cx="50" cy="90" r="2.6" fill="#243352"/><circle cx="14" cy="54" r="2.6" fill="#243352"/><g class="clock-hand-h"><rect x="47" y="30" width="6" height="24" rx="3" fill="#243352"/></g><g class="clock-hand-m"><rect x="47.5" y="20" width="5" height="34" rx="2.5" fill="#243352"/></g><circle cx="50" cy="54" r="4.5" fill="#243352"/></svg>',
-    cup: '<svg viewBox="0 0 110 100" preserveAspectRatio="xMidYMax meet"><ellipse cx="48" cy="88" rx="38" ry="7" fill="#e8ddc4" stroke="#243352" stroke-width="4"/><path d="M32 16 Q36 8 32 2 M48 18 Q52 10 48 4" stroke="#b9c7d8" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M14 36 L82 36 Q86 68 62 78 L34 78 Q10 68 14 36 Z" fill="#fdf6ea" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><ellipse cx="48" cy="36" rx="34" ry="7" fill="#8ab89b" stroke="#243352" stroke-width="4"/><path d="M84 42 Q100 42 98 54 Q96 66 79 63" fill="none" stroke="#243352" stroke-width="5"/></svg>',
+    clock: '<svg class="clock-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle cx="50" cy="50" r="46" fill="#fdfcf6" stroke="#2a2c33" stroke-width="3.5"/><circle cx="50" cy="50" r="41" fill="none" stroke="#2a2c33" stroke-width="1"/><g fill="#2a2c33" font-family="Georgia,\'Times New Roman\',serif" font-size="9" font-weight="700" text-anchor="middle"><text x="50" y="17.5">12</text><text x="68" y="22">1</text><text x="81" y="34.5">2</text><text x="85.5" y="53.5">3</text><text x="81" y="72.5">4</text><text x="68" y="85">5</text><text x="50" y="89.5">6</text><text x="32" y="85">7</text><text x="19" y="72.5">8</text><text x="14.5" y="53.5">9</text><text x="19" y="34.5">10</text><text x="32" y="22">11</text></g><line class="clock-hand-h" x1="50" y1="53" x2="50" y2="31" stroke="#2a2c33" stroke-width="3.4" stroke-linecap="round"/><line class="clock-hand-m" x1="50" y1="53" x2="50" y2="18" stroke="#2a2c33" stroke-width="2.4" stroke-linecap="round"/><circle cx="50" cy="50" r="2.6" fill="#2a2c33"/></svg>',    cup: '<svg viewBox="0 0 110 100" preserveAspectRatio="xMidYMax meet"><ellipse cx="48" cy="88" rx="38" ry="7" fill="#e8ddc4" stroke="#243352" stroke-width="4"/><path d="M32 16 Q36 8 32 2 M48 18 Q52 10 48 4" stroke="#b9c7d8" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M14 36 L82 36 Q86 68 62 78 L34 78 Q10 68 14 36 Z" fill="#fdf6ea" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><ellipse cx="48" cy="36" rx="34" ry="7" fill="#8ab89b" stroke="#243352" stroke-width="4"/><path d="M84 42 Q100 42 98 54 Q96 66 79 63" fill="none" stroke="#243352" stroke-width="5"/></svg>',
     water: '<svg viewBox="0 0 70 118" preserveAspectRatio="xMidYMax meet"><rect x="24" y="2" width="22" height="13" rx="3" fill="#5c86bd" stroke="#243352" stroke-width="4"/><path d="M21 21 Q16 30 16 44 L16 100 Q16 112 28 112 L42 112 Q54 112 54 100 L54 44 Q54 30 49 21 Q45 15 35 15 Q25 15 21 21 Z" fill="#cfe4f4" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><rect x="17" y="60" width="36" height="22" fill="#fdf6ea" stroke="#243352" stroke-width="3.5"/><path d="M25 32 Q23 40 23 48" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".8"/></svg>',
     coffee: '<svg viewBox="0 0 110 100" preserveAspectRatio="xMidYMax meet"><ellipse cx="48" cy="88" rx="38" ry="7" fill="#e8ddc4" stroke="#243352" stroke-width="4"/><path d="M32 16 Q36 8 32 2 M48 18 Q52 10 48 4" stroke="#b9c7d8" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M14 36 L82 36 Q86 68 62 78 L34 78 Q10 68 14 36 Z" fill="#8a5a3b" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><ellipse cx="48" cy="36" rx="34" ry="7" fill="#5d3a24" stroke="#243352" stroke-width="4"/><path d="M84 42 Q100 42 98 54 Q96 66 79 63" fill="none" stroke="#243352" stroke-width="5"/></svg>',
     mystery: '<svg viewBox="0 0 100 110" preserveAspectRatio="xMidYMax meet"><path d="M14 96 Q8 74 26 60 Q40 48 60 50 Q86 54 90 78 Q92 98 74 102 Q40 108 14 96 Z" fill="#9b8ec4" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M44 52 Q38 32 52 26 Q60 22 64 30 Q74 24 78 34 Q82 44 70 48 Q56 54 44 52 Z" fill="#8577b5" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><text x="52" y="90" font-size="32" font-weight="800" fill="#fdf6ea" text-anchor="middle" font-family="sans-serif">?</text></svg>',
@@ -1164,8 +1164,7 @@
     '<img class="obj-sketch bi-stripes" src="assets/story/book-stripes.png" alt="">' +
     '<img class="obj-sketch bi-window" src="assets/story/book-window.png" alt="">';
   // clock = sketch face + the original rotating hands (CSS drives them via data-clock)
-  const CLOCK_IMG = '<img class="obj-sketch" src="assets/story/clockface.png" alt="">' +
-    '<svg class="clock-hands" viewBox="0 0 100 108"><g class="clock-hand-h"><rect x="47" y="30" width="6" height="24" rx="3" fill="#2a2c33"/></g><g class="clock-hand-m"><rect x="47.5" y="20" width="5" height="34" rx="2.5" fill="#2a2c33"/></g><circle cx="50" cy="54" r="4.5" fill="#2a2c33"/></svg>';
+  const CLOCK_IMG = '<svg class="clock-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle cx="50" cy="50" r="46" fill="#fdfcf6" stroke="#2a2c33" stroke-width="3.5"/><circle cx="50" cy="50" r="41" fill="none" stroke="#2a2c33" stroke-width="1"/><g fill="#2a2c33" font-family="Georgia,\'Times New Roman\',serif" font-size="9" font-weight="700" text-anchor="middle"><text x="50" y="17.5">12</text><text x="68" y="22">1</text><text x="81" y="34.5">2</text><text x="85.5" y="53.5">3</text><text x="81" y="72.5">4</text><text x="68" y="85">5</text><text x="50" y="89.5">6</text><text x="32" y="85">7</text><text x="19" y="72.5">8</text><text x="14.5" y="53.5">9</text><text x="19" y="34.5">10</text><text x="32" y="22">11</text></g><line class="clock-hand-h" x1="50" y1="53" x2="50" y2="31" stroke="#2a2c33" stroke-width="3.4" stroke-linecap="round"/><line class="clock-hand-m" x1="50" y1="53" x2="50" y2="18" stroke="#2a2c33" stroke-width="2.4" stroke-linecap="round"/><circle cx="50" cy="50" r="2.6" fill="#2a2c33"/></svg>';
   function objArtHTML(key) {
     if (key === "book") return BOOK_IMGS;
     if (key === "clock") return CLOCK_IMG;
@@ -1424,7 +1423,7 @@
     }
     if (layout.partner) {
       const partnerZone = el("div", "scene-zone scene-zone-partner");
-      if (layout.partner !== "mochiko") partnerZone.appendChild(mochikoImg("assets/story/mochiko-think.png"));
+      if (layout.partner !== "mochiko") { const pm = mochikoImg("assets/story/mochiko-think.png"); if (beat.flipHer) pm.classList.add("flip-h"); partnerZone.appendChild(pm); }
       partnerZone.appendChild(objButton(layout.partner, "partner"));
       scene.appendChild(partnerZone);
     }
@@ -1484,12 +1483,7 @@
       if (fig) fig.dataset.design = (BOOKS.find((b) => b.id !== mine) || BOOKS[0]).id;
     }
 
-    if (beat.scene === "shop") {
-      scene.appendChild(mochikoImg("assets/story/mochiko-cheer.png", "scene-mochiko scene-mochiko-shop"));
-      const counterZone = el("div", "scene-zone scene-zone-counter");
-      counterZone.appendChild(target);
-      scene.appendChild(counterZone);
-    } else if (CLOSEUP.has(beat.object) || beat.scene === "plain") {
+    if (CLOSEUP.has(beat.object) || beat.scene === "plain") {
       // a face fills the frame; nothing else (owner: "just a big face") — always
       // on the plain stage, never a room behind it
       scene.className = "story-scene story-scene-plain";
@@ -1502,9 +1496,14 @@
       // A prop stands BESIDE the subject on the same line, never overlaid on it.
       const partnerFig = (beat.zone === "partner" && beat.object !== "mochiko")
         ? mochikoImg("assets/story/mochiko-think.png", "scene-mochiko ground-figure") : null;
+      if (partnerFig && beat.flipHer) partnerFig.classList.add("flip-h");   // face the subject
       let propFig = null;
       if (beat.prop) { propFig = objButton(beat.prop); propFig.classList.add("prop-figure"); propFig.style.pointerEvents = "none"; }
-      placeOnGround(scene, [partnerFig, propFig, target].filter(Boolean));
+      if (beat.xOut) { const xm = el("span", "x-mark"); xm.setAttribute("aria-hidden", "true"); xm.innerHTML = '<svg viewBox="0 0 100 100" preserveAspectRatio="none"><g stroke="#c5392b" stroke-width="9" stroke-linecap="round"><line x1="16" y1="16" x2="84" y2="84"/><line x1="84" y1="16" x2="16" y2="84"/></g></svg>'; target.appendChild(xm); }
+      let arrowFig = null;
+      if (beat.arrow) { arrowFig = el("span", "story-arrow arrow-" + beat.arrow); arrowFig.setAttribute("aria-hidden", "true"); }
+      placeOnGround(scene, [partnerFig, propFig, target, arrowFig].filter(Boolean));
+      if (beat.side === "right") scene.classList.add("side-right");
     }
     overlay.stage.appendChild(scene);
     scaleScene(scene);
@@ -1527,7 +1526,7 @@
     overlay.copy.textContent = beat.copy || "";
 
     const sceneKind = beat.scene || "shop";
-    const isShop = sceneKind === "shop";
+    const isShop = false;   // owner: no counter, no basket, no もち子 — plain grounded items
     const scene = buildScene(sceneKind);
     if (isShop) scene.appendChild(mochikoImg("assets/story/mochiko-cheer.png", "scene-mochiko scene-mochiko-shop"));
     // shop = a real counter to order across; anything else = a plain grounded
