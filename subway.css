@@ -144,9 +144,17 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
   font-family: var(--mono); font-size: 0.72rem; color: var(--ink-soft);
 }
 .station-sign .st-prev, .station-sign .st-next {
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 48%;
+  display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; max-width: 48%;
 }
-.station-sign .st-next { text-align: right; }
+.station-sign .st-next { text-align: right; align-items: flex-end; }
+.station-sign .st-stop-jp {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+.station-sign .st-stop-en {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+  font-family: var(--sans, system-ui); font-size: 0.66rem; color: var(--ink-soft);
+  opacity: 0.72;
+}
 /* the four launchers, as ticket-gate round buttons */
 .station-sign .lc-actions {
   display: flex; justify-content: space-around; gap: 0.3rem;

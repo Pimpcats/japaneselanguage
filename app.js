@@ -1564,6 +1564,28 @@
     g = g.split(/\s*[—·]\s*|\s+\(/)[0].trim();     // drop the "— gloss" / "(note)" tail
     return g.length > 22 ? g.slice(0, 21).trimEnd() + "…" : g;
   }
+  // A short English name for a station, pulled from the lesson title: pick the
+  // clause that actually reads in English (titles are often "かな — English"),
+  // so an adjacent stop can show English + kana together on the platform sign.
+  function stationGloss(L) {
+    const raw = (L.title || "").trim();
+    const seg = raw.split(/\s*[—·(]\s*/).map((s) => s.replace(/\)\s*$/, "").trim());
+    let g = (seg.find((s) => /[a-zA-Z]/.test(s)) || "").replace(/^and\s+/i, "").trim();
+    return g.length > 24 ? g.slice(0, 23).trimEnd() + "…" : g;
+  }
+  // One prev/next stop on the platform sign: the kana station name with its
+  // direction arrow, and an English gloss beneath. Terminals read 始発/終点.
+  function stationStop(L, dir) {
+    const box = document.createElement("div");
+    box.className = dir === "prev" ? "st-prev" : "st-next";
+    const arrow = dir === "prev" ? "← " : " →";
+    let jp, en;
+    if (L) { jp = dir === "prev" ? arrow + stationName(L) : stationName(L) + arrow; en = stationGloss(L); }
+    else { jp = dir === "prev" ? "始発" : "終点"; en = dir === "prev" ? "start" : "end"; }
+    box.appendChild(span("st-stop-jp", jp));
+    if (en) box.appendChild(span("st-stop-en", en));
+    return box;
+  }
   // Station identity for a lesson — line colour/letter, station number within
   // its level, name + romaji, and progress. Lets the "Recommended next" banner
   // (built in ui-polish.js) replicate the station-sign card it leads to.
@@ -1747,11 +1769,12 @@
         art.onerror = () => art.remove();
         card.appendChild(art);
 
-        // prev / next stations, like a real platform sign
+        // prev / next stations, like a real platform sign — each stop shows its
+        // kana name AND a short English gloss (owner: include English and kana)
         const pn = document.createElement("div");
         pn.className = "st-prevnext";
-        pn.appendChild(span("st-prev", prev ? "← " + stationName(prev) : "始発 start"));
-        pn.appendChild(span("st-next", next ? stationName(next) + " →" : "終点 end"));
+        pn.appendChild(stationStop(prev, "prev"));
+        pn.appendChild(stationStop(next, "next"));
         card.appendChild(pn);
 
         // the card IS the button: tap the picture, ride the lesson
