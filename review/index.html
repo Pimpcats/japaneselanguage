@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>はなそう · Review</title>
+<meta name="description" content="Review every lesson card and phrasing sentence — flag, note, and sync to Claude.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f4efe4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b2130" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Review">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="stylesheet" href="review.css?v=1">
+</head>
+<body>
+<header class="top">
+  <h1><span class="jp">はなそう</span> · Review</h1>
+  <p class="sub" id="sub">loading…</p>
+  <div class="tools">
+    <input id="search" type="search" inputmode="search" placeholder="Search cards, sentences, words…" autocomplete="off" autocapitalize="off">
+    <button class="chip" id="f-flag" aria-pressed="false">⚑ Flagged</button>
+  </div>
+</header>
+
+<main id="list"><p class="empty">Loading content…</p></main>
+
+<div class="syncbar">
+  <span class="cnt" id="cnt">Nothing flagged yet</span>
+  <button class="syncbtn" id="sync" disabled>Sync to Claude</button>
+</div>
+
+<!-- note editor -->
+<div class="modal" id="noteModal">
+  <div class="sheet">
+    <h2 id="nm-title">Note</h2>
+    <p class="msent" id="nm-sent"></p>
+    <textarea id="nm-text" placeholder="What's wrong / what to change…"></textarea>
+    <div class="srow">
+      <button class="b-flag" id="nm-flag">⚑ Flag</button>
+      <button class="b-ghost" id="nm-cancel">Cancel</button>
+      <button class="b-primary" id="nm-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- sync / submit -->
+<div class="modal" id="syncModal">
+  <div class="sheet">
+    <h2>Sync to Claude</h2>
+    <p class="msent">Your notes are copied to the clipboard. Paste them into the chat and I'll apply every change to the main branch. If pasting comes up empty, tap the box, Select&nbsp;All, Copy — or use Share.</p>
+    <textarea class="payload" id="sy-text" readonly></textarea>
+    <div class="srow">
+      <button class="b-ghost" id="sy-close">Close</button>
+      <button class="b-ghost" id="sy-share">Share…</button>
+      <button class="b-primary" id="sy-copy">Copy again</button>
+    </div>
+    <p class="subhint" id="sy-clear"></p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="data.js?v=1"></script>
+<script src="review.js?v=1"></script>
+<script>
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});
+</script>
+</body>
+</html>
