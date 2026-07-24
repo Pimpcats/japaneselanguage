@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="Review">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="review.css?v=1">
+<link rel="stylesheet" href="review.css?v=2">
 </head>
 <body>
 <header class="top">
@@ -37,6 +37,7 @@
 <div class="modal" id="noteModal">
   <div class="sheet">
     <h2 id="nm-title">Note</h2>
+    <div id="nm-img"></div>
     <p class="msent" id="nm-sent"></p>
     <textarea id="nm-text" placeholder="What's wrong / what to change…"></textarea>
     <div class="srow">
@@ -64,8 +65,9 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=1"></script>
-<script src="review.js?v=1"></script>
+<script src="data.js?v=2"></script>
+<script src="panels.js?v=2"></script>
+<script src="review.js?v=2"></script>
 <script>
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});
 </script>

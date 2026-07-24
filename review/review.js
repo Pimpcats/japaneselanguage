@@ -1,6 +1,9 @@
 (function () {
   "use strict";
   var DATA = window.REVIEW || { levels: [], counts: {}, version: "", builtAt: "" };
+  var PANELS = window.REVIEW_PANELS || [];
+  var panelsByLesson = {};
+  PANELS.forEach(function (p) { (panelsByLesson[p.lessonId] = panelsByLesson[p.lessonId] || []).push(p); });
   var KEY = "hanasou.review.content.v1";
   var state = { flags: {}, notes: {} };
   try { var s = JSON.parse(localStorage.getItem(KEY)); if (s) { state.flags = s.flags || {}; state.notes = s.notes || {}; } } catch (e) {}
@@ -17,6 +20,7 @@
       var hay = [L.id, L.title, L.section, L.grammar, L.grammarNote];
       L.sentences.forEach(function (s) { hay.push(s.en, s.jp, s.romaji, s.hint); });
       L.vocab.forEach(function (v) { hay.push(v.jp, v.romaji, v.en); });
+      (panelsByLesson[L.id] || []).forEach(function (p) { hay.push(p.en, "image", "illustration"); });
       LESSONS.push({ lv: lv, L: L, hay: hay.join(" ").toLowerCase() });
     });
   });
@@ -26,6 +30,7 @@
   var kL = function (id) { return "L:" + id; };
   var kS = function (id, i) { return "S:" + id + ":" + i; };
   var kV = function (id, i) { return "V:" + id + ":" + i; };
+  var kP = function (i) { return "P:" + i; };
   function flagged(k) { return !!state.flags[k]; }
   function noted(k) { return !!state.notes[k]; }
   function marked(k) { return flagged(k) || noted(k); }
@@ -35,6 +40,8 @@
     if (marked(kL(L.id))) return true;
     for (var i = 0; i < L.sentences.length; i++) if (marked(kS(L.id, i))) return true;
     for (var j = 0; j < L.vocab.length; j++) if (marked(kV(L.id, j))) return true;
+    var ps = panelsByLesson[L.id] || [];
+    for (var q = 0; q < ps.length; q++) if (marked(kP(ps[q].i))) return true;
     return false;
   }
   function totalMarked() {
@@ -62,6 +69,15 @@
 
   function bodyHTML(L) {
     var h = "";
+    var pics = panelsByLesson[L.id] || [];
+    if (pics.length) {
+      h += '<div class="grp">Illustrations · ' + pics.length + '</div>';
+      pics.forEach(function (p) {
+        var m = '<div class="pimg"><img loading="lazy" alt="' + esc(p.en) + '" src="data:image/png;base64,' + p.img + '"></div>' +
+          '<div class="i-en">' + esc(p.en) + '</div>';
+        h += itemRow("i-panel", kP(p.i), m);
+      });
+    }
     if (L.grammarNote) h += '<div class="gnote">' + esc(L.grammarNote) + '</div>';
     if (L.sentences.length) {
       h += '<div class="grp">Phrasing sentences · ' + L.sentences.length + '</div>';
@@ -170,6 +186,7 @@
     var p = key.split(":");
     if (p[0] === "L") { var L = lessonById[p[1]]; return { title: "Card · " + (L ? L.title : p[1]), sent: L ? L.grammar : "" }; }
     if (p[0] === "S") { var L2 = lessonById[p[1]], s = L2 && L2.sentences[+p[2]]; return { title: "Sentence · " + (L2 ? L2.title : p[1]) + " #" + (+p[2] + 1), sent: s ? (s.en + "  →  " + s.jp) : "" }; }
+    if (p[0] === "P") { var pan = null; for (var z = 0; z < PANELS.length; z++) if (PANELS[z].i === +p[1]) { pan = PANELS[z]; break; } return { title: "Illustration #" + p[1], sent: pan ? pan.en : "", img: pan ? pan.img : "" }; }
     var L3 = lessonById[p[1]], v = L3 && L3.vocab[+p[2]]; return { title: "Word · " + (L3 ? L3.title : p[1]), sent: v ? (v.jp + "  " + v.en) : "" };
   }
   function openNote(key) {
@@ -177,6 +194,7 @@
     var lb = labelFor(key);
     $("nm-title").textContent = lb.title;
     $("nm-sent").textContent = lb.sent;
+    $("nm-img").innerHTML = lb.img ? '<img src="data:image/png;base64,' + lb.img + '" alt="">' : "";
     $("nm-text").value = state.notes[key] || "";
     $("nm-flag").classList.toggle("on", flagged(key));
     openModal("noteModal");
@@ -217,6 +235,12 @@
           var k = kV(L.id, i);
           if (!marked(k)) return;
           block.push("   " + (flagged(k) ? "⚑ " : "") + "WORD: " + v.jp + " (" + v.en + ")");
+          if (state.notes[k]) block.push("      note: " + state.notes[k]);
+        });
+        (panelsByLesson[L.id] || []).forEach(function (p) {
+          var k = kP(p.i);
+          if (!marked(k)) return;
+          block.push("   " + (flagged(k) ? "⚑ " : "") + "IMAGE panel #" + p.i + ": \"" + p.en + "\"");
           if (state.notes[k]) block.push("      note: " + state.notes[k]);
         });
         lines.push(block.join("\n"));
@@ -279,6 +303,6 @@
   function toast(m) { toEl.textContent = m; toEl.classList.add("show"); clearTimeout(toT); toT = setTimeout(function () { toEl.classList.remove("show"); }, 1800); }
 
   // ---------- boot ----------
-  $("sub").textContent = (DATA.counts.lessons || 0) + " cards · " + (DATA.counts.sentences || 0) + " sentences · " + (DATA.counts.vocab || 0) + " words · built v" + (DATA.version || "?");
+  $("sub").textContent = (DATA.counts.lessons || 0) + " cards · " + (DATA.counts.sentences || 0) + " sentences · " + (DATA.counts.vocab || 0) + " words · " + PANELS.length + " images · built v" + (DATA.version || "?");
   render();
 })();

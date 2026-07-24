@@ -66,6 +66,14 @@ main{max-width:820px;margin:0 auto;padding:14px 12px 20px}
 .ibtn.flag.on{background:var(--flag);color:#fff;border-color:var(--flag)}
 .ibtn.note.has{border-style:solid;border-color:var(--accent);color:var(--accent)}
 .notepv{flex-basis:100%;margin:2px 0 0 0;font-size:.8rem;color:var(--ink);background:var(--flag-soft);border-radius:7px;padding:6px 9px}
+/* illustration items: image stacked over its caption + flag/note */
+.item.i-panel{flex-direction:column;align-items:stretch;gap:6px}
+.item.i-panel .pimg{background:var(--shot-bg);border:1.5px solid var(--edge);border-radius:10px;overflow:hidden}
+.item.i-panel .pimg img{display:block;width:100%;height:auto}
+.item.i-panel .i-en{font-size:.9rem}
+.item.i-panel .iact{justify-content:flex-end}
+#nm-img{margin:0 0 12px}
+#nm-img img{display:block;width:100%;max-height:44vh;object-fit:contain;border:1.5px solid var(--edge);border-radius:11px;background:var(--shot-bg)}
 .lnotepv{margin:8px 0 0;font-size:.82rem;color:var(--ink);background:var(--flag-soft);border-radius:8px;padding:7px 10px}
 
 .empty{text-align:center;color:var(--muted);padding:50px 12px}
