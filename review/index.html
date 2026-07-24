@@ -14,9 +14,13 @@
 <meta name="apple-mobile-web-app-title" content="Review">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="review.css?v=2">
+<link rel="stylesheet" href="review.css?v=3">
 </head>
 <body>
+<div class="updatebar" id="updatebar" hidden>
+  <span>🔄 A new version is ready.</span>
+  <button id="reloadbtn">Reload</button>
+</div>
 <header class="top">
   <h1><span class="jp">はなそう</span> · Review</h1>
   <p class="sub" id="sub">loading…</p>
@@ -65,11 +69,42 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=2"></script>
-<script src="panels.js?v=2"></script>
-<script src="review.js?v=2"></script>
+<script src="data.js?v=3"></script>
+<script src="panels.js?v=3"></script>
+<script src="review.js?v=3"></script>
 <script>
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function(){});
+// keep the installed app honest: when a new deploy lands, surface a Reload
+// button instead of serving stale content forever.
+(function () {
+  if (!("serviceWorker" in navigator)) return;
+  var refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function () {
+    if (refreshing) return; refreshing = true; location.reload();
+  });
+  navigator.serviceWorker.register("sw.js").then(function (reg) {
+    function offerUpdate(worker) {
+      if (!worker) return;
+      var bar = document.getElementById("updatebar");
+      bar.hidden = false;
+      document.getElementById("reloadbtn").onclick = function () {
+        this.textContent = "Updating…";
+        worker.postMessage({ type: "SKIP_WAITING" });
+      };
+    }
+    if (reg.waiting && navigator.serviceWorker.controller) offerUpdate(reg.waiting);
+    reg.addEventListener("updatefound", function () {
+      var nw = reg.installing;
+      if (!nw) return;
+      nw.addEventListener("statechange", function () {
+        if (nw.state === "installed" && navigator.serviceWorker.controller) offerUpdate(nw);
+      });
+    });
+    // proactively check for a new deploy on open, on refocus, and hourly
+    reg.update();
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) reg.update(); });
+    setInterval(function () { reg.update(); }, 30 * 60 * 1000);
+  }).catch(function () {});
+})();
 </script>
 </body>
 </html>
