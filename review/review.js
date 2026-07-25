@@ -114,9 +114,9 @@
   }
 
   function lessonCard(o, idx) {
-    var L = o.L, lk = kL(L.id), fl = flagged(lk), lnote = state.notes[lk] || "";
+    var L = o.L, lk = kL(L.id), fl = flagged(lk), lnote = state.notes[lk] || "", cc = lessonChildCount(L);
     var card = document.createElement("article");
-    card.className = "lesson" + (lessonMarks(L) ? " flagged" : "");
+    card.className = "lesson" + (fl ? " flagged" : "");   // full red = the CARD itself is flagged
     card.dataset.id = L.id;
     card.dataset.idx = idx;
     var sub = esc(L.section) + " · " + L.sentences.length + " sentences · " + L.vocab.length + " words";
@@ -129,10 +129,43 @@
           (L.grammar ? '<div class="lgrammar">' + esc(L.grammar) + '</div>' : '') +
           (lnote ? '<div class="lnotepv">card note: ' + esc(lnote) + '</div>' : '') +
         '</div>' +
-        '<button class="lflag' + (fl ? " on" : "") + '" data-act="flag" data-key="' + lk + '" aria-label="flag card">⚑</button>' +
+        '<span class="lcount"' + (cc ? '' : ' hidden') + '>⚑ ' + cc + '</span>' +
+        '<button class="lflag' + (fl ? " on" : "") + '" data-act="flag" data-key="' + lk + '" aria-label="flag whole card">⚑</button>' +
       '</div>' +
       '<div class="lbody"></div>';
     return card;
+  }
+  // how many items inside a lesson are flagged/noted (drives the header badge)
+  function lessonChildCount(L) {
+    var n = 0, i;
+    for (i = 0; i < L.sentences.length; i++) if (marked(kS(L.id, i))) n++;
+    for (i = 0; i < L.vocab.length; i++) if (marked(kV(L.id, i))) n++;
+    var ps = panelsByLesson[L.id] || [];
+    for (i = 0; i < ps.length; i++) if (marked(kP(ps[i].i))) n++;
+    return n;
+  }
+  // refresh a lesson card's own-flag red + its flagged-items badge, in place
+  function updateLessonMark(card) {
+    var L = lessonById[card.dataset.id];
+    if (!L) return;
+    card.classList.toggle("flagged", flagged(kL(L.id)));
+    var badge = card.querySelector(".lcount"), n = lessonChildCount(L);
+    if (badge) { badge.textContent = "⚑ " + n; badge.hidden = n === 0; }
+  }
+  // update ONE item row (and its lesson badge) without rebuilding the list —
+  // rebuilding collapsed open lessons and threw off scroll after saving a note
+  function applyItemDom(key) {
+    var row = list.querySelector('.item[data-key="' + key + '"]');
+    if (row) {
+      row.classList.toggle("flagged", marked(key));
+      var fb = row.querySelector(".ibtn.flag"); if (fb) fb.classList.toggle("on", flagged(key));
+      var nb = row.querySelector(".ibtn.note"); if (nb) nb.classList.toggle("has", noted(key));
+      var pv = row.querySelector(".notepv"), nt = state.notes[key] || "";
+      if (nt) { if (!pv) { pv = document.createElement("div"); pv.className = "notepv"; row.appendChild(pv); } pv.textContent = nt; }
+      else if (pv) { pv.parentNode.removeChild(pv); }
+      var card = row.closest(".lesson"); if (card) updateLessonMark(card);
+    }
+    refreshCount();
   }
 
   function render() {
@@ -195,14 +228,13 @@
     if (state.flags[key]) delete state.flags[key]; else state.flags[key] = 1;
     save();
     if (btn) btn.classList.toggle("on", !!state.flags[key]);
-    // update the row / card flagged styling
     var row = btn && btn.closest(".item"); if (row) row.classList.toggle("flagged", marked(key));
-    var card = btn && btn.closest(".lesson"); if (card) card.classList.toggle("flagged", lessonMarks(lessonById[card.dataset.id]));
+    var card = btn && btn.closest(".lesson"); if (card) updateLessonMark(card);
     refreshCount();
   }
 
   // ---------- note editor ----------
-  var curKey = null;
+  var curKey = null, pendingFlag = false;
   function labelFor(key) {
     var p = key.split(":");
     if (p[0] === "L") { var L = lessonById[p[1]]; return { title: "Card · " + (L ? L.title : p[1]), sent: L ? L.grammar : "" }; }
@@ -217,22 +249,25 @@
     $("nm-sent").textContent = lb.sent;
     $("nm-img").innerHTML = lb.img ? '<img src="data:image/png;base64,' + lb.img + '" alt="">' : "";
     $("nm-text").value = state.notes[key] || "";
-    $("nm-flag").classList.toggle("on", flagged(key));
+    pendingFlag = flagged(key);
+    $("nm-flag").classList.toggle("on", pendingFlag);
     openModal("noteModal");
     setTimeout(function () { $("nm-text").focus(); }, 60);
   }
+  // stage the flag change; commit only on Save (Cancel discards it)
   $("nm-flag").addEventListener("click", function () {
     if (curKey == null) return;
-    if (state.flags[curKey]) delete state.flags[curKey]; else state.flags[curKey] = 1;
-    this.classList.toggle("on", flagged(curKey));
+    pendingFlag = !pendingFlag;
+    this.classList.toggle("on", pendingFlag);
   });
   $("nm-cancel").addEventListener("click", function () { closeModal("noteModal"); });
   $("nm-save").addEventListener("click", function () {
     if (curKey == null) return;
-    var v = $("nm-text").value.trim();
-    if (v) { state.notes[curKey] = v; if (!state.flags[curKey]) state.flags[curKey] = 1; }
-    else delete state.notes[curKey];
-    save(); closeModal("noteModal"); render();
+    var v = $("nm-text").value.trim(), key = curKey;
+    if (v) state.notes[key] = v; else delete state.notes[key];
+    // a written note implies a flag; otherwise honor the staged flag toggle
+    if (v || pendingFlag) state.flags[key] = 1; else delete state.flags[key];
+    save(); closeModal("noteModal"); applyItemDom(key);   // in-place — no rebuild, no scroll jump
   });
 
   // ---------- sync ----------

@@ -58,6 +58,9 @@ main{max-width:820px;margin:0 auto;padding:14px 12px 20px}
 .lgrammar{margin-top:4px;font-size:.9rem;color:var(--jp);font-weight:600}
 .lflag{flex:0 0 auto;border:1.5px solid var(--edge);background:var(--card);color:var(--muted);border-radius:9px;padding:7px 10px;font-size:1rem;cursor:pointer;line-height:1}
 .lflag.on{background:var(--flag);color:#fff;border-color:var(--flag)}
+/* small tally of flagged items inside a lesson — subtle, not a full red card */
+.lcount{flex:0 0 auto;align-self:center;font:700 .72rem/1 var(--mono);color:var(--flag);background:var(--flag-soft);border:1px solid var(--flag);border-radius:999px;padding:4px 8px;white-space:nowrap}
+.lcount[hidden]{display:none}
 
 .lbody{display:none;padding:0 13px 12px;border-top:1px dashed var(--edge)}
 .lesson.open .lbody{display:block}
