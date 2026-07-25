@@ -76,7 +76,7 @@
     mochiko: 1, friend: 1, avatar: 1, friendchar: 1,
     station: 2.6, house: 2.1, town: 2.8, mountain: 2.9, sakura: 1.9,
     boat: 2.2, train: 1.7, bus: 1.8, car: 1.35, signal: 1.35,
-    cow: 1.15, octopus: 0.5, cat: 0.6, whitecat: 0.6, dogface: 0.95, bird: 0.34,
+    cow: 1.15, octopus: 0.25, cat: 0.6, whitecat: 0.6, dogface: 0.95, bird: 0.34,
     chair: 0.95, schooldesk: 1.0, table: 0.7,
     cup: 0.3, water: 0.32, coffee: 0.32, book: 0.3, bag: 0.5, sushi: 0.24,
     peach: 0.3, mystery: 0.42, umbrella: 0.95, ticket: 0.22, telephone: 0.38,
@@ -95,7 +95,9 @@
         objs.some((b) => ["mochiko", "friend", "avatar", "friendchar"].includes(b.dataset.object));
       let unit;
       if (hasPerson) {
-        unit = H * 0.30;                 // a person is the yardstick; real proportions
+        // a person is the yardstick; point (これ・それ・あれ) scenes size the
+        // pointed-at items up a little so they read across the distance.
+        unit = H * (scene.classList.contains("story-scene-perspective") ? 0.42 : 0.30);
       } else {
         // no person on stage → the object IS the subject. Size it to read well,
         // keeping multiple objects proportional to each other.
@@ -338,10 +340,10 @@
         instruction: "Across the whole ocean — Japan",
         copy: "A little chain of islands, a long way off. Tap it and say it.",
         answer: { jp: "にほんは とおい。", romaji: "nihon wa tooi", en: "Japan is far away." } },
-      "My book!": { id: "l0-myhon", type: "ask", scene: "room", zone: "table", object: "book",
+      "My book!": { id: "l0-myhon", type: "ask", scene: "plain", zone: "center", object: "book", myBook: true,
         askLabel: "Call it out:", cta: "Say it →", feedback: "わたしの — mine!",
-        instruction: "Someone left YOUR book on the table",
-        copy: "That one is yours. Tap it and claim it out loud.",
+        instruction: "There's YOUR book",
+        copy: "That one is yours — the cover you chose. Tap it and claim it out loud.",
         answer: { jp: "わたしの ほん！", romaji: "watashi no hon", en: "My book!" } },
     },
     "l0-dakuten": {
@@ -355,7 +357,7 @@
           instruction: "Your friend and their telephone",
           copy: "A proper old rotary phone. Tap them — の makes it theirs.",
           answer: { jp: "ともだちの でんわ。", romaji: "tomodachi no denwa", en: "My friend's telephone." } } },
-      "This is a book.": { id: "l0-desu", type: "ask", scene: "room", zone: "near", object: "book", otherBook: true,
+      "This is a book.": { id: "l0-desu", type: "ask", scene: "plain", zone: "center", object: "book", otherBook: true,
         askLabel: "Now with です:", cta: "Say it →", feedback: "Your first polite sentence.",
         instruction: "A book — but not yours",
         copy: "Different cover — someone else's. So it is just a book: ほん. Tap it and say it politely with です.",
@@ -659,21 +661,20 @@
         answer: { jp: "それは かばんです。", romaji: "sore wa kaban desu", en: "That (by you) is a bag." },
       },
       "That over there is my bag.": {
-        id: "point-are", type: "point", target: "far",
+        id: "point-are", type: "point", target: "far", flipHer: true,
         layout: { near: "book", partner: "cup", far: "bag" },
         instruction: "Point at your bag on the far shelf",
         answer: { jp: "あれは わたしの かばんです。", romaji: "are wa watashi no kaban desu", en: "That over there is my bag." },
       },
       "This is my book.": {
         id: "answer-my-book", type: "identify", item: "book",
-        ask: { jp: "どれが あなたの ほんですか？", romaji: "dore ga anata no hon desu ka", en: "Which one is your book?" },
         answer: { jp: "これは わたしの ほんです。", romaji: "kore wa watashi no hon desu", en: "This is my book." },
       },
       "Is that (by you) a book?": {
         id: "ask-book", type: "ask",
-        scene: "room", zone: "partner", object: "mystery",
-        instruction: "もち子 is holding something…",
-        copy: "It's about the size of a book — but you can't tell. Tap it to ask her.",
+        scene: "room", zone: "partner", object: "book", flipHer: true,
+        instruction: "もち子 has a book by her",
+        copy: "There's a book right next to her. Tap it to ask if that's a book.",
         answer: { jp: "それは ほんですか？", romaji: "sore wa hon desu ka", en: "Is that (by you) a book?" },
       },
     },
@@ -682,9 +683,9 @@
     "shop": {
       "How much is this?": {
         id: "shop-howmuch", type: "ask",
-        scene: "shop", zone: "counter", object: "clock", tag: true,
+        scene: "shop", zone: "counter", object: "bag", tag: true,
         instruction: "This one has no price",
-        copy: "Tap the tag to ask how much it is.",
+        copy: "Tap the tag to ask how much the bag is.",
         answer: { jp: "これは いくらですか？", romaji: "kore wa ikura desu ka", en: "How much is this?" },
       },
       "Water, please.": {
@@ -921,16 +922,7 @@
         answer: { jp: "ろく、なな、はち、きゅう、じゅう。", romaji: "roku, nana, hachi, kyuu, juu", en: "Six, seven, eight, nine, ten." } },
     },
 
-    // ---- Age: さい — ask もち子 hers -------------
-    "age": {
-      "How old are you?": {
-        id: "age-ask", type: "ask",
-        scene: "plain", zone: "center", object: "mochiko", askLabel: "Ask her:",
-        instruction: "How old IS もち子, anyway?",
-        copy: "Only one way to find out. Tap her and ask.",
-        answer: { jp: "なんさいですか？", romaji: "nan-sai desu ka", en: "How old are you?" },
-      },
-    },
+    // ---- Age: さい — no illustration (owner review #97) ------------------
 
     // ---- Please do X ----------------------------------------------------------
     "te-please": {
@@ -1145,7 +1137,7 @@
     dogface: '<svg viewBox="0 0 130 120" preserveAspectRatio="xMidYMax meet"><path d="M28 30 L12 8 Q34 2 42 20 Z" fill="#eec98f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M102 30 L118 8 Q96 2 88 20 Z" fill="#eec98f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M22 34 Q42 12 65 12 Q88 12 108 34 Q120 50 114 76 Q106 106 65 108 Q24 106 16 76 Q10 50 22 34 Z" fill="#eec98f" stroke="#243352" stroke-width="5.5" stroke-linejoin="round"/><path d="M42 44 Q47 38 52 44" fill="none" stroke="#243352" stroke-width="5" stroke-linecap="round"/><path d="M78 44 Q83 38 88 44" fill="none" stroke="#243352" stroke-width="5" stroke-linecap="round"/><path d="M44 62 Q65 52 86 62 Q92 84 65 88 Q38 84 44 62 Z" fill="#fdf6ea" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><ellipse cx="65" cy="66" rx="7" ry="5.5" fill="#243352"/><path d="M65 71 L65 78 M65 78 Q58 84 51 80 M65 78 Q72 84 79 80" fill="none" stroke="#243352" stroke-width="4" stroke-linecap="round"/></svg>',
     redflower: '<svg viewBox="0 0 110 150" preserveAspectRatio="xMidYMax meet"><path d="M55 74 L55 142" stroke="#567f45" stroke-width="7" stroke-linecap="round"/><path d="M55 104 Q38 100 32 86 Q50 86 55 98 Z" fill="#74a25f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M55 122 Q72 118 78 104 Q60 104 55 116 Z" fill="#74a25f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><g stroke="#243352" stroke-width="4" fill="#e05a48"><ellipse cx="55" cy="20" rx="13" ry="17"/><ellipse cx="30" cy="38" rx="13" ry="17" transform="rotate(-70 30 38)"/><ellipse cx="80" cy="38" rx="13" ry="17" transform="rotate(70 80 38)"/><ellipse cx="38" cy="62" rx="13" ry="17" transform="rotate(-140 38 62)"/><ellipse cx="72" cy="62" rx="13" ry="17" transform="rotate(140 72 62)"/></g><circle cx="55" cy="44" r="14" fill="#f2cf5b" stroke="#243352" stroke-width="4"/></svg>',
     boat: '<svg viewBox="0 0 170 110" preserveAspectRatio="xMidYMax meet"><path d="M0 96 Q12 88 24 96 Q36 104 48 96 Q60 88 72 96 Q84 104 96 96 Q108 88 120 96 Q132 104 144 96 Q156 88 170 96 L170 110 L0 110 Z" fill="#7fa8d9" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M16 74 L154 74 Q148 96 128 98 L44 98 Q24 96 16 74 Z" fill="#d95f5f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><rect x="56" y="46" width="58" height="28" rx="5" fill="#fdf6ea" stroke="#243352" stroke-width="4.5"/><rect x="66" y="54" width="12" height="10" rx="2" fill="#9fc4e0" stroke="#243352" stroke-width="3"/><rect x="90" y="54" width="12" height="10" rx="2" fill="#9fc4e0" stroke="#243352" stroke-width="3"/><rect x="78" y="26" width="9" height="20" fill="#e8b04b" stroke="#243352" stroke-width="3.5"/><path d="M82 26 Q84 16 82 10" stroke="#b9c7d8" stroke-width="4" fill="none" stroke-linecap="round"/></svg>',
-    sea: '<svg viewBox="0 0 300 120" preserveAspectRatio="xMidYMax meet"><rect x="0" y="30" width="300" height="90" rx="8" fill="#5f93c9" stroke="#243352" stroke-width="4"/><path d="M0 52 Q20 44 40 52 Q60 60 80 52 Q100 44 120 52 Q140 60 160 52 Q180 44 200 52 Q220 60 240 52 Q260 44 280 52 Q290 56 300 52" fill="none" stroke="#9fc4e0" stroke-width="5" stroke-linecap="round"/><path d="M20 78 Q40 70 60 78 Q80 86 100 78 M150 82 Q170 74 190 82 Q210 90 230 82" fill="none" stroke="#7fa8d9" stroke-width="5" stroke-linecap="round"/><path d="M226 30 L226 12 L252 20 L226 28 Z" fill="#fdf6ea" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><path d="M222 30 L234 30" stroke="#243352" stroke-width="4" stroke-linecap="round"/><circle cx="64" cy="40" r="2.5" fill="#fff" opacity=".8"/><circle cx="120" cy="66" r="2.5" fill="#fff" opacity=".6"/><circle cx="260" cy="64" r="2.5" fill="#fff" opacity=".7"/></svg>',
+    sea: '<svg viewBox="0 0 300 120" preserveAspectRatio="xMidYMax meet"><rect x="0" y="34" width="300" height="86" rx="8" fill="#5f93c9" stroke="#243352" stroke-width="4"/><rect x="4" y="38" width="292" height="15" rx="6" fill="#79a6d2"/><line x1="7" y1="38" x2="293" y2="38" stroke="#d3e3f2" stroke-width="2.5" stroke-linecap="round"/><g stroke="#a9cbe6" stroke-width="4" stroke-linecap="round" fill="none"><path d="M28 66 h32 M96 70 h26 M152 64 h30 M214 70 h30 M258 66 h20"/><path d="M40 86 h28 M110 90 h32 M186 86 h26 M242 92 h22"/><path d="M22 104 h30 M104 106 h34 M196 104 h28 M250 108 h20"/></g><circle cx="70" cy="58" r="2" fill="#eaf3fb" opacity=".8"/><circle cx="204" cy="60" r="2" fill="#eaf3fb" opacity=".7"/></svg>',
     town: '<svg viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet"><path d="M8 62 L34 40 L60 62 Z" fill="#d95f5f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><rect x="14" y="62" width="40" height="44" fill="#fdf6ea" stroke="#243352" stroke-width="4"/><rect x="28" y="80" width="12" height="26" fill="#8a6642" stroke="#243352" stroke-width="3"/><rect x="62" y="46" width="34" height="60" fill="#e8ddc4" stroke="#243352" stroke-width="4"/><path d="M60 46 L98 46" stroke="#243352" stroke-width="5" stroke-linecap="round"/><rect x="68" y="56" width="8" height="8" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="82" y="56" width="8" height="8" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="68" y="72" width="8" height="8" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="82" y="72" width="8" height="8" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><path d="M100 66 L124 48 L148 66 Z" fill="#6f8f7c" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><rect x="106" y="66" width="36" height="40" fill="#fdf6ea" stroke="#243352" stroke-width="4"/><rect x="118" y="84" width="12" height="22" fill="#8a6642" stroke="#243352" stroke-width="3"/><rect x="152" y="56" width="40" height="50" fill="#f2c9a4" stroke="#243352" stroke-width="4"/><path d="M150 56 L194 56" stroke="#243352" stroke-width="5" stroke-linecap="round"/><rect x="160" y="66" width="9" height="9" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="175" y="66" width="9" height="9" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="160" y="82" width="9" height="9" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/><rect x="175" y="82" width="9" height="9" fill="#9fc4e0" stroke="#243352" stroke-width="2.5"/></svg>',
     winter: '<svg viewBox="0 0 130 140" preserveAspectRatio="xMidYMax meet"><g fill="#fff" stroke="#b9c7d8" stroke-width="1.5"><circle cx="16" cy="22" r="4"/><circle cx="108" cy="14" r="3.4"/><circle cx="122" cy="52" r="4"/><circle cx="10" cy="72" r="3"/><circle cx="98" cy="88" r="3.4"/><circle cx="30" cy="108" r="3"/></g><circle cx="65" cy="102" r="34" fill="#fdfdfb" stroke="#243352" stroke-width="5"/><circle cx="65" cy="52" r="25" fill="#fdfdfb" stroke="#243352" stroke-width="5"/><path d="M44 30 L60 14 L74 22 L72 32 Z" fill="#4a7fb5" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><path d="M44 66 Q65 78 86 66 L88 74 Q65 86 42 74 Z" fill="#d95f5f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><ellipse cx="56" cy="48" rx="3.2" ry="4.4" fill="#243352"/><ellipse cx="76" cy="48" rx="3.2" ry="4.4" fill="#243352"/><path d="M62 58 L74 55 L64 62 Z" fill="#f0a33c" stroke="#243352" stroke-width="3" stroke-linejoin="round"/><circle cx="65" cy="94" r="3" fill="#243352"/><circle cx="65" cy="108" r="3" fill="#243352"/></svg>',
     sakura: '<svg viewBox="0 0 150 160" preserveAspectRatio="xMidYMax meet"><path d="M70 156 L70 96 Q70 78 52 66 M70 108 Q72 88 94 76" fill="none" stroke="#8a6642" stroke-width="9" stroke-linecap="round"/><path d="M70 156 L70 96 Q70 78 52 66 M70 108 Q72 88 94 76" fill="none" stroke="#a97e54" stroke-width="5" stroke-linecap="round"/><g stroke="#243352" stroke-width="4"><path d="M22 56 Q14 34 36 26 Q44 10 64 18 Q84 8 94 26 Q112 30 108 50 Q118 66 100 74 Q94 90 74 84 Q56 94 44 78 Q24 76 22 56 Z" fill="#fdfbf7"/><path d="M96 66 Q96 50 114 46 Q124 34 138 44 Q148 54 140 66 Q144 80 128 84 Q112 88 106 78 Q96 76 96 66 Z" fill="#faf5ef"/></g><g fill="#f7c2d4"><circle cx="46" cy="42" r="4"/><circle cx="74" cy="34" r="4"/><circle cx="94" cy="52" r="4"/><circle cx="64" cy="62" r="4"/><circle cx="122" cy="62" r="4"/></g><g fill="#fdfbf7" stroke="#e8b7c8" stroke-width="1.5"><circle cx="30" cy="120" r="4"/><circle cx="116" cy="108" r="4"/><circle cx="94" cy="136" r="3.4"/></g></svg>',
@@ -1169,7 +1161,7 @@
     cow: '<svg viewBox="0 0 150 104" preserveAspectRatio="xMidYMax meet"><path d="M30 88 L30 74 Q22 68 24 52 Q26 34 48 30 L96 28 Q118 30 121 48 Q123 62 116 70 L116 88 Q116 92 111 92 L106 92 Q102 92 102 88 L102 76 L52 78 L52 88 Q52 92 47 92 L35 92 Q30 92 30 88 Z" fill="#fdfaf2" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><path d="M40 47 Q52 40 60 50 Q64 62 52 66 Q40 68 38 58 Q37 51 40 47 Z" fill="#4a4433"/><path d="M78 58 Q90 54 94 64 Q95 73 84 74 Q74 73 75 64 Q76 60 78 58 Z" fill="#4a4433"/><path d="M104 22 Q124 18 132 32 Q138 44 130 54 Q122 62 108 60 Q96 57 96 44 Q96 28 104 22 Z" fill="#fdfaf2" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><path d="M100 18 Q94 8 104 8 Q112 9 110 18 Z" fill="#e8ddc4" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><path d="M130 20 Q136 10 142 16 Q146 22 136 26 Z" fill="#e8ddc4" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><ellipse cx="110" cy="38" rx="3.4" ry="4.2" fill="#243352"/><ellipse cx="126" cy="38" rx="3.4" ry="4.2" fill="#243352"/><path d="M104 50 Q118 46 130 50 Q134 58 126 61 Q112 64 104 58 Q101 53 104 50 Z" fill="#f2b8c3" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><circle cx="113" cy="55" r="1.8" fill="#243352"/><circle cx="122" cy="55" r="1.8" fill="#243352"/><path d="M30 60 Q20 64 22 74" fill="none" stroke="#243352" stroke-width="4" stroke-linecap="round"/><circle cx="21" cy="77" r="4" fill="#4a4433" stroke="#243352" stroke-width="2.5"/></svg>',
     octopus: '<svg viewBox="0 0 100 96" preserveAspectRatio="xMidYMax meet"><path d="M26 62 Q22 76 12 80 M40 64 Q40 78 32 86 M60 64 Q60 78 68 86 M74 62 Q78 76 88 80" fill="none" stroke="#243352" stroke-width="13" stroke-linecap="round"/><path d="M26 62 Q22 76 12 80 M40 64 Q40 78 32 86 M60 64 Q60 78 68 86 M74 62 Q78 76 88 80" fill="none" stroke="#e8756f" stroke-width="8" stroke-linecap="round"/><path d="M20 44 Q18 10 50 10 Q82 10 80 44 Q79 58 68 62 L32 62 Q21 58 20 44 Z" fill="#e8756f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><ellipse cx="38" cy="40" rx="4" ry="6" fill="#243352"/><ellipse cx="62" cy="40" rx="4" ry="6" fill="#243352"/><path d="M44 50 Q50 54 56 50" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/></svg>',
     cat: '<svg viewBox="0 0 120 112" preserveAspectRatio="xMidYMax meet"><path d="M24 102 Q12 98 14 80 Q16 62 34 58 L84 58 Q102 62 104 80 Q106 98 94 102 Z" fill="#e8c891" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M104 86 Q118 82 116 68 Q114 58 104 58" fill="none" stroke="#243352" stroke-width="5" stroke-linecap="round"/><g class="cat-paw"><path d="M30 62 Q18 50 22 36 Q24 28 32 32 Q42 38 42 54 Z" fill="#f2d9ab" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/></g><path d="M52 18 L44 4 Q58 2 62 12 Z" fill="#e8c891" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M84 18 L92 4 Q78 2 74 12 Z" fill="#e8c891" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><circle cx="68" cy="34" r="26" fill="#eccf9d" stroke="#243352" stroke-width="5"/><path d="M56 32 Q60 28 64 32 M74 32 Q78 28 82 32" fill="none" stroke="#243352" stroke-width="4" stroke-linecap="round"/><ellipse cx="69" cy="40" rx="3" ry="2.4" fill="#d97878"/><path d="M64 46 Q69 50 74 46" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/></svg>',
-    star: '<svg viewBox="0 0 120 90" preserveAspectRatio="xMidYMax meet"><path d="M30 10 L36 26 L52 32 L36 38 L30 54 L24 38 L8 32 L24 26 Z" fill="#f2cf5b" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><path d="M82 4 L86 15 L98 20 L86 25 L82 36 L78 25 L66 20 L78 15 Z" fill="#f7dc7d" stroke="#243352" stroke-width="3" stroke-linejoin="round"/><path d="M96 52 L99 60 L108 64 L99 68 L96 76 L93 68 L84 64 L93 60 Z" fill="#f7dc7d" stroke="#243352" stroke-width="3" stroke-linejoin="round"/></svg>',
+    star: '<svg viewBox="0 0 120 90" preserveAspectRatio="xMidYMax meet"><path d="M30 10 L36 26 L52 32 L36 38 L30 54 L24 38 L8 32 L24 26 Z" fill="#f7dc7d" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><path d="M82 4 L86 15 L98 20 L86 25 L82 36 L78 25 L66 20 L78 15 Z" fill="#f7dc7d" stroke="#243352" stroke-width="3" stroke-linejoin="round"/><path d="M96 52 L99 60 L108 64 L99 68 L96 76 L93 68 L84 64 L93 60 Z" fill="#f7dc7d" stroke="#243352" stroke-width="3" stroke-linejoin="round"/></svg>',
     peach: '<svg viewBox="0 0 90 98" preserveAspectRatio="xMidYMax meet"><path d="M52 22 Q58 10 72 8 Q64 20 58 26 Z" fill="#74a25f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M45 26 Q20 26 14 52 Q10 80 45 92 Q80 80 76 52 Q70 26 45 26 Z" fill="#f8b7a0" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M45 30 Q42 60 45 88" stroke="rgba(36,51,82,.3)" stroke-width="3" fill="none"/><path d="M26 42 Q22 52 24 62" stroke="#fff" stroke-width="4" opacity=".55" fill="none" stroke-linecap="round"/></svg>',
     bird: '<svg viewBox="0 0 110 92" preserveAspectRatio="xMidYMax meet"><path d="M96 30 L108 34 L95 40 Z" fill="#f0a33c" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><path d="M18 48 Q18 20 46 18 Q74 16 80 38 Q84 62 66 70 L38 72 Q18 68 18 48 Z" fill="#9fc4e0" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M34 42 Q28 54 40 58 Q52 60 54 48 Q54 40 46 38 Q37 37 34 42 Z" fill="#6f9cc4" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><circle cx="66" cy="34" r="3.5" fill="#243352"/><path d="M44 72 L44 84 M56 70 L56 82" stroke="#243352" stroke-width="4" stroke-linecap="round"/></svg>',
     flower: '<svg viewBox="0 0 90 120" preserveAspectRatio="xMidYMax meet"><path d="M45 58 L45 84" stroke="#567f45" stroke-width="5" stroke-linecap="round"/><g stroke="#243352" stroke-width="3.5" fill="#f5a8c0"><ellipse cx="45" cy="18" rx="9" ry="12"/><ellipse cx="27" cy="32" rx="9" ry="12" transform="rotate(-70 27 32)"/><ellipse cx="63" cy="32" rx="9" ry="12" transform="rotate(70 63 32)"/><ellipse cx="33" cy="50" rx="9" ry="12" transform="rotate(-140 33 50)"/><ellipse cx="57" cy="50" rx="9" ry="12" transform="rotate(140 57 50)"/></g><circle cx="45" cy="36" r="10" fill="#f2cf5b" stroke="#243352" stroke-width="3.5"/><path d="M24 84 L66 84 L60 112 Q59 116 54 116 L36 116 Q31 116 30 112 Z" fill="#c97f4e" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><rect x="20" y="80" width="50" height="10" rx="4" fill="#b06a3c" stroke="#243352" stroke-width="4"/></svg>',
@@ -1193,8 +1185,8 @@
     bag: "bag", telephone: "telephone", umbrella: "umbrella", ticket: "ticket", chair: "chair",
     house: "house", station: "station", town: "town", schooldesk: "schooldesk",
     signal: "signal", car: "car", train: "train", bus: "bus", boat: "boat",
-    sea: "sea", winter: "winter", sakura: "sakura", flower: "flower", redflower: "redflower",
-    mountain: "mountain", sun: "sun", moon: "moon", star: "star",
+    winter: "winter", sakura: "sakura", flower: "flower", redflower: "redflower",
+    mountain: "mountain", sun: "sun", moon: "moon",
     japanmap: "japanmap", usflag: "usflag", mystery: "mystery",
     bigface: "bigface", redface: "redface",
   };
@@ -1536,6 +1528,10 @@
       const mine = (story.inventory.book && story.inventory.book.design) || BOOKS[0].id;
       const fig = target.querySelector(".obj-book");
       if (fig) fig.dataset.design = (BOOKS.find((b) => b.id !== mine) || BOOKS[0]).id;
+    }
+    if (beat.myBook) {   // わたしの ほん — show the exact cover the learner chose
+      const fig = target.querySelector(".obj-book");
+      if (fig) fig.dataset.design = (story.inventory.book && story.inventory.book.design) || BOOKS[0].id;
     }
 
     if (beat.starfield) {

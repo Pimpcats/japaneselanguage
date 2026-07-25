@@ -1660,6 +1660,9 @@ body.story-open .practice-nav { z-index: 4500; }
 /* もち子 as the centred subject (age etc): a clear standing figure, not huge */
 .scene-zone-center .obj-mochiko, .scene-zone-center .obj-friend { width: auto; height: 92%; }
 .scene-zone-center .obj-mochiko img, .scene-zone-center .obj-friend img { width: auto; height: 100%; }
+/* a centred book keeps its portrait shape instead of stretching to the box */
+.scene-zone-center .story-obj[data-object="book"] { width: auto; height: 80%; aspect-ratio: 46 / 60; }
+.scene-zone-center .story-obj[data-object="book"] .obj { width: 100% !important; height: 100% !important; }
 
 /* the pointing hand is retired for now (owner) — keep its box so order-beat
    fly-to destinations still have geometry, just paint nothing */
@@ -1768,7 +1771,7 @@ body.coach-open #card { pointer-events: none; }
    near = big, low, centred-front · partner = beside もち子 · far = small, set back */
 .story-scene-perspective .scene-zone-near { left: 58%; transform: translateX(-50%); bottom: 15%; top: auto; right: auto; }
 .story-scene-perspective .scene-zone-partner { left: 7%; bottom: 15%; top: auto; right: auto; align-items: flex-end; }
-.story-scene-perspective .scene-zone-far { right: 11%; left: auto; bottom: 40%; top: auto; }
+.story-scene-perspective .scene-zone-far { right: 11%; left: auto; bottom: 15%; top: auto; }
 .story-scene-perspective .scene-zone { align-items: flex-end; }
 .story-scene-perspective .scene-shelf-board { display: none; }
 /* a prop standing beside its subject on the ground line */
