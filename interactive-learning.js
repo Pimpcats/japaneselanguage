@@ -64,6 +64,17 @@
   // `next` chains beats; a map value may be a function resolved at fire time.
   const PLACE_BEAT = { id: "place-book", type: "place", item: "book" };
   const CLAIM_BEAT = { id: "claim-book", type: "claim", item: "book", once: true, next: PLACE_BEAT };
+  // Owner (review): choosing YOUR book happens on a "my book" sentence, not on
+  // the plain "this is a book". CHOOSE_BOOK is the picker; whichever my-book
+  // moment comes first fires it, and later my-book scenes just show your cover.
+  const CHOOSE_BOOK = { id: "claim-book", type: "claim", item: "book", once: true };
+  const MYBOOK_DISPLAY = { id: "l0-myhon", type: "ask", scene: "plain", zone: "center", object: "book", myBook: true,
+    askLabel: "Call it out:", cta: "Say it →", feedback: "わたしの — mine!",
+    instruction: "There's YOUR book",
+    copy: "That one is yours — the cover you chose. Tap it and claim it out loud.",
+    answer: { jp: "わたしの ほん！", romaji: "watashi no hon", en: "My book!" } };
+  const IDENTIFY_MYBOOK = { id: "answer-my-book", type: "identify", item: "book",
+    answer: { jp: "これは わたしの ほんです。", romaji: "kore wa watashi no hon desu", en: "This is my book." } };
 
   // Counter words for the count act (tap items one by one).
   const COUNTS = ["ひとつ", "ふたつ", "みっつ", "よっつ", "いつつ", "むっつ", "ななつ", "やっつ", "ここのつ", "とお"];
@@ -183,7 +194,10 @@
     "this-that": {
       // First time: choose your book, then put it on the desk — one flowing
       // scene. Later runs remember the cover, so only the placement replays.
-      "This is a book.": () => (story.completed["claim-book"] ? PLACE_BEAT : CLAIM_BEAT),
+      "This is a book.": { id: "tt-hon", type: "ask", scene: "plain", zone: "center", object: "book", otherBook: true,
+        askLabel: "Say it:", cta: "Say it →", feedback: "Just a book — ほん.",
+        instruction: "A book", copy: "One book, front and centre — not yours. Tap it and say it with です.",
+        answer: { jp: "これは ほんです。", romaji: "kore wa hon desu", en: "This is a book." } },
     },
   };
 
@@ -340,11 +354,7 @@
         instruction: "Across the whole ocean — Japan",
         copy: "A little chain of islands, a long way off. Tap it and say it.",
         answer: { jp: "にほんは とおい。", romaji: "nihon wa tooi", en: "Japan is far away." } },
-      "My book!": { id: "l0-myhon", type: "ask", scene: "plain", zone: "center", object: "book", myBook: true,
-        askLabel: "Call it out:", cta: "Say it →", feedback: "わたしの — mine!",
-        instruction: "There's YOUR book",
-        copy: "That one is yours — the cover you chose. Tap it and claim it out loud.",
-        answer: { jp: "わたしの ほん！", romaji: "watashi no hon", en: "My book!" } },
+      "My book!": () => (story.completed["claim-book"] ? MYBOOK_DISPLAY : CHOOSE_BOOK),
     },
     "l0-dakuten": {
       "My friend's telephone.": { id: "claim-friend", type: "claimPerson", role: "friend", once: true,
@@ -666,10 +676,7 @@
         instruction: "Point at your bag on the far shelf",
         answer: { jp: "あれは わたしの かばんです。", romaji: "are wa watashi no kaban desu", en: "That over there is my bag." },
       },
-      "This is my book.": {
-        id: "answer-my-book", type: "identify", item: "book",
-        answer: { jp: "これは わたしの ほんです。", romaji: "kore wa watashi no hon desu", en: "This is my book." },
-      },
+      "This is my book.": () => (story.completed["claim-book"] ? IDENTIFY_MYBOOK : CHOOSE_BOOK),
       "Is that (by you) a book?": {
         id: "ask-book", type: "ask",
         scene: "room", zone: "partner", object: "book", flipHer: true,
