@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="Review">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
-<link rel="stylesheet" href="review.css?v=3">
+<link rel="stylesheet" href="review.css?v=4">
 </head>
 <body>
 <div class="updatebar" id="updatebar" hidden>
@@ -26,6 +26,12 @@
   <p class="sub" id="sub">loading…</p>
   <div class="tools">
     <input id="search" type="search" inputmode="search" placeholder="Search cards, sentences, words…" autocomplete="off" autocapitalize="off">
+  </div>
+  <div class="chiprow">
+    <button class="chip on" data-type="all">All</button>
+    <button class="chip" data-type="panels">🖼 Pictures</button>
+    <button class="chip" data-type="sentences">💬 Sentences</button>
+    <button class="chip" data-type="vocab">🈁 Words</button>
     <button class="chip" id="f-flag" aria-pressed="false">⚑ Flagged</button>
   </div>
 </header>
@@ -69,9 +75,9 @@
 
 <div class="toast" id="toast"></div>
 
-<script src="data.js?v=3"></script>
-<script src="panels.js?v=3"></script>
-<script src="review.js?v=3"></script>
+<script src="data.js?v=4"></script>
+<script src="panels.js?v=4"></script>
+<script src="review.js?v=4"></script>
 <script>
 // keep the installed app honest: when a new deploy lands, surface a Reload
 // button instead of serving stale content forever.

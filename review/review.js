@@ -53,7 +53,7 @@
   }
 
   // ---------- rendering ----------
-  var filterFlag = false, query = "";
+  var filterFlag = false, query = "", typeFilter = "all";
 
   function itemRow(kind, key, mainHTML) {
     var fl = flagged(key), nt = state.notes[key] || "";
@@ -67,33 +67,48 @@
     '</div>';
   }
 
+  // Build a lesson's body honoring the active content-type filter (all / pics /
+  // sentences / words) and, when "Flagged" is on, only the flagged items.
   function bodyHTML(L) {
-    var h = "";
-    var pics = panelsByLesson[L.id] || [];
-    if (pics.length) {
-      h += '<div class="grp">Illustrations · ' + pics.length + '</div>';
-      pics.forEach(function (p) {
-        var m = '<div class="pimg"><img loading="lazy" alt="' + esc(p.en) + '" src="data:image/png;base64,' + p.img + '"></div>' +
-          '<div class="i-en">' + esc(p.en) + '</div>';
-        h += itemRow("i-panel", kP(p.i), m);
-      });
+    var h = "", onlyFlag = filterFlag;
+    var showP = typeFilter === "all" || typeFilter === "panels";
+    var showS = typeFilter === "all" || typeFilter === "sentences";
+    var showV = typeFilter === "all" || typeFilter === "vocab";
+    if (showP) {
+      var pics = (panelsByLesson[L.id] || []).filter(function (p) { return !onlyFlag || marked(kP(p.i)); });
+      if (pics.length) {
+        h += '<div class="grp">Illustrations · ' + pics.length + '</div>';
+        pics.forEach(function (p) {
+          var m = '<div class="pimg"><img loading="lazy" alt="' + esc(p.en) + '" src="data:image/png;base64,' + p.img + '"></div>' +
+            '<div class="i-en">' + esc(p.en) + '</div>';
+          h += itemRow("i-panel", kP(p.i), m);
+        });
+      }
     }
-    if (L.grammarNote) h += '<div class="gnote">' + esc(L.grammarNote) + '</div>';
-    if (L.sentences.length) {
-      h += '<div class="grp">Phrasing sentences · ' + L.sentences.length + '</div>';
-      L.sentences.forEach(function (s, i) {
-        var m = '<div class="i-en">' + esc(s.en) + '</div><div class="i-jp">' + esc(s.jp) + '</div>' +
-          (s.romaji ? '<div class="i-ro">' + esc(s.romaji) + '</div>' : '');
-        h += itemRow("i-sent", kS(L.id, i), m);
-      });
+    if (showS) {
+      if (typeFilter === "all" && !onlyFlag && L.grammarNote) h += '<div class="gnote">' + esc(L.grammarNote) + '</div>';
+      var sents = L.sentences.map(function (s, i) { return { s: s, i: i }; }).filter(function (o) { return !onlyFlag || marked(kS(L.id, o.i)); });
+      if (sents.length) {
+        h += '<div class="grp">Phrasing sentences · ' + sents.length + '</div>';
+        sents.forEach(function (o) {
+          var s = o.s;
+          var m = '<div class="i-en">' + esc(s.en) + '</div><div class="i-jp">' + esc(s.jp) + '</div>' +
+            (s.romaji ? '<div class="i-ro">' + esc(s.romaji) + '</div>' : '');
+          h += itemRow("i-sent", kS(L.id, o.i), m);
+        });
+      }
     }
-    if (L.vocab.length) {
-      h += '<div class="grp">Vocabulary · ' + L.vocab.length + '</div>';
-      L.vocab.forEach(function (v, i) {
-        var m = '<span class="i-jp">' + esc(v.jp) + '</span><span class="i-en">' + esc(v.en) +
-          (v.romaji ? ' · ' + esc(v.romaji) : '') + '</span>' + (v.pos ? '<span class="pos">' + esc(v.pos) + '</span>' : '');
-        h += itemRow("i-vocab", kV(L.id, i), m);
-      });
+    if (showV) {
+      var vocab = L.vocab.map(function (v, i) { return { v: v, i: i }; }).filter(function (o) { return !onlyFlag || marked(kV(L.id, o.i)); });
+      if (vocab.length) {
+        h += '<div class="grp">Vocabulary · ' + vocab.length + '</div>';
+        vocab.forEach(function (o) {
+          var v = o.v;
+          var m = '<span class="i-jp">' + esc(v.jp) + '</span><span class="i-en">' + esc(v.en) +
+            (v.romaji ? ' · ' + esc(v.romaji) : '') + '</span>' + (v.pos ? '<span class="pos">' + esc(v.pos) + '</span>' : '');
+          h += itemRow("i-vocab", kV(L.id, o.i), m);
+        });
+      }
     }
     return h;
   }
@@ -122,27 +137,33 @@
 
   function render() {
     list.innerHTML = "";
-    var shownLevels = 0, shownLessons = 0, frag = document.createDocumentFragment();
+    // any filter narrows the view → auto-open cards so the matching items show
+    var active = typeFilter !== "all" || filterFlag || !!query;
+    var shownLessons = 0, frag = document.createDocumentFragment();
     DATA.levels.forEach(function (lv) {
-      var head = null, count = 0;
+      var head = null;
       lv.lessons.forEach(function (L) {
-        var o = { L: L, lv: lv };
-        if (filterFlag && !lessonMarks(L)) return;
         if (query) {
           var hay = LESSONS.find(function (x) { return x.L.id === L.id; }).hay;
           if (hay.indexOf(query) === -1) return;
         }
-        if (!head) { head = document.createElement("div"); head.className = "levhead"; head.textContent = (lv.name ? lv.name + " · " : "") + lv.title; frag.appendChild(head); shownLevels++; }
+        var body = active ? bodyHTML(L) : "";
+        // in a narrowed view, keep only lessons that actually have matching items
+        // (a card flagged only at card-level still shows in the Flagged view)
+        if (active && !body && !(filterFlag && marked(kL(L.id)))) return;
+        if (!head) { head = document.createElement("div"); head.className = "levhead"; head.textContent = (lv.name ? lv.name + " · " : "") + lv.title; frag.appendChild(head); }
         var idx = LESSONS.findIndex(function (x) { return x.L.id === L.id; });
         var card = lessonCard({ L: L }, idx);
-        // auto-open when actively filtering so matches are visible
-        if (query || filterFlag) { card.classList.add("open"); card.querySelector(".lbody").innerHTML = bodyHTML(L); card.dataset.built = "1"; }
+        if (active && body) { card.classList.add("open"); card.querySelector(".lbody").innerHTML = body; card.dataset.built = "1"; }
         frag.appendChild(card);
-        count++; shownLessons++;
+        shownLessons++;
       });
     });
-    if (!shownLessons) { list.innerHTML = '<p class="empty">' + (filterFlag ? "Nothing flagged yet — tap ⚑ on a card, sentence, or word." : "No matches.") + '</p>'; }
-    else list.appendChild(frag);
+    if (!shownLessons) {
+      var msg = query ? "No matches." : filterFlag ? "Nothing flagged yet — tap ⚑ on a card, sentence, image, or word."
+        : typeFilter === "panels" ? "No illustrations match." : "No matches.";
+      list.innerHTML = '<p class="empty">' + msg + '</p>';
+    } else list.appendChild(frag);
     refreshCount();
   }
 
@@ -280,6 +301,15 @@
   });
 
   // ---------- filters ----------
+  // content-type chips (All / Pictures / Sentences / Words) — mutually exclusive
+  var typeChips = [].slice.call(document.querySelectorAll("[data-type]"));
+  typeChips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      typeFilter = chip.getAttribute("data-type");
+      typeChips.forEach(function (c) { c.classList.toggle("on", c === chip); });
+      render();
+    });
+  });
   $("f-flag").addEventListener("click", function () {
     filterFlag = !filterFlag;
     this.classList.toggle("on", filterFlag);
