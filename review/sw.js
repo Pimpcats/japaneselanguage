@@ -1,14 +1,14 @@
 // Review PWA service worker — precache the shell so it installs and runs
 // offline on the home screen. Bump CACHE (and the ?v= query in index.html)
 // whenever review/data.js or the app files change.
-const CACHE = "hanasou-review-v4";
+const CACHE = "hanasou-review-v5";
 const SHELL = [
   "./",
   "./index.html",
-  "./review.css?v=4",
-  "./review.js?v=4",
-  "./data.js?v=4",
-  "./panels.js?v=4",
+  "./review.css?v=5",
+  "./review.js?v=5",
+  "./data.js?v=5",
+  "./panels.js?v=5",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
