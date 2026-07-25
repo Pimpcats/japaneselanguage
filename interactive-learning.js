@@ -727,7 +727,7 @@
     "where": {
       "Where is the restroom?": {
         id: "where-ask-toilet", type: "ask",
-        scene: "street", zone: "near", object: "wc", tag: true, tagText: "？", askLabel: "Ask it:",
+        scene: "street", zone: "near", object: "wc", askLabel: "Ask it:",
         instruction: "You really need the restroom…",
         copy: "A restroom sign — but which way is it? Tap it and ask.",
         answer: { jp: "トイレは どこですか？", romaji: "toire wa doko desu ka", en: "Where is the restroom?" },
@@ -879,7 +879,7 @@
     "likes": {
       "I like sushi.": {
         id: "like-sushi", type: "order", scene: "room", dest: "hand",
-        items: ["sushi", "water", "clock"], target: "sushi",
+        items: ["sushi", "water", "peach"], target: "sushi",
         instruction: "Your favourite thing here?",
         copy: "Tap the one you LIKE — おすし, obviously.",
         answer: { jp: "おすしが すきです。", romaji: "osushi ga suki desu", en: "I like sushi." },

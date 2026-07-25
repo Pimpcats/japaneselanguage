@@ -421,11 +421,15 @@ body.drive-mode .wc-emoji { font-size: 1.7rem; margin-bottom: 0.18rem; }
 }
 
 /* transient bottom toast (e.g. "all caught up") */
+/* toast/nudge lives at the TOP now — the bottom nav (5 items, 2 rows,
+   z-index 1000) was covering it, so "tap again to keep going" was invisible
+   and just read as a broken double-tap. Top-centre is always in view. */
 #toast {
-  position: fixed; left: 50%; bottom: 5.5rem; z-index: 200;
-  transform: translateX(-50%) translateY(1rem);
+  position: fixed; left: 50%; top: calc(env(safe-area-inset-top) + 3.6rem); bottom: auto; z-index: 1200;
+  transform: translateX(-50%) translateY(-0.6rem);
+  max-width: min(92vw, 30rem); text-align: center;
   background: var(--ink); color: #fff; padding: 0.6rem 1rem; border-radius: 12px;
-  font-weight: 600; font-size: 0.9rem; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  font-weight: 600; font-size: 0.9rem; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
   opacity: 0; pointer-events: none; transition: opacity 0.2s, transform 0.2s;
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
