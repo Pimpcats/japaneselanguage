@@ -185,7 +185,7 @@
     },
   };
 
-  const HOUSE_BEAT = { id: "l0-ie", type: "ask", scene: "room", zone: "partner", object: "house",
+  const HOUSE_BEAT = { id: "l0-ie", type: "ask", scene: "room", zone: "partner", object: "house", flipHer: true,
     askLabel: "Call it out:", cta: "Say it →", feedback: "いい = nice. いえ = house.",
     instruction: "Look at that house",
     copy: "What a place. Tap it, then call it out.",
