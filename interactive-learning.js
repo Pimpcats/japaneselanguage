@@ -123,7 +123,11 @@
         const inGround = btn.closest(".ground-row");
         const d = inGround ? 1 : (DIST[btn.dataset.zone] != null ? DIST[btn.dataset.zone] : 1);
         if (btn.classList.contains("sky-item")) { btn.style.height = (H * 0.16) + "px"; btn.style.width = "auto"; btn.classList.add("obj-scaled"); return; }
-        btn.style.height = (unit * sc * d) + "px";
+        // zoned (point/perspective) objects get capped so a big subject (station)
+        // can't overflow the frame — grounded rows are handled by fitRow instead.
+        let hgt = unit * sc * d;
+        if (!inGround) hgt = Math.min(hgt, H * 0.55);
+        btn.style.height = hgt + "px";
         btn.style.width = "auto";
         btn.classList.add("obj-scaled");
       });
@@ -722,13 +726,13 @@
     "where": {
       "Where is the restroom?": {
         id: "where-ask-toilet", type: "ask",
-        scene: "street", zone: "partner", object: "mochiko", askLabel: "Ask her:",
+        scene: "street", zone: "near", object: "wc", tag: true, tagText: "？", askLabel: "Ask it:",
         instruction: "You really need the restroom…",
-        copy: "You have no idea where it is. Tap もち子 and ask.",
+        copy: "A restroom sign — but which way is it? Tap it and ask.",
         answer: { jp: "トイレは どこですか？", romaji: "toire wa doko desu ka", en: "Where is the restroom?" },
       },
       "It's over there.": {
-        id: "where-spot-wc", type: "point", words: "place", scene: "street", target: "far",
+        id: "where-spot-wc", type: "point", words: "place", scene: "street", target: "far", flipHer: true,
         layout: { partner: "mochiko", far: "wc" },
         instruction: "There it is! Point at the restroom sign",
         answer: { jp: "あそこです。", romaji: "asoko desu", en: "It's over there." },
@@ -740,15 +744,15 @@
         answer: { jp: "えきは ここです。", romaji: "eki wa koko desu", en: "The station is here." },
       },
       "Yes, it's here.": {
-        id: "where-water-here", type: "point", words: "place", scene: "room", target: "near",
+        id: "where-water-here", type: "point", words: "place", scene: "room", target: "near", flipHer: true,
         ask: { jp: "みずは ありますか？", romaji: "mizu wa arimasu ka", en: "Is there (any) water?" },
         layout: { near: "water", partner: "mochiko" },
         instruction: "もち子 wants water — it's right here on the table",
         answer: { jp: "はい、ここに あります。", romaji: "hai, koko ni arimasu", en: "Yes, it's here." },
       },
       "My friend is over there.": {
-        id: "where-friend", type: "point", words: "place", scene: "street", target: "far",
-        layout: { partner: "mochiko", far: "friend" },
+        id: "where-friend", type: "point", words: "place", scene: "street", target: "far", flipHer: true,
+        layout: { partner: "mochiko", far: "friendchar" },
         instruction: "Your friend is waving — spot them!",
         answer: { jp: "ともだちは あそこに います。", romaji: "tomodachi wa asoko ni imasu", en: "My friend is over there." },
       },
@@ -805,7 +809,7 @@
       },
       "A coffee and a tea, please.": {
         id: "cafe-both", type: "order",
-        items: ["coffee", "water", "cup"], targets: ["coffee", "cup"],
+        items: ["coffee", "cup"], targets: ["coffee", "cup"],
         instruction: "One coffee AND one tea",
         copy: "You're ordering for two — tap both drinks.",
         answer: { jp: "コーヒーと おちゃを ください。", romaji: "koohii to ocha o kudasai", en: "A coffee and a tea, please." },
@@ -1168,6 +1172,7 @@
     cow: '<svg viewBox="0 0 150 104" preserveAspectRatio="xMidYMax meet"><path d="M30 88 L30 74 Q22 68 24 52 Q26 34 48 30 L96 28 Q118 30 121 48 Q123 62 116 70 L116 88 Q116 92 111 92 L106 92 Q102 92 102 88 L102 76 L52 78 L52 88 Q52 92 47 92 L35 92 Q30 92 30 88 Z" fill="#fdfaf2" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><path d="M40 47 Q52 40 60 50 Q64 62 52 66 Q40 68 38 58 Q37 51 40 47 Z" fill="#4a4433"/><path d="M78 58 Q90 54 94 64 Q95 73 84 74 Q74 73 75 64 Q76 60 78 58 Z" fill="#4a4433"/><path d="M104 22 Q124 18 132 32 Q138 44 130 54 Q122 62 108 60 Q96 57 96 44 Q96 28 104 22 Z" fill="#fdfaf2" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/><path d="M100 18 Q94 8 104 8 Q112 9 110 18 Z" fill="#e8ddc4" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><path d="M130 20 Q136 10 142 16 Q146 22 136 26 Z" fill="#e8ddc4" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><ellipse cx="110" cy="38" rx="3.4" ry="4.2" fill="#243352"/><ellipse cx="126" cy="38" rx="3.4" ry="4.2" fill="#243352"/><path d="M104 50 Q118 46 130 50 Q134 58 126 61 Q112 64 104 58 Q101 53 104 50 Z" fill="#f2b8c3" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><circle cx="113" cy="55" r="1.8" fill="#243352"/><circle cx="122" cy="55" r="1.8" fill="#243352"/><path d="M30 60 Q20 64 22 74" fill="none" stroke="#243352" stroke-width="4" stroke-linecap="round"/><circle cx="21" cy="77" r="4" fill="#4a4433" stroke="#243352" stroke-width="2.5"/></svg>',
     octopus: '<svg viewBox="0 0 100 96" preserveAspectRatio="xMidYMax meet"><path d="M26 62 Q22 76 12 80 M40 64 Q40 78 32 86 M60 64 Q60 78 68 86 M74 62 Q78 76 88 80" fill="none" stroke="#243352" stroke-width="13" stroke-linecap="round"/><path d="M26 62 Q22 76 12 80 M40 64 Q40 78 32 86 M60 64 Q60 78 68 86 M74 62 Q78 76 88 80" fill="none" stroke="#e8756f" stroke-width="8" stroke-linecap="round"/><path d="M20 44 Q18 10 50 10 Q82 10 80 44 Q79 58 68 62 L32 62 Q21 58 20 44 Z" fill="#e8756f" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><ellipse cx="38" cy="40" rx="4" ry="6" fill="#243352"/><ellipse cx="62" cy="40" rx="4" ry="6" fill="#243352"/><path d="M44 50 Q50 54 56 50" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/></svg>',
     cat: '<svg viewBox="0 0 120 112" preserveAspectRatio="xMidYMax meet"><path d="M24 102 Q12 98 14 80 Q16 62 34 58 L84 58 Q102 62 104 80 Q106 98 94 102 Z" fill="#e8c891" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M104 86 Q118 82 116 68 Q114 58 104 58" fill="none" stroke="#243352" stroke-width="5" stroke-linecap="round"/><g class="cat-paw"><path d="M30 62 Q18 50 22 36 Q24 28 32 32 Q42 38 42 54 Z" fill="#f2d9ab" stroke="#243352" stroke-width="4.5" stroke-linejoin="round"/></g><path d="M52 18 L44 4 Q58 2 62 12 Z" fill="#e8c891" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M84 18 L92 4 Q78 2 74 12 Z" fill="#e8c891" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><circle cx="68" cy="34" r="26" fill="#eccf9d" stroke="#243352" stroke-width="5"/><path d="M56 32 Q60 28 64 32 M74 32 Q78 28 82 32" fill="none" stroke="#243352" stroke-width="4" stroke-linecap="round"/><ellipse cx="69" cy="40" rx="3" ry="2.4" fill="#d97878"/><path d="M64 46 Q69 50 74 46" fill="none" stroke="#243352" stroke-width="3.5" stroke-linecap="round"/></svg>',
+    menu: '<svg viewBox="0 0 140 96" preserveAspectRatio="xMidYMax meet"><rect x="4" y="4" width="132" height="88" rx="8" fill="#fffdf5" stroke="#243352" stroke-width="4"/><text x="70" y="27" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="16" fill="#243352">メニュー</text><line x1="18" y1="36" x2="122" y2="36" stroke="#243352" stroke-width="2.5"/><g stroke="#8a93a6" stroke-width="3.4" stroke-linecap="round"><line x1="18" y1="51" x2="92" y2="51"/><line x1="18" y1="66" x2="104" y2="66"/><line x1="18" y1="81" x2="84" y2="81"/></g><g stroke="#b0b7c6" stroke-width="3.4" stroke-linecap="round"><line x1="110" y1="51" x2="122" y2="51"/><line x1="112" y1="66" x2="122" y2="66"/><line x1="108" y1="81" x2="122" y2="81"/></g></svg>',
     star: '<svg viewBox="0 0 120 90" preserveAspectRatio="xMidYMax meet"><path d="M30 10 L36 26 L52 32 L36 38 L30 54 L24 38 L8 32 L24 26 Z" fill="#f7dc7d" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><path d="M82 4 L86 15 L98 20 L86 25 L82 36 L78 25 L66 20 L78 15 Z" fill="#f7dc7d" stroke="#243352" stroke-width="3" stroke-linejoin="round"/><path d="M96 52 L99 60 L108 64 L99 68 L96 76 L93 68 L84 64 L93 60 Z" fill="#f7dc7d" stroke="#243352" stroke-width="3" stroke-linejoin="round"/></svg>',
     peach: '<svg viewBox="0 0 90 98" preserveAspectRatio="xMidYMax meet"><path d="M52 22 Q58 10 72 8 Q64 20 58 26 Z" fill="#74a25f" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><path d="M45 26 Q20 26 14 52 Q10 80 45 92 Q80 80 76 52 Q70 26 45 26 Z" fill="#f8b7a0" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M45 30 Q42 60 45 88" stroke="rgba(36,51,82,.3)" stroke-width="3" fill="none"/><path d="M26 42 Q22 52 24 62" stroke="#fff" stroke-width="4" opacity=".55" fill="none" stroke-linecap="round"/></svg>',
     bird: '<svg viewBox="0 0 110 92" preserveAspectRatio="xMidYMax meet"><path d="M96 30 L108 34 L95 40 Z" fill="#f0a33c" stroke="#243352" stroke-width="3.5" stroke-linejoin="round"/><path d="M18 48 Q18 20 46 18 Q74 16 80 38 Q84 62 66 70 L38 72 Q18 68 18 48 Z" fill="#9fc4e0" stroke="#243352" stroke-width="5" stroke-linejoin="round"/><path d="M34 42 Q28 54 40 58 Q52 60 54 48 Q54 40 46 38 Q37 37 34 42 Z" fill="#6f9cc4" stroke="#243352" stroke-width="4" stroke-linejoin="round"/><circle cx="66" cy="34" r="3.5" fill="#243352"/><path d="M44 72 L44 84 M56 70 L56 82" stroke="#243352" stroke-width="4" stroke-linecap="round"/></svg>',
@@ -1187,7 +1192,7 @@
   // built-in SVG per key; anything not in OBJ_IMG falls back to OBJ_SVG.
   const OBJ_IMG = {
     P_aki: "aki", P_beni: "beni", P_kai: "kai", P_yuki: "yuki",
-    sushi: "sushi", peach: "peach", cup: "cup", water: "water", coffee: "coffee", menu: "menu",
+    sushi: "sushi", peach: "peach", cup: "cup", water: "water", coffee: "coffee",
     dogface: "dogface", whitecat: "whitecat", cat: "cat", cow: "cow", octopus: "octopus", bird: "bird",
     bag: "bag", telephone: "telephone", umbrella: "umbrella", ticket: "ticket", chair: "chair",
     house: "house", station: "station", town: "town", schooldesk: "schooldesk",
