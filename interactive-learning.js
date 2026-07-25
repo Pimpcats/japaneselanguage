@@ -100,7 +100,8 @@
   function scaleScene(scene) {
     const apply = () => {
       const H = scene.clientHeight || 300;
-      const objs = [...scene.querySelectorAll(".scene-zone .story-obj, .ground-row .story-obj")].filter((b) => SCALE[b.dataset.object] != null);
+      const objs = [...scene.querySelectorAll(".scene-zone .story-obj, .ground-row .story-obj")]
+        .filter((b) => SCALE[b.dataset.object] != null && !b.classList.contains("obj-avatar-act"));
       if (!objs.length) return;
       const hasPerson = scene.querySelector(".scene-mochiko") ||
         objs.some((b) => ["mochiko", "friend", "avatar", "friendchar"].includes(b.dataset.object));
@@ -465,33 +466,33 @@
 
     // ---- First verbs: the act IS the verb -----------------------------------
     "verbs": {
-      "I'll eat.": { id: "verb-eat", type: "order", scene: "room", dest: "hand",
-        items: ["sushi", "water"], target: "sushi",
-        instruction: "You're hungry — take the food",
-        copy: "たべます is for eating. Take the food, not the drink.",
+      "I'll eat.": { id: "verb-eat", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "eat",
+        askLabel: "Say it:", cta: "Say it →", feedback: "たべます — eating.",
+        instruction: "You're hungry",
+        copy: "That's you, about to eat. Tap yourself and say it.",
         answer: { jp: "たべます。", romaji: "tabemasu", en: "I'll eat." } },
-      "I'll drink.": { id: "verb-drink", type: "order", scene: "room", dest: "hand",
-        items: ["water", "peach"], target: "water",
-        instruction: "You're thirsty — take the drink",
-        copy: "のみます is for drinking. Take the drink, not the food.",
+      "I'll drink.": { id: "verb-drink", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "drink",
+        askLabel: "Say it:", cta: "Say it →", feedback: "のみます — drinking.",
+        instruction: "You're thirsty",
+        copy: "That's you, having a drink. Tap yourself and say it.",
         answer: { jp: "のみます。", romaji: "nomimasu", en: "I'll drink." } },
     },
 
     // ---- Coming & going: home is down the road ------------------------------
     "coming-going": {
-      "I'm going home.": { id: "go-home", type: "ask", scene: "street", zone: "far", object: "house",
+      "I'm going home.": { id: "go-home", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "walk",
         askLabel: "Say it:", cta: "Say it →", feedback: "うち = home. かえります = head back.",
-        instruction: "Home is down the road",
-        copy: "You can see your house from here. Tap it and head back.",
+        instruction: "Time to head home",
+        copy: "That's you, walking home. Tap yourself and say it.",
         answer: { jp: "うちに かえります。", romaji: "uchi ni kaerimasu", en: "I'm going home." } },
     },
 
     // ---- Routine: the wall clock says get up --------------------------------
     "routine": {
-      "I wake up at seven.": { id: "routine-7", type: "ask", scene: "room", zone: "wall", object: "clock", clock: "t7",
-        askLabel: "Read it:", cta: "Say it →", feedback: "しちじ — 7:00, time to get up.",
-        instruction: "The clock says it's morning",
-        copy: "Both hands say 7:00. Tap the clock — that's when you wake.",
+      "I wake up at seven.": { id: "routine-7", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "wake",
+        askLabel: "Say it:", cta: "Say it →", feedback: "しちじに — at 7:00, time to get up.",
+        instruction: "Morning — time to get up",
+        copy: "That's you, waking up. Tap yourself and say when.",
         answer: { jp: "しちじに おきます。", romaji: "shichi-ji ni okimasu", en: "I wake up at seven." } },
     },
 
@@ -616,10 +617,10 @@
 
     // ---- ている: caught mid-action ----------------------------
     "te-iru": {
-      "I'm reading a book.": { id: "teiru-book", type: "ask", scene: "room", zone: "near", object: "book",
+      "I'm reading a book.": { id: "teiru-book", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "read",
         askLabel: "Say what you're doing:", cta: "Say it →", feedback: "〜て います — in progress, right now.",
-        instruction: "Your book is open",
-        copy: "You're in the middle of it. Tap the book and say what you're doing.",
+        instruction: "Caught mid-page",
+        copy: "That's you, reading. Tap yourself and say what you're doing.",
         answer: { jp: "ほんを よんで います。", romaji: "hon o yonde imasu", en: "I'm reading a book." } },
     },
 
@@ -852,24 +853,24 @@
     // ---- What you do it to (を): use the object -----------------------------
     "object": {
       "I drink water.": {
-        id: "obj-drink-water", type: "order", scene: "room", dest: "hand",
-        items: ["water", "coffee", "book"], target: "water",
+        id: "obj-drink-water", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "drink",
+        askLabel: "Say it:", cta: "Say it →", feedback: "のみます — drinking.",
         instruction: "You're thirsty",
-        copy: "Pick up the thing you DRINK.",
+        copy: "That's you, drinking water. Tap yourself and say it.",
         answer: { jp: "みずを のみます。", romaji: "mizu o nomimasu", en: "I drink water." },
       },
       "I read a book.": {
-        id: "obj-read-book", type: "order", scene: "room", dest: "hand",
-        items: ["book", "cup", "clock"], target: "book",
+        id: "obj-read-book", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "read",
+        askLabel: "Say it:", cta: "Say it →", feedback: "よみます — reading.",
         instruction: "Quiet evening",
-        copy: "Pick up the thing you READ.",
+        copy: "That's you, reading. Tap yourself and say it.",
         answer: { jp: "ほんを よみます。", romaji: "hon o yomimasu", en: "I read a book." },
       },
       "I drink coffee.": {
-        id: "obj-drink-coffee", type: "order", scene: "room", dest: "hand",
-        items: ["coffee", "book", "bag"], target: "coffee",
+        id: "obj-drink-coffee", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "drink",
+        askLabel: "Say it:", cta: "Say it →", feedback: "のみます — drinking.",
         instruction: "Morning fuel",
-        copy: "Pick up the thing you DRINK.",
+        copy: "That's you, with your coffee. Tap yourself and say it.",
         answer: { jp: "コーヒーを のみます。", romaji: "koohii o nomimasu", en: "I drink coffee." },
       },
     },
@@ -1214,7 +1215,7 @@
     if (name) return '<img class="obj-sketch" src="assets/story/' + name + '.png" alt="">';
     return OBJ_SVG[key] || "";
   }
-  function objectFigure(kind) {
+  function objectFigure(kind, act) {
     const fig = el("span", "obj obj-" + kind);
     fig.setAttribute("aria-hidden", "true");
     if (kind === "mochiko" || kind === "mochikoCheer") {
@@ -1232,6 +1233,18 @@
       const slot = kind === "avatar" ? story.inventory.avatar : story.inventory.friend;
       const fallback = kind === "avatar" ? PEOPLE[0] : PEOPLE[1];
       const person = PEOPLE.find((p) => slot && p.id === slot.id) || fallback;
+      if (act) {
+        // your avatar illustrated performing an action (drink/eat/read/wake/walk).
+        // Falls back to the standing figure until the action art is dropped in,
+        // so the scene never breaks mid-rollout.
+        const img = document.createElement("img");
+        img.className = "obj-person-img obj-act-img";
+        img.alt = "";
+        img.src = "assets/story/people/" + person.id + "-" + act + ".png";
+        img.onerror = function () { this.onerror = null; this.src = "assets/story/" + person.id + ".png"; };
+        fig.appendChild(img);
+        return fig;
+      }
       fig.innerHTML = objArtHTML(person.svg);
       if (kind === "friendchar" && story.friendName) {
         const tag = el("i", "obj-name");
@@ -1243,13 +1256,13 @@
     fig.innerHTML = objArtHTML(kind);
     return fig;
   }
-  function objButton(kind, zone, label) {
+  function objButton(kind, zone, label, act) {
     const button = el("button", "story-obj");
     button.type = "button";
     if (zone) button.dataset.zone = zone;
     button.dataset.object = kind;
     button.setAttribute("aria-label", label || (OBJ_NAME[kind] + (zone && ZONE_DESC[zone] ? " " + ZONE_DESC[zone] : "")));
-    button.appendChild(objectFigure(kind));
+    button.appendChild(objectFigure(kind, act));
     return button;
   }
 
@@ -1532,7 +1545,8 @@
 
     const scene = buildScene(beat.scene || "room");
     if (beat.night) scene.classList.add("night");
-    const target = objButton(beat.object, beat.zone, (beat.tag ? "price tag on the " : "") + OBJ_NAME[beat.object]);
+    const target = objButton(beat.object, beat.zone, (beat.tag ? "price tag on the " : "") + OBJ_NAME[beat.object], beat.act);
+    if (beat.act) target.classList.add("obj-avatar-act");   // "you", mid-action — sized big and centred
     if (beat.hero) target.classList.add("obj-hero");   // おおきい beats: the object dominates the scene
     if (beat.tag) { const t = el("i", "obj-tag"); t.appendChild(el("span", "obj-tag-txt", beat.tagText || "?")); target.appendChild(t); }
     if (beat.clock) target.dataset.clock = beat.clock;   // clock-hand positions for time beats

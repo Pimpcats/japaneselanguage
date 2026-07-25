@@ -1660,6 +1660,10 @@ body.story-open .practice-nav { z-index: 4500; }
 /* もち子 as the centred subject (age etc): a clear standing figure, not huge */
 .scene-zone-center .obj-mochiko, .scene-zone-center .obj-friend { width: auto; height: 92%; }
 .scene-zone-center .obj-mochiko img, .scene-zone-center .obj-friend img { width: auto; height: 100%; }
+/* your avatar, illustrated mid-action — a big centred figure you tap to say the verb */
+.scene-zone-center .story-obj.obj-avatar-act { width: auto; height: 92%; }
+.scene-zone-center .obj-avatar-act .obj { width: auto; height: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.obj-act-img { display: block; width: auto; height: 100%; }
 /* a centred book keeps its portrait shape instead of stretching to the box */
 .scene-zone-center .story-obj[data-object="book"] { width: auto; height: 80%; aspect-ratio: 46 / 60; }
 .scene-zone-center .story-obj[data-object="book"] .obj { width: 100% !important; height: 100% !important; }
