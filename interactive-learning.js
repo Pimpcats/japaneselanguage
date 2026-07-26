@@ -1233,19 +1233,23 @@
       const slot = kind === "avatar" ? story.inventory.avatar : story.inventory.friend;
       const fallback = kind === "avatar" ? PEOPLE[0] : PEOPLE[1];
       const person = PEOPLE.find((p) => slot && p.id === slot.id) || fallback;
+      // the learner picks a character AND a life stage (kid/teen/adult/old);
+      // the coloured stage sprite lives at people/<id>-<stage>.png.
+      const stage = (slot && slot.stage) || "adult";
+      const base = "assets/story/people/" + person.id + "-" + stage;
+      const legacy = "assets/story/" + person.id + ".png";
+      const img = document.createElement("img");
+      img.className = "obj-person-img" + (act ? " obj-act-img" : "");
+      img.alt = "";
       if (act) {
-        // your avatar illustrated performing an action (drink/eat/read/wake/walk).
-        // Falls back to the standing figure until the action art is dropped in,
-        // so the scene never breaks mid-rollout.
-        const img = document.createElement("img");
-        img.className = "obj-person-img obj-act-img";
-        img.alt = "";
-        img.src = "assets/story/people/" + person.id + "-" + act + ".png";
-        img.onerror = function () { this.onerror = null; this.src = "assets/story/" + person.id + ".png"; };
-        fig.appendChild(img);
-        return fig;
+        // stage+action → stage standing → legacy base — never breaks mid-rollout
+        img.onerror = function () { this.onerror = function () { this.onerror = null; this.src = legacy; }; this.src = base + ".png"; };
+        img.src = base + "-" + act + ".png";
+      } else {
+        img.onerror = function () { this.onerror = null; this.src = legacy; };
+        img.src = base + ".png";
       }
-      fig.innerHTML = objArtHTML(person.svg);
+      fig.appendChild(img);
       if (kind === "friendchar" && story.friendName) {
         const tag = el("i", "obj-name");
         tag.textContent = story.friendName;
@@ -1784,33 +1788,63 @@
   }
 
   // ---- claimPerson: choose yourself / choose your friend --------------------
+  const PERSON_STAGES = [["kid", "Kid"], ["teen", "Teen"], ["adult", "Adult"], ["old", "Old"]];
+  function personStageImg(id, stage) {
+    const s = el("span", "obj obj-person");
+    const img = document.createElement("img");
+    img.className = "obj-person-img"; img.alt = "";
+    img.onerror = function () { this.onerror = null; this.src = "assets/story/" + id + ".png"; };
+    img.src = "assets/story/people/" + id + "-" + stage + ".png";
+    s.appendChild(img);
+    return s;
+  }
   function renderClaimPersonBeat(beat, finishBeat) {
     overlay.title.textContent = beat.instruction;
     overlay.copy.textContent = beat.copy || "";
     // you can't be your own friend — each role excludes the other's pick
     const other = beat.role === "friend" ? story.inventory.avatar : story.inventory.friend;
     const taken = other ? other.id : null;
-    const row = el("div", "story-people-row");
-    PEOPLE.filter((p) => p.id !== taken).forEach((person) => {
-      const btn = el("button", "story-person-choice");
-      btn.type = "button";
-      btn.setAttribute("aria-label", person.name);
-      const fig = el("span", "obj obj-person");
-      fig.innerHTML = objArtHTML(person.svg);
-      btn.appendChild(fig);
-      btn.addEventListener("click", () => {
-        row.querySelectorAll(".story-person-choice").forEach((node) => node.classList.remove("selected"));
-        btn.classList.add("selected");
-        story.inventory[beat.role] = { id: person.id };
-        saveStory();
-        attachAnswer(beat, beat.askLabel || "Now say it:");
-        overlay.feedback.textContent = beat.feedback || "";
-        overlay.feedback.className = "story-feedback success";
-        showContinue(beat.cta || "Continue →", finishBeat);
+    const charRow = el("div", "story-people-row");
+    const ageWrap = el("div", "story-age-wrap"); ageWrap.hidden = true;
+    ageWrap.appendChild(el("p", "story-age-title", "…and at what age?"));
+    const ageRow = el("div", "story-people-row story-age-row");
+    ageWrap.appendChild(ageRow);
+
+    function pickAges(id) {
+      ageRow.innerHTML = "";
+      PERSON_STAGES.forEach(([stage, label]) => {
+        const b = el("button", "story-person-choice story-age-choice"); b.type = "button";
+        b.setAttribute("aria-label", label);
+        b.appendChild(personStageImg(id, stage));
+        b.appendChild(el("span", "story-age-label", label));
+        b.addEventListener("click", () => {
+          ageRow.querySelectorAll(".story-age-choice").forEach((n) => n.classList.remove("selected"));
+          b.classList.add("selected");
+          story.inventory[beat.role] = { id: id, stage: stage };
+          saveStory();
+          attachAnswer(beat, beat.askLabel || "Now say it:");
+          overlay.feedback.textContent = beat.feedback || "";
+          overlay.feedback.className = "story-feedback success";
+          showContinue(beat.cta || "Continue →", finishBeat);
+        });
+        ageRow.appendChild(b);
       });
-      row.appendChild(btn);
+      ageWrap.hidden = false;
+    }
+
+    PEOPLE.filter((p) => p.id !== taken).forEach((person) => {
+      const btn = el("button", "story-person-choice"); btn.type = "button";
+      btn.setAttribute("aria-label", person.name);
+      btn.appendChild(personStageImg(person.id, "adult"));   // thumbnail = grown-up stage
+      btn.addEventListener("click", () => {
+        charRow.querySelectorAll(".story-person-choice").forEach((node) => node.classList.remove("selected"));
+        btn.classList.add("selected");
+        pickAges(person.id);
+      });
+      charRow.appendChild(btn);
     });
-    overlay.stage.appendChild(row);
+    overlay.stage.appendChild(charRow);
+    overlay.stage.appendChild(ageWrap);
   }
 
   // ---- nameInput: type your friend's name — it sticks forever ---------------
