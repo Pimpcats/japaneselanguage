@@ -434,10 +434,17 @@ button.secondary { background: rgba(255,255,255,.92); }
    sits in one continuous left/right swipe rail.
    ======================================================================== */
 
-/* The large pink sign/banner shown in the screenshot. */
-body:has(#home:not([hidden]) #lesson-map .lesson-list) #app-header {
+/* Home needs no top bar: the bottom nav handles navigation and Settings lives
+   there too, so the header (and its divider) only left a stray ⚙ up top. Hide
+   the whole header on every home hub. The header still returns on lesson /
+   words / talk screens (where #home is hidden) so those keep their back/home. */
+body:has(#home:not([hidden])) #app-header {
   display: none !important;
 }
+
+/* The top ⚙ is redundant with the Settings tab in the bottom nav — drop it
+   everywhere it would otherwise appear (lesson/words/talk headers). */
+#settings-btn { display: none !important; }
 
 /* Remove the Apple shell heading, continue card and "All lessons" heading. */
 #hub-lessons:has(#lesson-map .lesson-list) > .hub-heading,
