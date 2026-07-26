@@ -1664,6 +1664,18 @@ body.story-open .practice-nav { z-index: 4500; }
 .scene-zone-center .story-obj.obj-avatar-act { width: auto; height: 92%; }
 .scene-zone-center .obj-avatar-act .obj { width: auto; height: 100%; display: flex; align-items: flex-end; justify-content: center; }
 .obj-act-img { display: block; width: auto; height: 100%; }
+/* "pick, then see you do it": the avatar-action reveal over a completed order */
+.story-scene.show-avatar-act .ground-row { opacity: 0.28; transition: opacity 0.3s; }
+.story-avatar-reveal {
+  position: absolute; inset: 0; z-index: 6;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 12%; pointer-events: none;
+  animation: avatar-reveal-in 0.35s ease both;
+}
+.story-avatar-reveal .obj { display: flex; height: 82%; align-items: flex-end; justify-content: center; }
+.story-avatar-reveal .obj-act-img { height: 100%; width: auto; filter: drop-shadow(0 8px 7px rgba(31, 45, 77, 0.18)); }
+@keyframes avatar-reveal-in { from { opacity: 0; transform: translateY(8px) scale(0.97); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .story-avatar-reveal { animation: none; } }
 /* a centred book keeps its portrait shape instead of stretching to the box */
 .scene-zone-center .story-obj[data-object="book"] { width: auto; height: 80%; aspect-ratio: 46 / 60; }
 .scene-zone-center .story-obj[data-object="book"] .obj { width: 100% !important; height: 100% !important; }

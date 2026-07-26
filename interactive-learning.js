@@ -466,15 +466,15 @@
 
     // ---- First verbs: the act IS the verb -----------------------------------
     "verbs": {
-      "I'll eat.": { id: "verb-eat", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "eat",
-        askLabel: "Say it:", cta: "Say it →", feedback: "たべます — eating.",
-        instruction: "You're hungry",
-        copy: "That's you, about to eat. Tap yourself and say it.",
+      "I'll eat.": { id: "verb-eat", type: "order", scene: "room", dest: "hand", act: "eat",
+        items: ["sushi", "water"], target: "sushi",
+        instruction: "You're hungry — take the food",
+        copy: "たべます is for eating. Take the food, not the drink — then it's you eating.",
         answer: { jp: "たべます。", romaji: "tabemasu", en: "I'll eat." } },
-      "I'll drink.": { id: "verb-drink", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "drink",
-        askLabel: "Say it:", cta: "Say it →", feedback: "のみます — drinking.",
-        instruction: "You're thirsty",
-        copy: "That's you, having a drink. Tap yourself and say it.",
+      "I'll drink.": { id: "verb-drink", type: "order", scene: "room", dest: "hand", act: "drink",
+        items: ["water", "peach"], target: "water",
+        instruction: "You're thirsty — take the drink",
+        copy: "のみます is for drinking. Take the drink, not the food — then it's you drinking.",
         answer: { jp: "のみます。", romaji: "nomimasu", en: "I'll drink." } },
     },
 
@@ -853,24 +853,24 @@
     // ---- What you do it to (を): use the object -----------------------------
     "object": {
       "I drink water.": {
-        id: "obj-drink-water", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "drink",
-        askLabel: "Say it:", cta: "Say it →", feedback: "のみます — drinking.",
+        id: "obj-drink-water", type: "order", scene: "room", dest: "hand", act: "drink",
+        items: ["water", "coffee", "book"], target: "water",
         instruction: "You're thirsty",
-        copy: "That's you, drinking water. Tap yourself and say it.",
+        copy: "Pick up the thing you DRINK — then it's you drinking it.",
         answer: { jp: "みずを のみます。", romaji: "mizu o nomimasu", en: "I drink water." },
       },
       "I read a book.": {
-        id: "obj-read-book", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "read",
-        askLabel: "Say it:", cta: "Say it →", feedback: "よみます — reading.",
+        id: "obj-read-book", type: "order", scene: "room", dest: "hand", act: "read",
+        items: ["book", "cup", "clock"], target: "book",
         instruction: "Quiet evening",
-        copy: "That's you, reading. Tap yourself and say it.",
+        copy: "Pick up the thing you READ — then it's you reading it.",
         answer: { jp: "ほんを よみます。", romaji: "hon o yomimasu", en: "I read a book." },
       },
       "I drink coffee.": {
-        id: "obj-drink-coffee", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "drink",
-        askLabel: "Say it:", cta: "Say it →", feedback: "のみます — drinking.",
+        id: "obj-drink-coffee", type: "order", scene: "room", dest: "hand", act: "drink",
+        items: ["coffee", "book", "bag"], target: "coffee",
         instruction: "Morning fuel",
-        copy: "That's you, with your coffee. Tap yourself and say it.",
+        copy: "Pick up the thing you DRINK — then it's you drinking it.",
         answer: { jp: "コーヒーを のみます。", romaji: "koohii o nomimasu", en: "I drink coffee." },
       },
     },
@@ -1658,6 +1658,15 @@
         node.disabled = true;
         if (!node.classList.contains("correct")) node.classList.add("dimmed");
       });
+      // "pick, then see you do it": once the right item is taken, reveal YOUR
+      // avatar performing the action (drink/eat/read) — art falls back to the
+      // standing avatar until the action sprite is drawn.
+      if (beat.act) {
+        scene.classList.add("show-avatar-act");
+        const reveal = el("div", "story-avatar-reveal");
+        reveal.appendChild(objectFigure("avatar", beat.act));
+        scene.appendChild(reveal);
+      }
       attachAnswer(beat, "Now say it:");
       overlay.feedback.textContent = wanted ? "It's yours." : "Good pick — that one is これ now.";
       overlay.feedback.className = "story-feedback success";
