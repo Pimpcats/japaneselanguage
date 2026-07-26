@@ -33,7 +33,7 @@
   ];
 
   // ---- object library (sketch-ink sprites; SVG fallback for unconverted) ----
-  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", redface: "a very red face", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower" };
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", redface: "a very red face", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower", beer: "beer", redwine: "red wine", whitewine: "white wine", greentea: "green tea", icedtea: "iced tea", cola: "cola", sake: "sake", sukiyaki: "sukiyaki", breakfast: "breakfast", yakitori: "yakitori", curry: "curry rice", cake: "cake", wagashi: "sweets", karaage: "fried chicken", grilledfish: "grilled fish", gloves: "gloves", shoes: "shoes", wallet: "wallet", medicine: "medicine", map: "map", card: "card" };
   const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", redface: "かお", dogface: "いぬ", redflower: "はな", boat: "ふね", sea: "うみ", town: "まち", winter: "ふゆ", sakura: "さくら", whitecat: "ねこ", japanmap: "にほん", telephone: "でんわ", mountain: "やま", sun: "たいよう", moon: "つき", chair: "いす", signal: "しんごう", train: "でんしゃ", bus: "バス", umbrella: "かさ", ticket: "きっぷ", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
 
   // ---- zones: distance IS the grammar --------------------------------------
@@ -1202,6 +1202,14 @@
     mountain: "mountain", sun: "sun", moon: "moon",
     japanmap: "japanmap", usflag: "usflag", mystery: "mystery",
     bigface: "bigface", redface: "redface",
+    // Anki-import wave: drinks, foods, shop/travel objects (green-screen sheets
+    // cut with tools/cut_sheet.py). Dormant until their beats are authored.
+    beer: "beer", redwine: "redwine", whitewine: "whitewine", greentea: "greentea",
+    icedtea: "icedtea", cola: "cola", sake: "sake",
+    sukiyaki: "sukiyaki", breakfast: "breakfast", yakitori: "yakitori", curry: "curry",
+    cake: "cake", wagashi: "wagashi", karaage: "karaage", grilledfish: "grilledfish",
+    gloves: "gloves", shoes: "shoes", wallet: "wallet", medicine: "medicine",
+    map: "map", card: "card",
   };
   const BOOK_IMGS = '<img class="obj-sketch bi-circle" src="assets/story/book-circle.png" alt="">' +
     '<img class="obj-sketch bi-stripes" src="assets/story/book-stripes.png" alt="">' +
