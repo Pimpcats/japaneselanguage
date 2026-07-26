@@ -50,6 +50,7 @@
   prog.known = prog.known || [];          // [base_form] words marked known
   prog.knownHistory = prog.knownHistory || {}; // {"YYYY-MM-DD": known count}
   prog.practice = prog.practice || {};    // {"YYYY-MM-DD": reviews that day} — drives the weekly rhythm
+  prog.cleared = prog.cleared || {};      // {lessonId: true} — completed a full pass (finished, even with misses)
   prog.kana = prog.kana || {};            // {kana char: strength} — introduced/practiced letters (drives romaji fade)
   prog.kanaMastery = prog.kanaMastery || {}; // {kana char: 0..5} — successful practice answers; drives the per-letter mastery bar
   rebuildMined();
@@ -320,7 +321,11 @@
       if (!p || !p.reps) fresh += 1;
       else { if (p.interval >= 1) passed += 1; if (p.due <= now) due += 1; }
     }
-    return { total: cards.length, passed, due, fresh, pct: cards.length ? passed / cards.length : 0 };
+    // "cleared" = you finished a full pass through the lesson at least once,
+    // even if some cards were swiped ← nope. That's what marks a lesson done
+    // (mastery is separate — misses still come back via review/warmups).
+    const cleared = !!prog.cleared[L.id];
+    return { total: cards.length, passed, due, fresh, cleared, done: cleared || passed >= cards.length, pct: cards.length ? passed / cards.length : 0 };
   }
 
   function dueCards() {
@@ -1317,7 +1322,7 @@
   // The first not-yet-finished lesson across the whole curriculum — where the
   // one-tap hero button points when nothing is due.
   function nextLessonToDo() {
-    for (const L of orderedLessons()) { const s = lessonStats(L); if (s.passed < s.total) return L; }
+    for (const L of orderedLessons()) { const s = lessonStats(L); if (!s.done) return L; }
     return null;
   }
   let heroAction = null;   // what the hero button does right now
@@ -1395,7 +1400,7 @@
         line.className = "level-line";
         window.LEVELS.forEach((lv, i) => {
           const lessons = window.LESSONS.filter((L) => lv.tiers.some((t) => t.themes.includes(L.section)));
-          const done = lessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
+          const done = lessons.filter((L) => { const s = lessonStats(L); return s.done; }).length;
           const allDone = lessons.length && done >= lessons.length;
           const stop = document.createElement("button");
           stop.className = "level-stop" + (lessons.length ? "" : " soon") + (allDone ? " done" : "") +
@@ -1431,7 +1436,7 @@
         card.appendChild(span("level-card-name", lv.name));
         card.appendChild(span("level-card-title", lv.title));
         if (lessons.length) {
-          const done = lessons.filter((L) => { const s = lessonStats(L); return s.passed >= s.total; }).length;
+          const done = lessons.filter((L) => { const s = lessonStats(L); return s.done; }).length;
           card.appendChild(span("level-card-count", done + " / " + lessons.length + " lessons"));
           card.addEventListener("click", () => openLevel(lv));
         } else {
@@ -1668,7 +1673,7 @@
     const lineLetter = LINE_LETTERS[lineIdx % LINE_LETTERS.length];
     wrap.style.setProperty("--stline", lineColor);
 
-    const isDoneL = (L) => { const s = lessonStats(L); return s.passed >= s.total; };
+    const isDoneL = (L) => { const s = lessonStats(L); return s.done; };
     const regionList = [];
     for (const tier of level.tiers) for (const theme of tier.themes) {
       const lessons = window.LESSONS.filter((L) => L.section === theme);
@@ -1714,7 +1719,7 @@
       rail.className = "lesson-rail";
       r.lessons.forEach((L) => {
         const st = lessonStats(L);
-        const isDone = st.passed >= st.total;
+        const isDone = st.done;
         const current = !isDone && L.id === frontierId;
         const idx = levelLessons.indexOf(L);
         const stNum = String(idx + 1).padStart(2, "0");
@@ -1926,12 +1931,14 @@
 
   // ---- Drill ---------------------------------------------------------------
   let session = null; // { queue, total, cleared, mode, lessonId }
+  let lastMissed = []; // card ids swiped ← nope in the just-finished lesson (end-of-lesson review)
 
   function startSession(cards, mode, lessonId, opts) {
     session = {
       queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId, flip: false,
       build: !!(opts && opts.build), hard: !!(opts && opts.hard), combo: 0, bestCombo: 0,
       spoken: 0,   // sentences actually said aloud (produce-direction cards)
+      missed: [],  // card ids swiped ← nope this session (offered as end-of-lesson review)
       // 🚗 Car mode is the ONLY sentence practice now (owner decision, 2026-07):
       // every drill is huge-target, produce-only, tap-reveal + swipe-grade, screen
       // awake, alphabet drawn over each letter. No toggle. (The 🧩 Build puzzle is
@@ -2063,6 +2070,15 @@
     const cards = reviewCards();
     if (!cards.length) { flash("All caught up — nothing to review 🎉"); return; }
     startSession(cards.slice(), "review", null);
+  }
+  // End-of-lesson "review misses": replay just the sentences you swiped ← nope
+  // in the lesson you finished; if there were none, fall back to the backlog.
+  function startMissReview() {
+    if (lastMissed.length) {
+      const cards = lastMissed.map((id) => CARDS.find((c) => c.id === id)).filter(Boolean);
+      if (cards.length) { startSession(cards, "review", null); return; }
+    }
+    startCatchup();
   }
   // A brief bottom toast for transient feedback (e.g. nothing to catch up).
   let flashTimer = null;
@@ -2547,6 +2563,9 @@
     // Only produce-direction cards count as "said out loud" — not build puzzles
     // or meaning-recognition flips.
     if (current && !current.doBuild && current.dir !== "recognize") session.spoken += 1;
+    // Remember what got swiped ← nope this run, to offer as an end-of-lesson review.
+    if (g === 0 && current && session.missed.indexOf(current.id) === -1) session.missed.push(current.id);
+    else if (g === 2 && current) { const i = session.missed.indexOf(current.id); if (i !== -1) session.missed.splice(i, 1); }
     if (session.mode === "focus") {           // day-based loop, no in-session repeats
       focusUpdate(current.id, g);
       if (g === 2) { session.combo += 1; session.bestCombo = Math.max(session.bestCombo, session.combo); }
@@ -2602,13 +2621,22 @@
     if (session.bestCombo >= 3) msg += ` Best streak: 🔥 ${session.bestCombo} in a row.`;
     // End on the thing that matters: how much Japanese left your mouth.
     if (session.spoken > 0) msg = `🗣 You said ${session.spoken} sentence${session.spoken === 1 ? "" : "s"} out loud. ` + msg;
-    // Finishing a lesson introduces its kana — romaji for them fades from here on.
-    if (session.mode === "lesson" && session.lessonId) { markLessonKanaSeen(session.lessonId); save(); }
+    // Finishing a full pass marks the lesson done — even if some cards were
+    // swiped ← nope (owner: reaching the end IS finishing it; misses come back
+    // in the end-of-lesson review + warmups, they don't block completion).
+    if (session.mode === "lesson" && session.lessonId) {
+      prog.cleared[session.lessonId] = true;
+      markLessonKanaSeen(session.lessonId); save();
+    }
+    // Carry this run's ← nope cards to the end-of-lesson "review misses" button.
+    lastMissed = (session.missed || []).slice();
+    const missBtn = el.doneQuizBtn;
+    if (missBtn) {
+      if (lastMissed.length) missBtn.textContent = `↻ Review ${lastMissed.length} miss${lastMissed.length === 1 ? "" : "es"}`;
+      else missBtn.textContent = "🔁 Catch up on misses";
+    }
     el.doneSummary.textContent = msg;
-    // おかわり — one more small helping, only when something is genuinely due.
-    const encoreN = reviewCards().length;
-    el.encoreBtn.hidden = encoreN === 0;
-    if (encoreN) el.encoreBtn.textContent = `おかわり — ${Math.min(5, encoreN)} more card${Math.min(5, encoreN) === 1 ? "" : "s"}?`;
+    el.encoreBtn.hidden = true;   // folded into the 3-button row (owner: minimal)
     // Real-world mission — a tiny transfer task, because the point is using
     // Japanese out in your day, not in the app.
     let mission = "";
@@ -3423,7 +3451,7 @@
   })();
   el.focusBtn.addEventListener("click", startFocus);
   el.startBtn.addEventListener("click", () => startLesson(activeLesson));
-  el.doneQuizBtn.addEventListener("click", startCatchup);
+  el.doneQuizBtn.addEventListener("click", startMissReview);
   el.kanaBtn.addEventListener("click", openKana);
   el.kanaTabH.addEventListener("click", () => { kanaScript = "h"; el.kanaQuiz.hidden = true; el.kanaGrid.hidden = false; el.kanaPracticeBtn.hidden = false; renderKanaGrid(); });
   el.kanaTabK.addEventListener("click", () => { kanaScript = "k"; el.kanaQuiz.hidden = true; el.kanaGrid.hidden = false; el.kanaPracticeBtn.hidden = false; renderKanaGrid(); });

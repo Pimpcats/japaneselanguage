@@ -656,6 +656,16 @@ button.grade.got { color: var(--good); border-color: color-mix(in srgb, var(--go
 .done-emoji { font-size: 3rem; }
 #lesson-done h2 { margin: 0.25rem 0 0; font-size: 1.7rem; }
 .done-actions { display: flex; gap: 0.6rem; justify-content: center; margin-top: 1.25rem; flex-wrap: wrap; width: 100%; }
+/* three matched, easy-to-tap buttons side by side (owner: minimal, even) */
+.done-actions-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; flex-wrap: nowrap; }
+.done-actions-3 .done-act {
+  min-height: 62px; padding: 0.6rem 0.4rem; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-size: 0.92rem; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere;
+  border: 2px solid var(--ink, #26314c); background: var(--card, #fff); color: var(--ink, #26314c);
+  box-shadow: 0 3px 0 rgba(32, 38, 58, 0.16); cursor: pointer;
+}
+.done-actions-3 .done-act:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(32, 38, 58, 0.16); }
 
 /* ---- Settings ---- */
 .settings-h { font-size: 1.5rem; margin: 0; }
