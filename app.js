@@ -2012,6 +2012,10 @@
     }
     paceArmedId = null;
     activeLesson = L;   // the lesson-complete screen & Talk button read this
+    // Remember where we left off so the Home "Continue" banner stays current.
+    // The banner (ui-polish.js) is the only other writer; rail cards start here,
+    // so without this the banner would freeze on the last lesson opened FROM it.
+    try { localStorage.setItem("hanasou.lastLessonId", L.id); } catch (e) {}
     const cards = CARDS.filter((c) => c.lessonId === L.id);
     let queue = cards;
     // Moving forward pays the review toll: up to 5 due cards from PAST lessons

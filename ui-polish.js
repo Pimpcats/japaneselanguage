@@ -104,18 +104,28 @@
     const lessons = window.LESSONS || [];
     if (!lessons.length) return null;
     const progress = getProgress();
+    // "Done" = you went through it (the engine's cleared flag) OR every card is
+    // mastered. The owner considers a lesson done once they've ridden it, not
+    // only when all cards pass — so a 4/6 lesson you finished shouldn't pin the
+    // banner. Matches app.js finish() writing prog.cleared[id].
+    const cleared = progress.cleared || {};
+    const notDone = (lesson) =>
+      !cleared[lesson.id] && lessonProgress(lesson, progress).passed < (lesson.sentences || []).length;
+
     const lastId = localStorage.getItem(LAST_LESSON_KEY);
-    const lastIndex = Math.max(0, lessons.findIndex((lesson) => lesson.id === lastId));
-    const last = lessons[lastIndex];
+    const lastIndex = lessons.findIndex((lesson) => lesson.id === lastId);
 
-    if (last && lessonProgress(last, progress).passed < (last.sentences || []).length) return last;
-
-    for (let offset = 1; offset <= lessons.length; offset += 1) {
-      const candidate = lessons[(lastIndex + offset) % lessons.length];
-      const state = lessonProgress(candidate, progress);
-      if (state.passed < state.total) return candidate;
+    // 1) Still mid-lesson where you left off → keep going in it.
+    if (lastIndex >= 0 && notDone(lessons[lastIndex])) return lessons[lastIndex];
+    // 2) Otherwise the next lesson you haven't done, scanning forward from there.
+    for (let i = (lastIndex >= 0 ? lastIndex + 1 : 0); i < lessons.length; i += 1) {
+      if (notDone(lessons[i])) return lessons[i];
     }
-    return last || lessons[0];
+    // 3) Nothing ahead — the earliest lesson anywhere you still haven't done
+    //    (covers an earlier one you skipped past).
+    for (let i = 0; i < lessons.length; i += 1) if (notDone(lessons[i])) return lessons[i];
+    // 4) Everything's done — leave the banner on the final lesson.
+    return lessons[lessons.length - 1];
   }
 
   function sectionHeading(eyebrow, title, body) {
