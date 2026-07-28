@@ -22,7 +22,7 @@ backgrounds:** a single soft flat colour, nothing busy.
 
 ### CONTENT RULES
 Open books show lines of text. Documents/reports/signs show writing. A notepad
-may be blank only if the context fits. Menus/tickets carry a label.
+may be blank only if the context fits. Menus/tickets carry a label. Kana letters must be drawn in clear, standard, easy-to-read shapes (never obscure calligraphy).
 
 ---
 
@@ -40,12 +40,12 @@ Shared preamble (only the six panels change):
 
 ### C1 → l0-a, l0-ka, l0-sa, l0-ta, l0-na, l0-ha
 ```
-Clean bold hand-inked style, muted natural colour, NO mottled/cloudy background wash, NO paper texture. Draw a 2×3 grid of SIX separate square panels, thick white gutters, same size. Each panel is ONE large confident brush-ink hiragana, centred, on a single CLEAN flat soft-colour background (a different soft solid colour per panel): (1) あ; (2) か; (3) さ; (4) た; (5) な; (6) は.
+Clean hand-drawn style, muted natural colour, NO mottled/cloudy background wash, NO paper texture. Draw a 2×3 grid of SIX separate square panels, thick white gutters, same size. Each panel shows ONE large hiragana, centred, drawn CLEAR and EASY TO READ in a clean, simple, standard rounded textbook hiragana form (correct legible shapes — NOT decorative, stylised, or obscure brush calligraphy), in solid dark ink on a single CLEAN flat soft-colour background (a different soft solid colour per panel): (1) あ; (2) か; (3) さ; (4) た; (5) な; (6) は.
 ```
 
 ### C2 → l0-ma, l0-ya, l0-ra, l0-wa, l0-dakuten  (fill five, 6th blank)
 ```
-Clean bold hand-inked style, muted natural colour, NO mottled/cloudy background wash, NO paper texture. Draw a 2×3 grid of separate square panels, thick white gutters, same size; fill the first FIVE, leave the sixth blank. Each filled panel is ONE large confident brush-ink hiragana, centred, on a single CLEAN flat soft-colour background: (1) ま; (2) や; (3) ら; (4) わ; (5) が (show the dakuten ゛clearly).
+Clean hand-drawn style, muted natural colour, NO mottled/cloudy background wash, NO paper texture. Draw a 2×3 grid of separate square panels, thick white gutters, same size; fill the first FIVE, leave the sixth blank. Each filled panel shows ONE large hiragana, centred, drawn CLEAR and EASY TO READ in a clean, simple, standard rounded textbook hiragana form (correct legible shapes — NOT decorative, stylised, or obscure brush calligraphy), in solid dark ink on a single CLEAN flat soft-colour background: (1) ま; (2) や; (3) ら; (4) わ; (5) が (show the dakuten ゛clearly).
 ```
 
 ### C3 → intro, greetings, this-that, age, shop, money
