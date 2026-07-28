@@ -39,7 +39,7 @@ Hand-drawn coloured manga / children's-book illustration: confident hand-inked o
 ## COVER GRIDS  (soft-pastel panels, 2×3 grid of 6)
 
 Every cover block uses this same instruction; only the six panels change:
-> Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines with light pencil hatching and soft, hand-painted shading, warm and characterful, genuinely hand-drawn. NOT flat clip-art or vector. NO uniform, even, repeating or grid-like texture stamped across the image, no all-over paper-grain overlay — brushwork irregular, smooth areas smooth. Cute characters with expressive faces. Draw a 2×3 grid of SIX separate panels, evenly spaced with thick white gutters, every panel the same size, each self-contained and not touching the others. Each panel has its own soft PASTEL background (a different gentle pastel per panel). Panels left-to-right, top-to-bottom:
+> Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines with light pencil hatching and soft, hand-painted shading, warm and characterful, genuinely hand-drawn. NOT flat clip-art or vector. NO uniform, even, repeating or grid-like texture stamped across the image, no all-over paper-grain overlay — brushwork irregular, smooth areas smooth. Cute characters with expressive faces. Draw a 2×3 grid of SIX separate panels, evenly spaced with thick white gutters, every panel the same size, each self-contained and not touching the others. Each panel has its own soft PASTEL background (a different gentle pastel per panel). Any papers, documents, notes or signs show handwriting or print — never leave paper blank. Panels left-to-right, top-to-bottom:
 
 ### C1 → l0-a, l0-ka, l0-sa, l0-ta, l0-na, l0-ha
 ```
