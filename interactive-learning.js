@@ -1247,7 +1247,7 @@
       // the coloured stage sprite lives at people/<id>-<stage>.png.
       const stage = (slot && slot.stage) || "adult";
       const base = "assets/story/people/" + person.id + "-" + stage;
-      const legacy = "assets/story/" + person.id + ".png";
+      const legacy = "assets/story/people/" + person.id + "-adult.png";
       const img = document.createElement("img");
       img.className = "obj-person-img" + (act ? " obj-act-img" : "");
       img.alt = "";
@@ -1803,7 +1803,7 @@
     const s = el("span", "obj obj-person");
     const img = document.createElement("img");
     img.className = "obj-person-img"; img.alt = "";
-    img.onerror = function () { this.onerror = null; this.src = "assets/story/" + id + ".png"; };
+    img.onerror = function () { this.onerror = null; this.src = "assets/story/people/" + id + "-adult.png"; };
     img.src = "assets/story/people/" + id + "-" + stage + ".png";
     s.appendChild(img);
     return s;
