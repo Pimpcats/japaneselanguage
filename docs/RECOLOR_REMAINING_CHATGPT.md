@@ -1,138 +1,95 @@
-# はなそう recolour — what's LEFT (feed one block at a time)
+# はなそう recolour — everything still OUTSTANDING (with prompts)
 
-Done already: O1–O6 objects, Mochiko. **Remaining below:** O7 misc, the menu +
-ticket fixes, all 83 covers (C1–C14), and the 3 backdrops.
+Verified state. Two buckets: **A) never generated** and **B) placed but flagged
+for a fix**. Every block is a ready-to-paste, single-image prompt in the locked
+style.
 
-## THE LOCKED STYLE (your approved look — baked into every block)
+## LOCKED STYLE + content rules (baked into every block)
 Hand-drawn coloured **manga / children's-book** illustration: confident
-hand-inked outlines with **light pencil hatching and soft, hand-painted
-shading**, warm and characterful — the same feel as the object sheets you liked.
-**NOT flat clip-art or vector.** Anti-AI rule: **NO uniform, even, repeating or
-grid-like texture stamped across the image, no all-over paper-grain overlay** —
-brushwork stays irregular and purposeful, smooth areas left smooth. Single
-subjects hold this best; that's why the object sheets read as hand-drawn.
+hand-inked outlines, light pencil hatching, soft hand-painted shading, warm and
+characterful — genuinely hand-drawn. **NOT flat clip-art/vector. NO uniform,
+repeating or grid-like texture stamped across the image.** Content rules: **open
+books must show lines of text; documents/reports/signs show writing; a notepad
+may be blank only if the context fits.**
 
----
+===============================================================
+# A · NEVER GENERATED
+===============================================================
 
-## OBJECT SHEET (green screen, cut into stickers)
-
-### O7 — misc  → mystery, hand, bigface, redface, clockface
-*(If you still have the O7 sheet you showed me earlier, just send that — no need to redo.)*
+## O7 — misc objects  (green screen → cut)  → mystery, hand, bigface, redface, clockface
 ```
 Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light pencil hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like all-over texture. ONE horizontal row of 5, evenly spaced, same size, on flat chroma-key green (#00b140), no shadows: (1) a cloth-wrapped mystery bundle (furoshiki); (2) an open, palm-up hand; (3) a big cheerful cartoon face; (4) a very red, embarrassed face; (5) a round clock dial with NO hands.
 ```
 
-## SINGLE OBJECTS (green screen — the two fixes)
-
-### menu  (horizontal fold)
+## C1 — kana letters  → l0-a, l0-ka, l0-sa, l0-ta, l0-na, l0-ha
 ```
-Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like all-over texture. A single object on a flat solid chroma-key green background (#00b140), no shadows: a CLOSED restaurant menu — a slim hardcover menu booklet standing upright at a slight angle, a warm deep-red (or brown) cover with the word "MENU" and メニュー on the front. Closed (no blank inside pages), clearly reading as a restaurant menu.
+Hand-drawn, warm and characterful, genuinely hand-inked — NOT flat clip-art, NO uniform/grid-like texture. Draw a 2×3 grid of SIX separate square panels, evenly spaced with thick white gutters, all the same size. Each panel is ONE large hand-brushed black hiragana, centred, on its own soft pastel background (a different gentle pastel per panel): (1) あ; (2) か; (3) さ; (4) た; (5) な; (6) は.
 ```
 
-### ticket  (with label)
+## C2 — kana letters  → l0-ma, l0-ya, l0-ra, l0-wa, l0-dakuten  (fill five, 6th blank)
 ```
-Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like all-over texture. A single object on a flat solid chroma-key green background (#00b140), no shadows: a classic admission ticket, cream with a red border and a perforated stub, with the word "TICKET" printed clearly across it and 券 in one corner. It must unmistakably read as a ticket.
-```
-
----
-
-## COVER GRIDS  (soft-pastel panels, 2×3 grid of 6)
-
-Every cover block uses this same instruction; only the six panels change:
-> Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines with light pencil hatching and soft, hand-painted shading, warm and characterful, genuinely hand-drawn. NOT flat clip-art or vector. NO uniform, even, repeating or grid-like texture stamped across the image, no all-over paper-grain overlay — brushwork irregular, smooth areas smooth. Cute characters with expressive faces. Draw a 2×3 grid of SIX separate panels, evenly spaced with thick white gutters, every panel the same size, each self-contained and not touching the others. Each panel has its own soft PASTEL background (a different gentle pastel per panel). Any OPEN BOOK must show lines of text/writing on its pages — a blank open book looks wrong. Documents, reports and signs show writing too. (A notepad may be left blank if the context fits, e.g. about to take notes.) Panels left-to-right, top-to-bottom:
-
-### C1 → l0-a, l0-ka, l0-sa, l0-ta, l0-na, l0-ha
-```
-Hand-drawn, warm and characterful, genuinely hand-inked — NOT flat clip-art, NO uniform/grid-like all-over texture. Draw a 2×3 grid of SIX separate square panels, evenly spaced with thick white gutters, all the same size. Each panel is ONE large hand-brushed black hiragana, centred, on its own soft pastel background (a different gentle pastel per panel, plain — not a stamped texture): (1) あ; (2) か; (3) さ; (4) た; (5) な; (6) は.
+Hand-drawn, warm and characterful, genuinely hand-inked — NOT flat clip-art, NO uniform/grid-like texture. Draw a 2×3 grid of separate square panels, thick white gutters, all the same size; fill the first FIVE, leave the sixth blank. Each filled panel is ONE large hand-brushed black hiragana, centred, on its own soft pastel background: (1) ま; (2) や; (3) ら; (4) わ; (5) が (show the dakuten ゛clearly).
 ```
 
-### C2 → l0-ma, l0-ya, l0-ra, l0-wa, l0-dakuten  (fill five, leave the 6th blank)
+## C3 — intro, greetings, this-that, age, shop, money
 ```
-Hand-drawn, warm and characterful, genuinely hand-inked — NOT flat clip-art, NO uniform/grid-like all-over texture. Draw a 2×3 grid of separate square panels, thick white gutters, all the same size; fill the first FIVE, leave the sixth blank. Each filled panel is ONE large hand-brushed black hiragana, centred, on its own soft pastel background: (1) ま; (2) や; (3) ら; (4) わ; (5) が (show the dakuten ゛clearly).
-```
-
-### C3 → intro, greetings, this-that, age, shop, money  (already approved — regenerate only if needed)
-```
-[cover-grid style above] (1) a boy and a girl bowing politely to each other; (2) a cheerful boy waving hello, one hand raised; (3) a pointing hand aimed at a red ball, with a small tree and house far in the distance; (4) a birthday cake with lit candles on a plate; (5) a boy at a shop counter taking a paper bag from a smiling shopkeeper in an apron; (6) a few coins (10/50/100 yen) beside a blank paper price tag.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light pencil hatching, soft hand-painted shading, warm and characterful, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like texture. Open books show text; papers show writing. Cute expressive kids. Draw a 2×3 grid of SIX separate panels, thick white gutters, same size, each self-contained, each on its own soft pastel background. Panels: (1) a boy and a girl bowing politely to each other; (2) a cheerful boy waving hello, one hand raised; (3) a pointing hand aimed at a red ball, with a small tree and house far in the distance; (4) a birthday cake with lit candles on a plate; (5) a boy at a shop counter taking a paper bag from a smiling shopkeeper in an apron; (6) a few coins (10/50/100 yen) beside a blank paper price tag.
 ```
 
-### C4 → counters, where, cafe, verbs, object, negative
+## C5 — coming-going, routine, telling-time, frequency, activities, past-1
 ```
-[cover-grid style above] (1) three red apples in a row; (2) a magnifying glass held over a small house; (3) a cup of coffee on a saucer on a round wooden table, steam rising; (4) a boy running mid-stride, happy; (5) a hand holding a single closed book; (6) a boy with arms crossed in an X, frowning (no / refuse).
-```
-
-### C5 → coming-going, routine, telling-time, frequency, activities, past-1
-```
-[cover-grid style above] (1) a left arrow and a right arrow with a small person walking between them; (2) a morning set — a toothbrush, a bowl of rice, and a clock; (3) a ringing alarm clock; (4) a desk calendar with several days marked; (5) a leafy tree beside an empty park bench; (6) a small house at night under a crescent moon and stars.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light pencil hatching, soft hand-painted shading, warm and characterful, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like texture. Draw a 2×3 grid of SIX separate panels, thick white gutters, same size, each self-contained, each on its own soft pastel background. Panels: (1) a left arrow and a right arrow with a small person walking between them; (2) a morning set — a toothbrush, a bowl of rice, and a clock; (3) a ringing alarm clock; (4) a desk calendar with several days marked; (5) a leafy tree beside an empty park bench; (6) a small house at night under a crescent moon and stars.
 ```
 
-### C6 → past-negative, was-were, sequence, wants, lets, likes
+## BG1 — bg-room  (wide 3:2, no characters, save whole)
 ```
-[cover-grid style above] (1) an empty rice bowl beside a calendar with a date crossed out; (2) an old empty photo frame standing upright; (3) three footprints in a row across the ground; (4) a boy resting his chin on his hand, daydreaming, with a thought-bubble of a strawberry cake; (5) a boy and a girl walking off together cheerfully; (6) a boy crouching to pet a small cat, with a little floating heart.
-```
-
-### C7 → can-do, adjectives, adj-noun, na-adj, adj-negative, te-form
-```
-[cover-grid style above] (1) a boy proudly holding a flag and flexing; (2) a big fish beside a tiny fish; (3) a large cloth bundle-sack beside a small one; (4) a clean window with sparkles and a potted flower on the sill; (5) a cracked, broken teacup; (6) a chain of three connected metal links.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm and cosy, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like texture, no stamped paper-grain. Wide 3:2. An empty traditional Japanese room: a shoji lattice window on the back wall, a warm wooden plank floor, exposed wooden beam frame. No people.
 ```
 
-### C8 → te-please, te-iru, because, but-kedo, permission, sequence-te
+## BG2 — bg-street
 ```
-[cover-grid style above] (1) an open, outstretched upturned palm asking politely; (2) a boy reading an open book; (3) an open umbrella in falling rain; (4) a cloud with a face, rain below it but sun rays behind; (5) a door standing slightly open with a "?" beside it; (6) a numbered checklist 1-2-3 with checkboxes.
-```
-
-### C9 → timing, directions, transport, does-this-go, how-far, tickets
-```
-[cover-grid style above] (1) an hourglass with sand running through; (2) a wooden signpost with a left arrow and a right arrow; (3) a commuter train arriving along tracks toward a small station; (4) the front of a bus with a blank "?" destination sign; (5) a winding country road leading to Mt Fuji in the distance; (6) two admission tickets.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like texture. Wide 3:2. An old Japanese shop-street of wooden machiya storefronts receding to a vanishing point, stone-paved ground, gentle daytime light. No people.
 ```
 
-### C10 → travel-trouble, had-better, plain-form, making-plans, i-think, quoting
+## BG3 — bg-shop
 ```
-[cover-grid style above] (1) an open, empty wallet with a worried sweat-drop; (2) a yellow warning triangle sign with an exclamation mark; (3) two kids sitting on a park bench chatting casually; (4) a calendar with a star marked on one date; (5) a boy with hand on chin and an empty thought bubble above him; (6) a single empty speech bubble.
-```
-
-### C11 → favors, comparing, reactions, conditionals, have-to, potential
-```
-[cover-grid style above] (1) a hand holding out a wrapped gift with a bow; (2) a balance scale with an apple on one pan and an orange on the other; (3) three little speech bubbles — one "!", one "?", one music note; (4) a path forking into two directions with a small signpost; (5) a packed backpack with an alarm clock and a water bottle beside it; (6) a boy triumphantly lifting a big barbell overhead.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like texture. Wide 3:2. A small shop interior: a long wooden counter across the front, empty wall shelves behind, wooden beams. No people.
 ```
 
-### C12 → intend, seems, try-doing, experience, passive, causative
+===============================================================
+# B · PLACED BUT NEED A FIX  (single images)
+===============================================================
+
+## menu  (green screen — closed, labelled)
 ```
-[cover-grid style above] (1) a rolled-open map with a location pin standing on it; (2) a boy standing under a single rain cloud, looking up; (3) a boy crouching to poke a puddle with a stick; (4) a passport with travel stamps and a boarding pass; (5) a boy getting soaked by a big splash of water; (6) a stern teacher with a pointer at a blackboard making a small pupil study at a desk.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like texture. A single object on flat chroma-key green (#00b140), no shadows: a CLOSED restaurant menu — a slim hardcover menu booklet standing upright at a slight angle, a warm deep-red (or brown) cover with the word "MENU" and メニュー on the front. Closed (no blank inside pages), clearly reading as a restaurant menu.
 ```
 
-### C13 → causative-passive, should-supposed, even-though, you-ni, wake, sonkeigo
+## te-iru  (cover — open book needs text)
 ```
-[cover-grid style above] (1) a boy reluctantly lugging a huge stack of heavy books; (2) a closed rulebook with a checkmark on its cover; (3) a boy struggling in wind and rain, umbrella blown inside-out; (4) three stages left-to-right — a seed, a sprout, a small plant; (5) an open book with a bright glowing lightbulb above it; (6) a person bowing deeply and respectfully.
-```
-
-### C14 → kenjougo, business-keigo, zaru-o-enai, ni-oite, monono, kagiri
-```
-[cover-grid style above] (1) a girl humbly presenting a document with both hands, head lowered; (2) a classic desk telephone beside a notepad; (3) a child reluctantly giving in, one hand half-raised, eyeing a slice of cake; (4) a single flag on a round pedestal base; (5) an open umbrella; (6) a long straight road running to a gate on the far horizon.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like texture. On a soft pastel background: a boy happily reading an open book, with clear lines of text/writing visible on the book's pages (not blank).
 ```
 
----
-
-## BACKDROPS  (wide 3:2, one per image, no characters)
-
-### BG1 → bg-room
+## kenjougo  (cover — document needs writing)
 ```
-Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm and cosy, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like all-over texture, no stamped paper-grain. Wide 3:2. An empty traditional Japanese room: a shoji lattice window on the back wall, a warm wooden plank floor, exposed wooden beam frame. No people.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like texture. On a soft pastel background: a girl humbly presenting a WRITTEN report — lines of handwriting visible on the paper — held in both hands, head lowered respectfully.
 ```
 
-### BG2 → bg-street
+## can-do  (cover — better concept; the white flag read as surrender)
 ```
-Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like all-over texture. Wide 3:2. An old Japanese shop-street of wooden machiya storefronts receding to a vanishing point, stone-paved ground, gentle daytime light. No people.
-```
-
-### BG3 → bg-shop
-```
-Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like all-over texture. Wide 3:2. A small shop interior: a long wooden counter across the front, empty wall shelves behind, wooden beams. No people.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like texture. On a soft pastel background: a boy standing triumphantly on a small hilltop, one fist raised high to the sky, big proud grin — "I can do it!".
 ```
 
----
+## have-to  (cover — better concept; the backpack read as travel-prep)
+```
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like texture. On a soft pastel background: a to-do checklist on paper with several handwritten tasks (unchecked) and one deadline circled in red, an alarm clock beside it — things you must get done.
+```
 
-## When you send them back
-Object/menu/ticket → green screen, I cut them. Covers → the 6-up pastel grids, I
-slice them. Backdrops → one image each, dropped in whole. Then I bump the version
-so it all goes live.
+## seems  (cover — better concept; the rain cloud read as "sad")
+```
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like texture. On a soft pastel background: dark grey rain clouds gathering over a green hillside horizon with the first few raindrops falling — the sky about to break, "it looks like it will rain".
+```
+
+===============================================================
+Send them back in any batches — green items I cut, cover grids I slice,
+single covers/backdrops I drop in whole, then I bump the version.
