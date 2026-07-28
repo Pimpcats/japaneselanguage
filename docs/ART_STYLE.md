@@ -40,12 +40,12 @@ Shared preamble (only the six panels change):
 
 ### C1 → l0-a, l0-ka, l0-sa, l0-ta, l0-na, l0-ha
 ```
-Clean hand-drawn style, muted natural colour, NO mottled/cloudy background wash, NO paper texture. Draw a 2×3 grid of SIX separate square panels, thick white gutters, same size. Each panel shows ONE large hiragana, centred, drawn CLEAR and EASY TO READ in a clean, simple, standard rounded textbook hiragana form (correct legible shapes — NOT decorative, stylised, or obscure brush calligraphy), in solid dark ink on a single CLEAN flat soft-colour background (a different soft solid colour per panel): (1) あ; (2) か; (3) さ; (4) た; (5) な; (6) は.
+Clean hand-drawn manga / children's-book style — confident but tidy hand-inked strokes, muted natural colour, no uniform paper texture. Draw a 2×3 grid of SIX separate square panels on white, thick white gutters, same size. Each panel: ONE large hiragana, CLEAR and EASY TO READ in a correct standard shape but with a confident hand-inked brush quality (characterful, in our established hand-drawn style — NOT a flat basic computer font), in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel — a painterly blob/splash, NOT a flat filled square), on an otherwise white background: (1) あ; (2) か; (3) さ; (4) た; (5) な; (6) は.
 ```
 
 ### C2 → l0-ma, l0-ya, l0-ra, l0-wa, l0-dakuten  (fill five, 6th blank)
 ```
-Clean hand-drawn style, muted natural colour, NO mottled/cloudy background wash, NO paper texture. Draw a 2×3 grid of separate square panels, thick white gutters, same size; fill the first FIVE, leave the sixth blank. Each filled panel shows ONE large hiragana, centred, drawn CLEAR and EASY TO READ in a clean, simple, standard rounded textbook hiragana form (correct legible shapes — NOT decorative, stylised, or obscure brush calligraphy), in solid dark ink on a single CLEAN flat soft-colour background: (1) ま; (2) や; (3) ら; (4) わ; (5) が (show the dakuten ゛clearly).
+Clean hand-drawn manga / children's-book style — confident but tidy hand-inked strokes, muted natural colour, no uniform paper texture. Draw a 2×3 grid of separate square panels on white, thick white gutters, same size; fill the first FIVE, leave the sixth blank. Each filled panel: ONE large hiragana, CLEAR and EASY TO READ in a correct standard shape but with a confident hand-inked brush quality (characterful, in our established hand-drawn style — NOT a flat basic computer font), in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel — a painterly blob/splash, NOT a flat filled square), on an otherwise white background: (1) ま; (2) や; (3) ら; (4) わ; (5) が (show the dakuten ゛clearly).
 ```
 
 ### C3 → intro, greetings, this-that, age, shop, money
@@ -114,3 +114,17 @@ Clean hand-drawn style, muted natural colour, NO mottled/cloudy background wash,
 If you want the room/street/shop backdrops to match too, regenerate them clean
 (they're currently a bit washy) — but they're dormant (not shown in scenes yet),
 so lowest priority.
+
+---
+
+## SINGLE OBJECTS — new art  (green screen → cut)
+
+### clock  (colored dial, NO hands — the app overlays the moving hands)
+```
+[established object style: clean bold hand-inked outlines, refined cel + gouache shading, muted natural palette, real detail, no background texture] A single object on flat chroma-key green (#00b140), no shadows: a round wall-clock FACE with a warm wooden or cream rim and clear numbers 1 through 12, and NO hands at all (the app draws the moving hands on top). Front-on, clean and readable.
+```
+
+### persimmon  (かき)
+```
+[established object style] A single object on flat chroma-key green (#00b140), no shadows: one ripe persimmon (かき) — a round, glossy orange fruit with a small green calyx/leaf on top, soft cel shading and a subtle highlight.
+```
