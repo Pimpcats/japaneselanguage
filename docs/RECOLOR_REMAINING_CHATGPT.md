@@ -26,7 +26,7 @@ Hand-drawn coloured manga / children's-book illustration: confident hand-inked o
 
 ### menu  (horizontal fold)
 ```
-Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like all-over texture. A single object on a flat solid chroma-key green background (#00b140), no shadows: an open restaurant menu that folds HORIZONTALLY like a book — a wide landscape bi-fold, opening left-to-right with a vertical centre crease and two cream pages side by side, thin red border, seen from the front, wider than it is tall. NOT a tall vertical tent or A-frame fold.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like all-over texture. A single object on a flat solid chroma-key green background (#00b140), no shadows: a CLOSED restaurant menu — a slim hardcover menu booklet standing upright at a slight angle, a warm deep-red (or brown) cover with the word "MENU" and メニュー on the front. Closed (no blank inside pages), clearly reading as a restaurant menu.
 ```
 
 ### ticket  (with label)
