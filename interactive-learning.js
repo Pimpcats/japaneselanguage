@@ -1203,7 +1203,7 @@
     japanmap: "japanmap", usflag: "usflag", mystery: "mystery",
     bigface: "bigface", redface: "redface",
     // Recolour wave: these had inline SVG fallbacks — now use the coloured PNGs.
-    star: "star", sea: "sea", wc: "wc",
+    star: "star", sea: "sea", wc: "wc", menu: "menu",
     // Anki-import wave: drinks, foods, shop/travel objects (green-screen sheets
     // cut with tools/cut_sheet.py). Dormant until their beats are authored.
     beer: "beer", redwine: "redwine", whitewine: "whitewine", greentea: "greentea",
