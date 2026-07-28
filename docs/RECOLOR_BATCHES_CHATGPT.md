@@ -27,7 +27,7 @@ separate images" for that block and send them one at a time.
 
 ### O1 — food & tableware  → sushi, peach, coffee, cup, water, menu
 ```
-Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light pencil hatching, soft hand-painted shading, warm and characterful, genuinely hand-drawn. NOT flat clip-art/vector. NO uniform or grid-like all-over texture, no stamped paper-grain — keep brushwork irregular, smooth areas smooth. Draw ONE horizontal row of 6 objects, evenly spaced with clear gaps, all the same size, on a flat solid chroma-key green background (#00b140), no shadows: (1) a piece of nigiri sushi (white rice, salmon top); (2) a peach; (3) a cup of black coffee on a saucer with steam; (4) a Japanese green-tea cup (yunomi); (5) a glass of water; (6) a folding paper menu.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light pencil hatching, soft hand-painted shading, warm and characterful, genuinely hand-drawn. NOT flat clip-art/vector. NO uniform or grid-like all-over texture, no stamped paper-grain — keep brushwork irregular, smooth areas smooth. Draw ONE horizontal row of 6 objects, evenly spaced with clear gaps, all the same size, on a flat solid chroma-key green background (#00b140), no shadows: (1) a piece of nigiri sushi (white rice, salmon top); (2) a peach; (3) a cup of black coffee on a saucer with steam; (4) a Japanese green-tea cup (yunomi); (5) a glass of water; (6) an open restaurant menu that folds HORIZONTALLY like a book — a wide landscape bi-fold, vertical centre crease, two cream pages side by side, thin red border, wider than tall (NOT a vertical tent/A-frame).
 ```
 
 ### O2 — animals  → cat, whitecat, dogface, cow, octopus, bird
@@ -47,7 +47,7 @@ Hand-drawn coloured manga / children's-book illustration: confident hand-inked o
 
 ### O5 — things & money  → bag, basket, telephone, umbrella, ticket, coin100, japanmap, usflag
 ```
-Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light pencil hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like all-over texture. ONE horizontal row of 8, evenly spaced, same size, on flat chroma-key green (#00b140), no shadows: (1) a brown paper shopping bag; (2) a woven basket; (3) an old desk telephone; (4) an open umbrella; (5) an admission ticket; (6) a silver 100-yen coin; (7) a map of Japan (green land, blue sea); (8) a small US flag on a pole.
+Hand-drawn coloured manga / children's-book illustration: confident hand-inked outlines, light pencil hatching, soft hand-painted shading, warm, genuinely hand-drawn. NOT flat clip-art. NO uniform/grid-like all-over texture. ONE horizontal row of 8, evenly spaced, same size, on flat chroma-key green (#00b140), no shadows: (1) a brown paper shopping bag; (2) a woven basket; (3) an old desk telephone; (4) an open umbrella; (5) an admission ticket with the word "TICKET" (and 券) printed on it and a perforated stub; (6) a silver 100-yen coin; (7) a map of Japan (green land, blue sea); (8) a small US flag on a pole.
 ```
 
 ### O6 — study & furniture  → book-window, book-stripes, book-circle, schooldesk, chair, table, shelf
