@@ -5,12 +5,15 @@ Each item below is described in full so you can draw it from text — no referen
 image needed. Draw everything in the ONE house style described next.
 
 ## HOUSE STYLE (apply to every single item below)
-Hand-drawn manga / children's-book illustration. Clean confident ink outlines
-with light pencil hatching, then natural COLOUR: flat cel fills plus soft
-watercolour shading, black ink lines kept on top. Warm, cheerful, wholesome —
-never neon, never corporate. Simple and readable. Characters are cute with
-slightly large heads. Unless an item says otherwise, centre the subject with a
-little breathing room.
+Clean children's-book / soft-anime illustration. Crisp confident ink outlines
+and **FLAT cel colour with a single soft shadow tone**, black ink lines kept on
+top. Warm, cheerful, wholesome — never neon, never corporate. Simple and
+readable. Cute characters with slightly large heads.
+**Avoid the AI look:** NO watercolour, no visible brush strokes, no paper
+texture, no mottled/splotchy colour washes, no painted vignette borders.
+Backgrounds are plain — a single flat soft colour or white, never a textured
+wash. Unless an item says otherwise, centre the subject with a little breathing
+room.
 
 Two output backgrounds are used:
 - **OBJECTS** → flat solid chroma-key GREEN (#00b140), evenly lit, no shadow.
