@@ -1,6 +1,6 @@
 // Service worker — offline app shell for the Hanasou PWA.
 // Bump CACHE when the precached shell list changes to evict the old cache.
-const CACHE = "hanasou-v259";
+const CACHE = "hanasou-v260";
 const SHELL = [
   "./",
   "index.html",
@@ -114,6 +114,12 @@ const SHELL = [
   "assets/story/medicine.png",
   "assets/story/map.png",
   "assets/story/card.png",
+  "assets/story/tv.png",
+  "assets/story/gohan.png",
+  "assets/story/natto.png",
+  "assets/story/emptyplate.png",
+  "assets/story/toothbrush.png",
+  "assets/story/alarmclock.png",
   "assets/story/shelf.png",
   "assets/story/table.png",
   "assets/covers/activities.png",

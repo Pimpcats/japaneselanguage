@@ -33,7 +33,7 @@
   ];
 
   // ---- object library (sketch-ink sprites; SVG fallback for unconverted) ----
-  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", redface: "a very red face", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower", beer: "beer", redwine: "red wine", whitewine: "white wine", greentea: "green tea", icedtea: "iced tea", cola: "cola", sake: "sake", sukiyaki: "sukiyaki", breakfast: "breakfast", yakitori: "yakitori", curry: "curry rice", cake: "cake", wagashi: "sweets", karaage: "fried chicken", grilledfish: "grilled fish", gloves: "gloves", shoes: "shoes", wallet: "wallet", medicine: "medicine", map: "map", card: "card" };
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", redface: "a very red face", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower", beer: "beer", redwine: "red wine", whitewine: "white wine", greentea: "green tea", icedtea: "iced tea", cola: "cola", sake: "sake", sukiyaki: "sukiyaki", breakfast: "breakfast", yakitori: "yakitori", curry: "curry rice", cake: "cake", wagashi: "sweets", karaage: "fried chicken", grilledfish: "grilled fish", gloves: "gloves", shoes: "shoes", wallet: "wallet", medicine: "medicine", map: "map", card: "card", tv: "TV", gohan: "rice", natto: "nattō", emptyplate: "empty plate", toothbrush: "toothbrush", alarmclock: "alarm clock" };
   const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", redface: "かお", dogface: "いぬ", redflower: "はな", boat: "ふね", sea: "うみ", town: "まち", winter: "ふゆ", sakura: "さくら", whitecat: "ねこ", japanmap: "にほん", telephone: "でんわ", mountain: "やま", sun: "たいよう", moon: "つき", chair: "いす", signal: "しんごう", train: "でんしゃ", bus: "バス", umbrella: "かさ", ticket: "きっぷ", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
 
   // ---- zones: distance IS the grammar --------------------------------------
@@ -968,17 +968,17 @@
         answer: { jp: "いいえ、のみません。", romaji: "iie, nomimasen", en: "No, I don't drink." } },
     },
     "frequency": {
-      "I sometimes drink coffee.": {
-        id: "freq-coffee", type: "order", scene: "room", dest: "hand", act: "drink",
-        items: ["coffee", "sushi"], target: "coffee",
-        instruction: "Now and then — take the coffee",
-        copy: "ときどき = sometimes. Take the drink; then it's you drinking it now and again.",
-        answer: { jp: "ときどき コーヒーを のみます。", romaji: "tokidoki koohii o nomimasu", en: "I sometimes drink coffee." } },
+      "I often watch TV.": {
+        id: "freq-tv", type: "ask", scene: "room", zone: "center", object: "tv",
+        askLabel: "Say how often:", cta: "Say it →", feedback: "よく — often. テレビを みます = watch TV.",
+        instruction: "Your go-to way to unwind",
+        copy: "It's on a lot. Tap the TV and say you watch it often.",
+        answer: { jp: "よく テレビを みます。", romaji: "yoku terebi o mimasu", en: "I often watch TV." } },
     },
     "past-1": {
       "Yesterday I ate a meal.": {
         id: "past-gohan", type: "order", scene: "room", dest: "hand", act: "eat",
-        items: ["breakfast", "water"], target: "breakfast",
+        items: ["gohan", "water"], target: "gohan",
         instruction: "Think back to yesterday — you ate",
         copy: "たべました is the past of たべます. Take the meal — then it's you, yesterday, eating.",
         answer: { jp: "きのう ごはんを たべました。", romaji: "kinou gohan o tabemashita", en: "Yesterday I ate a meal." } },
@@ -1008,12 +1008,12 @@
         answer: { jp: "とても おいしいです。", romaji: "totemo oishii desu", en: "It's very delicious." } },
     },
     "timing": {
-      "I'll call you later.": {
-        id: "timing-denwa", type: "ask", scene: "plain", zone: "center", object: "telephone",
-        askLabel: "Say you'll call:", cta: "Say it →", feedback: "あとで — later. でんわします = I'll call.",
-        instruction: "Not now — you'll call afterwards",
-        copy: "Tap the phone and say you'll call later.",
-        answer: { jp: "あとで でんわします。", romaji: "ato de denwa shimasu", en: "I'll call you later." } },
+      "I brush my teeth before bed.": {
+        id: "timing-ha", type: "ask", scene: "plain", zone: "center", object: "toothbrush",
+        askLabel: "Say when you do it:", cta: "Say it →", feedback: "ねるまえに — before sleeping.",
+        instruction: "Last thing before bed",
+        copy: "まえに = before. Tap the toothbrush and say you do this before bed.",
+        answer: { jp: "ねるまえに、はを みがきます。", romaji: "neru mae ni, ha o migakimasu", en: "I brush my teeth before bed." } },
     },
     "making-plans": {
       "Let's meet at the station.": {
@@ -1101,19 +1101,27 @@
     },
     "have-to": {
       "I gotta get up early tomorrow.": {
-        id: "haveto-wake", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "wake",
+        id: "haveto-wake", type: "ask", scene: "plain", zone: "center", object: "alarmclock",
         askLabel: "Say what you must do:", cta: "Say it →", feedback: "おきなきゃ — gotta get up (short for なければ).",
-        instruction: "Early start tomorrow",
-        copy: "No choice — up early. Tap yourself and say you've gotta.",
+        instruction: "Alarm set for the early start",
+        copy: "No choice — up early. Tap the alarm and say you've gotta get up.",
         answer: { jp: "あした はやく おきなきゃ。", romaji: "ashita hayaku okinakya", en: "I gotta get up early tomorrow." } },
     },
     "potential": {
-      "Can you read kanji?": {
-        id: "pot-yomeru", type: "ask", scene: "plain", zone: "center", object: "book",
-        askLabel: "Ask if they can:", cta: "Say it →", feedback: "よめる？ — CAN you read (potential form).",
-        instruction: "A page full of kanji",
-        copy: "Ask whether they're able to read it. Tap the book.",
-        answer: { jp: "かんじ よめる？", romaji: "kanji yomeru?", en: "Can you read kanji?" } },
+      "Can you eat natto?": {
+        id: "pot-natto", type: "ask", scene: "plain", zone: "center", object: "natto",
+        askLabel: "Ask if they can:", cta: "Say it →", feedback: "たべられる？ — CAN you eat it (potential form).",
+        instruction: "Sticky, pungent nattō — dare you?",
+        copy: "Not everyone can. Tap the nattō and ask if they're able to eat it.",
+        answer: { jp: "なっとう たべられる？", romaji: "nattou taberareru?", en: "Can you eat natto?" } },
+    },
+    "past-negative": {
+      "I didn't eat anything.": {
+        id: "pastneg-plate", type: "ask", scene: "plain", zone: "center", object: "emptyplate",
+        askLabel: "Say what you didn't do:", cta: "Say it →", feedback: "なにも + たべませんでした — didn't eat anything.",
+        instruction: "The plate's still empty",
+        copy: "No appetite — nothing eaten. Tap the empty plate and say so.",
+        answer: { jp: "なにも たべませんでした。", romaji: "nani mo tabemasen deshita", en: "I didn't eat anything." } },
     },
     "intend": {
       "I'm set to go to Japan in summer.": {
@@ -1453,6 +1461,9 @@
     cake: "cake", wagashi: "wagashi", karaage: "karaage", grilledfish: "grilledfish",
     gloves: "gloves", shoes: "shoes", wallet: "wallet", medicine: "medicine",
     map: "map", card: "card",
+    // Polish sheet 1: dedicated props that make a scene read as its exact sentence.
+    tv: "tv", gohan: "gohan", natto: "natto", emptyplate: "emptyplate",
+    toothbrush: "toothbrush", alarmclock: "alarmclock",
   };
   const BOOK_IMGS = '<img class="obj-sketch bi-circle" src="assets/story/book-circle.png" alt="">' +
     '<img class="obj-sketch bi-stripes" src="assets/story/book-stripes.png" alt="">' +
