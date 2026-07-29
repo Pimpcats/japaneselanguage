@@ -33,7 +33,7 @@
   ];
 
   // ---- object library (sketch-ink sprites; SVG fallback for unconverted) ----
-  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", redface: "a very red face", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower", beer: "beer", redwine: "red wine", whitewine: "white wine", greentea: "green tea", icedtea: "iced tea", cola: "cola", sake: "sake", sukiyaki: "sukiyaki", breakfast: "breakfast", yakitori: "yakitori", curry: "curry rice", cake: "cake", wagashi: "sweets", karaage: "fried chicken", grilledfish: "grilled fish", gloves: "gloves", shoes: "shoes", wallet: "wallet", medicine: "medicine", map: "map", card: "card", tv: "TV", gohan: "rice", natto: "nattō", emptyplate: "empty plate", toothbrush: "toothbrush", alarmclock: "alarm clock", raincloud: "rain cloud", chatbubble: "message", suitcase: "suitcase", thief: "the theft", bill: "money" };
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", redface: "a very red face", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower", beer: "beer", redwine: "red wine", whitewine: "white wine", greentea: "green tea", icedtea: "iced tea", cola: "cola", sake: "sake", sukiyaki: "sukiyaki", breakfast: "breakfast", yakitori: "yakitori", curry: "curry rice", cake: "cake", wagashi: "sweets", karaage: "fried chicken", grilledfish: "grilled fish", gloves: "gloves", shoes: "shoes", wallet: "wallet", medicine: "medicine", map: "map", card: "card", tv: "TV", gohan: "rice", natto: "nattō", emptyplate: "empty plate", toothbrush: "toothbrush", alarmclock: "alarm clock", raincloud: "rain cloud", chatbubble: "message", suitcase: "suitcase", thief: "the theft", bill: "money", cinema: "movie", park: "park", office: "office", school: "school", airport: "airport", hospital: "hospital", bicycle: "bicycle", taxi: "taxi", subway: "subway", bridge: "bridge", crossing: "crossing", platform: "platform", bed: "futon", bathtub: "bath", window: "window", smartphone: "phone", meat: "meat", bread: "bread", vegetables: "vegetables", onigiri: "rice ball", cigarette: "cigarette", headphones: "music", camera: "camera" };
   const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", redface: "かお", dogface: "いぬ", redflower: "はな", boat: "ふね", sea: "うみ", town: "まち", winter: "ふゆ", sakura: "さくら", whitecat: "ねこ", japanmap: "にほん", telephone: "でんわ", mountain: "やま", sun: "たいよう", moon: "つき", chair: "いす", signal: "しんごう", train: "でんしゃ", bus: "バス", umbrella: "かさ", ticket: "きっぷ", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
 
   // ---- zones: distance IS the grammar --------------------------------------
@@ -960,12 +960,12 @@
         answer: { jp: "うちで べんきょうします。", romaji: "uchi de benkyou shimasu", en: "I study at home." } },
     },
     "negative": {
-      "No, I don't drink.": {
-        id: "neg-nomimasen", type: "ask", scene: "room", zone: "center", object: "coffee",
-        askLabel: "Turn it down:", cta: "Say it →", feedback: "のみません — the polite \"I don't drink.\"",
-        instruction: "もち子 offers you a drink",
-        copy: "You'd rather not. Tap the cup and politely say no.",
-        answer: { jp: "いいえ、のみません。", romaji: "iie, nomimasen", en: "No, I don't drink." } },
+      "I don't eat meat.": {
+        id: "neg-niku", type: "ask", scene: "room", zone: "center", object: "meat",
+        askLabel: "Say what you don't do:", cta: "Say it →", feedback: "たべません — the polite \"I don't eat.\"",
+        instruction: "A plate of meat — not for you",
+        copy: "You pass on it. Tap the meat and say you don't eat it.",
+        answer: { jp: "にくを たべません。", romaji: "niku o tabemasen", en: "I don't eat meat." } },
     },
     "frequency": {
       "I often watch TV.": {
@@ -992,12 +992,12 @@
         answer: { jp: "しちじに おきました。", romaji: "shichi-ji ni okimashita", en: "I woke up at 7." } },
     },
     "sequence-te": {
-      "I get up in the morning and drink coffee.": {
-        id: "seqte-coffee", type: "order", scene: "room", dest: "hand", act: "drink",
-        items: ["coffee", "water"], target: "coffee",
-        instruction: "You're up — reach for the morning coffee",
-        copy: "おきて links the two: get up, THEN drink. Take the coffee.",
-        answer: { jp: "あさ おきて、コーヒーを のみます。", romaji: "asa okite, koohii o nomimasu", en: "I get up in the morning and drink coffee." } },
+      "I take a bath and go to bed.": {
+        id: "seqte-bath", type: "ask", scene: "room", zone: "center", object: "bathtub",
+        askLabel: "Link the two:", cta: "Say it →", feedback: "はいって links them: bathe, THEN sleep.",
+        instruction: "Warm bath, then straight to bed",
+        copy: "〜て joins the actions in order. Tap the bath and say what you do, then head to bed.",
+        answer: { jp: "おふろに はいって、ねます。", romaji: "ofuro ni haitte, nemasu", en: "I take a bath and go to bed." } },
     },
     "adjectives": {
       "It's very delicious.": {
@@ -1467,6 +1467,15 @@
     // Polish sheet 2: situation props.
     raincloud: "raincloud", chatbubble: "chatbubble", suitcase: "suitcase",
     thief: "thief", bill: "bill",
+    // Object sheets 3-6: places, transit, home, food & habits.
+    cinema: "cinema", park: "park", office: "office", school: "school",
+    airport: "airport", hospital: "hospital",
+    bicycle: "bicycle", taxi: "taxi", subway: "subway", bridge: "bridge",
+    crossing: "crossing", platform: "platform",
+    bed: "bed", bathtub: "bathtub", window: "window", smartphone: "smartphone",
+    meat: "meat", bread: "bread",
+    vegetables: "vegetables", onigiri: "onigiri", cigarette: "cigarette",
+    headphones: "headphones", camera: "camera",
   };
   const BOOK_IMGS = '<img class="obj-sketch bi-circle" src="assets/story/book-circle.png" alt="">' +
     '<img class="obj-sketch bi-stripes" src="assets/story/book-stripes.png" alt="">' +
