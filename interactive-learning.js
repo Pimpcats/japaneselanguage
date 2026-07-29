@@ -1055,6 +1055,138 @@
         copy: "You've lost it somewhere. Tap the wallet and say what happened.",
         answer: { jp: "さいふを なくしました。", romaji: "saifu o nakushimashita", en: "I lost my wallet." } },
     },
+
+    // ---- Level 2-6 sweep (2026-07): anchor each remaining concrete lesson to
+    //      an object/act already on disk. Register-only keigo and the abstract
+    //      connectives stay as plain cards on purpose (see SCENE_EXPANSION.md).
+    "because": {
+      "I'm tired, so I'm going home.": {
+        id: "because-tired", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "walk",
+        askLabel: "Give the reason:", cta: "Say it →", feedback: "つかれたから — because I'm tired, so…",
+        instruction: "Worn out — heading home",
+        copy: "から links cause to result: tired, SO going home. Tap yourself and say it.",
+        answer: { jp: "つかれたから、かえります。", romaji: "tsukareta kara, kaerimasu", en: "I'm tired, so I'm going home." } },
+    },
+    "plain-form": {
+      "What do you wanna eat?": {
+        id: "plain-eat", type: "ask", scene: "room", zone: "center", object: "sushi",
+        askLabel: "Ask casually:", cta: "Say it →", feedback: "たべる？ — plain-form, no ます. Friends-only.",
+        instruction: "Just you and a friend — what's for dinner?",
+        copy: "Drop the ます and ask like a friend would. Tap the food.",
+        answer: { jp: "なに たべる？", romaji: "nani taberu?", en: "What do you wanna eat?" } },
+    },
+    "i-think": {
+      "I think it'll rain tomorrow.": {
+        id: "ithink-rain", type: "ask", scene: "street", zone: "far", object: "umbrella",
+        askLabel: "Give your hunch:", cta: "Say it →", feedback: "〜と おもう — I think / I reckon.",
+        instruction: "Grey skies coming in",
+        copy: "Not certain — just your guess. Tap the umbrella and say what you think.",
+        answer: { jp: "あした あめだと おもう。", romaji: "ashita ame da to omou", en: "I think it'll rain tomorrow." } },
+    },
+    "quoting": {
+      "They said they're not coming tomorrow.": {
+        id: "quote-konai", type: "ask", scene: "plain", zone: "center", object: "telephone",
+        askLabel: "Pass on the message:", cta: "Say it →", feedback: "〜って いってた — they said (casual quote).",
+        instruction: "A message just came in",
+        copy: "Relay what they told you. Tap the phone and pass it on.",
+        answer: { jp: "あした こないって いってた。", romaji: "ashita konai tte itteta", en: "They said they're not coming tomorrow." } },
+    },
+    "reactions": {
+      "Wow, that's awesome!": {
+        id: "react-sugoi", type: "ask", scene: "street", zone: "partner", object: "mochiko",
+        askLabel: "React to her news:", cta: "Say it →", feedback: "すごい！ — the all-purpose \"wow!\"",
+        instruction: "もち子 just shared big news",
+        copy: "Show you're into it — react out loud. Tap her and say wow.",
+        answer: { jp: "すごい！", romaji: "sugoi!", en: "Wow, that's awesome!" } },
+    },
+    "have-to": {
+      "I gotta get up early tomorrow.": {
+        id: "haveto-wake", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "wake",
+        askLabel: "Say what you must do:", cta: "Say it →", feedback: "おきなきゃ — gotta get up (short for なければ).",
+        instruction: "Early start tomorrow",
+        copy: "No choice — up early. Tap yourself and say you've gotta.",
+        answer: { jp: "あした はやく おきなきゃ。", romaji: "ashita hayaku okinakya", en: "I gotta get up early tomorrow." } },
+    },
+    "potential": {
+      "Can you read kanji?": {
+        id: "pot-yomeru", type: "ask", scene: "plain", zone: "center", object: "book",
+        askLabel: "Ask if they can:", cta: "Say it →", feedback: "よめる？ — CAN you read (potential form).",
+        instruction: "A page full of kanji",
+        copy: "Ask whether they're able to read it. Tap the book.",
+        answer: { jp: "かんじ よめる？", romaji: "kanji yomeru?", en: "Can you read kanji?" } },
+    },
+    "intend": {
+      "I'm set to go to Japan in summer.": {
+        id: "intend-japan", type: "ask", scene: "plain", zone: "center", object: "japanmap",
+        askLabel: "State your plan:", cta: "Say it →", feedback: "よてい — a set plan / on the schedule.",
+        instruction: "Summer trip on the calendar",
+        copy: "It's settled, not a maybe. Tap Japan and say the plan.",
+        answer: { jp: "なつに にほんに いく よてい。", romaji: "natsu ni nihon ni iku yotei", en: "I'm set to go to Japan in summer." } },
+    },
+    "try-doing": {
+      "Try eating it once.": {
+        id: "try-eat", type: "order", scene: "room", dest: "hand", act: "eat",
+        items: ["sushi", "water"], target: "sushi",
+        instruction: "Never had it? Give it a go",
+        copy: "〜てみて = try and see. Take the food and taste it once.",
+        answer: { jp: "いちど たべてみて。", romaji: "ichido tabete mite", en: "Try eating it once." } },
+    },
+    "passive": {
+      "My wallet was stolen.": {
+        id: "pass-nusumareta", type: "ask", scene: "plain", zone: "center", object: "wallet",
+        askLabel: "Say what happened to you:", cta: "Say it →", feedback: "ぬすまれた — was stolen (passive; done TO you).",
+        instruction: "Your wallet's been taken",
+        copy: "It happened to you — you didn't do it. Tap the wallet and say so.",
+        answer: { jp: "さいふを ぬすまれた。", romaji: "saifu o nusumareta", en: "My wallet was stolen." } },
+    },
+    "causative": {
+      "Let me pay today.": {
+        id: "caus-harawasete", type: "ask", scene: "shop", zone: "center", object: "card",
+        askLabel: "Offer to pay:", cta: "Say it →", feedback: "はらわせて — let me pay (causative, asking to be allowed).",
+        instruction: "The bill arrives — you grab it",
+        copy: "Ask to be the one who pays. Tap the card and insist.",
+        answer: { jp: "きょうは はらわせて。", romaji: "kyou wa harawasete", en: "Let me pay today." } },
+    },
+    "causative-passive": {
+      "I was made to wait an hour.": {
+        id: "caup-mata", type: "ask", scene: "plain", zone: "center", object: "clock",
+        askLabel: "Complain about it:", cta: "Say it →", feedback: "またされた — was MADE to wait (causative-passive).",
+        instruction: "A whole hour ticked by",
+        copy: "You didn't choose to wait — you were made to. Tap the clock and gripe.",
+        answer: { jp: "いちじかん またされた。", romaji: "ichi-jikan matasareta", en: "I was made to wait an hour." } },
+    },
+    "should-supposed": {
+      "The train should arrive soon.": {
+        id: "should-train", type: "ask", scene: "street", zone: "far", object: "train",
+        askLabel: "Say what's expected:", cta: "Say it →", feedback: "つくはず — supposed/expected to arrive.",
+        instruction: "Waiting on the platform",
+        copy: "By the timetable, it's due any moment. Tap the train and say so.",
+        answer: { jp: "でんしゃは もうすぐ つくはず。", romaji: "densha wa mousugu tsuku hazu", en: "The train should arrive soon." } },
+    },
+    "even-though": {
+      "Even if it rains, I'll go.": {
+        id: "even-rain", type: "ask", scene: "street", zone: "center", object: "umbrella",
+        askLabel: "Stand your ground:", cta: "Say it →", feedback: "〜でも — even if / no matter.",
+        instruction: "Rain in the forecast — going anyway",
+        copy: "Nothing's stopping you. Tap the umbrella and say you'll go regardless.",
+        answer: { jp: "あめでも、いく。", romaji: "ame demo, iku", en: "Even if it rains, I'll go." } },
+    },
+    "you-ni": {
+      "I make a point of walking every day.": {
+        id: "youni-walk", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "walk",
+        askLabel: "Say your habit:", cta: "Say it →", feedback: "〜ようにしている — make a point of / try to always.",
+        instruction: "Your daily walk",
+        copy: "A habit you keep up on purpose. Tap yourself and say it.",
+        answer: { jp: "まいにち あるくようにしている。", romaji: "mainichi aruku you ni shite iru", en: "I make a point of walking every day." } },
+    },
+    "wake": {
+      "So that's why it's expensive.": {
+        id: "wake-takai", type: "ask", scene: "shop", object: "sushi", tag: true, tagText: "たかい！",
+        askLabel: "Put it together:", cta: "Say it →", feedback: "〜わけだ — so THAT'S why (it all adds up).",
+        instruction: "Now the price makes sense",
+        copy: "You just realised the reason. Tap the tag and say \"that's why.\"",
+        answer: { jp: "だから たかいわけだ。", romaji: "dakara takai wake da", en: "So that's why it's expensive." } },
+    },
   };
 
   // A map value may be a function (resolved at fire time) so a key can serve
