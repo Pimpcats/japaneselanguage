@@ -33,7 +33,7 @@
   ];
 
   // ---- object library (sketch-ink sprites; SVG fallback for unconverted) ----
-  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", redface: "a very red face", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower", beer: "beer", redwine: "red wine", whitewine: "white wine", greentea: "green tea", icedtea: "iced tea", cola: "cola", sake: "sake", sukiyaki: "sukiyaki", breakfast: "breakfast", yakitori: "yakitori", curry: "curry rice", cake: "cake", wagashi: "sweets", karaage: "fried chicken", grilledfish: "grilled fish", gloves: "gloves", shoes: "shoes", wallet: "wallet", medicine: "medicine", map: "map", card: "card", tv: "TV", gohan: "rice", natto: "nattō", emptyplate: "empty plate", toothbrush: "toothbrush", alarmclock: "alarm clock" };
+  const OBJ_NAME = { book: "book", bag: "bag", clock: "clock", cup: "tea", water: "water", coffee: "coffee", mystery: "mystery bundle", wc: "restroom sign", station: "station", friend: "friend", mochiko: "もち子", menu: "menu", sushi: "sushi", car: "car", house: "house", bigface: "big face", persimmon: "persimmon", redface: "a very red face", dogface: "dog", redflower: "flower", boat: "boat", sea: "sea", town: "town", winter: "snowman", sakura: "cherry tree", whitecat: "white cat", japanmap: "Japan", telephone: "telephone", mountain: "mountain", sun: "sun", moon: "moon", chair: "chair", signal: "traffic light", train: "train", bus: "bus", umbrella: "umbrella", ticket: "ticket", cow: "cow", octopus: "octopus", cat: "cat", star: "stars", peach: "peach", bird: "bird", flower: "flower", beer: "beer", redwine: "red wine", whitewine: "white wine", greentea: "green tea", icedtea: "iced tea", cola: "cola", sake: "sake", sukiyaki: "sukiyaki", breakfast: "breakfast", yakitori: "yakitori", curry: "curry rice", cake: "cake", wagashi: "sweets", karaage: "fried chicken", grilledfish: "grilled fish", gloves: "gloves", shoes: "shoes", wallet: "wallet", medicine: "medicine", map: "map", card: "card", tv: "TV", gohan: "rice", natto: "nattō", emptyplate: "empty plate", toothbrush: "toothbrush", alarmclock: "alarm clock", raincloud: "rain cloud", chatbubble: "message", suitcase: "suitcase", thief: "the theft", bill: "money" };
   const OBJ_JP = { book: "ほん", bag: "かばん", clock: "とけい", cup: "おちゃ", water: "みず", coffee: "コーヒー", wc: "トイレ", station: "えき", friend: "ともだち", menu: "メニュー", sushi: "おすし", car: "くるま", house: "いえ", bigface: "かお", persimmon: "かき", redface: "かお", dogface: "いぬ", redflower: "はな", boat: "ふね", sea: "うみ", town: "まち", winter: "ふゆ", sakura: "さくら", whitecat: "ねこ", japanmap: "にほん", telephone: "でんわ", mountain: "やま", sun: "たいよう", moon: "つき", chair: "いす", signal: "しんごう", train: "でんしゃ", bus: "バス", umbrella: "かさ", ticket: "きっぷ", cow: "うし", octopus: "たこ", cat: "ねこ", star: "ほし", peach: "もも", bird: "とり", flower: "はな" };
 
   // ---- zones: distance IS the grammar --------------------------------------
@@ -1077,7 +1077,7 @@
     },
     "i-think": {
       "I think it'll rain tomorrow.": {
-        id: "ithink-rain", type: "ask", scene: "street", zone: "far", object: "umbrella",
+        id: "ithink-rain", type: "ask", scene: "street", zone: "far", object: "raincloud",
         askLabel: "Give your hunch:", cta: "Say it →", feedback: "〜と おもう — I think / I reckon.",
         instruction: "Grey skies coming in",
         copy: "Not certain — just your guess. Tap the umbrella and say what you think.",
@@ -1085,7 +1085,7 @@
     },
     "quoting": {
       "They said they're not coming tomorrow.": {
-        id: "quote-konai", type: "ask", scene: "plain", zone: "center", object: "telephone",
+        id: "quote-konai", type: "ask", scene: "plain", zone: "center", object: "chatbubble",
         askLabel: "Pass on the message:", cta: "Say it →", feedback: "〜って いってた — they said (casual quote).",
         instruction: "A message just came in",
         copy: "Relay what they told you. Tap the phone and pass it on.",
@@ -1125,7 +1125,7 @@
     },
     "intend": {
       "I'm set to go to Japan in summer.": {
-        id: "intend-japan", type: "ask", scene: "plain", zone: "center", object: "japanmap",
+        id: "intend-japan", type: "ask", scene: "plain", zone: "center", object: "suitcase",
         askLabel: "State your plan:", cta: "Say it →", feedback: "よてい — a set plan / on the schedule.",
         instruction: "Summer trip on the calendar",
         copy: "It's settled, not a maybe. Tap Japan and say the plan.",
@@ -1141,7 +1141,7 @@
     },
     "passive": {
       "My wallet was stolen.": {
-        id: "pass-nusumareta", type: "ask", scene: "plain", zone: "center", object: "wallet",
+        id: "pass-nusumareta", type: "ask", scene: "plain", zone: "center", object: "thief",
         askLabel: "Say what happened to you:", cta: "Say it →", feedback: "ぬすまれた — was stolen (passive; done TO you).",
         instruction: "Your wallet's been taken",
         copy: "It happened to you — you didn't do it. Tap the wallet and say so.",
@@ -1149,7 +1149,7 @@
     },
     "causative": {
       "Let me pay today.": {
-        id: "caus-harawasete", type: "ask", scene: "shop", zone: "center", object: "card",
+        id: "caus-harawasete", type: "ask", scene: "shop", zone: "center", object: "bill",
         askLabel: "Offer to pay:", cta: "Say it →", feedback: "はらわせて — let me pay (causative, asking to be allowed).",
         instruction: "The bill arrives — you grab it",
         copy: "Ask to be the one who pays. Tap the card and insist.",
@@ -1173,7 +1173,7 @@
     },
     "even-though": {
       "Even if it rains, I'll go.": {
-        id: "even-rain", type: "ask", scene: "street", zone: "center", object: "umbrella",
+        id: "even-rain", type: "ask", scene: "street", zone: "center", object: "raincloud",
         askLabel: "Stand your ground:", cta: "Say it →", feedback: "〜でも — even if / no matter.",
         instruction: "Rain in the forecast — going anyway",
         copy: "Nothing's stopping you. Tap the umbrella and say you'll go regardless.",
@@ -1464,12 +1464,17 @@
     // Polish sheet 1: dedicated props that make a scene read as its exact sentence.
     tv: "tv", gohan: "gohan", natto: "natto", emptyplate: "emptyplate",
     toothbrush: "toothbrush", alarmclock: "alarmclock",
+    // Polish sheet 2: situation props.
+    raincloud: "raincloud", chatbubble: "chatbubble", suitcase: "suitcase",
+    thief: "thief", bill: "bill",
   };
   const BOOK_IMGS = '<img class="obj-sketch bi-circle" src="assets/story/book-circle.png" alt="">' +
     '<img class="obj-sketch bi-stripes" src="assets/story/book-stripes.png" alt="">' +
     '<img class="obj-sketch bi-window" src="assets/story/book-window.png" alt="">';
-  // clock = sketch face + the original rotating hands (CSS drives them via data-clock)
-  const CLOCK_IMG = '<svg class="clock-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><circle cx="50" cy="50" r="46" fill="#fdfcf6" stroke="#2a2c33" stroke-width="3.5"/><circle cx="50" cy="50" r="41" fill="none" stroke="#2a2c33" stroke-width="1"/><g fill="#2a2c33" font-family="Georgia,\'Times New Roman\',serif" font-size="9" font-weight="700" text-anchor="middle"><text x="50" y="17.5">12</text><text x="68" y="22">1</text><text x="81" y="34.5">2</text><text x="85.5" y="53.5">3</text><text x="81" y="72.5">4</text><text x="68" y="85">5</text><text x="50" y="89.5">6</text><text x="32" y="85">7</text><text x="19" y="72.5">8</text><text x="14.5" y="53.5">9</text><text x="19" y="34.5">10</text><text x="32" y="22">11</text></g><line class="clock-hand-h" x1="50" y1="53" x2="50" y2="31" stroke="#2a2c33" stroke-width="3.4" stroke-linecap="round"/><line class="clock-hand-m" x1="50" y1="53" x2="50" y2="18" stroke="#2a2c33" stroke-width="2.4" stroke-linecap="round"/><circle cx="50" cy="50" r="2.6" fill="#2a2c33"/></svg>';
+  // clock = the coloured dial PNG + the original rotating ink hands overlaid
+  // (CSS drives the hands via data-clock; .clock-hands sits absolute over the img).
+  const CLOCK_IMG = '<img class="obj-sketch" src="assets/story/clockface.png" alt="">' +
+    '<svg class="clock-svg clock-hands" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet"><line class="clock-hand-h" x1="50" y1="53" x2="50" y2="31" stroke="#2a2c33" stroke-width="3.4" stroke-linecap="round"/><line class="clock-hand-m" x1="50" y1="53" x2="50" y2="18" stroke="#2a2c33" stroke-width="2.4" stroke-linecap="round"/><circle cx="50" cy="50" r="2.6" fill="#2a2c33"/></svg>';
   function objArtHTML(key) {
     if (key === "book") return BOOK_IMGS;
     if (key === "clock") return CLOCK_IMG;
