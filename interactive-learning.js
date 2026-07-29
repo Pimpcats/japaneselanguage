@@ -946,6 +946,115 @@
         answer: { jp: "ちょっと まって ください。", romaji: "chotto matte kudasai", en: "Please wait a moment." },
       },
     },
+
+    // ---- Concrete-lesson scene sweep (2026-07): give the text-only everyday
+    //      lessons the same act-then-say beat the early lessons already have.
+    //      Each reuses art already on disk; avatar acts fall back to standing
+    //      until the action sheets land, exactly like verbs/routine do today.
+    "activities": {
+      "I study at home.": {
+        id: "act-study-home", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "study",
+        askLabel: "Say where you do it:", cta: "Say it →", feedback: "うちで — at home. べんきょうします = study.",
+        instruction: "Homework time, at home",
+        copy: "That's you, studying at your own desk. Tap yourself and say where.",
+        answer: { jp: "うちで べんきょうします。", romaji: "uchi de benkyou shimasu", en: "I study at home." } },
+    },
+    "negative": {
+      "No, I don't drink.": {
+        id: "neg-nomimasen", type: "ask", scene: "room", zone: "center", object: "coffee",
+        askLabel: "Turn it down:", cta: "Say it →", feedback: "のみません — the polite \"I don't drink.\"",
+        instruction: "もち子 offers you a drink",
+        copy: "You'd rather not. Tap the cup and politely say no.",
+        answer: { jp: "いいえ、のみません。", romaji: "iie, nomimasen", en: "No, I don't drink." } },
+    },
+    "frequency": {
+      "I sometimes drink coffee.": {
+        id: "freq-coffee", type: "order", scene: "room", dest: "hand", act: "drink",
+        items: ["coffee", "sushi"], target: "coffee",
+        instruction: "Now and then — take the coffee",
+        copy: "ときどき = sometimes. Take the drink; then it's you drinking it now and again.",
+        answer: { jp: "ときどき コーヒーを のみます。", romaji: "tokidoki koohii o nomimasu", en: "I sometimes drink coffee." } },
+    },
+    "past-1": {
+      "Yesterday I ate a meal.": {
+        id: "past-gohan", type: "order", scene: "room", dest: "hand", act: "eat",
+        items: ["breakfast", "water"], target: "breakfast",
+        instruction: "Think back to yesterday — you ate",
+        copy: "たべました is the past of たべます. Take the meal — then it's you, yesterday, eating.",
+        answer: { jp: "きのう ごはんを たべました。", romaji: "kinou gohan o tabemashita", en: "Yesterday I ate a meal." } },
+    },
+    "sequence": {
+      "I woke up at 7.": {
+        id: "seq-woke7", type: "ask", scene: "plain", zone: "center", object: "avatar", act: "wake",
+        askLabel: "Say it (past):", cta: "Say it →", feedback: "しちじに おきました — woke up at 7.",
+        instruction: "Morning — you just woke up",
+        copy: "That's you, waking at seven. Tap yourself and say it happened.",
+        answer: { jp: "しちじに おきました。", romaji: "shichi-ji ni okimashita", en: "I woke up at 7." } },
+    },
+    "sequence-te": {
+      "I get up in the morning and drink coffee.": {
+        id: "seqte-coffee", type: "order", scene: "room", dest: "hand", act: "drink",
+        items: ["coffee", "water"], target: "coffee",
+        instruction: "You're up — reach for the morning coffee",
+        copy: "おきて links the two: get up, THEN drink. Take the coffee.",
+        answer: { jp: "あさ おきて、コーヒーを のみます。", romaji: "asa okite, koohii o nomimasu", en: "I get up in the morning and drink coffee." } },
+    },
+    "adjectives": {
+      "It's very delicious.": {
+        id: "adj-oishii", type: "ask", scene: "plain", zone: "center", object: "sushi",
+        askLabel: "React to the taste:", cta: "Say it →", feedback: "おいしい = delicious. とても = very.",
+        instruction: "One bite — it's amazing",
+        copy: "Tap the sushi and say how good it is.",
+        answer: { jp: "とても おいしいです。", romaji: "totemo oishii desu", en: "It's very delicious." } },
+    },
+    "timing": {
+      "I'll call you later.": {
+        id: "timing-denwa", type: "ask", scene: "plain", zone: "center", object: "telephone",
+        askLabel: "Say you'll call:", cta: "Say it →", feedback: "あとで — later. でんわします = I'll call.",
+        instruction: "Not now — you'll call afterwards",
+        copy: "Tap the phone and say you'll call later.",
+        answer: { jp: "あとで でんわします。", romaji: "ato de denwa shimasu", en: "I'll call you later." } },
+    },
+    "making-plans": {
+      "Let's meet at the station.": {
+        id: "plan-station", type: "ask", scene: "street", zone: "far", object: "station",
+        askLabel: "Set the spot:", cta: "Say it →", feedback: "えきで あおう — casual \"let's meet at the station.\"",
+        instruction: "Pick where to meet up",
+        copy: "The station's the easy landmark. Tap it and suggest meeting there.",
+        answer: { jp: "えきで あおう。", romaji: "eki de aou", en: "Let's meet at the station." } },
+    },
+    "favors": {
+      "A friend lent it to me.": {
+        id: "fav-kashite", type: "ask", scene: "plain", zone: "center", object: "book",
+        askLabel: "Say how you got it:", cta: "Say it →", feedback: "かして くれた — a friend lent it (for me).",
+        instruction: "This book isn't yours — a friend lent it",
+        copy: "A friend did you the favour of lending this. Tap it and say so.",
+        answer: { jp: "ともだちが かしてくれた。", romaji: "tomodachi ga kashite kureta", en: "A friend lent it to me." } },
+    },
+    "conditionals": {
+      "If it rains, I won't go.": {
+        id: "cond-rain", type: "ask", scene: "street", zone: "center", object: "umbrella",
+        askLabel: "Say your plan:", cta: "Say it →", feedback: "あめだったら — if it rains, then… いかない.",
+        instruction: "Clouds rolling in — will you go?",
+        copy: "Rain changes the plan. Tap the umbrella and say what you'd do.",
+        answer: { jp: "あめだったら、いかない。", romaji: "ame dattara, ikanai", en: "If it rains, I won't go." } },
+    },
+    "age": {
+      "The child is five years old.": {
+        id: "age-cake", type: "ask", scene: "plain", zone: "center", object: "cake",
+        askLabel: "Say the age:", cta: "Say it →", feedback: "ごさい — five years old.",
+        instruction: "Five candles on the cake",
+        copy: "It's the child's birthday — five today. Tap the cake and say how old.",
+        answer: { jp: "こどもは ごさいです。", romaji: "kodomo wa go-sai desu", en: "The child is five years old." } },
+    },
+    "travel-trouble": {
+      "I lost my wallet.": {
+        id: "trouble-saifu", type: "ask", scene: "plain", zone: "center", object: "wallet",
+        askLabel: "Say what happened:", cta: "Say it →", feedback: "なくしました — I lost it.",
+        instruction: "Your wallet's gone",
+        copy: "You've lost it somewhere. Tap the wallet and say what happened.",
+        answer: { jp: "さいふを なくしました。", romaji: "saifu o nakushimashita", en: "I lost my wallet." } },
+    },
   };
 
   // A map value may be a function (resolved at fire time) so a key can serve
