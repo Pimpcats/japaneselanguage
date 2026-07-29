@@ -24,3 +24,20 @@ window.KANA = {
     { name: "ぱ", h: "ぱぴぷぺぽ", k: "パピプペポ", r: ["pa", "pi", "pu", "pe", "po"] },
   ],
 };
+
+// ---- Hand-painted splash tiles (assets/kana/<h|k>-<slug>.png) --------------
+// Filenames are keyed by CHARACTER, never by romaji: several kana share a
+// romaji reading in the table above — を/お are both "o", ぢ/じ are both "ji",
+// づ/ず are both "zu" — so a romaji-keyed lookup would serve the wrong art for
+// three pairs. These slugs disambiguate; every other character uses its romaji.
+window.KANA_SLUG = {
+  "を": "wo", "ヲ": "wo",
+  "ぢ": "di", "ヂ": "di",
+  "づ": "du", "ヅ": "du",
+};
+
+// Characters that actually have a tile drawn. The browse grid shows the splash
+// card for these and plain text for the rest, so the art can land in waves.
+// To add a wave: drop the PNGs in assets/kana/, list the characters here, add
+// the files to the SW SHELL, bump the version.
+window.KANA_ART = [];

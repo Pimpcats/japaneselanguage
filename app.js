@@ -3253,6 +3253,19 @@
     return out;
   }
 
+  // Path to a letter's hand-painted splash tile, or null when it isn't drawn
+  // yet (the grid then shows the plain letter). Keyed by CHARACTER: を/お share
+  // the romaji "o", ぢ/じ share "ji", づ/ず share "zu", so KANA_SLUG overrides
+  // those three pairs — see the note in kana.js.
+  const KANA_ART_SET = new Set(window.KANA_ART || []);
+  function kanaArtSrc(ch, romaji) {
+    if (!KANA_ART_SET.has(ch)) return null;
+    const slug = (window.KANA_SLUG || {})[ch] || romaji;
+    if (!slug) return null;
+    const katakana = ch.charCodeAt(0) >= 0x30a0;
+    return "assets/kana/" + (katakana ? "k-" : "h-") + slug + ".png";
+  }
+
   // A 0/5 mastery bar (five pips) for one letter.
   function masteryBar(ch) {
     const wrap = document.createElement("span");
@@ -3294,6 +3307,18 @@
         const ch = row[kanaScript][i];
         const chip = document.createElement("button");
         chip.className = "kana-chip" + (kanaSeen(ch) ? " seen" : "") + (kanaMastery(ch) >= KANA_MAX ? " mastered" : "");
+        const art = kanaArtSrc(ch, row.r[i]);
+        if (art) {
+          const img = document.createElement("img");
+          img.className = "kc-art";
+          img.src = art;
+          img.alt = ch;
+          // If a tile is ever missing, fall back to the plain letter rather
+          // than leaving a broken image in the grid.
+          img.addEventListener("error", () => { img.remove(); chip.classList.remove("has-art"); });
+          chip.classList.add("has-art");
+          chip.appendChild(img);
+        }
         chip.appendChild(span("kc-char", ch));
         chip.appendChild(span("kc-romaji", row.r[i]));
         chip.appendChild(masteryBar(ch));
