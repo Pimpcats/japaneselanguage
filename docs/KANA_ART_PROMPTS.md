@@ -1,132 +1,130 @@
-# はなそう - full kana art (hiragana + katakana)
+# はなそう - full kana art (hiragana + katakana), VOWEL-COLOUR SYSTEM
 
-142 characters in the approved splash style (hand-inked letter + pastel splash on white),
-for the Kana browse/practice grid. Feed one block -> one image; Claude slices each 2x3 grid.
-Filenames: hiragana `h-<romaji>.png`, katakana `k-<romaji>.png` (を=wo, ぢ=di, づ=du).
-Suggested order: do HIRAGANA base first (H1-H8), then KATAKANA base (K1-K8), then the
-dakuten/handakuten grids (H9-H12, K9-K12).
+142 characters in the splash style. THE COLOUR IS A SYSTEM (owner, 2026-07-30):
+the splash colour encodes the VOWEL, so every row shows the same five-colour
+sequence and columns match across the whole gojūon —
+  -a = soft coral RED · -i = soft sky BLUE · -u = soft warm YELLOW ·
+  -e = soft sage GREEN · -o = soft lavender PURPLE · ん/ン = soft warm GREY
+Dakuten letters inherit their vowel; katakana mirrors hiragana exactly.
+Feed one block -> one image; Claude cuts each grid. Filenames h-/k-<romaji>
+(を=wo, ぢ=di, づ=du — character-keyed, see kana.js).
 
-## HIRAGANA (71)
-
-### H1 -> h-a, h-i, h-u, h-e, h-o, h-ka
+### H1 → あ い う え お か
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) あ; (2) い; (3) う; (4) え; (5) お; (6) か.
-```
-
-### H2 -> h-ki, h-ku, h-ke, h-ko, h-sa, h-shi
-```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) き; (2) く; (3) け; (4) こ; (5) さ; (6) し.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) あ on soft coral RED; (2) い on soft sky BLUE; (3) う on soft warm YELLOW; (4) え on soft sage GREEN; (5) お on soft lavender PURPLE; (6) か on soft coral RED.
 ```
 
-### H3 -> h-su, h-se, h-so, h-ta, h-chi, h-tsu
+### H2 → き く け こ さ し
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) す; (2) せ; (3) そ; (4) た; (5) ち; (6) つ.
-```
-
-### H4 -> h-te, h-to, h-na, h-ni, h-nu, h-ne
-```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) て; (2) と; (3) な; (4) に; (5) ぬ; (6) ね.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) き on soft sky BLUE; (2) く on soft warm YELLOW; (3) け on soft sage GREEN; (4) こ on soft lavender PURPLE; (5) さ on soft coral RED; (6) し on soft sky BLUE.
 ```
 
-### H5 -> h-no, h-ha, h-hi, h-fu, h-he, h-ho
+### H3 → す せ そ た ち つ
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) の; (2) は; (3) ひ; (4) ふ; (5) へ; (6) ほ.
-```
-
-### H6 -> h-ma, h-mi, h-mu, h-me, h-mo, h-ya
-```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ま; (2) み; (3) む; (4) め; (5) も; (6) や.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) す on soft warm YELLOW; (2) せ on soft sage GREEN; (3) そ on soft lavender PURPLE; (4) た on soft coral RED; (5) ち on soft sky BLUE; (6) つ on soft warm YELLOW.
 ```
 
-### H7 -> h-yu, h-yo, h-ra, h-ri, h-ru, h-re
+### H4 → て と な に ぬ ね
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ゆ; (2) よ; (3) ら; (4) り; (5) る; (6) れ.
-```
-
-### H8 -> h-ro, h-wa, h-wo, h-n, h-ga, h-gi
-```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ろ; (2) わ; (3) を; (4) ん; (5) が; (6) ぎ.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) て on soft sage GREEN; (2) と on soft lavender PURPLE; (3) な on soft coral RED; (4) に on soft sky BLUE; (5) ぬ on soft warm YELLOW; (6) ね on soft sage GREEN.
 ```
 
-### H9 -> h-gu, h-ge, h-go, h-za, h-ji, h-zu
+### H5 → の は ひ ふ へ ほ
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ぐ; (2) げ; (3) ご; (4) ざ; (5) じ; (6) ず.
-```
-
-### H10 -> h-ze, h-zo, h-da, h-di, h-du, h-de
-```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ぜ; (2) ぞ; (3) だ; (4) ぢ; (5) づ; (6) で.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) の on soft lavender PURPLE; (2) は on soft coral RED; (3) ひ on soft sky BLUE; (4) ふ on soft warm YELLOW; (5) へ on soft sage GREEN; (6) ほ on soft lavender PURPLE.
 ```
 
-### H11 -> h-do, h-ba, h-bi, h-bu, h-be, h-bo
+### H6 → ま み む め も や
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ど; (2) ば; (3) び; (4) ぶ; (5) べ; (6) ぼ.
-```
-
-### H12 -> h-pa, h-pi, h-pu, h-pe, h-po
-```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size (fill the first 5, leave the rest blank). Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ぱ; (2) ぴ; (3) ぷ; (4) ぺ; (5) ぽ.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ま on soft coral RED; (2) み on soft sky BLUE; (3) む on soft warm YELLOW; (4) め on soft sage GREEN; (5) も on soft lavender PURPLE; (6) や on soft coral RED.
 ```
 
-## KATAKANA (71)
-
-### K1 -> k-a, k-i, k-u, k-e, k-o, k-ka
+### H7 → ゆ よ ら り る れ
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ア; (2) イ; (3) ウ; (4) エ; (5) オ; (6) カ.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ゆ on soft warm YELLOW; (2) よ on soft lavender PURPLE; (3) ら on soft coral RED; (4) り on soft sky BLUE; (5) る on soft warm YELLOW; (6) れ on soft sage GREEN.
 ```
 
-### K2 -> k-ki, k-ku, k-ke, k-ko, k-sa, k-shi
+### H8 → ろ わ を ん が ぎ
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) キ; (2) ク; (3) ケ; (4) コ; (5) サ; (6) シ.
-```
-
-### K3 -> k-su, k-se, k-so, k-ta, k-chi, k-tsu
-```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ス; (2) セ; (3) ソ; (4) タ; (5) チ; (6) ツ.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ろ on soft lavender PURPLE; (2) わ on soft coral RED; (3) を on soft lavender PURPLE; (4) ん on soft warm GREY; (5) が on soft coral RED; (6) ぎ on soft sky BLUE.
 ```
 
-### K4 -> k-te, k-to, k-na, k-ni, k-nu, k-ne
+### H9 → ぐ げ ご ざ じ ず
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) テ; (2) ト; (3) ナ; (4) ニ; (5) ヌ; (6) ネ.
-```
-
-### K5 -> k-no, k-ha, k-hi, k-fu, k-he, k-ho
-```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ノ; (2) ハ; (3) ヒ; (4) フ; (5) ヘ; (6) ホ.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ぐ on soft warm YELLOW; (2) げ on soft sage GREEN; (3) ご on soft lavender PURPLE; (4) ざ on soft coral RED; (5) じ on soft sky BLUE; (6) ず on soft warm YELLOW.
 ```
 
-### K6 -> k-ma, k-mi, k-mu, k-me, k-mo, k-ya
+### H10 → ぜ ぞ だ ぢ づ で
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) マ; (2) ミ; (3) ム; (4) メ; (5) モ; (6) ヤ.
-```
-
-### K7 -> k-yu, k-yo, k-ra, k-ri, k-ru, k-re
-```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ユ; (2) ヨ; (3) ラ; (4) リ; (5) ル; (6) レ.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ぜ on soft sage GREEN; (2) ぞ on soft lavender PURPLE; (3) だ on soft coral RED; (4) ぢ on soft sky BLUE; (5) づ on soft warm YELLOW; (6) で on soft sage GREEN.
 ```
 
-### K8 -> k-ro, k-wa, k-wo, k-n, k-ga, k-gi
+### H11 → ど ば び ぶ べ ぼ
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ロ; (2) ワ; (3) ヲ; (4) ン; (5) ガ; (6) ギ.
-```
-
-### K9 -> k-gu, k-ge, k-go, k-za, k-ji, k-zu
-```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) グ; (2) ゲ; (3) ゴ; (4) ザ; (5) ジ; (6) ズ.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ど on soft lavender PURPLE; (2) ば on soft coral RED; (3) び on soft sky BLUE; (4) ぶ on soft warm YELLOW; (5) べ on soft sage GREEN; (6) ぼ on soft lavender PURPLE.
 ```
 
-### K10 -> k-ze, k-zo, k-da, k-di, k-du, k-de
+### H12 → ぱ ぴ ぷ ぺ ぽ
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ゼ; (2) ゾ; (3) ダ; (4) ヂ; (5) ヅ; (6) デ.
-```
-
-### K11 -> k-do, k-ba, k-bi, k-bu, k-be, k-bo
-```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) ド; (2) バ; (3) ビ; (4) ブ; (5) ベ; (6) ボ.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a row of FIVE separate panels on white, thick white gutters, all the same size. Each panel: ONE large HIRAGANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ぱ on soft coral RED; (2) ぴ on soft sky BLUE; (3) ぷ on soft warm YELLOW; (4) ぺ on soft sage GREEN; (5) ぽ on soft lavender PURPLE.
 ```
 
-### K12 -> k-pa, k-pi, k-pu, k-pe, k-po
+### K1 → ア イ ウ エ オ カ
 ```
-Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size (fill the first 5, leave the rest blank). Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a different pastel per panel, a painterly blob - NOT a flat filled square), on an otherwise white background: (1) パ; (2) ピ; (3) プ; (4) ペ; (5) ポ.
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ア on soft coral RED; (2) イ on soft sky BLUE; (3) ウ on soft warm YELLOW; (4) エ on soft sage GREEN; (5) オ on soft lavender PURPLE; (6) カ on soft coral RED.
 ```
 
+### K2 → キ ク ケ コ サ シ
+```
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) キ on soft sky BLUE; (2) ク on soft warm YELLOW; (3) ケ on soft sage GREEN; (4) コ on soft lavender PURPLE; (5) サ on soft coral RED; (6) シ on soft sky BLUE.
+```
+
+### K3 → ス セ ソ タ チ ツ
+```
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ス on soft warm YELLOW; (2) セ on soft sage GREEN; (3) ソ on soft lavender PURPLE; (4) タ on soft coral RED; (5) チ on soft sky BLUE; (6) ツ on soft warm YELLOW.
+```
+
+### K4 → テ ト ナ ニ ヌ ネ
+```
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) テ on soft sage GREEN; (2) ト on soft lavender PURPLE; (3) ナ on soft coral RED; (4) ニ on soft sky BLUE; (5) ヌ on soft warm YELLOW; (6) ネ on soft sage GREEN.
+```
+
+### K5 → ノ ハ ヒ フ ヘ ホ
+```
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ノ on soft lavender PURPLE; (2) ハ on soft coral RED; (3) ヒ on soft sky BLUE; (4) フ on soft warm YELLOW; (5) ヘ on soft sage GREEN; (6) ホ on soft lavender PURPLE.
+```
+
+### K6 → マ ミ ム メ モ ヤ
+```
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) マ on soft coral RED; (2) ミ on soft sky BLUE; (3) ム on soft warm YELLOW; (4) メ on soft sage GREEN; (5) モ on soft lavender PURPLE; (6) ヤ on soft coral RED.
+```
+
+### K7 → ユ ヨ ラ リ ル レ
+```
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ユ on soft warm YELLOW; (2) ヨ on soft lavender PURPLE; (3) ラ on soft coral RED; (4) リ on soft sky BLUE; (5) ル on soft warm YELLOW; (6) レ on soft sage GREEN.
+```
+
+### K8 → ロ ワ ヲ ン ガ ギ
+```
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ロ on soft lavender PURPLE; (2) ワ on soft coral RED; (3) ヲ on soft lavender PURPLE; (4) ン on soft warm GREY; (5) ガ on soft coral RED; (6) ギ on soft sky BLUE.
+```
+
+### K9 → グ ゲ ゴ ザ ジ ズ
+```
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) グ on soft warm YELLOW; (2) ゲ on soft sage GREEN; (3) ゴ on soft lavender PURPLE; (4) ザ on soft coral RED; (5) ジ on soft sky BLUE; (6) ズ on soft warm YELLOW.
+```
+
+### K10 → ゼ ゾ ダ ヂ ヅ デ
+```
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ゼ on soft sage GREEN; (2) ゾ on soft lavender PURPLE; (3) ダ on soft coral RED; (4) ヂ on soft sky BLUE; (5) ヅ on soft warm YELLOW; (6) デ on soft sage GREEN.
+```
+
+### K11 → ド バ ビ ブ ベ ボ
+```
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a 2x3 grid of SIX separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) ド on soft lavender PURPLE; (2) バ on soft coral RED; (3) ビ on soft sky BLUE; (4) ブ on soft warm YELLOW; (5) ベ on soft sage GREEN; (6) ボ on soft lavender PURPLE.
+```
+
+### K12 → パ ピ プ ペ ポ
+```
+Clean hand-drawn manga / children's-book style - confident hand-inked brush strokes, muted natural colour, no uniform paper texture. Draw a row of FIVE separate panels on white, thick white gutters, all the same size. Each panel: ONE large KATAKANA character, CLEAR and EASY TO READ in a correct standard shape with a confident hand-inked brush quality, in dark ink, sitting on a loose hand-painted SPLASH of soft pastel colour behind it (a painterly blob - NOT a flat filled square). The splash colour of each panel is FIXED - the colour encodes the vowel sound and must match exactly: (1) パ on soft coral RED; (2) ピ on soft sky BLUE; (3) プ on soft warm YELLOW; (4) ペ on soft sage GREEN; (5) ポ on soft lavender PURPLE.
+```
