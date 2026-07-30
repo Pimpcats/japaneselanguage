@@ -513,7 +513,8 @@
 
   // ---- Voice ---------------------------------------------------------------
   let jaVoice = null, enVoice = null, jaVoices = [];
-  let clips = null; // pre-generated VOICEVOX clips, loaded below: { "<jp>": {n, s?} }
+  let clips = null;   // pre-generated VOICEVOX clips, loaded below: { "<jp>": {n, s?} }
+  let roleClips = {};  // per-character voices (manifest.roleClips): role -> { "<jp>": {n, s?} }
   function pickVoices() {
     const v = speechSynthesis.getVoices();
     jaVoices = v.filter((x) => x.lang && x.lang.toLowerCase().startsWith("ja"));
@@ -547,7 +548,7 @@
   // a clip the browser never downloaded — falls back to speechSynthesis.
   fetch("audio/manifest.json", { cache: "no-cache" })
     .then((r) => (r.ok ? r.json() : null))
-    .then((m) => { if (m && m.clips) { clips = m.clips; el.voiceWarn.hidden = true; } })
+    .then((m) => { if (m && m.clips) { clips = m.clips; roleClips = m.roleClips || {}; el.voiceWarn.hidden = true; } })
     .catch(() => {});
 
   let curAudio = null;
@@ -762,11 +763,14 @@
     speechSynthesis.speak(u);
   }
 
-  function speak(text, { lang = "ja-JP", rate = 1.0 } = {}) {
+  function speak(text, { lang = "ja-JP", rate = 1.0, voice = null } = {}) {
     text = plainJP(text);
     speechSynthesis.cancel();
     stopAudio();
-    const clip = lang.startsWith("ja") && clips && clips[text];
+    // A character role (e.g. もち子) may have its own voice; fall back to the
+    // default-voice clip when the role isn't configured in voices.json.
+    const clip = lang.startsWith("ja") &&
+      ((voice && roleClips[voice] && roleClips[voice][text]) || (clips && clips[text]));
     if (clip) {
       const slow = rate < 1;
       const a = new Audio("audio/" + (slow && clip.s ? clip.s : clip.n));
@@ -1822,7 +1826,7 @@
       bubble.innerHTML =
         '<img class="mb-art" src="assets/story/mochiko-cheer.png" alt="もち子さん" />' +
         '<span class="mb-bubble"><b class="mb-jp"></b><small class="mb-en"></small></span>';
-      bubble.addEventListener("click", () => { if (bubble.dataset.jp) speak(bubble.dataset.jp, { lang: "ja-JP" }); });
+      bubble.addEventListener("click", () => { if (bubble.dataset.jp) speak(bubble.dataset.jp, { lang: "ja-JP", voice: "mochiko" }); });
       el.intro.insertBefore(bubble, el.intro.firstChild);
     }
     bubble.hidden = false;
@@ -2896,7 +2900,7 @@
       el.quizMicBtn.hidden = true;
       el.quizNextBtn.hidden = false;
       el.quizNextBtn.textContent = (quiz.idx >= quiz.steps.length - 1) ? "finish →" : "reply →";
-      speak(st.jp, { lang: "ja-JP" });          // reached via a tap, so audio is allowed
+      speak(st.jp, { lang: "ja-JP", voice: "mochiko" });   // reached via a tap, so audio is allowed
     } else {                                    // your line
       // Echo her last line above your prompt so it reads as a reply, not a
       // flashcard — the heart of the conversation feel.
@@ -3500,7 +3504,7 @@
   });
   el.quizMochiko.addEventListener("click", () => {   // tap her bubble to hear it again
     const st = quiz && quiz.scene && quiz.steps[quiz.idx];
-    if (st && st.who === "m") speak(st.jp, { lang: "ja-JP" });
+    if (st && st.who === "m") speak(st.jp, { lang: "ja-JP", voice: "mochiko" });
   });
   el.buildBtn.addEventListener("click", () => startLesson(activeLesson, { build: true }));
   el.buildHardBtn.addEventListener("click", () => startLesson(activeLesson, { build: true, hard: true }));

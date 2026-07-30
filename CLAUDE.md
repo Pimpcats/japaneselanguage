@@ -88,21 +88,27 @@ sync makes the design preview drift.
 ## Audio (the part that's easiest to break)
 
 Pipeline: `lessons.js` strings → `tools/gen_audio.mjs` → VOICEVOX engine →
-`audio/<sha1-of-text>.mp3` + `audio/manifest.json` → `speak()` in app.js plays
-the clip, falling back to device `speechSynthesis` if missing.
+`audio/<sha1-of-voice+text>.mp3` + `audio/manifest.json` → `speak()` in app.js
+plays the clip, falling back to device `speechSynthesis` if missing.
 
-- **Voice:** もち子さん, VOICEVOX speaker **20** (set in `gen-audio.yml` and the
-  script default). The owner picks the voice — never change it unprompted.
-- **Clip filenames hash the TEXT ONLY.** Changing the voice does NOT regenerate
-  clips — you must delete `audio/*.mp3` first, or the old voice is silently
-  reused. This is the #1 trap.
+- **Voices live in `tools/voices.json`** (2026-07 voice system): `default`
+  speaks everything; `roles` gives a character their own voice (e.g.
+  `"mochiko": 20`) — only their lines change. もち子's lines are already
+  role-tagged end-to-end (tool collects them as `mochiko`; app.js passes
+  `voice:"mochiko"`; scene steps may name another character via `voice:`).
+  The owner picks voices — never change them unprompted. Current default: 14
+  冥鳴ひまり (owner is auditioning voices, 2026-07).
+- **Changing a voice = edit `voices.json`, push to main. Nothing else.** Clip
+  filenames hash VOICE+TEXT, so the affected clips regenerate under new names,
+  the tool sweeps the stale files, and clips+manifest land in ONE bot commit —
+  the live site keeps playing the old voice until that commit, then flips
+  atomically. (The old text-only-hash trap and the delete-clips/branch dance
+  are gone.)
 - CI (`.github/workflows/gen-audio.yml`) runs on pushes to `main` touching
-  `lessons.js` / the tool / the workflow: spins up VOICEVOX in Docker,
-  synthesizes only missing clips, auto-bumps `sw.js`, commits with `[skip ci]`.
-  A full re-voice of ~1,470 clips takes ~30–45 min.
-- **Re-voice procedure (zero-downtime):** change speaker + delete clips on a
-  branch the live site is NOT serving, let CI regenerate there, only then point
-  the site at it. Never leave the live branch with deleted clips.
+  `lessons.js` / `kana.js` / the tool / `voices.json` / the workflow: spins up
+  VOICEVOX in Docker, synthesizes only missing clips, auto-bumps `sw.js` +
+  `index.html`, commits. A full re-voice (~1,900+ clips) takes ~30–45 min;
+  until it lands the site simply keeps the previous voice.
 - Every tappable word chip has its own clip so taps never fall back to the
   robotic device voice. New sentences must come with `words:[]` breakdowns.
 - English is NEVER spoken aloud. Japanese audio only.

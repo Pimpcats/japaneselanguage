@@ -13,6 +13,7 @@ on:
       - lessons.js
       - kana.js
       - tools/gen_audio.mjs
+      - tools/voices.json
       - .github/workflows/gen-audio.yml
   workflow_dispatch: {}
 
@@ -48,8 +49,11 @@ jobs:
           done
           echo "VOICEVOX did not become ready in time"; docker logs voicevox || true; exit 1
 
+      # Voices come from tools/voices.json (default + per-character roles) —
+      # edit that file to change any voice; clip filenames hash voice+text, so
+      # the affected clips regenerate and stale ones are swept automatically.
       - name: Generate audio
-        run: VOICEVOX=http://127.0.0.1:50021 SPEAKER=20 node tools/gen_audio.mjs
+        run: VOICEVOX=http://127.0.0.1:50021 node tools/gen_audio.mjs
 
       - name: Commit regenerated audio
         run: |

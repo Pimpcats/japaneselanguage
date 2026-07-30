@@ -1,6 +1,6 @@
 // Service worker — offline app shell for the Hanasou PWA.
 // Bump CACHE when the precached shell list changes to evict the old cache.
-const CACHE = "hanasou-v266";
+const CACHE = "hanasou-v267";
 const SHELL = [
   "./",
   "index.html",
@@ -274,12 +274,16 @@ async function precacheAudio(cache) {
   try {
     const res = await fetch("audio/manifest.json", { cache: "no-cache" });
     if (!res.ok) return;
-    const { clips } = await res.json();
+    const { clips, roleClips } = await res.json();
     const files = [];
-    for (const k in clips) {
-      if (clips[k].n) files.push("audio/" + clips[k].n);
-      if (clips[k].s) files.push("audio/" + clips[k].s);
-    }
+    const walk = (map) => {
+      for (const k in map || {}) {
+        if (map[k].n) files.push("audio/" + map[k].n);
+        if (map[k].s) files.push("audio/" + map[k].s);
+      }
+    };
+    walk(clips);
+    for (const role in roleClips || {}) walk(roleClips[role]);
     await Promise.all(files.map((f) =>
       fetch(f).then((r) => r.ok && cache.put(f, r.clone())).catch(() => {})
     ));
