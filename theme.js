@@ -267,7 +267,7 @@
   }
 
   // ---------------------------- painted header on every screen -------------
-  // Persistent banner (sign + awning overlay) at the very top that reads the
+  // Persistent banner at the very top that reads the
   // current level / lesson in English. The top-bar controls are moved into it
   // so it doubles as the title bar (saves the separate strip below).
   const appEl = document.getElementById("app");
@@ -276,8 +276,7 @@
     banner.id = "app-banner";
     banner.innerHTML =
       '<span class="ab-text"></span>' +
-      '<span class="ab-ver">' + (window.HANASOU_VERSION || "") + "</span>" +
-      '<img class="ab-awning" src="' + A + 'awning.png" alt="">';
+      '<span class="ab-ver">' + (window.HANASOU_VERSION || "") + "</span>";
 
     // Control bar under the banner — Back / Home / the 1/6 counter / Settings
     // all live together here (off the decorative sign).

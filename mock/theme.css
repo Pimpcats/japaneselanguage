@@ -20,7 +20,7 @@
 /* ---- 2. street background under everything, with a cream veil for legibility ---- */
 html, body {
   font-family: var(--body);
-  background: var(--bg) url("../assets/street_soft.jpg") center / cover fixed no-repeat;
+  background: var(--bg);
 }
 body::before {
   content: ""; position: fixed; inset: 0; z-index: -1;
@@ -46,7 +46,6 @@ body::before {
    lower band of the sign. */
 #app-header {
   position: static; z-index: 8; margin: 0 0 0.5rem;
-  background: url("../assets/sign.png") center / 100% 100% no-repeat;
   filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
   padding-bottom: 1.6rem;
 }
@@ -187,7 +186,6 @@ button.lesson-tile { border-width: 3px !important; border-radius: var(--radius);
   border-style: solid !important;
   border-color: transparent !important;
   border-width: 58px 42px 48px 42px !important;   /* visual thickness of each painted edge */
-  border-image: url("../assets/frame.png") 245 157 182 157 round !important;
   border-radius: 8px !important;
   box-shadow: none !important;
   filter: drop-shadow(0 5px 0 rgba(74, 51, 40, 0.14));
@@ -400,7 +398,7 @@ footer { font-family: var(--display); color: var(--muted); }
 #collection-overlay.show { opacity: 1; }
 .col-sheet {
   position: relative; width: min(560px, 100%);
-  background: var(--cream, #fff7ea) url("../assets/street_soft.jpg") center / cover fixed;
+  background: var(--cream, #fff7ea);
   border: 3px solid var(--ink); border-radius: 22px; padding: 1.2rem 1rem 1.6rem;
   box-shadow: 0 10px 0 rgba(74, 51, 40, 0.25);
 }
@@ -476,7 +474,6 @@ footer { font-family: var(--display); color: var(--muted); }
   background-size: cover; background-position: center; background-repeat: no-repeat;
   border-style: solid; border-color: transparent;
   border-width: 28px 22px 32px 22px;
-  border-image: url("../assets/frame.png") 245 157 182 157 round;
   border-radius: 8px;
   filter: drop-shadow(0 4px 0 rgba(74, 51, 40, 0.14));
   transition: transform 0.08s;
@@ -675,7 +672,6 @@ body.drive-mode #app {
   /* the painted frame now wraps the whole sheet edge-to-edge, not the card */
   border-style: solid; border-color: transparent;
   border-width: 34px 24px 38px 24px;
-  border-image: url("../assets/frame.png") 245 157 182 157 round;
 }
 @media (max-width: 430px) {
   body.drive-mode #app { border-width: 28px 20px 32px 20px; }
