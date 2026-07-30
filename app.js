@@ -2041,26 +2041,10 @@
     return cands[0];
   }
 
-  let paceArmedId = null;
   function startLesson(L, opts) {
-    // Soft daily pacing (owner, 2026-07): five letters and a handful of
-    // sentences is a day. The FIRST new lesson today starts freely; a second
-    // NEW one asks once — tap again to keep going. Never a hard lock, and
-    // lessons you've already cleared replay without question.
-    const today = new Date().toDateString();
-    if (!prog.pace || prog.pace.day !== today) prog.pace = { day: today, started: [] };
-    const stats = lessonStats(L);
-    const isNew = stats.passed < stats.total;
-    if (isNew && !prog.pace.started.includes(L.id)) {
-      if (prog.pace.started.length >= 1 && paceArmedId !== L.id) {
-        paceArmedId = L.id;
-        flash("今日はここまで — that was today's station. Tap again to keep going.");
-        return;
-      }
-      prog.pace.started.push(L.id);
-      save();
-    }
-    paceArmedId = null;
+    // The soft daily-pace nudge ("今日はここまで — tap again") is RETIRED
+    // (owner, 2026-07-31): it made every second new lesson a double-tap.
+    // Lessons start on the first tap, always.
     activeLesson = L;   // the lesson-complete screen & Talk button read this
     // Remember where we left off so the Home "Continue" banner stays current.
     // The banner (ui-polish.js) is the only other writer; rail cards start here,

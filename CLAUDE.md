@@ -306,11 +306,10 @@ to reveal-and-listen when unavailable.
   session of the day carries up to 5 missed/due cards; every later session
   that day starts clean. Grinding the same misses before each lesson was the
   owner's complaint; once-a-day keeps the reinforcement without the slog.
-- **Soft daily pace** (`prog.pace` in startLesson): the first NEW lesson of
-  the day starts freely; tapping a second new lesson flashes
-  "今日はここまで — tap again to keep going" and proceeds on the second tap.
-  Never a hard lock. Cleared lessons replay without question. Do not turn
-  this into streaks or locks — it is a nudge, full stop.
+- **Soft daily pace is RETIRED** (owner, 2026-07-31): the "今日はここまで —
+  tap again" nudge made every second new lesson a double-tap and was removed.
+  Lessons start on the first tap, always. Do not reintroduce pacing nudges,
+  streaks, or locks of any kind.
 
 ## Interactive story beats (interactive-learning.js — owner direction, 2026-07)
 
