@@ -2337,7 +2337,7 @@
     el.hintRow.hidden = true; el.revealArea.hidden = true; el.replayBtn.hidden = true;
     el.retireBtn.hidden = true; el.grade.hidden = true; el.revealBtn.hidden = true;
     el.buildArea.hidden = true; el.kanaSound.hidden = false;
-    el.kanaSoundChar.textContent = ch;
+    renderKanaGlyph(el.kanaSoundChar, ch);
     el.kanaSoundChar.onclick = () => speakLetter(ch);
     speakLetter(ch);                           // play it on arrival
     const script = ch.charCodeAt(0) >= 0x30a0 ? "k" : "h";
@@ -3347,6 +3347,19 @@
     const katakana = ch.charCodeAt(0) >= 0x30a0;
     return "assets/kana/" + (katakana ? "k-" : "h-") + slug + ".png";
   }
+  // Render a big letter into a container: the painted splash tile once its art
+  // has landed, the plain character otherwise (and on any load error). Used by
+  // every large-letter surface — browse grid, practice question, sound card.
+  function renderKanaGlyph(node, ch) {
+    const src = kanaArtSrc(ch, (KANA_INDEX.get(ch) || {}).romaji || "");
+    if (!src) { node.textContent = ch; return; }
+    node.textContent = "";
+    const img = document.createElement("img");
+    img.className = "kana-glyph-art";
+    img.src = src; img.alt = ch;
+    img.addEventListener("error", () => { node.textContent = ch; });
+    node.appendChild(img);
+  }
 
   // A 0/5 mastery bar (five pips) for one letter.
   function masteryBar(ch) {
@@ -3469,7 +3482,7 @@
   function renderKanaQuestion() {
     const q = kq.queue[kq.idx];
     el.kqProgress.textContent = (kq.idx + 1) + " / " + kq.queue.length;
-    el.kqChar.textContent = q.ch;
+    renderKanaGlyph(el.kqChar, q.ch);
     // Four sound choices: the answer + three other romaji from this script.
     const pool = kanaList(kanaScript).map((x) => x.romaji).filter((r) => r !== q.romaji);
     const opts = [q.romaji];

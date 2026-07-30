@@ -762,6 +762,9 @@ body.drive-mode #encore-btn, body.drive-mode .done-actions button { min-height: 
   background: #fffdf6; border: 3px solid var(--ink); border-radius: var(--radius);
   box-shadow: var(--shadow); padding: 0.8rem 2rem;
 }
+/* painted splash tile stands in for the big letter once its art lands */
+.kana-glyph-art { display: block; width: 6.4rem; height: 6.4rem; object-fit: contain; }
+.kana-sound-char .kana-glyph-art { width: 5rem; height: 5rem; }
 .kq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; width: 100%; }
 .kq-opt {
   border: 2.5px solid var(--ink); border-radius: 999px; background: #fff;
