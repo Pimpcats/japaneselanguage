@@ -96,7 +96,11 @@ plays the clip, falling back to device `speechSynthesis` if missing.
   `"mochiko": 20`) — only their lines change. もち子's lines are already
   role-tagged end-to-end (tool collects them as `mochiko`; app.js passes
   `voice:"mochiko"`; scene steps may name another character via `voice:`).
-  The owner picks voices — never change them unprompted. Current default: 14
+  The owner picks voices — never change them unprompted, and when the owner
+  names a voice, CHANGE IT IMMEDIATELY (standing instruction, 2026-07-30): no
+  confirmation round-trip — edit `voices.json`, push, tell them it's
+  regenerating. The system made voice swaps cheap and reversible; treat them
+  that way. Current default: 14
   冥鳴ひまり (owner is auditioning voices, 2026-07).
 - **Changing a voice = edit `voices.json`, push to main. Nothing else.** Clip
   filenames hash VOICE+TEXT, so the affected clips regenerate under new names,
@@ -235,7 +239,9 @@ to reveal-and-listen when unavailable.
   loops — that's the workflow, not scope creep.
 - Report honestly: if you couldn't visually verify (no browser in the sandbox),
   say so and ask for a screenshot.
-- Big changes to live behaviour (SRS, deploy targets, voice): confirm first.
+- Big changes to live behaviour (SRS, deploy targets): confirm first. Voice
+  changes are the exception — when the owner names a voice, apply it right
+  away (see Audio).
   Styling/layout polish: just do it and deploy.
 - The owner's stack outside this repo: GitHub Pages + a local VOICEVOX for
   auditioning voices. Keep everything runnable without Node build tooling.
