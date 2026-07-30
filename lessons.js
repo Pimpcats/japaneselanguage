@@ -201,6 +201,7 @@ window.LESSONS = [
       { jp: "いぬ", romaji: "inu", en: "dog", pos: "n" },
       { jp: "なに", romaji: "nani", en: "what", pos: "expr" },
       { jp: "にく", romaji: "niku", en: "meat", pos: "n" },
+      { jp: "きのう", romaji: "kinou", en: "yesterday", pos: "n" },
     ],
     sentences: [
       { en: "The cat's foot!", jp: "ねこの あし！", romaji: "neko no ashi!",
@@ -255,7 +256,7 @@ window.LESSONS = [
       { jp: "みせ", romaji: "mise", en: "shop", pos: "n" },
       { jp: "あめ", romaji: "ame", en: "rain / candy", pos: "n" },
       { jp: "うみ", romaji: "umi", en: "sea", pos: "n" },
-      { jp: "みせ", romaji: "mise", en: "shop", pos: "n" },
+      { jp: "むこう", romaji: "mukou", en: "over there / beyond", pos: "n" },
       { jp: "め", romaji: "me", en: "eye", pos: "n" },
     ],
     sentences: [
@@ -357,6 +358,8 @@ window.LESSONS = [
       { jp: "でんわ", romaji: "denwa", en: "telephone", pos: "n" },
       { jp: "えいが", romaji: "eiga", en: "movie", pos: "n" },
       { jp: "ぱん", romaji: "pan", en: "bread", pos: "n" },
+      { jp: "じかん", romaji: "jikan", en: "time", pos: "n" },
+      { jp: "かばん", romaji: "kaban", en: "bag", pos: "n" },
       { jp: "まど", romaji: "mado", en: "window", pos: "n" },
       { jp: "たのしい", romaji: "tanoshii", en: "fun", pos: "adj" },
     ],

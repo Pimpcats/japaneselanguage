@@ -2186,17 +2186,37 @@
   }
 
   // ---- sounds: this lesson's new kana, tap to hear (the folded-in Words) ---
+  // A letter's painted splash tile (assets/kana/), once its art has landed —
+  // same character-keyed lookup as the あア browse grid (see kana.js notes).
+  function kanaSplashSrc(ch, romaji) {
+    if (!(window.KANA_ART || []).includes(ch)) return null;
+    const slug = (window.KANA_SLUG || {})[ch] || romaji;
+    if (!slug) return null;
+    return "assets/kana/" + (ch.charCodeAt(0) >= 0x30a0 ? "k-" : "h-") + slug + ".png";
+  }
+
   function renderSoundsBeat(beat, finishBeat) {
     overlay.title.textContent = "New sounds today";
-    overlay.copy.textContent = "Tap each one — もち子 says it. The abc stays over every kana until you know it.";
-    const row = el("div", "story-num-row");
+    overlay.copy.textContent = "Tap each letter to hear it — and the word beside it that uses it. The abc stays over every kana until you know it.";
+    const row = el("div", "story-num-row story-sounds-row");
     const heard = new Set();
-    beat.tiles.forEach(([kana, romaji]) => {
+    beat.tiles.forEach(([kana, romaji, word]) => {
+      const pair = el("div", "snd-pair");
       const btn = el("button", "story-num");
       btn.type = "button";
       btn.setAttribute("aria-label", romaji || kana);
-      btn.appendChild(el("span", "num-kana num-kana-above", romaji));
-      btn.appendChild(el("span", "num-digit", kana));
+      const art = kanaSplashSrc(kana, romaji);
+      if (art) {
+        const img = el("img", "snd-art");
+        img.src = art; img.alt = kana;
+        img.addEventListener("error", () => { img.remove(); btn.classList.remove("has-art"); });
+        btn.classList.add("has-art");
+        btn.appendChild(el("span", "num-kana num-kana-above", romaji));
+        btn.appendChild(img);
+      } else {
+        btn.appendChild(el("span", "num-kana num-kana-above", romaji));
+        btn.appendChild(el("span", "num-digit", kana));
+      }
       btn.addEventListener("click", () => {
         btn.classList.add("heard");
         if (window.HanasouSpeak) window.HanasouSpeak(kana);
@@ -2209,7 +2229,17 @@
           showContinue("Start →", finishBeat);
         }
       });
-      row.appendChild(btn);
+      pair.appendChild(btn);
+      // the letter's anchor word — a first taste of the letter doing real work
+      if (word) {
+        const wbtn = el("button", "snd-word");
+        wbtn.type = "button";
+        wbtn.appendChild(el("b", "", word.jp));
+        wbtn.appendChild(el("small", "", word.en));
+        wbtn.addEventListener("click", () => { if (window.HanasouSpeak) window.HanasouSpeak(word.jp); });
+        pair.appendChild(wbtn);
+      }
+      row.appendChild(pair);
     });
     overlay.stage.appendChild(row);
   }

@@ -1645,9 +1645,18 @@
   window.__hanaNewKana = (lessonId) => {
     const order = [...KANA_INDEX.keys()];   // KANA rows insert in gojūon order
     const chars = L0_ROWS[lessonId] ? [...L0_ROWS[lessonId]] : (LESSON_NEW_KANA[lessonId] || []).slice();
+    // Each new letter carries its anchor word — the lesson's own vocab word
+    // that uses it (owner, 2026-07-30: letter → word → sentences, always
+    // built from letters already learned). を has none: it exists only as
+    // the object particle, so no content word can carry it.
+    const vocab = (lessonById[lessonId] || {}).vocab || [];
+    const anchorFor = (ch) => {
+      const v = vocab.find((x) => x.jp.includes(ch));
+      return v ? { jp: v.jp, en: v.en } : null;
+    };
     return chars
       .sort((x, y) => order.indexOf(x) - order.indexOf(y))
-      .map((ch) => [ch, (KANA_INDEX.get(ch) || {}).romaji || ""]);
+      .map((ch) => [ch, (KANA_INDEX.get(ch) || {}).romaji || "", anchorFor(ch)]);
   };
   window.__hanaStationInfo = function (lessonId) {
     const L = lessonById[lessonId];
