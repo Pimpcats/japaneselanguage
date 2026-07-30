@@ -151,9 +151,9 @@ plays the clip, falling back to device `speechSynthesis` if missing.
 - **Vocabulary must be immediately useful** (owner, 2026-07): the app gets
   people speaking and NAVIGATING right away. Each level is a learning stage —
   early levels teach only common, everyday words (えき, かお, みず…), never
-  exotica (かき persimmon and きく chrysanthemum were cut from Level 0 for
-  this). Before adding a word ask: would a visitor to Japan say this in their
-  first month? Also: never claim a colour the art doesn't show.
+  exotica (かき persimmon, きく chrysanthemum, おへそ belly button and むし
+  insect were all cut for this). Before adding a word ask: would a visitor to
+  Japan say this in their first month? Also: never claim a colour the art doesn't show.
 
 - Shape: `{ id, section, title, grammar, grammarNote, vocab:[{jp,romaji,en,pos}],
   sentences:[{en, jp, romaji, hint?, words:[{jp,en,pos}]}] }`. A lesson teaches
@@ -287,6 +287,13 @@ to reveal-and-listen when unavailable.
 - The Donkey-Kong-style map plan (`docs/ART_ROADMAP.md`, panels for
   `assets/map/`) is ON HOLD pending the owner rethinking the map — ask before
   doing any map/journey work. Don't generate placeholder scenery art unprompted.
+- **The friend quiz** (owner, 2026-07-30): completing a level earns five
+  practical "how do you say…?" questions (`window.LEVEL_QUIZ`, exact jp of
+  taught sentences — lint-enforced), asked by the learner's chosen friend
+  (もち子さん before one exists) in the normal card flow (mode `levelquiz`).
+  Misses grade normally and ride warmups — didn't know it, now you learn it.
+  Offered once on the completing run + always retakable from the level page.
+  Picks favour street usefulness; keep them transactional, never trivia.
 - **Real-world missions** (`window.MISSIONS`, shown on lesson complete) and the
   **weekly rhythm dots** (7 forgiving days, `prog.practice`) replace
   streak-guilt. Do not add streak pressure back.

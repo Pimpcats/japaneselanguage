@@ -53,6 +53,17 @@ for (const sc of SCENES || []) {
 for (const key of Object.keys(MISSIONS || {})) {
   if (key !== "_generic" && !ids.has(key)) fail(`mission key "${key}" is not a lesson id`);
 }
+
+// -- level quiz (the friend's questions) --------------------------------------
+// Every entry must be the exact jp of a taught sentence (card + clip exist),
+// and every level needs its questions so the quiz never comes up empty.
+const LEVEL_QUIZ = win.LEVEL_QUIZ || {};
+for (let i = 0; i < (LEVELS || []).length; i++) {
+  const qs = LEVEL_QUIZ[i];
+  if (!qs || !qs.length) { fail(`LEVEL_QUIZ: level ${i} has no questions`); continue; }
+  for (const jp of qs)
+    if (!allSentenceJP.has(jp)) fail(`LEVEL_QUIZ level ${i}: "${jp}" is not an existing lesson sentence`);
+}
 for (const pool of ["greetings", "praise", "reactions", "closings"]) {
   for (const l of (MOCHIKO || {})[pool] || []) if (!l.jp || !l.en) fail(`MOCHIKO.${pool}: entry missing jp/en`);
 }

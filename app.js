@@ -1504,6 +1504,31 @@
     if (cards.length) startSession(cards, "challenge", null);
   }
 
+  // 💬 The friend quiz (owner, 2026-07): five practical "how do you say…?"
+  // questions per level (window.LEVEL_QUIZ), asked by the learner's chosen
+  // friend — もち子さん stands in before one exists. Cards grade normally, so
+  // a stumped answer drops a notch and rides tomorrow's warmups: didn't know
+  // it, good — now you'll learn it.
+  function quizAskerName() {
+    try {
+      const st = JSON.parse(localStorage.getItem("hanasou.story.v1") || "{}");
+      if (st.inventory && st.inventory.friend) return st.friendName || "Your friend";
+    } catch (e) {}
+    return "もち子さん";
+  }
+  function levelQuizCards(level) {
+    const jps = (window.LEVEL_QUIZ || {})[window.LEVELS.indexOf(level)] || [];
+    const themes = new Set(level.tiers.flatMap((t) => t.themes));
+    return jps
+      .map((jp) => CARDS.find((c) => c.s.jp === jp && themes.has((lessonById[c.lessonId] || {}).section)) ||
+                   CARDS.find((c) => c.s.jp === jp))
+      .filter(Boolean);
+  }
+  function startLevelQuiz(level) {
+    const cards = levelQuizCards(level);
+    if (cards.length) startSession(cards, "levelquiz", null, { asker: quizAskerName() });
+  }
+
   // Each lesson picks an emoji "cover" from what it teaches (its title, grammar
   // point and vocab glosses), so the card art actually depicts the lesson. A
   // hand-set L.cover wins; a keyword match is next; otherwise a stable per-id
@@ -1797,6 +1822,17 @@
     // Appears once the level is cleared; retake it as often as you like.
     const levelDone = regionList.length && regionList.every((r) => r.done);
     if (levelDone) {
+      // 💬 The friend's five practical questions — always retakable once cleared.
+      const qCards = levelQuizCards(level);
+      if (qCards.length) {
+        const qb = document.createElement("button");
+        qb.className = "lesson-card lc-challenge";
+        qb.innerHTML = '<span class="lc-emoji">💬</span>' +
+          '<div class="lc-cap"><span class="lc-title">' + escHTML(quizAskerName()) +
+          " asks · " + qCards.length + " quick questions</span></div>";
+        qb.addEventListener("click", () => startLevelQuiz(level));
+        wrap.appendChild(qb);
+      }
       const strugg = struggledCardsForLevel(level);
       if (strugg.length) {
         const btn = document.createElement("button");
@@ -1941,6 +1977,7 @@
     session = {
       queue: cards.slice(), total: cards.length, cleared: 0, mode, lessonId, flip: false,
       build: !!(opts && opts.build), hard: !!(opts && opts.hard), combo: 0, bestCombo: 0,
+      asker: (opts && opts.asker) || null,   // 💬 who's asking (friend quiz)
       spoken: 0,   // sentences actually said aloud (produce-direction cards)
       missed: [],  // card ids swiped ← nope this session (offered as end-of-lesson review)
       // 🚗 Car mode is the ONLY sentence practice now (owner decision, 2026-07):
@@ -2199,8 +2236,10 @@
     const doBuild = session.build && s.words && s.words.length >= 1;
     current.doBuild = doBuild;
     const recognize = !doBuild && current.dir === "recognize";
-    el.promptLabel.textContent = (current.warmup ? "⚡ Warmup · " : "") +
-      (doBuild ? "Build the sentence" : (recognize ? "What does this mean?" : "Say this in Japanese"));
+    el.promptLabel.textContent = session.mode === "levelquiz"
+      ? "💬 " + (session.asker || "もち子さん") + " asks — how do you say…"
+      : (current.warmup ? "⚡ Warmup · " : "") +
+        (doBuild ? "Build the sentence" : (recognize ? "What does this mean?" : "Say this in Japanese"));
     if (recognize) el.promptEn.innerHTML = furiganaHTML(s.jp);
     else el.promptEn.textContent = s.en;
     el.promptEn.classList.toggle("jp", recognize);
@@ -2621,6 +2660,12 @@
       msg = remaining > 0
         ? `Challenge faced! ${remaining} sentence${remaining === 1 ? "" : "s"} still marked — they'll ride your warmups.`
         : "🏆 Challenge cleared — every sentence you ever stumbled on, nailed.";
+    } else if (session.mode === "levelquiz") {
+      const who = session.asker || "もち子さん";
+      const m = session.missed.length;
+      msg = m === 0
+        ? `You had an answer for everything ${who} asked. 完璧！`
+        : `${m} of ${session.total} stumped you — good ones to know. They'll ride your warmups.`;
     } else if (session.mode === "review") {
       msg = "Review session done. Nice work keeping things fresh.";
     } else {
@@ -2632,9 +2677,20 @@
     // Finishing a full pass marks the lesson done — even if some cards were
     // swiped ← nope (owner: reaching the end IS finishing it; misses come back
     // in the end-of-lesson review + warmups, they don't block completion).
+    let quizOffer = null;   // 💬 the run that completes a level earns the friend's questions
     if (session.mode === "lesson" && session.lessonId) {
+      const wasCleared = !!prog.cleared[session.lessonId];
       prog.cleared[session.lessonId] = true;
       markLessonKanaSeen(session.lessonId); save();
+      if (!wasCleared) {
+        const L = lessonById[session.lessonId];
+        const lv = L && window.LEVELS.find((v) => v.tiers.some((t) => t.themes.includes(L.section)));
+        if (lv) {
+          const themes = new Set(lv.tiers.flatMap((t) => t.themes));
+          const rest = window.LESSONS.filter((x) => themes.has(x.section));
+          if (rest.length && rest.every((x) => prog.cleared[x.id]) && levelQuizCards(lv).length) quizOffer = lv;
+        }
+      }
     }
     // Carry this run's ← nope cards to the end-of-lesson "review misses" button.
     lastMissed = (session.missed || []).slice();
@@ -2645,6 +2701,19 @@
     }
     el.doneSummary.textContent = msg;
     el.encoreBtn.hidden = true;   // folded into the 3-button row (owner: minimal)
+    // 💬 Level just completed → the friend leans over with five questions.
+    let qbtn = document.getElementById("done-levelquiz-btn");
+    if (!qbtn) {
+      qbtn = document.createElement("button");
+      qbtn.id = "done-levelquiz-btn";
+      qbtn.className = "primary review-btn";
+      el.encoreBtn.insertAdjacentElement("afterend", qbtn);
+    }
+    qbtn.hidden = !quizOffer;
+    if (quizOffer) {
+      qbtn.textContent = "💬 " + quizAskerName() + " has a few questions for you →";
+      qbtn.onclick = () => startLevelQuiz(quizOffer);
+    }
     // Real-world mission — a tiny transfer task, because the point is using
     // Japanese out in your day, not in the app.
     let mission = "";

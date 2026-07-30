@@ -226,8 +226,7 @@ window.LESSONS = [
       { jp: "ひと", romaji: "hito", en: "person", pos: "n" },
       { jp: "ふね", romaji: "fune", en: "boat", pos: "n" },
       { jp: "ほし", romaji: "hoshi", en: "star", pos: "n" },
-      { jp: "おへそ", romaji: "oheso", en: "belly button", pos: "n" },
-      { jp: "はし", romaji: "hashi", en: "bridge / chopsticks", pos: "n" },
+      { jp: "へえ", romaji: "hee", en: "wow / really?", pos: "expr" },      { jp: "はし", romaji: "hashi", en: "bridge / chopsticks", pos: "n" },
       { jp: "とおい", romaji: "tooi", en: "far", pos: "adj" },
     ],
     sentences: [
@@ -239,8 +238,8 @@ window.LESSONS = [
         words: [{jp:"ほし",en:"star",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"とおい",en:"far",pos:"adj"}] },
       { en: "Yes.", jp: "はい。", romaji: "hai.",
         words: [{jp:"はい",en:"yes",pos:"expr"}] },
-      { en: "A tiny belly button!", jp: "ちいさい おへそ！", romaji: "chiisai oheso!",
-        words: [{jp:"ちいさい",en:"small",pos:"adj"},{jp:"おへそ",en:"belly button",pos:"n"}] },
+      { en: "Wow, tiny chopsticks!", jp: "へえ、ちいさい はし！", romaji: "hee, chiisai hashi!",
+        words: [{jp:"へえ",en:"wow",pos:"expr"},{jp:"ちいさい",en:"small",pos:"adj"},{jp:"はし",en:"chopsticks",pos:"n"}] },
       { en: "A nice person!", jp: "いい ひと！", romaji: "ii hito!",
         words: [{jp:"いい",en:"good",pos:"adj"},{jp:"ひと",en:"person",pos:"n"}] },
     ],
@@ -256,7 +255,7 @@ window.LESSONS = [
       { jp: "みせ", romaji: "mise", en: "shop", pos: "n" },
       { jp: "あめ", romaji: "ame", en: "rain / candy", pos: "n" },
       { jp: "うみ", romaji: "umi", en: "sea", pos: "n" },
-      { jp: "むし", romaji: "mushi", en: "insect", pos: "n" },
+      { jp: "みせ", romaji: "mise", en: "shop", pos: "n" },
       { jp: "め", romaji: "me", en: "eye", pos: "n" },
     ],
     sentences: [
@@ -266,8 +265,8 @@ window.LESSONS = [
         words: [{jp:"まち",en:"town",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ちいさい",en:"small",pos:"adj"}] },
       { en: "The peach is tasty.", jp: "ももは おいしい。", romaji: "momo wa oishii.",
         words: [{jp:"もも",en:"peach",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"おいしい",en:"tasty",pos:"adj"}] },
-      { en: "The bug is small.", jp: "むしは ちいさい。", romaji: "mushi wa chiisai.",
-        words: [{jp:"むし",en:"bug",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ちいさい",en:"small",pos:"adj"}] },
+      { en: "The shop is small.", jp: "みせは ちいさい。", romaji: "mise wa chiisai.",
+        words: [{jp:"みせ",en:"shop",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"ちいさい",en:"small",pos:"adj"}] },
       { en: "The eyes are big.", jp: "めは おおきい。", romaji: "me wa ookii.",
         words: [{jp:"め",en:"eye",pos:"n"},{jp:"は",en:"[topic]",pos:"prt"},{jp:"おおきい",en:"big",pos:"adj"}] },
     ],
@@ -3184,4 +3183,68 @@ window.MISSIONS = {
     "Label one thing near you with its Japanese word.",
     "Whisper one of these sentences the next time the moment fits.",
   ],
+};
+
+// ---- Level quiz: the friend's practical questions -------------------------
+// Five "how do you say …?" questions per level, asked by the learner's chosen
+// friend once the level is complete. Every entry is the exact jp of a taught
+// sentence (card + clip already exist — the lint enforces it), picked for
+// street usefulness: the things a coworker actually leans over and asks.
+window.LEVEL_QUIZ = {
+  0: [
+    "これは ほんです。",
+    "わたしの ほん！",
+    "これは とり。",
+    "へえ、ちいさい はし！",
+    "みせは ちいさい。"
+  ],
+  1: [
+    "これは いくらですか？",
+    "トイレは どこですか？",
+    "みずを ください。",
+    "はじめまして。",
+    "いま なんじですか？"
+  ],
+  2: [
+    "ちょっと まって ください。",
+    "ここに すわっても いいですか？",
+    "ねるまえに、はを みがきます。",
+    "たかいけど、おいしい。",
+    "おきて、たべて、でかけます。"
+  ],
+  3: [
+    "どこで のりかえですか？",
+    "この でんしゃは しぶやに いきますか？",
+    "みちに まよいました。",
+    "しんじゅくまで いちまい おねがいします。",
+    "きっぷは どこで かいますか？"
+  ],
+  4: [
+    "こんど ごはん いかない？",
+    "えきで あおう。",
+    "すごい！",
+    "ともだちが かしてくれた。",
+    "あした あめだと おもう。"
+  ],
+  5: [
+    "やすかったら、かう。",
+    "なっとう たべられる？",
+    "やってみる。",
+    "すし たべたこと ある？",
+    "おいしそう！"
+  ],
+  6: [
+    "さいふを ぬすまれた。",
+    "きょうは はらわせて。",
+    "でんしゃは もうすぐ つくはず。",
+    "あめでも、いく。",
+    "にほんごが はなせるようになった。"
+  ],
+  7: [
+    "たなかと もうします。",
+    "しょうしょう おまちいただけますか。",
+    "どうぞ めしあがってください。",
+    "おなまえは なんと おっしゃいますか。",
+    "かしこまりました。"
+  ]
 };
