@@ -2106,7 +2106,7 @@
   // you've missed across ALL lessons — your whole backlog in one place.
   function startCatchup() {
     const cards = reviewCards();
-    if (!cards.length) { flash("All caught up — nothing to review 🎉"); return; }
+    if (!cards.length) return;   // nothing due — the tap just does nothing, no popup
     startSession(cards.slice(), "review", null);
   }
   // End-of-lesson "review misses": replay just the sentences you swiped ← nope
@@ -2117,16 +2117,6 @@
       if (cards.length) { startSession(cards, "review", null); return; }
     }
     startCatchup();
-  }
-  // A brief bottom toast for transient feedback (e.g. nothing to catch up).
-  let flashTimer = null;
-  function flash(msg) {
-    let t = document.getElementById("toast");
-    if (!t) { t = document.createElement("div"); t.id = "toast"; document.body.appendChild(t); }
-    t.textContent = msg;
-    t.classList.add("show");
-    clearTimeout(flashTimer);
-    flashTimer = setTimeout(() => t.classList.remove("show"), 2200);
   }
   function lastGradeOf(p) {
     if (!p) return 0;
