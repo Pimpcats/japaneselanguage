@@ -255,9 +255,9 @@ to reveal-and-listen when unavailable.
   bubble in `openIntro`), now reached opt-in via the card's 📖 Words button.
   New scene lines for her need clips; reuse existing lesson sentences for the
   learner's lines so their clips already exist (the lint enforces learner lines
-  are real lesson sentences). ALL of Level 1 (29 lessons) has hand-written
-  scenes — her lines genuinely respond (she answers prices, reacts to news,
-  asks follow-ups). Levels 2-7 still use the auto-built flow; converting them
+  are real lesson sentences). ALL of Level 1 AND Level 2 have hand-written
+  scenes (38 total, L2 added 2026-07-31) — her lines genuinely respond (she answers prices, reacts to news,
+  asks follow-ups). Levels 3-7 still use the auto-built flow; converting them
   is the standing direction: reinforce what was learned through natural
   conversation.
 - **The level page is a rail of framed picture cards** (2026-07, owner
