@@ -51,7 +51,13 @@ for (let i = 0; i < 200 && document.getElementById("lesson-done").hidden; i++) {
   click(document.querySelector('#grade button[data-grade="2"]'));           // got it
 }
 check("a lesson can be played to the end", !document.getElementById("lesson-done").hidden);
-click(document.getElementById("back-btn"));
+// Talk is the only speaking entry point, and the lesson cards no longer carry
+// launchers — if this button goes missing, all 73 scenes become unreachable.
+const talkBtn = document.getElementById("done-talk-btn");
+check("lesson-complete offers Talk with もち子さん", !!talkBtn && !talkBtn.hidden && /Talk|talk/.test(talkBtn.textContent));
+click(talkBtn);
+check("Talk opens the scene player", !document.getElementById("quiz").hidden);
+click(document.getElementById("quiz-back-btn"));   // leaving Talk also returns to the map
 check("back after finishing lands on the NEXT lesson",
   (document.querySelector(".lesson-card.lc-focus") || {}).dataset?.lesson === railIds[1]);
 // Catch up is folded in: missed cards ride as warmups, and the

@@ -262,7 +262,12 @@
   const done = document.getElementById("lesson-done");
   if (done) {
     new MutationObserver(() => {
-      if (!done.hidden) { confetti(40); playComplete(); setTimeout(() => confetti(24), 380); }
+      if (!done.hidden) {
+        // A combo reaction fired seconds ago sits at the bottom-right — right
+        // on top of this screen's buttons. The screen has its own celebration.
+        helper.style.opacity = "0";
+        confetti(40); playComplete(); setTimeout(() => confetti(24), 380);
+      }
     }).observe(done, { attributes: true, attributeFilter: ["hidden"] });
   }
 

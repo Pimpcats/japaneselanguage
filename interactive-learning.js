@@ -149,6 +149,9 @@
       });
       scene.querySelectorAll(".scene-mochiko").forEach((m) => { m.style.height = (H * 0.30) + "px"; });
       fitRow(scene, objs);              // shrink + centre so nothing (incl. tags) clips the frame
+      // labels hang off the top/side of what they label — pull any that ended
+      // up over the edge back in (price tag, friend's name, counter chip)
+      scene.querySelectorAll(".obj-tag, .obj-name, .count-chip").forEach((n) => keepInside(n, scene));
     };
     requestAnimationFrame(apply);
     setTimeout(apply, 60);                            // re-apply once layout settles
@@ -1357,7 +1360,15 @@
     overlay.continueBtn.textContent = text || "Continue →";
     overlay.continueBtn.hidden = false;
     overlay.continueBtn.onclick = finishBeat;
-    requestAnimationFrame(() => { try { overlay.continueBtn.focus({ preventScroll: true }); } catch {} });
+    requestAnimationFrame(() => {
+      try { overlay.continueBtn.focus({ preventScroll: true }); } catch {}
+      // The panel grows when the answer attaches, so on a short screen the CTA
+      // can end up below the fold — the learner sees no button and taps around.
+      try {
+        const r = overlay.continueBtn.getBoundingClientRect();
+        if (r.bottom > window.innerHeight - 4 || r.top < 0) overlay.continueBtn.scrollIntoView({ block: "end" });
+      } catch {}
+    });
   }
 
   function sentenceBlock(cls, label, sentence) {
@@ -1947,9 +1958,19 @@
       if (reducedMotion) return;
       const a = btn.getBoundingClientRect();
       const b = dest.getBoundingClientRect();
+      const s = scene.getBoundingClientRect();
+      const SC = 0.75;
+      let dx = (b.left + b.width / 2) - (a.left + a.width / 2);
+      let dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+      // The destination is a point, and the item lands centred on it — near an
+      // edge that means half the item ends up outside the frame, which clips.
+      // Keep the whole (shrunk) item inside.
+      const w = a.width * SC, h = a.height * SC;
+      const cx = a.left + a.width / 2 + dx, cy = a.top + a.height / 2 + dy;
+      dx += Math.min(Math.max(cx, s.left + w / 2 + 6), s.right - w / 2 - 6) - cx;
+      dy += Math.min(Math.max(cy, s.top + h / 2 + 6), s.bottom - h / 2 - 6) - cy;
       btn.style.transition = "transform 0.5s cubic-bezier(0.2, 0.8, 0.3, 1)";
-      btn.style.transform = "translate(" + (b.left + b.width / 2 - (a.left + a.width / 2)) + "px, " +
-        (b.top + b.height / 2 - (a.top + a.height / 2)) + "px) scale(0.75)";
+      btn.style.transform = "translate(" + dx + "px, " + dy + "px) scale(" + SC + ")";
       btn.style.zIndex = "6";
     };
     const complete = () => {
@@ -1996,6 +2017,28 @@
         }
       });
     });
+  }
+
+  // Nudge an absolutely-positioned decoration (a counter chip, a price tag)
+  // back inside its frame. These hang off the side/top of the thing they
+  // label, so the outermost one always overflows the scene — and the scene
+  // clips, so the label is what gets cut in half.
+  function keepInside(node, box) {
+    const frame = box || node.closest(".story-scene") || node.closest(".story-stage");
+    if (!frame) return;
+    const nudge = () => {
+      node.style.marginLeft = ""; node.style.marginTop = "";
+      const r = node.getBoundingClientRect(), f = frame.getBoundingClientRect();
+      if (!r.width || !f.width) return;
+      let dx = 0, dy = 0;
+      if (r.right > f.right - 3) dx = (f.right - 3) - r.right;
+      if (r.left + dx < f.left + 3) dx = (f.left + 3) - r.left;
+      if (r.top < f.top + 3) dy = (f.top + 3) - r.top;
+      if (r.bottom + dy > f.bottom - 3) dy = (f.bottom - 3) - r.bottom;
+      if (dx) node.style.marginLeft = dx + "px";
+      if (dy) node.style.marginTop = dy + "px";
+    };
+    requestAnimationFrame(nudge);
   }
 
   // Shrink the counting board until all N items are inside the frame. The
@@ -2052,7 +2095,9 @@
         if (slot.classList.contains("counted") || counted >= beat.n) return;
         slot.classList.add("counted");
         const word = COUNTS[counted] || String(counted + 1);
-        slot.appendChild(el("span", "count-chip", word));
+        const chip = el("span", "count-chip", word);
+        slot.appendChild(chip);
+        keepInside(chip, scene);       // ふたつ on the end item must not clip
         if (window.HanasouSpeak) window.HanasouSpeak(word);   // hear each number
         counted += 1;
         if (counted >= beat.n) {

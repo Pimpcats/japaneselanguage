@@ -296,7 +296,11 @@
 
   function syncPracticeNav() {
     if (!practiceNav) return;
-    practiceNav.hidden = !drill || drill.hidden;
+    // Talk with もち子さん needs the escape hatch as much as the drill does:
+    // its own back button only appears on the end-of-scene summary, so without
+    // this you're stuck in the conversation until the last line.
+    const talk = $("quiz");
+    practiceNav.hidden = (!drill || drill.hidden) && (!talk || talk.hidden);
   }
 
   function findLevelIndex(lesson) {
@@ -473,7 +477,7 @@
   if (dailyRing) dailyRing.addEventListener("click", () => activateHub("progress", true));
 
   const screenObserver = new MutationObserver(queueRefresh);
-  [home, $("lesson-intro"), $("drill"), $("settings"), $("mine-form"), $("import-form"), $("reader"), $("lesson-done")]
+  [home, $("lesson-intro"), $("drill"), $("quiz"), $("settings"), $("mine-form"), $("import-form"), $("reader"), $("lesson-done")]
     .filter(Boolean)
     .forEach((screen) => screenObserver.observe(screen, { attributes: true, attributeFilter: ["hidden"] }));
 

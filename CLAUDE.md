@@ -59,6 +59,14 @@ optional token-based blob sync to a VPS at `/api/progress` with field-level merg
    jsdom and clicks through home → lesson → talk. A v93 deploy shipped a
    ReferenceError that node --check can't catch; the smoke test exists so that
    never happens again.
+2b. Touched anything the story beats draw (scenes, art, overlay CSS)? Run the
+   visual net too: `npm i --no-save playwright && node tools/ui_audit.mjs`.
+   It drives a phone-sized browser through every screen and all ~124 beats —
+   TAPPING each one, since most of these bugs only appear after a tap — and
+   fails on anything drawn outside the box that clips it, a see-through
+   overlay, a primary button under the fold, missing art, or a JS error. This
+   is the class of bug that kept reaching the owner's phone (v282–283).
+   `--shots DIR` saves a screenshot of every state for eyeballing.
 3. Sync the mock: `sed 's#url("assets/#url("../assets/#g' theme.css > mock/theme.css`
 4. Bump the version **everywhere it appears**: `?v=NN` in `index.html` (6 places)
    and `hanasou-vNN` in `sw.js`. They move together.
@@ -196,6 +204,11 @@ plays the clip, falling back to device `speechSynthesis` if missing.
   detached ON PURPOSE — the tool is for single-figure cut-outs. And never
   trim `assets/story/people/*` — their shared 540px canvas is the yardstick
   that keeps a seated pose shorter than a standing one.
+- **Anything that hangs off the edge of what it labels gets clamped.** Counter
+  chips (ひとつ…), price tags, the friend's name tag and the fly-to-hand
+  landing spot all sit outside their object's box, and the scene clips — so
+  `keepInside()` pulls them back after layout, and the order beat's fly target
+  is clamped to the frame. Reach for it whenever you add a floating label.
 - The story overlay's root class is `story-break open beat-<type>`. The
   `beat-` prefix is deliberate: panel blocks are `.story-<name>`, and a type
   class of `story-ask` once matched `.story-ask`'s translucent background,
@@ -229,8 +242,12 @@ touches the drive-vs-not distinction anymore; don't reintroduce a toggle or a
 
 ## Speaking practice = "Talk with もち子さん" (app.js)
 
-The 🎭 talk launcher — one of the four buttons on every lesson card, and a
-button on the lesson-complete screen — is the single speaking entry point; the
+The 🎭 talk launcher is the single speaking entry point, and it lives in ONE
+place: `#done-talk-btn` on the lesson-complete screen. Guard it — when the
+lesson cards dropped their launcher buttons, Talk lost its only other door and
+was unreachable for weeks (found 2026-08: `openIntro`, which built the old 🎭
+button, is never called). Every scene is dead content the moment that button
+goes; the smoke test asserts it exists and opens the scene player. The
 standalone speaking-quiz and listen-and-repeat buttons were removed at the
 owner's request (2026-07). Hand-written
 `window.SCENES` override; every other lesson auto-builds a conversation

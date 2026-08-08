@@ -83,7 +83,9 @@ body.story-open { overflow: hidden; }
 
 .story-stage {
   position: relative;
-  min-height: 230px;
+  /* vh-capped so a tall card (title + stage + answer + CTA) still fits a short
+     screen — the stage is the block with room to give */
+  min-height: min(230px, 27vh);
   border: 2px solid color-mix(in srgb, var(--story-blue) 20%, var(--ink, #ccc));
   border-radius: 18px;
   background:
@@ -105,7 +107,7 @@ body.story-open { overflow: hidden; }
   z-index: -1;
 }
 /* scene stages draw their own world — no padding, no floor line */
-.story-stage-point, .story-stage-ask, .story-stage-order { padding: 0; min-height: 300px; }
+.story-stage-point, .story-stage-ask, .story-stage-order { padding: 0; min-height: min(300px, 34vh); }
 .story-stage-point::after, .story-stage-ask::after, .story-stage-order::after { display: none; }
 
 .story-feedback {
@@ -570,7 +572,8 @@ button.primary.story-continue {
 /* ---- counting board: exactly N items on a clean paper stage, no scene ---- */
 .story-scene-count { background: linear-gradient(170deg, #fbf9f2, #f2edde); }
 .count-row {
-  position: absolute; inset: 8% 5%;
+  /* extra headroom up top: each tap pops a counter chip ABOVE its item */
+  position: absolute; inset: 16% 5% 8%;
   display: flex; flex-wrap: wrap; align-content: center; justify-content: center;
   gap: 1.9em 1.4em; font-size: 20px;
 }

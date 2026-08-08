@@ -2690,6 +2690,20 @@
     }
     el.doneSummary.textContent = msg;
     el.encoreBtn.hidden = true;   // folded into the 3-button row (owner: minimal)
+    // 🎭 Use what you just drilled, in conversation. This is the ONLY way into
+    // Talk since the lesson cards dropped their launcher buttons — without it
+    // every hand-written scene is unreachable.
+    const talkBtn = document.getElementById("done-talk-btn");
+    if (talkBtn) {
+      const talkLesson = (session.mode === "lesson" || session.mode === "review-misses") && session.lessonId
+        ? lessonById[session.lessonId] : activeLesson;
+      talkBtn.hidden = !talkLesson;
+      if (talkLesson) {
+        const sc = (window.SCENES || []).find((s) => s.lesson === talkLesson.id);
+        talkBtn.textContent = sc ? "🎭 " + sc.title + " — talk with もち子さん" : "🎭 Talk with もち子さん";
+        talkBtn.onclick = () => { activeLesson = talkLesson; startTalk(talkLesson); };
+      }
+    }
     // 💬 Level just completed → the friend leans over with five questions.
     let qbtn = document.getElementById("done-levelquiz-btn");
     if (!qbtn) {
