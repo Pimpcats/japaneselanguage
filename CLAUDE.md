@@ -180,6 +180,26 @@ plays the clip, falling back to device `speechSynthesis` if missing.
   (one cover per lesson, shown on its station-sign card). The engine maps
   keys→images in `OBJ_IMG` (interactive-learning.js) with OBJ_SVG as
   fallback; books/clock have special multi-image handling there.
+- **Every new object MUST get a `SCALE` entry** (interactive-learning.js). An
+  object missing from SCALE used to drop out of `scaleScene`, which then
+  bailed and left the WHOLE scene unscaled — the raw 512px art, three times
+  taller than its stage (the TV bug, 2026-08). There's a fallback now, but a
+  real value is what makes the object the right size next to a person.
+- **Cut art must be trimmed and speckle-free.** Two checkers, both safe to
+  re-run: `python3 tools/trim_art.py --check assets/story/*.png` (art with
+  empty margins renders small and floats above the ground line — the engine
+  sets the BOX height, `object-fit: contain` shrinks the picture inside it)
+  and `python3 tools/despeckle.py --check assets/story/people/*.png` (ink
+  islands outside the subject's silhouette — a neighbouring cell's fist that
+  survived the cut). Drop `--check` to fix in place. NEVER despeckle object
+  art wholesale: raindrops, steam, music notes and snowman buttons are
+  detached ON PURPOSE — the tool is for single-figure cut-outs. And never
+  trim `assets/story/people/*` — their shared 540px canvas is the yardstick
+  that keeps a seated pose shorter than a standing one.
+- The story overlay's root class is `story-break open beat-<type>`. The
+  `beat-` prefix is deliberate: panel blocks are `.story-<name>`, and a type
+  class of `story-ask` once matched `.story-ask`'s translucent background,
+  turning the whole full-screen overlay see-through.
 - The three stages (room/street/shop) are drawn backdrops (`bg-*.png`) set
   as `background-image` on `.story-scene-*`; the old gradient wall/floor
   layers are transparent but keep their zone geometry. The shop's item zone
@@ -310,6 +330,11 @@ to reveal-and-listen when unavailable.
   tap again" nudge made every second new lesson a double-tap and was removed.
   Lessons start on the first tap, always. Do not reintroduce pacing nudges,
   streaks, or locks of any kind.
+- **Back points forward** (owner, 2026-08): finishing a lesson sets
+  `backTargetId` to the next unfinished lesson, so Back off the complete
+  screen lands (and pulses, `.lc-focus`) on the NEXT stop — opening its level
+  if that stop lives in another one. Leaving a lesson unfinished still
+  returns to that same lesson. Smoke test covers both.
 
 ## Interactive story beats (interactive-learning.js — owner direction, 2026-07)
 

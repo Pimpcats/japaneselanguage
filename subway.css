@@ -171,6 +171,14 @@ body::before { display: none !important; }   /* kill the kawaii street veil */
 .station-sign .lc-act-lbl { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.02em; }
 .station-sign.lc-ahead { opacity: 0.92; }
 .station-sign.lc-done .st-jp { color: var(--ink-soft); }
+/* the stop you just pulled into — Back after a finished lesson lands here */
+.station-sign.lc-focus { opacity: 1; animation: lc-arrive 1.5s ease both; }
+@keyframes lc-arrive {
+  0%   { box-shadow: 0 0 0 0 rgba(49, 95, 158, 0.42); }
+  35%  { box-shadow: 0 0 0 9px rgba(49, 95, 158, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(49, 95, 158, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .station-sign.lc-focus { animation: none; } }
 /* hide any leftover kawaii cover bits if present */
 .station-sign .lc-emoji, .station-sign .lc-flag, .station-sign .lc-cap > .lc-title { display: none !important; }
 

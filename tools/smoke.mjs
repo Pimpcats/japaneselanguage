@@ -42,6 +42,18 @@ click(document.getElementById("card"));   // whole sheet is the reveal button
 check("answer draws romaji over each kana", document.querySelectorAll("#answer-kana ruby.mr rt").length > 0);
 click(document.getElementById("back-btn"));   // back to the level's card rail
 check("back returns to the lesson cards", document.querySelectorAll(".lesson-card").length >= 3);
+// Leaving mid-lesson comes back to the SAME lesson; finishing one moves the
+// landing spot forward to the next lesson (owner, 2026-08).
+const railIds = [...document.querySelectorAll(".lesson-rail .lesson-card")].map((c) => c.dataset.lesson);
+click(document.querySelector(".lesson-rail .lesson-card"));
+for (let i = 0; i < 200 && document.getElementById("lesson-done").hidden; i++) {
+  click(document.getElementById("card"));                                   // reveal
+  click(document.querySelector('#grade button[data-grade="2"]'));           // got it
+}
+check("a lesson can be played to the end", !document.getElementById("lesson-done").hidden);
+click(document.getElementById("back-btn"));
+check("back after finishing lands on the NEXT lesson",
+  (document.querySelector(".lesson-card.lc-focus") || {}).dataset?.lesson === railIds[1]);
 // Catch up is folded in: missed cards ride as warmups, and the
 // lesson-complete screen keeps its explicit catch-up button.
 const catchupBtn = document.getElementById("done-quiz-btn");

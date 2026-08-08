@@ -1858,6 +1858,10 @@
 
   // ---- Lesson intro --------------------------------------------------------
   let activeLesson = null;
+  // Where Back should land next time. Finishing a lesson points it at the one
+  // AFTER it — coming out of a lesson you just cleared onto that same lesson
+  // reads like nothing happened (owner, 2026-08).
+  let backTargetId = null;
 
   // もち子さん greets you at the door — tap the bubble to hear her say it.
   // The line rotates by lesson and day so she doesn't repeat herself.
@@ -2046,6 +2050,7 @@
     // (owner, 2026-07-31): it made every second new lesson a double-tap.
     // Lessons start on the first tap, always.
     activeLesson = L;   // the lesson-complete screen & Talk button read this
+    backTargetId = null;   // leaving THIS lesson unfinished returns to it
     // Remember where we left off so the Home "Continue" banner stays current.
     // The banner (ui-polish.js) is the only other writer; rail cards start here,
     // so without this the banner would freeze on the last lesson opened FROM it.
@@ -2665,6 +2670,7 @@
       const wasCleared = !!prog.cleared[session.lessonId];
       prog.cleared[session.lessonId] = true;
       markLessonKanaSeen(session.lessonId); save();
+      backTargetId = lessonAfter(session.lessonId);   // Back now points forward
       if (!wasCleared) {
         const L = lessonById[session.lessonId];
         const lv = L && window.LEVELS.find((v) => v.tiers.some((t) => t.themes.includes(L.section)));
@@ -3282,13 +3288,38 @@
 
   // Back from a lesson (intro / drill / scene / done) lands on the level page
   // scrolled to that lesson's card — not the top of the page.
+  // The lesson to move on to after `id`: the next one still unfinished in
+  // curriculum order, or simply the one that follows it if everything ahead is
+  // already cleared. Never goes backwards.
+  function lessonAfter(id) {
+    const ord = orderedLessons();
+    const i = ord.findIndex((L) => L.id === id);
+    if (i < 0) return null;
+    const rest = ord.slice(i + 1);
+    const next = rest.find((L) => !prog.cleared[L.id]) || rest[0];
+    return next ? next.id : null;
+  }
+
   function backToMap() {
+    // After finishing a lesson, land on the NEXT one — and open its level if
+    // that lesson lives in a different one, so the card is actually on screen.
+    const target = backTargetId ? lessonById[backTargetId] : (activeLesson || null);
+    backTargetId = null;
+    if (target) {
+      const lv = window.LEVELS.find((l) => l.tiers.some((t) => t.themes.includes(target.section)));
+      if (lv && openLevelId != null && openLevelId !== lv.id) {
+        openLevelId = lv.id; settings.activeLevel = lv.id; saveSettings();
+      }
+    }
     renderHome();
-    if (openLevelId && activeLesson) {
-      requestAnimationFrame(() => {
-        const chip = document.querySelector('.lesson-card[data-lesson="' + activeLesson.id + '"]');
-        if (chip && chip.scrollIntoView) chip.scrollIntoView({ block: "center" });
-      });
+    if (openLevelId && target) {
+      const chip = document.querySelector('.lesson-card[data-lesson="' + target.id + '"]');
+      if (chip) {
+        chip.classList.add("lc-focus");     // a beat of "here's where you are"
+        setTimeout(() => chip.classList.remove("lc-focus"), 1600);
+        // scrolling waits for layout; the marker doesn't
+        requestAnimationFrame(() => { if (chip.scrollIntoView) chip.scrollIntoView({ block: "center", inline: "center" }); });
+      }
     }
   }
 

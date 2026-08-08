@@ -94,14 +94,26 @@
     menu: 0.6, coin100: 0.16, clock: 0.6, flower: 0.5, redflower: 0.62,
     sea: 1.2, sun: 0.85, moon: 0.75, star: 0.28, japanmap: 1.3, usflag: 0.7,
     wc: 1.25,
+    // the 2026-07 prop sweep — every one of these used to be missing, which
+    // made scaleScene bail out and render the raw 512px art (a TV three times
+    // taller than its stage). Anything new MUST land here.
+    tv: 0.85, bathtub: 1.0, winter: 1.0, thief: 1.05, raincloud: 1.1,
+    chatbubble: 0.7, suitcase: 0.62, bigface: 1.15, redface: 1.15,
+    meat: 0.34, gohan: 0.3, natto: 0.3, cake: 0.34, emptyplate: 0.34,
+    bill: 0.28, wallet: 0.26, toothbrush: 0.3, alarmclock: 0.3,
   };
+  const SCALE_FALLBACK = 0.6;   // unknown object → sized like a small prop, never raw
   // depth in the scene: near = right up front, far = at the horizon (perspective)
   const DIST = { near: 1.0, partner: 0.82, table: 0.85, wall: 0.72, counter: 0.72, far: 0.46, center: 1.0 };
   function scaleScene(scene) {
     const apply = () => {
       const H = scene.clientHeight || 300;
+      // Every object on stage gets sized — an object with no SCALE entry falls
+      // back rather than dropping out, because dropping out used to mean the
+      // whole scene went unscaled and the art rendered at its raw pixel size.
+      const scaleOf = (b) => (SCALE[b.dataset.object] != null ? SCALE[b.dataset.object] : SCALE_FALLBACK);
       const objs = [...scene.querySelectorAll(".scene-zone .story-obj, .ground-row .story-obj")]
-        .filter((b) => SCALE[b.dataset.object] != null && !b.classList.contains("obj-avatar-act"));
+        .filter((b) => !b.classList.contains("obj-avatar-act"));
       if (!objs.length) return;
       const hasPerson = scene.querySelector(".scene-mochiko") ||
         objs.some((b) => ["mochiko", "friend", "avatar", "friendchar"].includes(b.dataset.object));
@@ -113,12 +125,15 @@
       } else {
         // no person on stage → the object IS the subject. Size it to read well,
         // keeping multiple objects proportional to each other.
-        const maxScale = Math.max(...objs.map((b) => SCALE[b.dataset.object]));
-        const heroBig = scene.querySelector(".story-obj.obj-hero") ? 0.66 : 0.46;
-        unit = (H * heroBig) / maxScale; // biggest object ≈ 46% (66% for hero/tall claims)
+        const maxScale = Math.max(...objs.map(scaleOf));
+        // one thing on stage → let it own the frame; a group stays smaller so
+        // they all fit side by side. (A lone object at 46% reads as lost.)
+        const alone = objs.length === 1 && !scene.querySelector(".prop-figure");
+        const heroBig = scene.querySelector(".story-obj.obj-hero") ? 0.66 : (alone ? 0.6 : 0.46);
+        unit = (H * heroBig) / maxScale; // biggest object ≈ 46% (60% alone, 66% hero)
       }
       objs.forEach((btn) => {
-        const sc = SCALE[btn.dataset.object];
+        const sc = scaleOf(btn);
         // grounded/floated subjects present at their scale; only zoned (point)
         // beats use perspective distance.
         const inGround = btn.closest(".ground-row");
@@ -1292,7 +1307,11 @@
 
   function renderBeat(beat, onDone) {
     overlay.root.hidden = false;
-    overlay.root.className = "story-break open story-" + beat.type;
+    // NB: the type class is prefixed "beat-", not "story-" — the panel's own
+    // blocks are .story-<name> (.story-ask, .story-answer…), and a type class
+    // of the same name landed those styles on the full-screen root, which made
+    // the whole overlay transparent (you could read the card underneath).
+    overlay.root.className = "story-break open beat-" + beat.type;
     if (beat.target) overlay.root.dataset.target = beat.target;
     else if (beat.type === "order") overlay.root.dataset.target = beat.targets ? "multi" : "free";
     else delete overlay.root.dataset.target;
@@ -1979,6 +1998,35 @@
     });
   }
 
+  // Shrink the counting board until all N items are inside the frame. The
+  // per-count font sizes in CSS are a starting guess; the stage is a different
+  // size on every phone, and a guess that's 5px too wide re-wraps the row into
+  // an extra line that then clips off the top (owner reported exactly that:
+  // five sushi, two of them cut in half). Measure, shrink, repeat.
+  function fitCount(row) {
+    const fit = () => {
+      const slots = [...row.querySelectorAll(".count-slot")];
+      if (!slots.length) return;
+      const spans = () => {
+        const rr = row.getBoundingClientRect();
+        let t = Infinity, b = -Infinity, l = Infinity, r = -Infinity;
+        slots.forEach((s) => {
+          const q = s.getBoundingClientRect();
+          t = Math.min(t, q.top); b = Math.max(b, q.bottom);
+          l = Math.min(l, q.left); r = Math.max(r, q.right);
+        });
+        return { over: b - t > rr.height + 1 || r - l > rr.width + 1 };
+      };
+      let size = parseFloat(getComputedStyle(row).fontSize) || 20;
+      for (let i = 0; i < 26 && spans().over && size > 8; i += 1) {
+        size *= 0.93;
+        row.style.fontSize = size + "px";
+      }
+    };
+    requestAnimationFrame(fit);
+    setTimeout(fit, 60);            // re-fit once fonts/layout settle
+  }
+
   // ---- count: tap them one at a time — the counting IS the word --------------
   function renderCountBeat(beat, finishBeat) {
     overlay.title.textContent = beat.instruction;
@@ -1996,7 +2044,7 @@
     }
     scene.appendChild(row);
     overlay.stage.appendChild(scene);
-    scaleScene(scene);
+    fitCount(row);
 
     let counted = 0;
     row.querySelectorAll(".count-slot").forEach((slot) => {
