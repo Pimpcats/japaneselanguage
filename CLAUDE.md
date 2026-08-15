@@ -59,8 +59,11 @@ optional token-based blob sync to a VPS at `/api/progress` with field-level merg
    jsdom and clicks through home → lesson → talk. A v93 deploy shipped a
    ReferenceError that node --check can't catch; the smoke test exists so that
    never happens again.
-2b. Touched anything the story beats draw (scenes, art, overlay CSS)? Run the
-   visual net too: `npm i --no-save playwright && node tools/ui_audit.mjs`.
+2b. Touched anything the story beats draw (scenes, art, overlay CSS)? Run BOTH
+   visual nets: `node tools/scene_audit.mjs` (every beat, every tap state →
+   ./audit/ screenshots + report.json, checking scale against the person,
+   the shared ground line, clipping, composition and modal opacity) and
+   `npm i --no-save playwright && node tools/ui_audit.mjs`.
    It drives a phone-sized browser through every screen and all ~124 beats —
    TAPPING each one, since most of these bugs only appear after a tap — and
    fails on anything drawn outside the box that clips it, a see-through
@@ -188,11 +191,26 @@ plays the clip, falling back to device `speechSynthesis` if missing.
   (one cover per lesson, shown on its station-sign card). The engine maps
   keys→images in `OBJ_IMG` (interactive-learning.js) with OBJ_SVG as
   fallback; books/clock have special multi-image handling there.
-- **Every new object MUST get a `SCALE` entry** (interactive-learning.js). An
-  object missing from SCALE used to drop out of `scaleScene`, which then
-  bailed and left the WHOLE scene unscaled — the raw 512px art, three times
-  taller than its stage (the TV bug, 2026-08). There's a fallback now, but a
-  real value is what makes the object the right size next to a person.
+- **Scene layout is a SYSTEM, not per-scene numbers** (2026-08 rebuild). Three
+  pieces, all in `interactive-learning.js` / `.css`, and every scene obeys them:
+  1. **One scale table.** `CATEGORY_OF` puts each object in a category
+     (person · place · vehicle · furniture · handheld · food · tiny …) and
+     `CATEGORY_SCALE` gives that category its size against a standing person
+     (= 1.0). `SCALE_TWEAK` overrides only where the DRAWING argues. A new
+     object goes in `CATEGORY_OF` — nowhere else. Sizes are readable, not
+     literal (a cup is 0.3 of a person, not 0.07), but the ORDER is real:
+     vehicle > furniture > handheld > food.
+  2. **One sizing rule.** The biggest thing on stage fills a fixed share of
+     the frame (`fill`), and everything else follows from the table. There
+     used to be a second branch that pinned a person at 30% of the frame no
+     matter what — that is what made a person knee-high beside their own
+     coffee cup. A person is just another entry now.
+  3. **One ground line.** `--ground: 15%` on `.story-scene`. The row of
+     subjects, the drawn floor line, the centred zone and the fly-to-hand
+     landing spot all read it, so nothing can float at its own private height.
+  A row of CHOICES gets a size floor on top of that (`rowObjs` in
+  `scaleScene`): true scale would draw the book beside the car at 28px —
+  honest, unreadable, untappable.
 - **Cut art must be trimmed and speckle-free.** Two checkers, both safe to
   re-run: `python3 tools/trim_art.py --check assets/story/*.png` (art with
   empty margins renders small and floats above the ground line — the engine

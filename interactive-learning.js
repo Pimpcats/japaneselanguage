@@ -79,30 +79,88 @@
   // Counter words for the count act (tap items one by one).
   const COUNTS = ["ひとつ", "ふたつ", "みっつ", "よっつ", "いつつ", "むっつ", "ななつ", "やっつ", "ここのつ", "とお"];
 
-  // ---- real-world scale: every object sized against a standing person (=1.0),
-  // so proportions make sense — a station towers, a cup fits in a hand. Scenes
-  // share ONE person-unit and ground line; distance shrinks by perspective, not
-  // by hand-tuning. Objects absent here keep their own CSS size (plain/hero art).
-  const SCALE = {
-    mochiko: 1, friend: 1, avatar: 1, friendchar: 1,
-    station: 2.6, house: 2.1, town: 2.8, mountain: 2.9, sakura: 1.9,
-    boat: 2.2, train: 1.7, bus: 1.8, car: 1.35, signal: 1.35,
-    cow: 1.15, octopus: 0.25, cat: 0.6, whitecat: 0.6, dogface: 0.95, bird: 0.34,
-    chair: 0.95, schooldesk: 1.0, table: 0.7,
-    cup: 0.3, water: 0.32, coffee: 0.32, book: 0.3, bag: 0.5, sushi: 0.24,
-    peach: 0.3, mystery: 0.42, umbrella: 0.95, ticket: 0.22, telephone: 0.38,
-    menu: 0.6, coin100: 0.16, clock: 0.6, flower: 0.5, redflower: 0.62,
-    sea: 1.2, sun: 0.85, moon: 0.75, star: 0.28, japanmap: 1.3, usflag: 0.7,
-    wc: 1.25,
-    // the 2026-07 prop sweep — every one of these used to be missing, which
-    // made scaleScene bail out and render the raw 512px art (a TV three times
-    // taller than its stage). Anything new MUST land here.
-    tv: 0.85, bathtub: 1.0, winter: 1.0, thief: 1.05, raincloud: 1.1,
-    chatbubble: 0.7, suitcase: 0.62, bigface: 1.15, redface: 1.15,
-    meat: 0.34, gohan: 0.3, natto: 0.3, cake: 0.34, emptyplate: 0.34,
-    bill: 0.28, wallet: 0.26, toothbrush: 0.3, alarmclock: 0.3,
+  // ---- THE SCALE TABLE ------------------------------------------------------
+  // A standing person is 1.0 and every object is sized against that, so a
+  // station towers, a bowl of rice fits in two hands, and nobody ever stands
+  // on their lunch. Sizes are READABLE rather than literal: a cup is 0.30 of a
+  // person, not the 0.07 a tape measure would give, because a 12px cup is
+  // just a smudge on a phone. What matters is the ORDER — vehicle > furniture
+  // > handheld > food — and that it is decided once, here, by category.
+  //
+  // Add a new object to CATEGORY_OF. Only reach for SCALE_TWEAK when the art
+  // itself argues (a drawing that includes its stand, a close-up crop).
+  const CATEGORY_SCALE = {
+    person: 1.0,      // the yardstick — 1.0 by definition
+    place: 2.6,       // stations, schools, hospitals: they fill the skyline
+    landscape: 2.6,   // mountains, towns, the sea
+    vehicle: 1.9,     // clearly bigger than the person waiting for it
+    smallvehicle: 0.9,// bicycle — you stand over it
+    structure: 1.3,   // signals, crossings, signs, a wall clock's world
+    animal: 0.8,      // dog/cat/cow sized between a bag and a person
+    smallanimal: 0.3, // bird, octopus
+    furniture: 0.6,   // chair/desk/bed: waist-to-chest on a standing person
+    appliance: 0.7,   // TV on its stand, about chest height
+    luggage: 0.6,     // bag, suitcase, menu board
+    handheld: 0.3,    // cup, book, phone: fits in a hand
+    tiny: 0.2,        // ticket, coin, card
+    food: 0.3,        // a plate/bowl on a table
+    plant: 0.55,      // a potted flower
+    sky: 0.8,         // sun/moon (placed high, sized by the sky rule)
+    closeup: 1.15,    // a face drawn to fill the frame
+    abstract: 0.9,    // speech bubbles, flags, maps, weather
+  };
+  const CATEGORY_OF = {
+    mochiko: "person", friend: "person", avatar: "person", friendchar: "person", thief: "person",
+    station: "place", house: "place", school: "place", office: "place", hospital: "place",
+    airport: "place", cinema: "place", park: "place", platform: "place", bridge: "place",
+    town: "landscape", mountain: "landscape", sea: "landscape", sakura: "landscape",
+    train: "vehicle", bus: "vehicle", subway: "vehicle", boat: "vehicle", car: "vehicle", taxi: "vehicle",
+    bicycle: "smallvehicle",
+    signal: "structure", crossing: "structure", wc: "structure", window: "structure", raincloud: "structure",
+    cow: "animal", cat: "animal", whitecat: "animal", dogface: "closeup", winter: "structure",
+    bird: "smallanimal", octopus: "smallanimal",
+    chair: "furniture", schooldesk: "furniture", table: "furniture", bed: "furniture", bathtub: "furniture",
+    tv: "appliance",
+    bag: "luggage", suitcase: "luggage", menu: "luggage", umbrella: "luggage",
+    cup: "handheld", water: "handheld", coffee: "handheld", book: "handheld", telephone: "handheld",
+    smartphone: "handheld", clock: "handheld", mystery: "handheld", wallet: "handheld", bill: "handheld",
+    toothbrush: "handheld", alarmclock: "handheld", camera: "handheld", headphones: "handheld",
+    medicine: "handheld", map: "handheld", gloves: "handheld", shoes: "handheld", cigarette: "handheld",
+    beer: "handheld", redwine: "handheld", whitewine: "handheld", greentea: "handheld",
+    icedtea: "handheld", cola: "handheld", sake: "handheld",
+    ticket: "tiny", coin100: "tiny", card: "tiny",
+    sushi: "food", peach: "food", gohan: "food", natto: "food", meat: "food", cake: "food",
+    emptyplate: "food", bread: "food", onigiri: "food", vegetables: "food", curry: "food",
+    sukiyaki: "food", breakfast: "food", yakitori: "food", wagashi: "food", karaage: "food",
+    grilledfish: "food", persimmon: "food",
+    flower: "plant", redflower: "plant",
+    sun: "sky", moon: "sky", star: "sky",
+    bigface: "closeup", redface: "closeup",
+    chatbubble: "abstract", japanmap: "abstract", usflag: "abstract",
+  };
+  // Only where the DRAWING disagrees with its category.
+  const SCALE_TWEAK = {
+    station: 2.9,      // the drawn station includes its roof and sign
+    house: 2.1,        // a two-storey house, not a block
+    town: 2.8, mountain: 2.9,
+    car: 1.4, boat: 2.2, train: 2.1, bus: 2.0,
+    cow: 1.15, cat: 0.6, whitecat: 0.6,
+    star: 0.28, sun: 0.85, moon: 0.75,
+    coin100: 0.16, ticket: 0.22,
+    sushi: 0.24, wagashi: 0.24, onigiri: 0.24, persimmon: 0.26,
+    bag: 0.5, suitcase: 0.62, menu: 0.6, umbrella: 0.95,
+    redflower: 0.62, japanmap: 1.3, usflag: 0.7, chatbubble: 0.7,
+    schooldesk: 0.62, table: 0.55, bed: 0.5, bathtub: 0.5, chair: 0.6,
   };
   const SCALE_FALLBACK = 0.6;   // unknown object → sized like a small prop, never raw
+  // The shared floor. Mirrors --ground in interactive-learning.css; both must
+  // move together, which is why neither is written as a bare number anywhere else.
+  const GROUND = 0.15;
+  const SCALE = {};
+  for (const [key, cat] of Object.entries(CATEGORY_OF)) SCALE[key] = CATEGORY_SCALE[cat] || SCALE_FALLBACK;
+  for (const [key, val] of Object.entries(SCALE_TWEAK)) SCALE[key] = val;
+  // the audit reads these to check every drawable object is accounted for
+  window.__hanaScale = { SCALE, CATEGORY_OF, CATEGORY_SCALE };
   // depth in the scene: near = right up front, far = at the horizon (perspective)
   const DIST = { near: 1.0, partner: 0.82, table: 0.85, wall: 0.72, counter: 0.72, far: 0.46, center: 1.0 };
   function scaleScene(scene) {
@@ -115,23 +173,17 @@
       const objs = [...scene.querySelectorAll(".scene-zone .story-obj, .ground-row .story-obj")]
         .filter((b) => !b.classList.contains("obj-avatar-act"));
       if (!objs.length) return;
-      const hasPerson = scene.querySelector(".scene-mochiko") ||
-        objs.some((b) => ["mochiko", "friend", "avatar", "friendchar"].includes(b.dataset.object));
-      let unit;
-      if (hasPerson) {
-        // a person is the yardstick; point (これ・それ・あれ) scenes size the
-        // pointed-at items up a little so they read across the distance.
-        unit = H * (scene.classList.contains("story-scene-perspective") ? 0.42 : 0.30);
-      } else {
-        // no person on stage → the object IS the subject. Size it to read well,
-        // keeping multiple objects proportional to each other.
-        const maxScale = Math.max(...objs.map(scaleOf));
-        // one thing on stage → let it own the frame; a group stays smaller so
-        // they all fit side by side. (A lone object at 46% reads as lost.)
-        const alone = objs.length === 1 && !scene.querySelector(".prop-figure");
-        const heroBig = scene.querySelector(".story-obj.obj-hero") ? 0.66 : (alone ? 0.6 : 0.46);
-        unit = (H * heroBig) / maxScale; // biggest object ≈ 46% (60% alone, 66% hero)
-      }
+      // ONE sizing rule for every scene: the biggest thing on stage fills a
+      // fixed share of the frame, and everything else follows from the scale
+      // table. There used to be a separate branch for scenes with a person in
+      // them, which pinned a person at 30% of the frame no matter what else
+      // was there — so a person stood knee-high beside their own coffee cup,
+      // and the cup was a smudge. The person is just another entry (1.0) now.
+      const withMochiko = scene.querySelector(".scene-mochiko") ? [1] : [];
+      const maxScale = Math.max(...objs.map(scaleOf), ...withMochiko);
+      const alone = objs.length === 1 && !scene.querySelector(".prop-figure") && !withMochiko.length;
+      const fill = scene.querySelector(".story-obj.obj-hero") ? 0.74 : (alone ? 0.62 : 0.58);
+      const unit = (H * fill) / maxScale;
       objs.forEach((btn) => {
         const sc = scaleOf(btn);
         // grounded/floated subjects present at their scale; only zoned (point)
@@ -142,12 +194,26 @@
         // zoned (point/perspective) objects get capped so a big subject (station)
         // can't overflow the frame — grounded rows are handled by fitRow instead.
         let hgt = unit * sc * d;
-        if (!inGround) hgt = Math.min(hgt, H * 0.55);
+        // zoned subjects are capped so a station can't overflow the frame —
+        // but the cap has to clear the lone-subject size (0.6H) or every
+        // single-object scene would be quietly shrunk back down
+        if (!inGround) hgt = Math.min(hgt, H * 0.72);
         btn.style.height = hgt + "px";
         btn.style.width = "auto";
         btn.classList.add("obj-scaled");
       });
-      scene.querySelectorAll(".scene-mochiko").forEach((m) => { m.style.height = (H * 0.30) + "px"; });
+      // the non-tappable もち子 is a person like any other: same unit, so she
+      // can never end up a different size from the avatar beside her
+      scene.querySelectorAll(".scene-mochiko").forEach((m) => { m.style.height = Math.min(unit, H * 0.8) + "px"; });
+      // A row of CHOICES is a menu, not a diorama: true scale would draw the
+      // book beside the car at 28px — honest, unreadable, and too small to tap.
+      // Keep the order (the car still towers) but floor the small ones.
+      const rowObjs = objs.filter((b) => b.closest(".ground-row"));
+      if (rowObjs.length > 1) {
+        const tallest = Math.max(...rowObjs.map((b) => parseFloat(b.style.height) || 0));
+        const floor = Math.min(Math.max(tallest * 0.32, 46), H * 0.4);
+        rowObjs.forEach((b) => { if ((parseFloat(b.style.height) || 0) < floor) b.style.height = floor + "px"; });
+      }
       fitRow(scene, objs);              // shrink + centre so nothing (incl. tags) clips the frame
       // labels hang off the top/side of what they label — pull any that ended
       // up over the edge back in (price tag, friend's name, counter chip)
@@ -165,7 +231,7 @@
     if (!row) return;
     const span = () => {
       const sr = scene.getBoundingClientRect();
-      let minL = Infinity, maxR = -Infinity;
+      let minL = Infinity, maxR = -Infinity, minT = Infinity, maxB = -Infinity;
       // measure EVERY thing on the line — objects, もち子/props, arrows, and the
       // price tags that hang past an object's box — so centring keeps them all in
       scene.querySelectorAll(".ground-row > *, .ground-row .obj-tag").forEach((n) => {
@@ -173,20 +239,31 @@
         if (r.width < 1) return;
         minL = Math.min(minL, r.left - sr.left);
         maxR = Math.max(maxR, r.right - sr.left);
+        minT = Math.min(minT, r.top - sr.top);
+        maxB = Math.max(maxB, r.bottom - sr.top);
       });
-      return { sr, minL, maxR };
+      return { sr, minL, maxR, minT, maxB };
     };
     row.style.transform = "";
     const nObj = row.querySelectorAll(":scope > .story-obj").length;
     if (nObj >= 3) row.style.gap = "3%";              // crowded rows sit tighter so items stay big
-    let { sr, minL, maxR } = span();
+    let { sr, minL, maxR, minT, maxB } = span();
     if (!isFinite(minL)) return;
-    const avail = sr.width * 0.94;
+    // Leave room for the TAPPED state: the highlight grows the sprite 6% and
+    // wraps it in a glow, so a subject fitted flush at rest gets clipped the
+    // moment you touch it.
+    const HILITE = 1.06, GLOW = 9;
+    const avail = (sr.width * 0.96 - 2 * GLOW) / HILITE;
     const cur = maxR - minL;
-    if (cur > avail) {                 // too wide → scale every object down to fit
-      const f = avail / cur;
+    // Fit BOTH ways. Width alone wasn't enough: a tall subject (or a rotated
+    // one, whose corners reach past its box) poked out of the top of the frame
+    // and the scene clipped it.
+    const availH = (sr.height * 0.98 - 2 * GLOW) / HILITE;
+    const curH = maxB - minT;
+    const f = Math.min(cur > avail ? avail / cur : 1, curH > availH ? availH / curH : 1);
+    if (f < 1) {
       objs.forEach((b) => { const h = parseFloat(b.style.height); if (h) b.style.height = (h * f) + "px"; });
-      ({ sr, minL, maxR } = span());
+      ({ sr, minL, maxR, minT, maxB } = span());
     }
     const off = sr.width / 2 - (minL + maxR) / 2;   // slide so the content span is centred
     if (Math.abs(off) > 1) row.style.transform = "translateX(" + off + "px)";
@@ -1944,8 +2021,10 @@
     if (isShop) {
       dest = el("div", "scene-basket");
     } else {
+      // a taken item lands ON the ground line with everything else, not at the
+      // very bottom edge where half of it falls outside the frame
       dest = el("div", "scene-dest-hand");
-      dest.style.cssText = "position:absolute;left:50%;bottom:4%;width:1px;height:1px;";
+      dest.style.cssText = "position:absolute;left:50%;bottom:" + (GROUND * 100) + "%;width:1px;height:1px;";
     }
     dest.setAttribute("aria-hidden", "true");
     scene.appendChild(dest);
@@ -1960,8 +2039,13 @@
       const b = dest.getBoundingClientRect();
       const s = scene.getBoundingClientRect();
       const SC = 0.75;
+      // Land it ON the ground line with everything else. Centring the item on
+      // the destination point dropped it below the floor — the one thing the
+      // scene's shared ground line exists to prevent. (scale() shrinks around
+      // the centre, so add back the half it loses.)
+      const groundY = s.bottom - s.height * GROUND;
       let dx = (b.left + b.width / 2) - (a.left + a.width / 2);
-      let dy = (b.top + b.height / 2) - (a.top + a.height / 2);
+      let dy = groundY - a.bottom + (a.height * (1 - SC)) / 2;
       // The destination is a point, and the item lands centred on it — near an
       // edge that means half the item ends up outside the frame, which clips.
       // Keep the whole (shrunk) item inside.

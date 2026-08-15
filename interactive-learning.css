@@ -29,10 +29,21 @@
     calc(env(safe-area-inset-right) + 0.9rem)
     calc(env(safe-area-inset-bottom) + 0.9rem)
     calc(env(safe-area-inset-left) + 0.9rem);
+  /* Two declarations on purpose: the solid colour is the floor. If the
+     color-mix below is ever invalid (bad var, old engine) the background
+     falls back to something OPAQUE instead of transparent — a see-through
+     modal let the drill card's text read straight through the story. */
+  background: #efece4;
   background: color-mix(in srgb, var(--paper, var(--bg, #faf7f0)) 92%, #000 8%);
+  isolation: isolate;
   overscroll-behavior: contain;
 }
 body.story-open { overflow: hidden; }
+/* ...and the screen underneath is hidden outright while a beat is open, so no
+   cascade accident can put quiz/drill text behind the story. It comes back
+   untouched when the overlay closes. */
+body.story-open #drill, body.story-open #quiz { visibility: hidden; }
+body.story-open #story-break { visibility: visible; }
 
 /* ---- the storybook card ---- */
 .story-panel {
@@ -83,6 +94,8 @@ body.story-open { overflow: hidden; }
 
 .story-stage {
   position: relative;
+  /* THE ground line, declared once and inherited by every scene inside */
+  --ground: 15%;
   /* vh-capped so a tall card (title + stage + answer + CTA) still fits a short
      screen — the stage is the block with room to give */
   min-height: min(230px, 27vh);
@@ -101,7 +114,7 @@ body.story-open { overflow: hidden; }
 .story-stage::after {
   content: "";
   position: absolute;
-  left: 7%; right: 7%; bottom: 12%;
+  left: 7%; right: 7%; bottom: var(--ground);
   height: 2px;
   background: color-mix(in srgb, var(--story-ink) 15%, transparent);
   z-index: -1;
@@ -260,12 +273,18 @@ button.primary.story-continue {
 .story-obj:focus-visible { outline: 3px solid var(--accent, var(--story-blue)); outline-offset: 4px; }
 .story-obj:disabled { opacity: 1; }   /* the tapped target must stay vivid — base button:disabled fades it */
 .story-obj.dimmed { opacity: 0.35; filter: grayscale(0.5); }
-.story-obj.correct, .story-obj.noticed {
-  transform: translateY(-4px) scale(1.06);
-  filter: drop-shadow(0 0 9px color-mix(in srgb, var(--good, #2e7d5b) 70%, transparent));
+.story-obj.correct, .story-obj.noticed { transform: translateY(-4px) scale(1.06); }
+/* The highlight is a drop-shadow on the ARTWORK, not a box behind it: it
+   traces the sprite's own transparent edges and cannot be cut by a wrapper
+   that happens to be smaller than the picture. */
+.story-obj.correct > .obj, .story-obj.noticed > .obj,
+.story-obj.correct > .obj > img, .story-obj.noticed > .obj > img {
+  filter: drop-shadow(0 3px 3px rgba(31, 45, 77, 0.18))
+          drop-shadow(0 0 7px color-mix(in srgb, var(--good, #2e7d5b) 78%, transparent))
+          drop-shadow(0 0 2px color-mix(in srgb, var(--good, #2e7d5b) 55%, transparent));
 }
 .story-obj.wrong { animation: story-wrong 0.35s ease; }
-.obj { position: relative; display: block; }
+.obj { position: relative; display: block; overflow: visible; }
 .obj svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .obj img.obj-sketch {
   display: block; width: 100%; height: 100%;
@@ -469,6 +488,14 @@ button.primary.story-continue {
   height: 8.5em; width: auto;
   filter: drop-shadow(0 3px 3px rgba(31, 45, 77, 0.18));
 }
+/* ...but never inside a tappable sprite. An absolutely-positioned image leaves
+   its button ZERO WIDE, and the tap glow — a filter on that button — then has
+   no box to paint around: the character gets sliced down the middle with a
+   hard vertical edge and only one half glows. In a .story-obj the image is
+   in flow, so the button is exactly the size of what it draws. */
+.story-obj .obj-person-img {
+  position: static; left: auto; bottom: auto; transform: none; margin: 0 auto;
+}
 
 /* menu — a little standing board with lines of dishes */
 .obj-menu { width: 4.4em; height: 6em; }
@@ -596,9 +623,11 @@ button.primary.story-continue {
 
 /* pick: same object at two sizes, side by side */
 .story-pick-row {
-  width: 100%;
+  /* the two sizes stand on the shared floor like every other subject —
+     bottom-padding used to hold them above it with a dead band underneath */
+  position: absolute; left: 0; right: 0; bottom: var(--ground, 15%);
   display: flex; align-items: flex-end; justify-content: space-around;
-  padding: 1rem 0.5rem 1.6rem;
+  padding: 0 0.5rem;
 }
 .story-pick-row .story-obj.pick-big { font-size: 17px; }
 .story-pick-row .story-obj.pick-small { font-size: 9px; }
@@ -1613,10 +1642,14 @@ body.story-open .practice-nav { z-index: 4500; }
 /* books: three stacked cover images, data-design picks the visible one */
 .obj-book { background: none; border: none; border-radius: 0; overflow: visible; }
 .obj-book[data-design] { background: none; }
-.obj-book img.obj-sketch { display: none; position: absolute; inset: 0; }
+/* The three covers are stacked, but the visible one is IN FLOW like every
+   other object's artwork — absolutely positioning it left the wrapper (and so
+   the tappable button) a different size from the picture it holds. */
+.obj-book img.obj-sketch { display: none; position: static; width: auto; height: 100%; }
 .obj-book[data-design="circle"] .bi-circle,
 .obj-book[data-design="stripes"] .bi-stripes,
 .obj-book[data-design="window"] .bi-window { display: block; }
+.obj-book { display: flex; align-items: flex-end; justify-content: center; }
 
 /* the book chooser buttons show the same sketch covers */
 .story-book { box-shadow: none; }
@@ -1681,10 +1714,12 @@ body.story-open .practice-nav { z-index: 4500; }
 .story-scene-plain { background: linear-gradient(170deg, #fbf9f2, #f2edde); }
 .story-scene-plain .scene-wall, .story-scene-plain .scene-floor { display: none; }
 .scene-zone-center {
-  position: absolute; inset: 5%;
-  display: flex; align-items: center; justify-content: center;
+  /* bottom-aligned to the shared ground line: a lone subject STANDS on the
+     floor like everything else instead of hovering in the middle of the box */
+  position: absolute; left: 5%; right: 5%; top: 5%; bottom: var(--ground);
+  display: flex; align-items: flex-end; justify-content: center;
 }
-.scene-zone-center .story-obj { width: 88%; height: 90%; display: flex; align-items: center; justify-content: center; }
+.scene-zone-center .story-obj { width: 88%; height: 90%; display: flex; align-items: flex-end; justify-content: center; }
 .scene-zone-center .story-obj .obj { width: 100% !important; height: 100% !important; }
 /* もち子 as the centred subject (age etc): a clear standing figure, not huge */
 .scene-zone-center .obj-mochiko, .scene-zone-center .obj-friend { width: auto; height: 92%; }
@@ -1694,11 +1729,16 @@ body.story-open .practice-nav { z-index: 4500; }
 .scene-zone-center .obj-avatar-act .obj { width: auto; height: 100%; display: flex; align-items: flex-end; justify-content: center; }
 .obj-act-img { display: block; width: auto; height: 100%; }
 /* "pick, then see you do it": the avatar-action reveal over a completed order */
-.story-scene.show-avatar-act .ground-row { opacity: 0.28; transition: opacity 0.3s; }
+/* Once you've picked, the reveal takes the stage: the row goes rather than
+   lingering at 28%, because the avatar is drawn centred and a ghosted bowl
+   under his feet reads as him standing ON his lunch. */
+.story-scene.show-avatar-act .ground-row { opacity: 0; transition: opacity 0.3s; }
 .story-avatar-reveal {
   position: absolute; inset: 0; z-index: 6;
   display: flex; align-items: flex-end; justify-content: center;
-  padding-bottom: 12%; pointer-events: none;
+  /* stands on the shared floor, not 3% in front of it — at 12% the figure's
+     feet landed below the line, reading as standing on the food behind it */
+  padding-bottom: var(--ground); pointer-events: none;
   animation: avatar-reveal-in 0.35s ease both;
 }
 .story-avatar-reveal .obj { display: flex; height: 82%; align-items: flex-end; justify-content: center; }
@@ -1787,12 +1827,12 @@ body.coach-open #card { pointer-events: none; }
 .story-scene-ground .scene-wall, .story-scene-ground .scene-floor, .story-scene-ground .scene-skyline, .story-scene-ground .scene-counter { display: none !important; }
 .story-scene-ground.night { background: linear-gradient(180deg, #2b3450, #46506e); }
 .ground-row {
-  position: absolute; left: 0; right: 0; bottom: 15%;
+  position: absolute; left: 0; right: 0; bottom: var(--ground);
   display: flex; align-items: flex-end; justify-content: center; gap: 7%;
 }
 /* the single ground line everything sits on */
 .story-scene-ground::after {
-  content: ""; position: absolute; left: 8%; right: 8%; bottom: 15%;
+  content: ""; position: absolute; left: 8%; right: 8%; bottom: var(--ground);
   height: 0; border-bottom: 2px solid rgba(31, 45, 77, 0.10);
 }
 .ground-row .story-obj, .ground-row .scene-mochiko { position: relative; }
@@ -1809,14 +1849,16 @@ body.coach-open #card { pointer-events: none; }
   width: 70%; height: 11px; border-radius: 50%;
   background: radial-gradient(ellipse, rgba(31, 45, 77, 0.22), transparent 72%); z-index: -1;
 }
-/* small held/food/abstract items float, presented, above the line */
-.ground-row .float-item { align-self: center; margin-bottom: 6%; }
+/* Small held/food items sit ON the line like everything else. They used to be
+   centred in the row, which put a bowl of rice at chest height beside a person
+   — reading as though they were standing on it. One floor, no exceptions. */
+.ground-row .float-item { align-self: flex-end; margin-bottom: 0; }
 
 /* point beats on the plain stage: perspective by position + the scale system.
    near = big, low, centred-front · partner = beside もち子 · far = small, set back */
-.story-scene-perspective .scene-zone-near { left: 58%; transform: translateX(-50%); bottom: 15%; top: auto; right: auto; }
-.story-scene-perspective .scene-zone-partner { left: 7%; bottom: 15%; top: auto; right: auto; align-items: flex-end; }
-.story-scene-perspective .scene-zone-far { right: 11%; left: auto; bottom: 15%; top: auto; }
+.story-scene-perspective .scene-zone-near { left: 58%; transform: translateX(-50%); bottom: var(--ground); top: auto; right: auto; }
+.story-scene-perspective .scene-zone-partner { left: 7%; bottom: var(--ground); top: auto; right: auto; align-items: flex-end; }
+.story-scene-perspective .scene-zone-far { right: 11%; left: auto; bottom: var(--ground); top: auto; }
 .story-scene-perspective .scene-zone { align-items: flex-end; }
 .story-scene-perspective .scene-shelf-board { display: none; }
 /* a prop standing beside its subject on the ground line */
