@@ -1322,6 +1322,28 @@
     startLesson(L);
   };
   window.__hanaOpenKana = function () { openKana(); };
+  // The miss pile: every sentence you last swiped ← nope (or "kind of"), so the
+  // Review tab and the home Review button can show what's waiting and drill it
+  // on your own time — not only as a warmup riding the next lesson.
+  window.__hanaMissed = function () {
+    return reviewCards().map((c) => {
+      const p = prog.cards[c.id] || {};
+      const L = lessonById[c.lessonId];
+      return {
+        id: c.id, jp: c.s && c.s.jp, en: c.s && c.s.en, romaji: c.s && c.s.romaji,
+        lesson: L ? L.title : "", lessonId: c.lessonId,
+        grade: lastGradeOf(p), lapses: p.lapses || 0,
+      };
+    });
+  };
+  window.__hanaStartMissed = function (ids) {
+    const pick = Array.isArray(ids) && ids.length
+      ? ids.map((id) => CARDS.find((c) => c.id === id)).filter(Boolean)
+      : reviewCards();
+    if (!pick.length) return false;
+    startSession(pick, "review", null);
+    return true;
+  };
 
   // The first not-yet-finished lesson across the whole curriculum — where the
   // one-tap hero button points when nothing is due.

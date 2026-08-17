@@ -44,7 +44,9 @@ body {
 }
 
 body.has-tabbar #app {
-  padding-bottom: calc(7.35rem + env(safe-area-inset-bottom));
+  /* clears the two-row tab bar (six tabs) so the last card is never trapped
+     behind it */
+  padding-bottom: calc(11.4rem + env(safe-area-inset-bottom));
 }
 
 #topbar {
@@ -345,7 +347,9 @@ button.lesson-tile:active { transform: scale(.985); }
   width: min(calc(100% - 1rem), 650px);
   min-height: 4.75rem;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* six tabs: Lessons · Review · Kana · Library · Progress · Settings — three
+     across, two rows, so every label stays readable on a phone */
+  grid-template-columns: repeat(3, 1fr);
   gap: .2rem;
   padding: .42rem .45rem;
   border: 1px solid rgba(60,60,67,.13);
@@ -654,3 +658,56 @@ body:has(#drill:not([hidden])) #drill {
 /* The car-mode drill stays banner-less (the practice-nav gives back/home);
    the sign banner returns on the Words + Talk screens so they have a way out. */
 body:has(#drill:not([hidden])) #app-header { display: none !important; }
+
+
+/* ---- Review tab: the miss pile ------------------------------------------ */
+.tab-item { position: relative; }
+.tab-badge {
+  position: absolute; top: .28rem; left: 50%; margin-left: .42rem;
+  min-width: 1.05rem; height: 1.05rem; padding: 0 .22rem;
+  display: grid; place-items: center;
+  border-radius: 999px; background: var(--flag, #c8452f); color: #fff;
+  font-size: .58rem; font-weight: 800; line-height: 1;
+  box-shadow: 0 1px 3px rgba(20,28,45,.28);
+}
+
+/* the home-page Review button — sits under "what's next" */
+.home-review-btn {
+  width: 100%; margin: .1rem 0 .85rem;
+  display: flex; align-items: center; gap: .7rem;
+  padding: .8rem .95rem;
+  border: 1px solid rgba(60,60,67,.14); border-radius: 18px;
+  background: rgba(255,255,255,.92); color: inherit; text-align: left;
+  box-shadow: 0 2px 10px rgba(20,28,45,.06);
+  cursor: pointer;
+}
+.home-review-btn:active { transform: translateY(1px); }
+.home-review-btn.in-level-hidden { display: none; }
+.home-review-btn .hrb-ico {
+  flex: 0 0 auto; width: 2.1rem; height: 2.1rem; display: grid; place-items: center;
+  border-radius: 999px; background: color-mix(in srgb, var(--flag, #c8452f) 14%, #fff);
+  color: var(--flag, #c8452f); font-size: 1.1rem; font-weight: 800;
+}
+.home-review-btn .hrb-txt { display: flex; flex-direction: column; gap: .1rem; min-width: 0; }
+.home-review-btn .hrb-txt b { font-size: .95rem; font-weight: 700; }
+.home-review-btn .hrb-txt small { font-size: .76rem; color: var(--muted, #6b6b70); }
+
+/* the list of what you actually missed */
+.miss-list { display: flex; flex-direction: column; gap: .45rem; margin-top: .9rem; }
+.miss-row {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+  padding: .6rem .8rem; text-align: left; cursor: pointer;
+  border: 1px solid rgba(60,60,67,.13); border-left: 4px solid var(--flag, #c8452f);
+  border-radius: 14px; background: rgba(255,255,255,.94); color: inherit;
+}
+.miss-row.miss-kinda { border-left-color: color-mix(in srgb, var(--flag, #c8452f) 45%, #d9b23a); }
+.miss-row:active { transform: translateY(1px); }
+.miss-txt { display: flex; flex-direction: column; gap: .1rem; min-width: 0; }
+.miss-jp { font-size: 1rem; font-weight: 700; }
+.miss-en { font-size: .76rem; color: var(--muted, #6b6b70); }
+.miss-meta { flex: 0 0 auto; display: flex; flex-direction: column; align-items: flex-end; gap: .12rem; }
+.miss-mark { font-size: .64rem; font-weight: 800; letter-spacing: .02em; color: var(--flag, #c8452f); }
+.miss-lesson { font-size: .62rem; color: var(--muted, #6b6b70); max-width: 7.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.miss-more { font-size: .74rem; color: var(--muted, #6b6b70); text-align: center; margin: .3rem 0 0; }
+/* app.js's next-lesson hero belongs to the Lessons hub, not this screen */
+#hub-review .hero-elsewhere { display: none; }

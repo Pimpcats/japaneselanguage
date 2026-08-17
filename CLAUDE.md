@@ -361,6 +361,17 @@ to reveal-and-listen when unavailable.
   session of the day carries up to 5 missed/due cards; every later session
   that day starts clean. Grinding the same misses before each lesson was the
   owner's complaint; once-a-day keeps the reinforcement without the slog.
+- **The Review tab is the miss pile, on the learner's own time** (owner,
+  2026-08). Warmups are the app's timing; this is theirs. The bottom nav has
+  six tabs now — Lessons · Review · Kana · Library · Progress · Settings (3×2,
+  so `body.has-tabbar` clears two rows) — and Review opens `#hub-review`: the
+  count, the ←nope / "kind of" split, a "↻ Review N sentences" button, and the
+  actual list of missed sentences (tap one to drill just it). Home carries the
+  same thing as `#home-review-btn` under the Continue card, and the tab wears a
+  count badge. Both read ONE source: `window.__hanaMissed()` /
+  `window.__hanaStartMissed(ids?)` in app.js, over the existing `reviewCards()`
+  (last grade 0 or 1). The smoke test covers both bridges — the UI is
+  presentation only, so don't fork the selection logic into ui-polish.js.
 - **Soft daily pace is RETIRED** (owner, 2026-07-31): the "今日はここまで —
   tap again" nudge made every second new lesson a double-tap and was removed.
   Lessons start on the first tap, always. Do not reintroduce pacing nudges,

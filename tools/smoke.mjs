@@ -72,6 +72,22 @@ check("Build launcher is gone", !document.querySelector(".lesson-card .act-build
 click(document.getElementById("back-btn"));
 check("back returns home", !document.getElementById("home").hidden);
 
+// The miss pile: swipe ← nope on a card and it must show up in the Review tab's
+// source (window.__hanaMissed) and be drillable on demand (__hanaStartMissed).
+// The tab and the home button in ui-polish.js read exactly these two.
+click(document.querySelector(".lesson-rail .lesson-card"));
+click(document.getElementById("card"));                                 // reveal
+const missedJp = (document.getElementById("prompt-en") || {}).textContent;
+click(document.querySelector('#grade button[data-grade="0"]'));         // ← nope
+click(document.getElementById("back-btn"));
+const missed = typeof window.__hanaMissed === "function" ? window.__hanaMissed() : null;
+check("a ← nope card lands in the miss pile", Array.isArray(missed) && missed.length >= 1);
+check("miss entries carry what the Review list shows",
+  !!(missed && missed[0] && missed[0].jp && missed[0].en && typeof missed[0].grade === "number"));
+check("the miss pile can be drilled on demand", window.__hanaStartMissed() === true && !document.getElementById("drill").hidden);
+click(document.getElementById("back-btn"));
+void missedJp;
+
 // Kana section: grid renders both scripts, practice round accepts an answer.
 click(document.getElementById("kana-btn"));
 check("kana screen opens", !document.getElementById("kana").hidden);
