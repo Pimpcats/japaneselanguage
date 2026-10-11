@@ -35,20 +35,48 @@
       {speaker:"Local person",jp:"わかりましたか？",en:"Did you understand?",choices:[{jp:"はい、ありがとうございます。",en:"Yes, thank you.",correct:true,replyJp:"どういたしまして。",replyEn:"You're welcome."},{jp:"おはようございます。",en:"Good morning.",replyJp:"おはようございます。",replyEn:"Good morning."}]}
     ]}
   ];
-  const defaults = { cards:{}, total:0, wins:0, daily:{}, settings:{goal:10,romaji:"auto"}, history:[], lessonDone:{}, lessonAttempts:{} };
+  const routeModes = ["recall","listen","patterns","scenes"];
+  const routeLabels = {recall:"Recall",listen:"Listen & notice",patterns:"Pattern lab",scenes:"In the moment"};
+  const routeDescriptions = {recall:"Try it from memory.",listen:"Hear it, catch the meaning.",patterns:"Change the sentence.",scenes:"Choose what to say next."};
+  const defaults = { cards:{}, total:0, wins:0, daily:{}, settings:{goal:10,romaji:"auto"}, history:[], lessonDone:{}, lessonAttempts:{}, routeStep:0 };
   function load(){try{return Object.assign({},defaults,JSON.parse(localStorage.getItem(STORE)||"{}"));}catch(_){return Object.assign({},defaults);}}
-  const state=load(); state.cards=state.cards||{};state.daily=state.daily||{};state.history=state.history||[];state.lessonDone=state.lessonDone||{};state.lessonAttempts=state.lessonAttempts||{};state.settings=Object.assign({},defaults.settings,state.settings||{});
+  const state=load(); state.cards=state.cards||{};state.daily=state.daily||{};state.history=state.history||[];state.lessonDone=state.lessonDone||{};state.lessonAttempts=state.lessonAttempts||{};state.routeStep=Number.isInteger(state.routeStep)?((state.routeStep%4)+4)%4:0;state.settings=Object.assign({},defaults.settings,state.settings||{});
   const dayKey=()=>new Date().toLocaleDateString("en-CA");
   const today=()=>state.daily[dayKey()]||{attempts:0,wins:0};
-  function save(){localStorage.setItem(STORE,JSON.stringify(state));renderStats();renderCourse();}
+  function save(){localStorage.setItem(STORE,JSON.stringify(state));renderStats();renderCourse();renderRoute();renderRoute();}
   let mode="recall",queue=[],queueIndex=0,current=null,revealed=false,sessionAttempts=0,sessionFinished=false,lessonId=null,conversationIndex=0,conversationTurn=0,conversationLocked=false,conversationLastCorrect=false,listenAnswered=false;
   let manifest=null,audioPlayer=null;
   const views=["home-view","practice-view","settings-view"];
   function showView(id){views.forEach(v=>$(v).classList.toggle("active",v===id));window.scrollTo({top:0,behavior:"smooth"});}
   function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-  function speak(jp,slow){if(!jp)return;if(audioPlayer){audioPlayer.pause();audioPlayer=null;}const clip=manifest&&manifest.clips&&manifest.clips[jp];const file=clip&&(slow&&clip.s?clip.s:clip.n);if(file){audioPlayer=new Audio("../audio/"+file);audioPlayer.playbackRate=slow?.82:1;audioPlayer.play().catch(()=>browserSpeak(jp,slow));}else browserSpeak(jp,slow);}
+  function playJapanese(jp,slow){
+    if(!jp)return;
+    const clip=manifest&&manifest.clips&&manifest.clips[jp];
+    const file=clip&&(slow&&clip.s?clip.s:clip.n);
+    if(file){audioPlayer=new Audio("../audio/"+file);audioPlayer.playbackRate=slow?.82:1;audioPlayer.play().catch(()=>browserSpeak(jp,slow));}
+    else browserSpeak(jp,slow);
+  }
+  function speak(jp,slow){
+    if(!jp)return;
+    if(audioPlayer){audioPlayer.pause();audioPlayer=null;}
+    if(manifest){playJapanese(jp,slow);return;}
+    manifestReady.then(()=>playJapanese(jp,slow)).catch(()=>browserSpeak(jp,slow));
+  }
   function browserSpeak(jp,slow){if(!("speechSynthesis"in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(jp.replace(/\[[^\]]*\]/g,""));u.lang="ja-JP";u.rate=slow?.78:.92;const voices=window.speechSynthesis.getVoices();u.voice=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith("ja"))||null;window.speechSynthesis.speak(u);}
-  fetch("../audio/manifest.json").then(r=>r.ok?r.json():null).then(m=>{manifest=m;}).catch(()=>{});
+  const manifestReady=fetch("../audio/manifest.json").then(r=>r.ok?r.json():null).then(m=>{manifest=m;return m;});
+  function renderRoute(){
+    const host=$("route-nodes");if(!host)return;host.innerHTML="";
+    const step=state.routeStep%routeModes.length;
+    $("route-step-count").textContent="STOP "+(step+1)+" OF "+routeModes.length;
+    routeModes.forEach((routeMode,index)=>{
+      const b=document.createElement("button");b.type="button";b.className="route-node"+(index===step?" is-next":"");
+      b.setAttribute("aria-label",(index===step?"Start here: ":"Practice ")+routeLabels[routeMode]);
+      b.innerHTML='<span class="route-node-top"><span class="route-node-number">'+String(index+1).padStart(2,"0")+'</span><span class="route-node-state">'+(index===step?"START HERE":index<step?"UP NEXT":"ON THE PATH")+'</span></span><span class="route-node-icon">'+({recall:"↗",listen:"◖))",patterns:"＋",scenes:"↔"}[routeMode])+'</span><strong>'+routeLabels[routeMode]+'</strong><span class="route-node-description">'+routeDescriptions[routeMode]+'</span><span class="route-node-action">'+(index===step?"Begin this stop":"Go to this practice")+' →</span>';
+      b.addEventListener("click",()=>start(routeMode));host.appendChild(b);
+    });
+  }
+  function startGuidedPath(){start(routeModes[state.routeStep%routeModes.length]);}
+  function advanceGuidedPath(){state.routeStep=(state.routeStep+1)%routeModes.length;localStorage.setItem(STORE,JSON.stringify(state));renderRoute();}
   function levelForLesson(l){if(l.id.startsWith("l0"))return 0;const s=l.section||"";if(["First Contact","Getting Things","Doing Things","Daily Life","The Past","Wants & Plans","Describing Things"].includes(s))return 1;if(["The て-form","Linking Ideas"].includes(s))return 2;if(["Finding Your Way","Tickets & Trouble"].includes(s))return 3;if(["Talking Casually","Reacting & Relating"].includes(s))return 4;if(["If & Necessity","Plans & Impressions"].includes(s))return 5;if(["Things Happen to You","Explaining & Nuance"].includes(s))return 6;if(["Keigo & Politeness","Native Connectives"].includes(s))return 7;return 1;}
   const lessonCards=(id)=>allCards.filter(c=>c.lessonId===id);
   const lessonComplete=(l)=>{const cards=lessonCards(l.id);return cards.length>0&&cards.every(c=>state.cards[c.id]&&state.cards[c.id].reps>0);};
@@ -115,10 +143,10 @@
   function renderPatternTask(){
     const extra=$("mode-extra");extra.hidden=false;
     const t=current&&current.transform?current:transforms.find(x=>x.id===current.id);
-    if(t){extra.innerHTML='<div class="challenge-source"><span class="eyebrow">STARTING SENTENCE</span><strong>'+esc(t.sourceEnglish)+'</strong><span class="challenge-jp">'+esc(t.sourceJp)+'</span></div><div class="challenge-task"><span class="eyebrow">YOUR CHALLENGE</span><strong>'+esc(t.prompt||t.sentence&&t.sentence.en||"Change the sentence")+'</strong><label for="pattern-answer">Try it in Japanese (optional)</label><input id="pattern-answer" type="text" autocomplete="off" autocapitalize="off" placeholder="Type kana or romaji after speaking"><button class="reveal-button" id="check-pattern">Check my sentence →</button><div id="pattern-feedback" class="mode-feedback" hidden></div></div>';}
+    if(t){extra.innerHTML='<div class="challenge-source"><span class="eyebrow">STARTING SENTENCE</span><strong>'+esc(t.sourceEnglish)+'</strong><span class="challenge-jp">'+esc(t.sourceJp)+'</span><button type="button" class="mini-audio" data-speak="'+esc(t.sourceJp)+'" aria-label="Hear starting sentence">▶ Hear it</button></div><div class="challenge-task"><span class="eyebrow">YOUR CHALLENGE</span><strong>'+esc(t.prompt||t.sentence&&t.sentence.en||"Change the sentence")+'</strong><label for="pattern-answer">Try it in Japanese (optional)</label><input id="pattern-answer" type="text" autocomplete="off" autocapitalize="off" placeholder="Type kana or romaji after speaking"><button class="reveal-button" id="check-pattern">Check my sentence →</button><div id="pattern-feedback" class="mode-feedback" hidden></div></div>';}
     else {
       const vocab=(allLessons.find(l=>l.id===current.lessonId)||{}).vocab||[];const answer=(vocab.find(v=>v.en===current.sentence.en)||vocab[0]||{}).jp;
-      const opts=shuffle([answer,...vocab.filter(v=>v.jp!==answer).slice(0,3).map(v=>v.jp)]);extra.innerHTML='<div class="challenge-task"><span class="eyebrow">WORD BUILDER</span><strong>Which Japanese word matches this meaning?</strong><p class="word-builder-meaning">'+esc(current.sentence.en)+'</p><div class="choice-list">'+opts.map(v=>'<button class="choice-button word-choice" data-answer="'+esc(v)+'">'+esc(v)+'</button>').join("")+'</div><div id="pattern-feedback" class="mode-feedback" hidden></div></div>';
+      const opts=shuffle([answer,...vocab.filter(v=>v.jp!==answer).slice(0,3).map(v=>v.jp)]);extra.innerHTML='<div class="challenge-task"><span class="eyebrow">WORD BUILDER</span><strong>Which Japanese word matches this meaning?</strong><p class="word-builder-meaning">'+esc(current.sentence.en)+'</p><div class="choice-list">'+opts.map(v=>'<div class="choice-with-audio"><button class="choice-button word-choice" data-answer="'+esc(v)+'">'+esc(v)+'</button><button type="button" class="mini-audio" data-speak="'+esc(v)+'" aria-label="Hear '+esc(v)+'">▶</button></div>').join("")+'</div><div id="pattern-feedback" class="mode-feedback" hidden></div></div>';
     }
     $("before-actions").hidden=true;$("listen-actions").hidden=true;$("grade-area").hidden=true;
   }
@@ -142,7 +170,7 @@
   function renderConversationTurn(){
     const convo=current.conversation;if(conversationTurn>=convo.turns.length){finishConversation();return;}
     conversationLocked=false;const turn=convo.turns[conversationTurn];$("session-count").textContent=String(conversationTurn+1).padStart(2,"0")+" / "+String(convo.turns.length).padStart(2,"0");$("session-progress-fill").style.width=(conversationTurn/convo.turns.length*100)+"%";$("level-pill").textContent=convo.level+" · "+convo.place;$("prompt-type").textContent="LISTEN · UNDERSTAND · RESPOND";$("scenario-tag").hidden=false;$("scenario-tag").textContent=convo.title.toUpperCase()+" · TURN "+(conversationTurn+1);$("prompt-en").textContent=turn.speaker+" says…";$("prompt-hint").textContent="Listen to the Japanese. Choose a reply that makes sense in this situation.";$("answer-panel").hidden=true;$("before-actions").hidden=true;$("grade-area").hidden=true;$("listen-actions").hidden=true;$("think-copy").textContent="What would you say next?";const extra=$("mode-extra");extra.hidden=false;
-    extra.innerHTML='<div class="conversation-line"><span class="eyebrow">'+esc(turn.speaker.toUpperCase())+'</span><div class="conversation-jp">'+esc(turn.jp)+'</div><button class="text-button" id="conversation-audio">▶ Listen again</button><button class="text-button" id="conversation-translation">Show translation</button><p id="conversation-en" class="conversation-en" hidden>'+esc(turn.en)+'</p></div><div class="conversation-choices"><span class="eyebrow">YOUR REPLY</span><div class="choice-list">'+turn.choices.map((ch,i)=>'<button class="choice-button conversation-choice" data-choice="'+i+'"><strong>'+esc(ch.jp)+'</strong><small>'+esc(ch.en)+'</small></button>').join("")+'</div><div id="conversation-feedback" class="mode-feedback" hidden></div></div>';
+    extra.innerHTML='<div class="conversation-line"><span class="eyebrow">'+esc(turn.speaker.toUpperCase())+'</span><div class="conversation-jp">'+esc(turn.jp)+'</div><button class="text-button" id="conversation-audio">▶ Listen again</button><button class="text-button" id="conversation-translation">Show translation</button><p id="conversation-en" class="conversation-en" hidden>'+esc(turn.en)+'</p></div><div class="conversation-choices"><span class="eyebrow">YOUR REPLY</span><div class="choice-list">'+turn.choices.map((ch,i)=>'<div class="choice-with-audio"><button class="choice-button conversation-choice" data-choice="'+i+'"><strong>'+esc(ch.jp)+'</strong><small>'+esc(ch.en)+'</small></button><button type="button" class="mini-audio" data-speak="'+esc(ch.jp)+'" aria-label="Hear '+esc(ch.jp)+'">▶</button></div>').join("")+'</div><div id="conversation-feedback" class="mode-feedback" hidden></div></div>';
     $("replay-button").hidden=true;speak(turn.jp,false);
   }
   function chooseConversation(button){
@@ -151,14 +179,15 @@
     const box=$("conversation-feedback");box.hidden=false;box.className="mode-feedback "+(choice.correct?"success":"try-again");box.innerHTML='<strong>'+(choice.correct?"That fits the moment.":"That reply doesn't quite fit — compare the meanings, then try again.")+'</strong><div class="answer-jp">'+esc(choice.replyJp||"")+'</div><p>'+esc(choice.replyEn||"")+'</p><button class="reveal-button" id="conversation-next">'+(choice.correct?(conversationTurn===convo.turns.length-1?"Finish conversation":"Keep talking"):"Try again")+' →</button>';
     recordAttempt("conversation:"+convo.id+":"+conversationTurn,choice.correct?"good":"again");speak(choice.replyJp||"",false);
   }
-  function finishConversation(){const convo=current.conversation;$("session-progress-fill").style.width="100%";$("prompt-type").textContent="CONVERSATION COMPLETE";$("scenario-tag").hidden=true;$("prompt-en").textContent="You kept the conversation moving."; $("prompt-hint").textContent="Try the exchange once more aloud, without looking at the choices."; $("think-copy").textContent="A real conversation is a chain of small, useful responses.";$("mode-extra").hidden=false;$("mode-extra").innerHTML='<div class="mode-feedback success"><strong>'+esc(convo.title)+' complete.</strong><p>Replay the phrases and say both sides aloud. Next time, try answering before reading the choices.</p><button class="secondary-button" id="conversation-restart">Replay this conversation</button><button class="reveal-button" id="conversation-home">Back to studio →</button></div>';$("before-actions").hidden=true;$("grade-area").hidden=true;$("listen-actions").hidden=true;}
-  function finishSession(){sessionFinished=true;$("session-progress-fill").style.width="100%";$("session-mode").textContent="SESSION COMPLETE";$("prompt-type").textContent="YOU SHOWED UP";$("scenario-tag").hidden=true;$("prompt-en").textContent="Every attempt makes the next one easier.";$("prompt-hint").textContent="You tried "+sessionAttempts+" prompts. Say your hardest one once more."; $("think-copy").textContent="Progress is what you can retrieve tomorrow.";$("answer-panel").hidden=true;$("before-actions").hidden=true;$("grade-area").hidden=true;$("mode-extra").hidden=true;$("listen-actions").hidden=false;$("replay-button").hidden=true;$("next-button").textContent="Back to your studio →";}
+  function finishConversation(){const convo=current.conversation;advanceGuidedPath();$("session-progress-fill").style.width="100%";$("prompt-type").textContent="CONVERSATION COMPLETE";$("scenario-tag").hidden=true;$("prompt-en").textContent="You kept the conversation moving."; $("prompt-hint").textContent="Try the exchange once more aloud, without looking at the choices."; $("think-copy").textContent="A real conversation is a chain of small, useful responses.";$("mode-extra").hidden=false;$("mode-extra").innerHTML='<div class="mode-feedback success"><strong>'+esc(convo.title)+' complete.</strong><p>Replay the phrases and say both sides aloud. Next time, try answering before reading the choices.</p><button class="secondary-button" id="conversation-restart">Replay this conversation</button><button class="reveal-button" id="conversation-home">Back to studio →</button></div>';$("before-actions").hidden=true;$("grade-area").hidden=true;$("listen-actions").hidden=true;}
+  function finishSession(){sessionFinished=true;advanceGuidedPath();$("session-progress-fill").style.width="100%";$("session-mode").textContent="SESSION COMPLETE";$("prompt-type").textContent="YOU SHOWED UP";$("scenario-tag").hidden=true;$("prompt-en").textContent="Every attempt makes the next one easier.";$("prompt-hint").textContent="You tried "+sessionAttempts+" prompts. Say your hardest one once more."; $("think-copy").textContent="Progress is what you can retrieve tomorrow.";$("answer-panel").hidden=true;$("before-actions").hidden=true;$("grade-area").hidden=true;$("mode-extra").hidden=true;$("listen-actions").hidden=false;$("replay-button").hidden=true;$("next-button").textContent="Back to your studio →";}
   function nextCard(){if(mode==="listen"&&!listenAnswered){$("think-copy").textContent="Choose an answer first so the listening practice can help you.";return;}queueIndex++;renderCard();}
   function renderBreakdown(){const row=$("token-row"),hidden=!row.hidden;row.hidden=hidden;$("breakdown-toggle").innerHTML=hidden?'Show sentence structure <span>＋</span>':'Hide sentence structure <span>−</span>';}
   function openSettings(){$("daily-goal").value=String(state.settings.goal||10);$("romaji-setting").value=state.settings.romaji||"auto";showView("settings-view");}
   document.addEventListener("click",e=>{
     const b=e.target.closest("button");if(!b)return;
-    if(b.id==="check-pattern"){checkPattern();}
+    if(b.dataset.speak){speak(b.dataset.speak,false);}
+    else if(b.id==="check-pattern"){checkPattern();}
     else if(b.id==="pattern-reveal"){const t=current&&current.transform?current:transforms.find(x=>x.id===current.id);if(t)speak(t.target,false);}
     else if(b.id==="pattern-next"){queueIndex++;renderCard();}
     else if(b.classList.contains("word-choice")){document.querySelectorAll(".word-choice").forEach(x=>x.disabled=true);const ok=b.dataset.answer===((allLessons.find(l=>l.id===current.lessonId)||{}).vocab||[]).find(v=>v.en===current.sentence.en)?.jp;b.classList.add(ok?"correct-choice":"wrong-choice");const box=$("pattern-feedback");box.hidden=false;box.className="mode-feedback "+(ok?"success":"try-again");box.innerHTML='<strong>'+(ok?"Correct word.":"Not quite.")+'</strong><p>'+esc(current.sentence.en)+' → '+esc(b.dataset.answer)+'</p><button class="reveal-button" id="pattern-next">Next word →</button>';recordAttempt(current.id,ok?"good":"again");}
@@ -173,7 +202,7 @@
     else if(b.id==="conversation-restart"){conversationTurn=0;renderConversationTurn();}
     else if(b.id==="conversation-home")showView("home-view");
   });
-  $("start-session").addEventListener("click",()=>start("recall"));
+  $("start-session").addEventListener("click",startGuidedPath);
   document.querySelectorAll("[data-mode]").forEach(b=>b.addEventListener("click",()=>start(b.dataset.mode)));
   $("back-home").addEventListener("click",()=>showView("home-view"));$("settings-button").addEventListener("click",openSettings);$("settings-back").addEventListener("click",()=>showView("home-view"));
   $("reveal-button").addEventListener("click",reveal);$("skip-button").addEventListener("click",nextCard);$("breakdown-toggle").addEventListener("click",renderBreakdown);$("replay-button").addEventListener("click",()=>current&&current.sentence&&speak(current.sentence.jp,false));
