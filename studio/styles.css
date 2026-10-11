@@ -55,3 +55,10 @@
 .conversation-en{color:var(--muted);font-size:12px;margin:8px 0}
 .conversation-choices>.eyebrow{margin-bottom:6px}
 @media(max-width:520px){.course-panel{padding:16px;margin-bottom:35px}.course-levels{grid-template-columns:1fr}.course-level p{min-height:0}.course-heading{gap:8px}.course-heading h2{font-size:24px}.course-badge{font-size:9px;padding:7px}.challenge-source,.challenge-task,.listening-prompt,.conversation-line,.conversation-choices{padding:14px}.choice-button{padding:12px}.choice-button strong{font-size:18px}}
+
+.course-syllabus{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.course-syllabus summary{cursor:pointer;color:var(--green);font-size:11px;font-weight:700;padding:3px 0}
+.course-syllabus-list{display:grid;gap:4px;margin-top:8px}
+.lesson-row{border:0;border-radius:7px;background:#f4f2eb;padding:9px 10px;text-align:left;color:var(--ink);font-size:11px;line-height:1.4}
+.lesson-row:disabled{color:#9c9b92;background:#f6f4ee;cursor:not-allowed}
+.lesson-row:not(:disabled):hover{background:var(--green-light)}
