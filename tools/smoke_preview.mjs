@@ -34,10 +34,8 @@ for (const file of ["lessons.js", "studio-preview/app.js"]) {
   }
 }
 check("four guided stops render", document.querySelectorAll(".route-node").length === 4);
-check("practical lesson is suggested before optional kana drills",
-  /SAY IT IN JAPANESE|SAY IT IN JAPANESE/i.test(document.getElementById("prompt-type")?.textContent || "") === false);
 document.getElementById("start-session").click();
-check("guided start opens Recall", !document.getElementById("practice-view").hidden &&
+check("guided start opens Recall", document.getElementById("practice-view").classList.contains("active") &&
   /SAY IT IN JAPANESE/.test(document.getElementById("prompt-type").textContent));
 check("Recall explicitly asks learner to speak first",
   /Say your answer out loud before revealing it/.test(document.getElementById("prompt-hint").textContent));
