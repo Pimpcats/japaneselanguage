@@ -71,7 +71,7 @@
     routeModes.forEach((routeMode,index)=>{
       const b=document.createElement("button");b.type="button";b.className="route-node"+(index===step?" is-next":"");
       b.setAttribute("aria-label",(index===step?"Start here: ":"Practice ")+routeLabels[routeMode]);
-      b.innerHTML='<span class="route-node-top"><span class="route-node-number">'+String(index+1).padStart(2,"0")+'</span><span class="route-node-state">'+(index===step?"START HERE":index<step?"UP NEXT":"ON THE PATH")+'</span></span><span class="route-node-icon">'+({recall:"↗",listen:"◖))",patterns:"＋",scenes:"↔"}[routeMode])+'</span><strong>'+routeLabels[routeMode]+'</strong><span class="route-node-description">'+routeDescriptions[routeMode]+'</span><span class="route-node-action">'+(index===step?"Begin this stop":"Go to this practice")+' →</span>';
+      b.innerHTML='<span class="route-node-top"><span class="route-node-number">'+String(index+1).padStart(2,"0")+'</span><span class="route-node-state">'+(index===step?"START HERE":index===(step+1)%routeModes.length?"NEXT UP":"ALSO AVAILABLE")+'</span></span><span class="route-node-icon">'+({recall:"↗",listen:"◖))",patterns:"＋",scenes:"↔"}[routeMode])+'</span><strong>'+routeLabels[routeMode]+'</strong><span class="route-node-description">'+routeDescriptions[routeMode]+'</span><span class="route-node-action">'+(index===step?"Begin this stop":"Go to this practice")+' →</span>';
       b.addEventListener("click",()=>start(routeMode));host.appendChild(b);
     });
   }
