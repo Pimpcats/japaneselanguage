@@ -24,7 +24,7 @@ const check = (name, condition) => {
   console.log((condition ? "ok  " : "FAIL"), name);
   if (!condition) failed++;
 };
-for (const file of ["lessons.js", "studio-preview/app.js"]) {
+for (const file of ["lessons.js", "studio-preview/content-overrides.js", "studio-preview/app.js"]) {
   try {
     const source = readFileSync(file, "utf8");
     window.eval(source);
@@ -34,6 +34,12 @@ for (const file of ["lessons.js", "studio-preview/app.js"]) {
   }
 }
 check("four guided stops render", document.querySelectorAll(".route-node").length === 4);
+const canDoLesson = window.LESSONS.find((lesson) => lesson.id === "can-do");
+check("language ability uses natural spoken Japanese",
+  canDoLesson.sentences.some((sentence) => sentence.en === "I can speak Japanese." && sentence.jp === "にほんごが はなせます。"));
+const platformLesson = window.LESSONS.find((lesson) => lesson.id === "does-this-go");
+check("platform question matches its English meaning",
+  platformLesson.sentences.some((sentence) => sentence.en === "Is this the platform for Shibuya?" && sentence.jp === "しぶやいきは この ホームですか？"));
 document.getElementById("start-session").click();
 check("guided start opens Recall", document.getElementById("practice-view").classList.contains("active") &&
   /SAY IT IN JAPANESE/.test(document.getElementById("prompt-type").textContent));
