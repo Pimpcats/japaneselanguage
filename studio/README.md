@@ -1,26 +1,41 @@
 # Hanasou — Speaking Studio
 
-A separate experimental app for speaking-first Japanese practice. It intentionally does not replace the original subway/transit-themed Hanasou app.
+A separate, speaking-first Japanese course prototype. The original subway/transit Hanasou app is unchanged.
 
 ## Open it
 
-- GitHub Pages path: `/studio/` after the branch is deployed.
-- It reuses the root `lessons.js` curriculum and `audio/manifest.json` + clips.
+- App path: `/studio/` after the branch is deployed to a static host.
+- Uses the existing root `lessons.js` curriculum and `audio/manifest.json` + audio clips.
 - No build step, framework, bundler, or npm install is required.
 
-## Practice modes
+## The course path
 
-- **Recall:** produce the Japanese answer before revealing it.
-- **Pattern lab:** practice examples grouped by the grammar/theme section.
-- **In the moment:** practice sentences drawn from everyday and travel themes.
-- **Listen & notice:** hear a sentence first, repeat it, then reveal its meaning.
+The Studio now uses the existing `window.LEVELS` curriculum, in order:
 
-The studio's progress is stored separately under `hanasou.studio.v1` in localStorage. It does not overwrite the original app's `hanasou.v4` progress or Anki.
+- **Level 0 — First Sounds:** build kana and recognize words.
+- **Level 1 — Foundations:** greetings, introductions, shopping, daily actions, past tense, wants, and descriptions.
+- **Level 2 — Connecting & Doing:** て-form, requests, ongoing actions, and linking ideas.
+- **Level 3 — Getting Around:** directions, transport, tickets, and travel trouble.
+- **Level 4 — Real Conversations:** casual speech, plans, opinions, reactions, and relating to others.
+- **Level 5 — Nuance & Plans:** conditions, ability, intentions, and impressions.
+- **Level 6 — Expert:** passive/causative forms and explaining nuance.
+- **Level 7 — Master:** keigo and native-level connectives.
 
-## Design direction
+The home screen displays level progress and an expandable lesson sequence. Lessons unlock in order as all the lesson's recall cards have been reviewed at least once. Completing a level unlocks the next one. A lesson can be replayed at any time after it unlocks.
 
-The original app's subway system remains available and unchanged. This experiment uses a calm editorial studio aesthetic instead: warm paper, deep green, restrained color, clear typography, and a single speaking-first path. The color-coded grammar breakdown appears after recall so it explains the answer instead of giving it away.
+## Four distinct practice loops
 
-## Prototype scope / next work
+- **Recall:** English-to-Japanese retrieval, reveal, self-grade, and spaced repetition.
+- **Pattern Lab:** for curated grammar lessons, produce a transformed sentence and compare it with the model; at early sound/word lessons it becomes a word-building choice task appropriate to that stage.
+- **In the Moment:** respond to a short scenario by selecting a context-appropriate Japanese reply. The dialogue continues with follow-up turns; wrong choices get corrective context. This is a curated branching-choice prototype, not open-ended speech recognition or AI roleplay.
+- **Listen & Notice:** audio plays before the choices appear. Choose the meaning from distractors, then compare the Japanese transcript and replay slowly.
 
-This is a first usable prototype, not the finished adaptive tutor. Pattern Lab currently reuses real curriculum examples grouped by lesson section; it does not yet generate and validate arbitrary conjugations. Scene mode is a contextual sentence drill rather than open-ended AI roleplay. Next iterations should add curated transformation pairs, robust SRS tests, and conversation turns while preserving honest scoring and the offline-friendly static architecture.
+The listening and conversation modes record performance; pattern challenges compare the typed kana/romaji answer to the target. Self-rating and exact text matching are practice signals, not a formal pronunciation assessment.
+
+## Progress and privacy
+
+Studio progress is stored separately under `hanasou.studio.v1` in localStorage. It does not overwrite the original app's `hanasou.v4` progress or Anki. Progress is local to the browser/device, so it does not automatically sync between devices.
+
+## Current scope
+
+This is a usable static prototype, not a promise of fluency or a finished adaptive tutor. It has a guided route through the existing curriculum, eight curated sentence transformations, and three curated conversation scenarios. Future work should expand conversation branches, add more transformation pairs for each grammar point, and validate the curriculum unlock logic and mobile/audio behavior with real learner testing.
