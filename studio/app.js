@@ -146,7 +146,7 @@
     $("replay-button").hidden=true;speak(turn.jp,false);
   }
   function chooseConversation(button){
-    if(conversationLocked)return;const convo=current.conversation,turn=convo.turns[conversationTurn],choice=turn.choices[Number(button.dataset.choice)];conversationLocked=true;
+    if(conversationLocked)return;const convo=current.conversation,turn=convo.turns[conversationTurn],choice=turn.choices[Number(button.dataset.choice)];conversationLastCorrect=!!choice.correct;conversationLocked=true;
     document.querySelectorAll(".conversation-choice").forEach(b=>{b.disabled=true;if(turn.choices[Number(b.dataset.choice)].correct)b.classList.add("correct-choice");});if(!choice.correct)button.classList.add("wrong-choice");
     const box=$("conversation-feedback");box.hidden=false;box.className="mode-feedback "+(choice.correct?"success":"try-again");box.innerHTML='<strong>'+(choice.correct?"That fits the moment.":"That reply doesn't quite fit — compare the meanings, then try again.")+'</strong><div class="answer-jp">'+esc(choice.replyJp||"")+'</div><p>'+esc(choice.replyEn||"")+'</p><button class="reveal-button" id="conversation-next">'+(choice.correct?(conversationTurn===convo.turns.length-1?"Finish conversation":"Keep talking"):"Try again")+' →</button>';
     recordAttempt("conversation:"+convo.id+":"+conversationTurn,choice.correct?"good":"again");speak(choice.replyJp||"",false);
