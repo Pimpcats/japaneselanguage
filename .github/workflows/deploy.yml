@@ -34,7 +34,7 @@ jobs:
 
       - name: Syntax-check every script
         run: |
-          for f in *.js studio-preview/*.js tools/*.mjs; do node --check "$f"; done
+          for f in *.js studio-preview/*.js living-city/*.js tools/*.mjs; do node --check "$f"; done
 
       - name: Smoke test — boot the app and click through it
         run: |
