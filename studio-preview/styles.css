@@ -91,3 +91,5 @@
 .challenge-source .mini-audio{margin-top:12px}
 @media(max-width:760px){.guided-route{padding:18px 14px 16px;margin:22px 0 26px;border-radius:20px}.route-heading{gap:10px}.route-heading h2{font-size:1.35rem}.route-heading p{font-size:.85rem}.route-step-count{font-size:.58rem;padding:8px}.route-nodes{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.route-node{padding:13px 12px}.route-node.is-next{padding:12px 11px}.route-node:not(:last-child)::after{display:none}.route-node-description{font-size:.8rem;min-height:0}.route-node-action{margin-top:11px}.choice-with-audio .mini-audio{min-width:38px;padding:8px}}
 @media(max-width:420px){.route-node-state{font-size:.5rem}.route-node strong{font-size:.92rem}.route-node-description{font-size:.77rem}.route-node-top{margin-bottom:11px}}
+
+.token-audio{margin-top:6px;min-width:30px;padding:3px 6px;border-radius:8px;font-size:.68rem;align-self:flex-start}
