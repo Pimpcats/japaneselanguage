@@ -18,6 +18,7 @@
     { id: "transform-past-movie", section: "PAST TENSE", lessonTitle: "Past tense", sourceEnglish: "I watch a movie.", sourceJp: "えいがを みます。", sentence: { en: "I watched a movie.", jp: "えいがを みました。", romaji: "eiga o mimashita.", words: [{jp:"えいが",en:"movie",pos:"n"},{jp:"を",en:"object marker",pos:"prt"},{jp:"みました",en:"watched",pos:"v"}] } },
     { id: "transform-past-live", section: "PAST TENSE", lessonTitle: "Past tense", sourceEnglish: "I live in Tokyo.", sourceJp: "とうきょうに すんでいます。", sentence: { en: "I lived in Tokyo.", jp: "とうきょうに すんでいました。", romaji: "toukyou ni sunde imashita.", words: [{jp:"とうきょう",en:"Tokyo",pos:"n"},{jp:"に",en:"location marker",pos:"prt"},{jp:"すんでいました",en:"lived",pos:"v"}] } }
   ];
+  const practiceCards = allCards.concat(transforms.map((item) => Object.assign({ transform: true, section: item.section, lessonTitle: item.lessonTitle }, item)));
   const defaults = { cards: {}, total: 0, wins: 0, daily: {}, settings: { goal: 10, romaji: "auto" }, history: [] };
   function load() { try { return Object.assign({}, defaults, JSON.parse(localStorage.getItem(STORE) || "{}")); } catch (_) { return Object.assign({}, defaults); } }
   const state = load();
@@ -57,7 +58,7 @@
     const t = today(); const goal = Number(state.settings.goal) || 10;
     $("today-count").innerHTML = t.attempts + ' <small>sentences</small>';
     $("today-bar").style.width = Math.min(100, t.attempts / goal * 100) + "%";
-    const due = allCards.filter((card) => !state.cards[card.id] || (state.cards[card.id].due || 0) <= Date.now()).length;
+    const due = practiceCards.filter((card) => !state.cards[card.id] || (state.cards[card.id].due || 0) <= Date.now()).length;
     $("due-count").innerHTML = due + ' <small>due</small>';
     $("due-note").textContent = due ? "A few good reps go a long way" : "You're caught up for now";
     const recent = state.history.slice(-50);
@@ -68,7 +69,7 @@
   function start(nextMode) {
     mode = nextMode || "recall"; queueIndex = 0; sessionAttempts = 0; revealed = false; sessionFinished = false;
     $("next-button").textContent = "Next sentence →"; $("replay-button").hidden = false;
-    let candidates = allCards.slice();
+    let candidates = practiceCards.slice();
     if (mode === "patterns") {
       candidates = transforms.map((item) => Object.assign({ transform: true, section: item.section, lessonTitle: item.lessonTitle }, item));
       $("session-mode").textContent = "PATTERN LAB · CHANGE THE SENTENCE";
