@@ -163,9 +163,9 @@
     $("next-button").textContent="Next →";$("replay-button").hidden=false;$("mode-extra").hidden=true;$("mode-extra").innerHTML="";
     const lesson=id&&allLessons.find(l=>l.id===id);let candidates=id?lessonCards(id):allCards.slice();
     if(mode==="patterns"){
-      const relevant=id?transforms.filter(t=>t.lessonId===id):transforms;
+      const relevant=id?transforms.filter(t=>t.lessonId===id):[];
       if(relevant.length)candidates=relevant.map(t=>Object.assign({},t,{transform:true,sentence:{en:t.prompt,jp:t.target,romaji:"",words:[]}}));
-      else if(lesson)candidates=(lesson.vocab||[]).map((v,i)=>({id:lesson.id+"#word#"+i,lessonId:lesson.id,section:lesson.section,level:lesson.id.startsWith("l0")?"FIRST SOUNDS":"FOUNDATIONS",sentence:{en:v.en,jp:v.jp,romaji:v.romaji,words:[v]}}));
+      else if(lesson&&lesson.id.startsWith("l0"))candidates=(lesson.vocab||[]).map((v,i)=>({id:lesson.id+"#word#"+i,lessonId:lesson.id,section:lesson.section,level:"FIRST SOUNDS",sentence:{en:v.en,jp:v.jp,romaji:v.romaji,words:[v]}}));
       else candidates=transforms.map(t=>Object.assign({},t,{transform:true,sentence:{en:t.prompt,jp:t.target,romaji:"",words:[]}}));
       $("session-mode").textContent="PATTERN LAB · BUILD & CHANGE";
     }else if(mode==="scenes"){$("session-mode").textContent="IN THE MOMENT · CONVERSATION";queue=[];}
