@@ -39,7 +39,7 @@
     ]},
     {id:"restaurant",title:"At a restaurant",level:"L1",place:"ORDERING FOOD",turns:[
       {speaker:"Server",jp:"ごちゅうもんは おきまりですか？",en:"Are you ready to order?",choices:[{jp:"これを おねがいします。",en:"I'll have this, please.",correct:true,replyJp:"おのみものは いかがですか？",replyEn:"Would you like something to drink?"},{jp:"トイレは どこですか？",en:"Where is the restroom?",replyJp:"あちらです。",replyEn:"It's over there."}]},
-      {speaker:"Server",jp:"おのみものは いかがですか？",en:"Would you like something to drink?",choices:[{jp:"おみずを おねがいします。",en:"Water, please.",correct:true,replyJp:"ほかに なにか ございますか？",replyEn:"Would you like anything else?"},{jp:"おかいけいを おねがいします。",en:"The bill, please.",replyJp:"おたべおわりですか？",replyEn:"Are you finished eating?"}]},
+      {speaker:"Server",jp:"おのみものは いかがですか？",en:"Would you like something to drink?",choices:[{jp:"おみずを おねがいします。",en:"Water, please.",correct:true,replyJp:"ほかに なにか ございますか？",replyEn:"Would you like anything else?"},{jp:"おかいけいを おねがいします。",en:"The bill, please.",replyJp:"おしょくじは おすみですか？",replyEn:"Are you finished eating?"}]},
       {speaker:"Server",jp:"ほかに なにか ございますか？",en:"Would you like anything else?",choices:[{jp:"いいえ、だいじょうぶです。おかいけいを おねがいします。",en:"No, that's all. The bill, please.",correct:true,replyJp:"かしこまりました。",replyEn:"Certainly."},{jp:"あした いきます。",en:"I'll go tomorrow.",replyJp:"そうですか。",replyEn:"I see."}]}
     ]},
     {id:"shop",title:"Shopping",level:"L1",place:"AT A SHOP",turns:[
@@ -63,7 +63,7 @@
       {speaker:"Local person",jp:"ごふんぐらいです。",en:"About five minutes.",choices:[{jp:"ありがとうございます。",en:"Thank you.",correct:true,replyJp:"どういたしまして。",replyEn:"You're welcome."},{jp:"おなまえは？",en:"What's your name?",replyJp:"えっ？",replyEn:"Pardon?"}]}
     ]},
     {id:"hotel",title:"Checking into a hotel",level:"L1",place:"AT RECEPTION",turns:[
-      {speaker:"Receptionist",jp:"ごよやくは ありますか？",en:"Do you have a reservation?",choices:[{jp:"はい、よやくしています。",en:"Yes, I have a reservation.",correct:true,replyJp:"おなまえを おねがいします。",replyEn:"May I have your name?"},{jp:"トイレは どこですか？",en:"Where is the restroom?",replyJp:"あちらです。",replyEn:"It's over there."}]},
+      {speaker:"Receptionist",jp:"ごよやくは ありますか？",en:"Do you have a reservation?",choices:[{jp:"はい、よやくしました。",en:"Yes, I have a reservation.",correct:true,replyJp:"おなまえを おねがいします。",replyEn:"May I have your name?"},{jp:"トイレは どこですか？",en:"Where is the restroom?",replyJp:"あちらです。",replyEn:"It's over there."}]},
       {speaker:"Receptionist",jp:"おなまえを おねがいします。",en:"May I have your name?",choices:[{jp:"アレックスです。",en:"It's Alex.",correct:true,replyJp:"パスポートを おみせください。",replyEn:"May I see your passport?"},{jp:"みずを のみます。",en:"I drink water.",replyJp:"そうですか。",replyEn:"I see."}]},
       {speaker:"Receptionist",jp:"パスポートを おみせください。",en:"May I see your passport?",choices:[{jp:"はい、どうぞ。",en:"Yes, here you are.",correct:true,replyJp:"ありがとうございます。",replyEn:"Thank you."},{jp:"きのう たべました。",en:"I ate yesterday.",replyJp:"そうですか。",replyEn:"I see."}]}
     ]},
@@ -95,7 +95,7 @@
   ];
   const routeModes = ["recall","listen","patterns","scenes"];
   const routeLabels = {recall:"Recall",listen:"Listen & notice",patterns:"Pattern lab",scenes:"In the moment"};
-  const routeDescriptions = {recall:"Try it from memory.",listen:"Hear it, catch the meaning.",patterns:"Change the sentence.",scenes:"Choose what to say next."};
+  const routeDescriptions = {recall:"Say it out loud before revealing the answer.",listen:"Hear it, catch the meaning.",patterns:"Swap words to say something new.",scenes:"Speak first, then reveal options."};
   const defaults = { cards:{}, total:0, wins:0, daily:{}, settings:{goal:10,romaji:"auto"}, history:[], lessonDone:{}, lessonAttempts:{}, routeStep:0 };
   function load(){try{return Object.assign({},defaults,JSON.parse(localStorage.getItem(STORE)||"{}"));}catch(_){return Object.assign({},defaults);}}
   const state=load(); state.cards=state.cards||{};state.daily=state.daily||{};state.history=state.history||[];state.lessonDone=state.lessonDone||{};state.lessonAttempts=state.lessonAttempts||{};state.routeStep=Number.isInteger(state.routeStep)?((state.routeStep%4)+4)%4:0;state.settings=Object.assign({},defaults.settings,state.settings||{});
