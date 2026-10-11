@@ -210,5 +210,5 @@
   document.querySelectorAll("[data-grade]").forEach(b=>b.addEventListener("click",()=>grade(b.dataset.grade)));
   $("daily-goal").addEventListener("change",e=>{state.settings.goal=Number(e.target.value);save();});$("romaji-setting").addEventListener("change",e=>{state.settings.romaji=e.target.value;save();});
   $("reset-progress").addEventListener("click",()=>{if(!window.confirm("Reset only the new Speaking Studio's review history? Your original Hanasou app and Anki are not affected."))return;state.cards={};state.total=0;state.wins=0;state.daily={};state.history=[];state.lessonDone={};state.lessonAttempts={};save();showView("home-view");});
-  renderStats();renderCourse();
+  renderStats();renderCourse();renderRoute();
 })();
