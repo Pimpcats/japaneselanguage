@@ -31,7 +31,13 @@
           <div class="progress-cell"><span class="metric-label">FIRST-TRY WINS</span><strong id="win-rate">—<small>%</small></strong><span class="metric-foot">Last 7 days</span></div>
         </section>
 
-        <div class="section-heading"><div><span class="eyebrow">CHOOSE YOUR PRACTICE</span><h2>Train a real skill.</h2></div><span class="heading-side">01 — 04</span></div>
+        <section class="course-panel" id="course-panel">
+          <div class="course-heading"><div><span class="eyebrow">YOUR LEARNING PATH</span><h2>From first sounds to real conversation.</h2><p>Follow the levels in order. Each stage builds on what came before.</p></div><span class="course-badge" id="course-overall">LEVEL 0</span></div>
+          <div class="course-levels" id="course-levels" aria-label="Japanese course levels"></div>
+          <div class="course-next" id="course-next"></div>
+        </section>
+
+        <div class="section-heading"><div><span class="eyebrow">FOUR DIFFERENT SKILLS</span><h2>Train a real skill.</h2></div><span class="heading-side">01 — 04</span></div>
         <div class="mode-grid">
           <button class="mode-card recall-card" data-mode="recall"><span class="mode-number">01 / RETRIEVE</span><span class="mode-icon">↗</span><strong>Recall</strong><span>English prompt in. Japanese out. No hints until you've tried.</span><span class="mode-link">Train memory <b>→</b></span></button>
           <button class="mode-card pattern-card" data-mode="patterns"><span class="mode-number">02 / RECOMBINE</span><span class="mode-icon">＋</span><strong>Pattern lab</strong><span>Notice the grammar, then use it with a different idea.</span><span class="mode-link">Train flexibility <b>→</b></span></button>
@@ -50,7 +56,7 @@
           <div class="scenario-tag" id="scenario-tag" hidden></div>
           <h2 id="prompt-en">What would you say?</h2>
           <p class="prompt-hint" id="prompt-hint">Say your answer out loud. Take your time — the answer is hidden.</p>
-          <div class="think-line"><span class="think-pulse"></span><span id="think-copy">Your turn. Say it before you tap.</span></div>
+          <div class="think-line"><span class="think-pulse"></span><span id="think-copy">Your turn. Say it before you tap.</span></div>\n          <div id="mode-extra" class="mode-extra" hidden></div>
           <div class="answer-panel" id="answer-panel" hidden>
             <div class="answer-jp" id="answer-jp"></div>
             <div class="answer-romaji" id="answer-romaji"></div>
