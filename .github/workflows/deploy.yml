@@ -41,6 +41,7 @@ jobs:
           npm install --no-save jsdom
           node tools/smoke.mjs
           node tools/smoke_preview.mjs
+          node tools/smoke_living_city.mjs
 
       - name: Lint lessons, scenes and version stamps
         run: node tools/lint_lessons.mjs
