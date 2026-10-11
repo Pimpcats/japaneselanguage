@@ -4,3 +4,54 @@
 @media(max-width:850px){.mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mode-card{min-height:205px}.app-shell{padding:0 24px}.hero{padding-top:17px}.progress-strip{margin-bottom:40px}}
 @media(max-width:520px){.app-shell{padding:0 17px}.topbar{height:67px}.today-label{display:none}.view{padding-top:25px}.hero h1{font-size:51px}.hero-copy{font-size:14px}.progress-strip{grid-template-columns:repeat(2,1fr);margin-bottom:35px}.progress-cell{padding:15px}.progress-cell:last-child{grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}.progress-cell strong{font-size:24px}.mode-grid{gap:9px}.mode-card{padding:14px;min-height:218px}.mode-card>strong{font-size:18px}.mode-card>span:nth-of-type(3){font-size:11px}.section-heading h2{font-size:26px}.continue-panel{padding:17px;gap:12px}.practice-card{padding:22px 18px}.practice-card h2{margin-top:25px}.practice-actions{align-items:stretch;flex-direction:column}.reveal-button{width:100%}.skip-button{align-self:flex-start;padding-left:0}.grade-buttons{gap:6px}.grade-buttons button{padding:11px 8px}.grade-buttons small{font-size:9px}.listen-actions .reveal-button{min-width:0}.answer-jp{font-size:29px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;scroll-behavior:auto!important}}
+
+/* Guided curriculum and distinct mode interactions */
+.course-panel{margin:0 0 48px;padding:24px;background:var(--white);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}
+.course-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+.course-heading h2{font:700 clamp(24px,4vw,34px)/1.12 var(--display);letter-spacing:-.055em;margin:8px 0}
+.course-heading p{color:var(--muted);font-size:12px;line-height:1.65;max-width:500px;margin:0}
+.course-badge{flex-shrink:0;padding:8px 10px;border-radius:7px;background:var(--green-light);color:var(--green);font:500 10px var(--mono)}
+.course-levels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.course-level{padding:15px;border:1px solid var(--line);border-radius:12px;background:#fffefa;min-width:0}
+.course-level.locked{opacity:.62;background:#f1efe8}
+.course-level.completed{border-color:#b8d0bf;background:#f6faf5}
+.course-level-top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.course-index,.course-status,.course-count{font:500 9px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.course-status{color:var(--green)}
+.course-level h3{font:700 17px var(--display);letter-spacing:-.04em;margin:12px 0 5px}
+.course-level p{font-size:11px;line-height:1.55;color:var(--muted);min-height:36px;margin:0 0 12px}
+.course-progress{height:4px;border-radius:9px;background:#ece9e0;overflow:hidden;margin-bottom:8px}
+.course-progress i{display:block;height:100%;background:var(--green)}
+.course-start{width:100%;margin-top:13px;padding:10px 11px;border:1px solid #cddbd0;border-radius:8px;background:#edf5ef;color:var(--green);font-size:11px;font-weight:700;text-align:left}
+.course-start:disabled{opacity:.5}
+.course-next{margin-top:13px;padding:15px;border-radius:11px;background:#f3f1e9}
+.course-next>strong{display:block;font:700 17px var(--display);margin:6px 0}
+.course-next p{font-size:11px;line-height:1.6;color:var(--muted);margin:0;max-width:620px}
+.primary-course{background:var(--green);border-color:var(--green);color:white;max-width:260px}
+.mode-extra{margin:20px 0 4px}
+.challenge-source,.challenge-task,.listening-prompt,.conversation-line,.conversation-choices{padding:17px;border:1px solid var(--line);border-radius:12px;background:#faf9f4;margin-bottom:10px}
+.challenge-source strong,.challenge-task>strong{display:block;font:600 15px var(--display);margin:8px 0}
+.challenge-jp{display:block;font:500 22px "Noto Sans JP",sans-serif;margin-top:10px}
+.challenge-task label{display:block;font-size:11px;color:var(--muted);margin:15px 0 6px}
+.challenge-task input{width:100%;padding:13px;border:1px solid var(--line);border-radius:9px;background:white;font:16px "Noto Sans JP",var(--sans);margin-bottom:12px}
+.word-builder-meaning{font:600 22px var(--display);margin:12px 0}
+.choice-list{display:grid;gap:8px;margin-top:14px}
+.choice-button{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:white;color:var(--ink);text-align:left;font-size:13px;line-height:1.5}
+.choice-button:hover:not(:disabled){border-color:#9eb5a3;background:#f7faf6}
+.choice-button:disabled{cursor:default}
+.choice-button strong{display:block;font:600 20px "Noto Sans JP",var(--sans)}
+.choice-button small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.correct-choice{border-color:#8eb49a!important;background:#e5f2e8!important}
+.wrong-choice{border-color:#d5a19a!important;background:#f9eae7!important}
+.mode-feedback{padding:15px;margin-top:12px;border-radius:10px;background:#f0eee7;font-size:12px;line-height:1.6}
+.mode-feedback.success{background:#e7f2e8}
+.mode-feedback.try-again{background:#f7eee4}
+.mode-feedback p{margin:7px 0;color:#5f665d}
+.mode-feedback .answer-jp{font-size:24px;margin:8px 0}
+.mode-feedback .reveal-button,.mode-feedback .secondary-button{margin:8px 8px 0 0}
+.listening-prompt>p{font-size:14px;font-weight:600;margin:16px 0 0}
+.listening-prompt>.secondary-button{float:right}
+.conversation-jp{font:600 clamp(25px,5vw,34px)/1.5 "Noto Sans JP",var(--sans);margin:13px 0 4px}
+.conversation-en{color:var(--muted);font-size:12px;margin:8px 0}
+.conversation-choices>.eyebrow{margin-bottom:6px}
+@media(max-width:520px){.course-panel{padding:16px;margin-bottom:35px}.course-levels{grid-template-columns:1fr}.course-level p{min-height:0}.course-heading{gap:8px}.course-heading h2{font-size:24px}.course-badge{font-size:9px;padding:7px}.challenge-source,.challenge-task,.listening-prompt,.conversation-line,.conversation-choices{padding:14px}.choice-button{padding:12px}.choice-button strong{font-size:18px}}
