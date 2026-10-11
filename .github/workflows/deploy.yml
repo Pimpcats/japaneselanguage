@@ -34,12 +34,13 @@ jobs:
 
       - name: Syntax-check every script
         run: |
-          for f in *.js tools/*.mjs; do node --check "$f"; done
+          for f in *.js studio-preview/*.js tools/*.mjs; do node --check "$f"; done
 
       - name: Smoke test — boot the app and click through it
         run: |
           npm install --no-save jsdom
           node tools/smoke.mjs
+          node tools/smoke_preview.mjs
 
       - name: Lint lessons, scenes and version stamps
         run: node tools/lint_lessons.mjs
