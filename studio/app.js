@@ -26,7 +26,7 @@
   const dayKey = () => new Date().toLocaleDateString("en-CA");
   const today = () => state.daily[dayKey()] || { attempts: 0, wins: 0 };
   function save() { localStorage.setItem(STORE, JSON.stringify(state)); renderStats(); }
-  let mode = "recall", queue = [], queueIndex = 0, current = null, revealed = false, sessionAttempts = 0;
+  let mode = "recall", queue = [], queueIndex = 0, current = null, revealed = false, sessionAttempts = 0, sessionFinished = false;
   let manifest = null, audioPlayer = null;
   const views = ["home-view", "practice-view", "settings-view"];
   function showView(id) { views.forEach((view) => $(view).classList.toggle("active", view === id)); window.scrollTo({ top: 0, behavior: "smooth" }); }
@@ -66,8 +66,8 @@
     $("today-label").textContent = new Date().toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }).toUpperCase();
   }
   function start(nextMode) {
-    mode = nextMode || "recall"; queueIndex = 0; sessionAttempts = 0; revealed = false;
-    $("next-button").onclick = nextCard; $("next-button").textContent = "Next sentence →"; $("replay-button").hidden = false;
+    mode = nextMode || "recall"; queueIndex = 0; sessionAttempts = 0; revealed = false; sessionFinished = false;
+    $("next-button").textContent = "Next sentence →"; $("replay-button").hidden = false;
     let candidates = allCards.slice();
     if (mode === "patterns") {
       candidates = transforms.map((item) => Object.assign({ transform: true, section: item.section, lessonTitle: item.lessonTitle }, item));
@@ -152,6 +152,7 @@
     $("think-copy").textContent = result === "good" ? "That came out on your own. Nice work." : result === "hard" ? "Nearly there. We'll bring this pattern back." : "This one needs another pass. That's useful information.";
   }
   function finishSession() {
+    sessionFinished = true;
     $("session-progress-fill").style.width = "100%";
     $("session-mode").textContent = "SESSION COMPLETE";
     $("prompt-type").textContent = "YOU SHOWED UP";
@@ -161,7 +162,6 @@
     $("think-copy").textContent = "Progress is what you can retrieve tomorrow.";
     $("answer-panel").hidden = true; $("before-actions").hidden = true; $("grade-area").hidden = true; $("listen-actions").hidden = false;
     $("replay-button").hidden = true; $("next-button").textContent = "Back to your studio →";
-    $("next-button").onclick = () => { $("replay-button").hidden = false; $("next-button").textContent = "Next sentence →"; $("next-button").onclick = nextCard; showView("home-view"); };
   }
   function nextCard() { queueIndex++; renderCard(); }
   function renderBreakdown() {
@@ -183,7 +183,7 @@
   $("skip-button").addEventListener("click", nextCard);
   $("breakdown-toggle").addEventListener("click", renderBreakdown);
   $("replay-button").addEventListener("click", () => current && speak(current.sentence.jp, false));
-  $("next-button").addEventListener("click", nextCard);
+  $("next-button").addEventListener("click", () => { if (sessionFinished) { $("replay-button").hidden = false; $("next-button").textContent = "Next sentence →"; showView("home-view"); } else nextCard(); });
   document.querySelectorAll("[data-grade]").forEach((button) => button.addEventListener("click", () => grade(button.dataset.grade)));
   $("daily-goal").addEventListener("change", (e) => { state.settings.goal = Number(e.target.value); save(); });
   $("romaji-setting").addEventListener("change", (e) => { state.settings.romaji = e.target.value; save(); });
