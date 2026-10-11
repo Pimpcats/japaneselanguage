@@ -8,6 +8,16 @@
     section: lesson.section || "", grammar: lesson.grammar || "", level: lesson.id.startsWith("l0") ? "FIRST SOUNDS" : lesson.id.startsWith("l1") ? "FOUNDATIONS" : "EVERYDAY JAPANESE",
     sentence
   }))).filter((card) => card.sentence && card.sentence.en && card.sentence.jp);
+  const transforms = [
+    { id: "transform-past-sushi", section: "PAST TENSE", lessonTitle: "Past tense", sourceEnglish: "I eat sushi.", sourceJp: "すしを たべます。", sentence: { en: "I ate sushi yesterday.", jp: "きのう、すしを たべました。", romaji: "kinou, sushi o tabemashita.", words: [{jp:"きのう",en:"yesterday",pos:"adv"},{jp:"すし",en:"sushi",pos:"n"},{jp:"を",en:"object marker",pos:"prt"},{jp:"たべました",en:"ate",pos:"v"}] } },
+    { id: "transform-past-station", section: "PAST TENSE", lessonTitle: "Past tense", sourceEnglish: "I go to the station.", sourceJp: "えきに いきます。", sentence: { en: "I went to the station yesterday.", jp: "きのう、えきに いきました。", romaji: "kinou, eki ni ikimashita.", words: [{jp:"きのう",en:"yesterday",pos:"adv"},{jp:"えき",en:"station",pos:"n"},{jp:"に",en:"destination marker",pos:"prt"},{jp:"いきました",en:"went",pos:"v"}] } },
+    { id: "transform-negative-coffee", section: "NEGATIVE", lessonTitle: "Negative forms", sourceEnglish: "I drink coffee.", sourceJp: "コーヒーを のみます。", sentence: { en: "I don't drink coffee.", jp: "コーヒーを のみません。", romaji: "koohii o nomimasen.", words: [{jp:"コーヒー",en:"coffee",pos:"n"},{jp:"を",en:"object marker",pos:"prt"},{jp:"のみません",en:"don't drink",pos:"v"}] } },
+    { id: "transform-past-negative-breakfast", section: "PAST NEGATIVE", lessonTitle: "Past negative", sourceEnglish: "I eat breakfast.", sourceJp: "あさごはんを たべます。", sentence: { en: "I didn't eat breakfast.", jp: "あさごはんを たべませんでした。", romaji: "asagohan o tabemasen deshita.", words: [{jp:"あさごはん",en:"breakfast",pos:"n"},{jp:"を",en:"object marker",pos:"prt"},{jp:"たべませんでした",en:"didn't eat",pos:"v"}] } },
+    { id: "transform-past-ticket", section: "PAST TENSE", lessonTitle: "Past tense", sourceEnglish: "I buy a ticket.", sourceJp: "きっぷを かいます。", sentence: { en: "I bought a ticket.", jp: "きっぷを かいました。", romaji: "kippu o kaimashita.", words: [{jp:"きっぷ",en:"ticket",pos:"n"},{jp:"を",en:"object marker",pos:"prt"},{jp:"かいました",en:"bought",pos:"v"}] } },
+    { id: "transform-past-water", section: "PAST TENSE", lessonTitle: "Past tense", sourceEnglish: "I drink water.", sourceJp: "みずを のみます。", sentence: { en: "I drank water.", jp: "みずを のみました。", romaji: "mizu o nomimashita.", words: [{jp:"みず",en:"water",pos:"n"},{jp:"を",en:"object marker",pos:"prt"},{jp:"のみました",en:"drank",pos:"v"}] } },
+    { id: "transform-past-movie", section: "PAST TENSE", lessonTitle: "Past tense", sourceEnglish: "I watch a movie.", sourceJp: "えいがを みます。", sentence: { en: "I watched a movie.", jp: "えいがを みました。", romaji: "eiga o mimashita.", words: [{jp:"えいが",en:"movie",pos:"n"},{jp:"を",en:"object marker",pos:"prt"},{jp:"みました",en:"watched",pos:"v"}] } },
+    { id: "transform-past-live", section: "PAST TENSE", lessonTitle: "Past tense", sourceEnglish: "I live in Tokyo.", sourceJp: "とうきょうに すんでいます。", sentence: { en: "I lived in Tokyo.", jp: "とうきょうに すんでいました。", romaji: "toukyou ni sunde imashita.", words: [{jp:"とうきょう",en:"Tokyo",pos:"n"},{jp:"に",en:"location marker",pos:"prt"},{jp:"すんでいました",en:"lived",pos:"v"}] } }
+  ];
   const defaults = { cards: {}, total: 0, wins: 0, daily: {}, settings: { goal: 10, romaji: "auto" }, history: [] };
   function load() { try { return Object.assign({}, defaults, JSON.parse(localStorage.getItem(STORE) || "{}")); } catch (_) { return Object.assign({}, defaults); } }
   const state = load();
@@ -57,12 +67,11 @@
   }
   function start(nextMode) {
     mode = nextMode || "recall"; queueIndex = 0; sessionAttempts = 0; revealed = false;
+    $("next-button").onclick = nextCard; $("next-button").textContent = "Next sentence →"; $("replay-button").hidden = false;
     let candidates = allCards.slice();
     if (mode === "patterns") {
-      const sections = [...new Set(candidates.map((c) => c.section))].filter(Boolean);
-      const section = sections[Math.floor(Math.random() * sections.length)];
-      candidates = candidates.filter((c) => c.section === section);
-      $("session-mode").textContent = "PATTERN LAB · " + (section || "RECOMBINE").toUpperCase();
+      candidates = transforms.map((item) => Object.assign({ transform: true, section: item.section, lessonTitle: item.lessonTitle }, item));
+      $("session-mode").textContent = "PATTERN LAB · CHANGE THE SENTENCE";
     } else if (mode === "scenes") {
       const groups = [
         { name: "GETTING AROUND", test: /direction|transport|finding your way|tickets|trouble/i },
@@ -83,8 +92,8 @@
     }
     queue = shuffle(candidates).slice(0, 10);
     if (!queue.length) queue = allCards.slice(0, 10);
-    $("prompt-type").textContent = mode === "listen" ? "LISTEN FIRST · THEN SAY IT" : mode === "patterns" ? "USE THE PATTERN OUT LOUD" : mode === "scenes" ? "YOU'RE IN THE SCENE" : "SAY IT IN JAPANESE";
-    $("prompt-hint").textContent = mode === "listen" ? "Listen once. What did you hear? Repeat it aloud before checking the meaning." : mode === "patterns" ? "This sentence uses a pattern you've studied. Say the whole thing, then inspect the pieces." : mode === "scenes" ? "Imagine you're there. Answer like a person, not a textbook." : "Say your answer out loud. Take your time — the answer is hidden.";
+    $("prompt-type").textContent = mode === "listen" ? "LISTEN FIRST · THEN SAY IT" : mode === "patterns" ? "TRANSFORM THE SENTENCE" : mode === "scenes" ? "YOU'RE IN THE SCENE" : "SAY IT IN JAPANESE";
+    $("prompt-hint").textContent = mode === "listen" ? "Listen once. What did you hear? Repeat it aloud before checking the meaning." : mode === "patterns" ? "Use the same sentence pattern to express a new time or meaning. Say the full Japanese sentence before revealing it." : mode === "scenes" ? "Imagine you're there. Answer like a person, not a textbook." : "Say your answer out loud. Take your time — the answer is hidden.";
     showView("practice-view"); renderCard();
   }
   function shuffle(items) { const a = items.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -95,8 +104,8 @@
     $("session-count").textContent = String(queueIndex + 1).padStart(2, "0") + " / " + String(queue.length).padStart(2, "0");
     $("session-progress-fill").style.width = (queueIndex / queue.length * 100) + "%";
     $("level-pill").textContent = current.section ? current.section.toUpperCase() : current.level;
-    $("scenario-tag").hidden = mode !== "scenes";
-    $("scenario-tag").textContent = mode === "scenes" ? "SITUATION · " + current.lessonTitle : "";
+    $("scenario-tag").hidden = mode !== "scenes" && mode !== "patterns";
+    $("scenario-tag").textContent = mode === "patterns" ? "START HERE · " + current.sourceEnglish + "  /  " + current.sourceJp : mode === "scenes" ? "SITUATION · " + current.lessonTitle : "";
     $("prompt-en").textContent = s.en;
     $("think-copy").textContent = mode === "listen" ? "Listen first, then repeat from memory." : "Your turn. Say it before you tap.";
     $("answer-jp").textContent = s.jp;
