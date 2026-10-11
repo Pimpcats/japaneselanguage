@@ -92,6 +92,17 @@
       {speaker:"Station staff",jp:"いいえ、つぎの えきで のりかえて ください。",en:"No. Please transfer at the next station.",choices:[{jp:"どこで のりかえですか？",en:"Where do I transfer?",correct:true,replyJp:"つぎの えきです。",replyEn:"At the next station."},{jp:"これは いくらですか？",en:"How much is this?",replyJp:"きっぷうりばで きいてください。",replyEn:"Please ask at the ticket counter."}]},
       {speaker:"Station staff",jp:"つぎの えきです。",en:"At the next station.",choices:[{jp:"わかりました。ありがとうございます。",en:"Understood. Thank you.",correct:true,replyJp:"どういたしまして。",replyEn:"You're welcome."},{jp:"おなまえは？",en:"What's your name?",replyJp:"えっ？",replyEn:"Pardon?"}]}
     ]}
+    ,
+    {id:"taxi",title:"Taking a taxi",level:"L1",place:"GETTING AROUND",turns:[
+      {speaker:"Taxi driver",jp:"どちらまでですか？",en:"Where would you like to go?",choices:[{jp:"とうきょうえきまで おねがいします。",en:"Tokyo Station, please.",correct:true,replyJp:"はい、とうきょうえきですね。",replyEn:"Tokyo Station, understood."},{jp:"コーヒーを ください。",en:"Coffee, please.",replyJp:"タクシーでは コーヒーは うっていません。",replyEn:"We don't sell coffee in a taxi."}]},
+      {speaker:"Taxi driver",jp:"はい、とうきょうえきですね。",en:"Tokyo Station, understood.",choices:[{jp:"はい、そうです。",en:"Yes, that's right.",correct:true,replyJp:"わかりました。",replyEn:"Understood."},{jp:"トイレは どこですか？",en:"Where is the restroom?",replyJp:"えきに ありますよ。",replyEn:"There's one at the station."}]},
+      {speaker:"Taxi driver",jp:"ここで よろしいですか？",en:"Is this place okay?",choices:[{jp:"はい、ここで おねがいします。",en:"Yes, here is fine, please.",correct:true,replyJp:"かしこまりました。",replyEn:"Certainly."},{jp:"あした いきます。",en:"I'll go tomorrow.",replyJp:"そうですか。",replyEn:"I see."}]}
+    ]},
+    {id:"pharmacy",title:"At the pharmacy",level:"L1",place:"GETTING HELP",turns:[
+      {speaker:"Pharmacist",jp:"どうしましたか？",en:"What's the problem?",choices:[{jp:"あたまが いたいです。",en:"I have a headache.",correct:true,replyJp:"いつからですか？",replyEn:"Since when?"},{jp:"コーヒーを ください。",en:"Coffee, please.",replyJp:"ここは カフェでは ありません。",replyEn:"This isn't a café."}]},
+      {speaker:"Pharmacist",jp:"いつからですか？",en:"Since when?",choices:[{jp:"きのうからです。",en:"Since yesterday.",correct:true,replyJp:"わかりました。",replyEn:"I see."},{jp:"さんじです。",en:"It's three o'clock.",replyJp:"そうですか。",replyEn:"I see."}]},
+      {speaker:"Pharmacist",jp:"この くすりを のんでください。",en:"Please take this medicine.",choices:[{jp:"わかりました。ありがとうございます。",en:"Understood. Thank you.",correct:true,replyJp:"おだいじに。",replyEn:"I hope you feel better."},{jp:"おかいけいを おねがいします。",en:"The bill, please.",replyJp:"はい、こちらです。",replyEn:"Certainly, here you are."}]}
+    ]}
   ];
   const routeModes = ["recall","listen","patterns","scenes"];
   const routeLabels = {recall:"Recall",listen:"Listen & notice",patterns:"Pattern lab",scenes:"In the moment"};
