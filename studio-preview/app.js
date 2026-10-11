@@ -137,7 +137,7 @@
     else if(mode==="patterns")renderPatternTask();
     else if(mode==="recall"){ $("think-copy").textContent=lessonId?"Try this lesson's sentence from memory.":"Your turn. Say it before you tap."; }
   }
-  function renderTokens(words){const row=$("token-row");row.innerHTML="";words.forEach(w=>{const chip=document.createElement("span");chip.className="token pos-"+(w.pos||"expr");chip.innerHTML='<span class="token-jp">'+esc(w.jp)+'</span><span class="token-en">'+esc(w.en)+'</span>';row.appendChild(chip);});}
+  function renderTokens(words){const row=$("token-row");row.innerHTML="";words.forEach(w=>{const chip=document.createElement("span");chip.className="token pos-"+(w.pos||"expr");chip.innerHTML='<span class="token-jp">'+esc(w.jp)+'</span><span class="token-en">'+esc(w.en)+'</span><button type="button" class="mini-audio token-audio" data-speak="'+esc(w.jp)+'" aria-label="Hear '+esc(w.jp)+'">▶</button>';row.appendChild(chip);});}
   function reveal(){if(!current||revealed)return;revealed=true;const s=current.sentence;$("answer-panel").hidden=false;$("before-actions").hidden=true;$("grade-area").hidden=false;$("listen-actions").hidden=true;$("think-copy").textContent="Listen, notice the structure, and try saying it once more.";speak(s.jp,false);}
   function grade(result){if(!current||!revealed)return;recordAttempt(current.id,result);$("grade-area").hidden=true;$("listen-actions").hidden=false;$("session-progress-fill").style.width=((queueIndex+1)/queue.length*100)+"%";$("think-copy").textContent=result==="good"?"That came out on your own. Nice work.":result==="hard"?"Nearly there. We'll bring this pattern back.":"This one needs another pass. That's useful information.";}
   function renderPatternTask(){
