@@ -69,16 +69,17 @@
   function renderStats(){const t=today(),goal=Number(state.settings.goal)||10;$("today-count").innerHTML=t.attempts+' <small>attempts</small>';$("today-bar").style.width=Math.min(100,t.attempts/goal*100)+"%";const due=allCards.filter(c=>!state.cards[c.id]||(state.cards[c.id].due||0)<=Date.now()).length;$("due-count").innerHTML=due+' <small>due</small>';$("due-note").textContent=due?"A few good reps go a long way":"You're caught up for now";const recent=state.history.slice(-50),wins=recent.filter(x=>x.grade==="good").length;$("win-rate").innerHTML=(recent.length?Math.round(wins/recent.length*100):"—")+'<small>%</small>';$("today-label").textContent=new Date().toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"}).toUpperCase();}
   function shuffle(items){const a=items.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
   function recordAttempt(id,grade){const now=Date.now(),old=state.cards[id]||{interval:0,ease:2.3,reps:0,lapses:0};let interval=old.interval||0;if(grade==="again"){interval=0;old.lapses=(old.lapses||0)+1;}else if(grade==="hard")interval=Math.max(10*60*1000,interval?interval*1.35:12*60*60*1000);else interval=Math.max(24*60*60*1000,interval?interval*2.1:24*60*60*1000);old.interval=interval;old.ease=grade==="hard"?Math.max(1.3,(old.ease||2.3)-.08):grade==="good"?Math.min(2.8,(old.ease||2.3)+.04):(old.ease||2.3);old.reps=(old.reps||0)+1;old.due=now+interval;state.cards[id]=old;const d=today();d.attempts++;if(grade==="good"){d.wins++;state.wins++;}state.daily[dayKey()]=d;state.total++;sessionAttempts++;state.history.push({id,grade,at:now});state.history=state.history.slice(-300);if(current&&current.lessonId){state.lessonAttempts[current.lessonId]=(state.lessonAttempts[current.lessonId]||0)+1;}save();}
-  function start(nextMode){lessonId=null;begin(nextMode,null);}
+  function start(nextMode){const next=allLessons.find(l=>isLessonUnlocked(l)&&!lessonComplete(l));lessonId=next?next.id:null;begin(nextMode,lessonId);}
   function startLesson(id,nextMode){lessonId=id;begin(nextMode||"recall",id);}
   function begin(nextMode,id){
     mode=nextMode||"recall";queueIndex=0;sessionAttempts=0;revealed=false;sessionFinished=false;conversationIndex=0;conversationTurn=0;conversationLocked=false;listenAnswered=false;
     $("next-button").textContent="Next →";$("replay-button").hidden=false;$("mode-extra").hidden=true;$("mode-extra").innerHTML="";
     const lesson=id&&allLessons.find(l=>l.id===id);let candidates=id?lessonCards(id):allCards.slice();
     if(mode==="patterns"){
-      if(id&&levelForLesson(lesson||{id:""})===0)candidates=(lesson.vocab||[]).map((v,i)=>({id:lesson.id+"#word#"+i,lessonId:lesson.id,section:lesson.section,level:"FIRST SOUNDS",sentence:{en:v.en,jp:v.jp,romaji:v.romaji,words:[v]}}));
-      else candidates=transforms.filter(t=>!id||!t.lessonId||t.lessonId===id||levelForLesson(allLessons.find(l=>l.id===t.lessonId)||{id:""})<=levelForLesson(lesson||{id:""})).map(t=>Object.assign({},t,{transform:true,sentence:{en:t.prompt,jp:t.target,romaji:"",words:[]}}));
-      if(!candidates.length)candidates=transforms.map(t=>Object.assign({},t,{transform:true,sentence:{en:t.prompt,jp:t.target,romaji:"",words:[]}}));
+      const relevant=id?transforms.filter(t=>t.lessonId===id):transforms;
+      if(relevant.length)candidates=relevant.map(t=>Object.assign({},t,{transform:true,sentence:{en:t.prompt,jp:t.target,romaji:"",words:[]}}));
+      else if(lesson)candidates=(lesson.vocab||[]).map((v,i)=>({id:lesson.id+"#word#"+i,lessonId:lesson.id,section:lesson.section,level:lesson.id.startsWith("l0")?"FIRST SOUNDS":"FOUNDATIONS",sentence:{en:v.en,jp:v.jp,romaji:v.romaji,words:[v]}}));
+      else candidates=transforms.map(t=>Object.assign({},t,{transform:true,sentence:{en:t.prompt,jp:t.target,romaji:"",words:[]}}));
       $("session-mode").textContent="PATTERN LAB · BUILD & CHANGE";
     }else if(mode==="scenes"){$("session-mode").textContent="IN THE MOMENT · CONVERSATION";queue=[];}
     else if(mode==="listen"){$("session-mode").textContent="LISTEN & NOTICE · UNDERSTAND";candidates=shuffle(candidates).slice(0,10);}
