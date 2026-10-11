@@ -93,3 +93,7 @@
 @media(max-width:420px){.route-node-state{font-size:.5rem}.route-node strong{font-size:.92rem}.route-node-description{font-size:.77rem}.route-node-top{margin-bottom:11px}}
 
 .token-audio{margin-top:6px;min-width:30px;padding:3px 6px;border-radius:8px;font-size:.68rem;align-self:flex-start}
+/* Speaking-first conversation affordance */
+.speak-first-note{margin:0 0 12px;color:var(--muted);font-size:.92rem;line-height:1.5}
+#conversation-show-choices{margin:0 0 14px}
+#conversation-choice-list[hidden]{display:none}
