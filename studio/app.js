@@ -41,7 +41,7 @@
   const dayKey=()=>new Date().toLocaleDateString("en-CA");
   const today=()=>state.daily[dayKey()]||{attempts:0,wins:0};
   function save(){localStorage.setItem(STORE,JSON.stringify(state));renderStats();renderCourse();}
-  let mode="recall",queue=[],queueIndex=0,current=null,revealed=false,sessionAttempts=0,sessionFinished=false,lessonId=null,conversationIndex=0,conversationTurn=0,conversationLocked=false,listenAnswered=false;
+  let mode="recall",queue=[],queueIndex=0,current=null,revealed=false,sessionAttempts=0,sessionFinished=false,lessonId=null,conversationIndex=0,conversationTurn=0,conversationLocked=false,conversationLastCorrect=false,listenAnswered=false;
   let manifest=null,audioPlayer=null;
   const views=["home-view","practice-view","settings-view"];
   function showView(id){views.forEach(v=>$(v).classList.toggle("active",v===id));window.scrollTo({top:0,behavior:"smooth"});}
@@ -169,7 +169,7 @@
     else if(b.id==="conversation-audio")speak(current.conversation.turns[conversationTurn].jp,false);
     else if(b.id==="conversation-translation")$("conversation-en").hidden=!$("conversation-en").hidden;
     else if(b.classList.contains("conversation-choice"))chooseConversation(b);
-    else if(b.id==="conversation-next"){conversationTurn++;renderConversationTurn();}
+    else if(b.id==="conversation-next"){if(conversationLastCorrect){conversationTurn++;renderConversationTurn();}else renderConversationTurn();}
     else if(b.id==="conversation-restart"){conversationTurn=0;renderConversationTurn();}
     else if(b.id==="conversation-home")showView("home-view");
   });
