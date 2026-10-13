@@ -21,11 +21,24 @@ step.
   4. **In the Moment** — the lesson's hand-written scene from `window.SCENES`.
      Her line plays in a speech bubble, you answer out loud, then pick from
      real lines. Level 0 uses the Studio's "First meeting".
-- **The pop-up stage.** The painted backdrop (`assets/story/bg-*.jpg`, chosen
-  by lesson section) stands up from the fold. Then the sentence's cut-outs
-  (`assets/story/*.png`, matched by word gloss in `data.js → art`) and もち子
-  rise in front of it. Page turns sweep a leaf across. Reduced motion turns
-  all of this off.
+- **Paper Mario art, drawn in code** (`paper-art.js`). Every picture is flat
+  SVG paper: 85 cut-outs (one for every `data.js → art` target), five
+  papercraft scenes (street, shop, room, station, park; picked per lesson
+  section in `data.js → backdrops`) and もち子 as a poseable paper puppet. No
+  raster art and no AI art, so every piece matches. A new object is one
+  `add(key, viewBox, size, markup)` entry with `class="o"` ink outlines. The
+  CSS adds the white die-cut edge.
+- **What moves.** The scene stands up from the fold and the cut-outs spring
+  up after it, then wobble on their paper tabs. Before each page turn they
+  fold flat, and a leaf sweeps across. もち子 breathes, blinks and flips
+  edge-on to change pose (think / thumbs / cheer / wave), and hops when you
+  get one. Her mouth flaps whenever Japanese audio plays. Speech bubbles pop
+  and type out. Tapping a cut-out twirls it and says its word. Every scene has
+  ambient life: drifting clouds, steam, a swinging lantern, trains passing,
+  spinning clock hands, a wagging tail, rain, falling petals. The answer slip
+  slides out with a wobble, wrong choices shake and right ones hop. The hanko
+  slams down. Paper confetti falls only when a chapter page gets stamped.
+  Reduced motion turns all of it off.
 - **Driving mode** (🚗 on the contents). The page plays hands-free and
   Japanese-only: listen → say it back → hear it again slowly. Conversations
   go her line → your reply gap → a model reply. English is never spoken and
