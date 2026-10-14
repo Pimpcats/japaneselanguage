@@ -127,38 +127,48 @@ body[data-screen="reading"] .screen, body[data-screen="chapter"] .screen { paddi
 .page-dots i.now { background: var(--accent); transform: scale(1.35); }
 
 /* ---------- the pop-up stage ---------- */
+/* No shared 3D space: every layer is flattened and stacked in a fixed order
+   (postcard < the lesson's world < you and もち子 < this page's props <
+   bubbles), so nothing can swap places while it rises. Each layer carries its
+   own perspective() so it still visibly stands up from the fold. */
 .stage { margin: 0 -6px; }
-.popup { position: relative; perspective: 900px; perspective-origin: 50% 0%; padding-bottom: 4px; }
+.popup { position: relative; padding-bottom: 4px; }
 .pop-tilt {
-  position: relative; aspect-ratio: 5 / 4; transform-style: preserve-3d;
-  transform: rotateY(var(--lean, 0deg)); transition: transform .5s ease;
+  position: relative; aspect-ratio: 5 / 4; isolation: isolate;
+  transform: perspective(1200px) rotateY(var(--lean, 0deg)); transition: transform .5s ease;
 }
-/* the back page: a painted plate standing up from the fold */
+/* the back page: a painted postcard standing up from the fold */
 .pop-back {
-  position: absolute; left: 4%; right: 4%; top: 0; height: 66%;
+  position: absolute; z-index: 1; left: 4%; right: 4%; top: 0; height: 66%;
   background: #ddd center / cover no-repeat; border: 6px solid #fbf5e7; border-bottom: 0;
   box-shadow: 0 0 0 1px rgba(80, 60, 30, .18), 0 -2px 10px rgba(60, 40, 20, .12);
-  transform-origin: 50% 100%; transform: rotateX(82deg);
+  transform-origin: 50% 100%; transform: perspective(900px) rotateX(82deg);
   transition: transform .75s cubic-bezier(.2, .9, .25, 1.12);
 }
 .pop-back::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(245, 238, 221, .55)); }
 /* the floor page, seen in perspective, with the fold's shadow */
 .pop-floor {
-  position: absolute; left: 0; right: 0; top: 66%; bottom: 0;
+  position: absolute; z-index: 0; left: 0; right: 0; top: 66%; bottom: 0;
   background: linear-gradient(180deg, rgba(70, 50, 25, .28), rgba(70, 50, 25, 0) 16%), linear-gradient(180deg, #efe4cc, #f7f0e0);
   clip-path: polygon(4% 0, 96% 0, 100% 100%, 0 100%);
   border-bottom: 1px solid var(--edge);
 }
-.pop-row { position: absolute; left: 6%; right: 26%; bottom: 10%; height: 56%; display: flex; align-items: flex-end; justify-content: center; gap: 4%; }
-.popup.only-guide .pop-row { display: none; }
+.pop-row { position: absolute; display: flex; align-items: flex-end; justify-content: center; }
+/* back row: the lesson's world, standing at the fold, the same on every page */
+.pop-world { z-index: 2; left: 20%; right: 20%; bottom: 30%; height: 27%; gap: 7%; }
+/* with props in front, the world steps aside so the two rows don't stack */
+.popup.has-front .pop-world { left: 18%; right: 18%; justify-content: space-between; }
+.popup.has-front .pop-world.n1 { justify-content: flex-end; }
+/* front row: what this page is about, closest to you */
+.pop-front { z-index: 4; left: 22%; right: 22%; bottom: 4%; height: 42%; gap: 5%; }
 .pop-cut {
   position: relative; display: flex; align-items: flex-end; justify-content: center; height: 100%;
-  transform-origin: 50% 100%; transform: rotateX(88deg);
+  transform-origin: 50% 100%; transform: perspective(700px) rotateX(88deg);
   transition: transform .62s cubic-bezier(.3, 1.55, .5, 1) calc(.28s + var(--i, 0) * .1s);
 }
-.pop-row.n1 .pop-cut { max-width: 60%; }
+.pop-row.n1 .pop-cut { max-width: 62%; }
 .pop-row.n2 .pop-cut { max-width: 46%; }
-.pop-row.n3 .pop-cut { max-width: 32%; }
+.pop-row.n3 .pop-cut { max-width: 30%; }
 .pop-cut img {
   display: block; max-width: 100%; max-height: 100%; object-fit: contain;
   /* die-cut white paper edge + shadow on the floor */
@@ -166,18 +176,28 @@ body[data-screen="reading"] .screen, body[data-screen="chapter"] .screen { paddi
 }
 /* the little folded tab each cut-out stands on */
 .pop-cut::after { content: ""; position: absolute; bottom: -7px; left: 22%; right: 22%; height: 7px; background: #e6d8bb; clip-path: polygon(0 0, 100% 0, 88% 100%, 12% 100%); }
-/* the guide stands further back, at the fold, so the cut-outs in front read bigger */
-.pop-guide { position: absolute; right: 6%; bottom: 25%; height: 64%; width: 20%; }
-.popup.is-open .pop-back, .popup.is-open .pop-cut { transform: rotateX(0); }
+/* you on the left, もち子 on the right, standing between the two rows */
+.pop-you, .pop-guide { position: absolute; z-index: 3; bottom: 13%; height: 62%; width: 22%; }
+.pop-you { left: 2%; }
+.pop-guide { right: 3%; }
+.pop-you::after, .pop-guide::after { left: 30%; right: 30%; }
+.popup.is-open .pop-back { transform: perspective(900px) rotateX(0); }
+.popup.is-open .pop-cut { transform: perspective(700px) rotateX(0); }
+/* speech bubbles: hers, then yours when you answer */
 .pop-bubble {
-  position: absolute; left: 7%; right: 31%; top: 9%; padding: 12px 14px; background: #fffaf0; border-radius: 14px;
+  position: absolute; z-index: 5; left: 24%; right: 27%; top: 6%; padding: 10px 12px; background: #fffaf0; border-radius: 14px;
   border: 1.5px solid var(--ink); box-shadow: 3px 3px 0 rgba(38, 51, 43, .85);
-  font: 600 19px/1.45 var(--mincho); text-align: center;
+  font: 600 18px/1.45 var(--mincho); text-align: center;
   opacity: 0; transform: translateY(8px) scale(.96); transition: opacity .3s ease .7s, transform .4s ease .7s;
 }
 .pop-bubble::after { content: ""; position: absolute; right: -12px; bottom: 16px; width: 18px; height: 14px; background: #fffaf0; border: 1.5px solid var(--ink); border-left: 0; border-top: 0; transform: skewY(30deg); }
-.popup.is-open .pop-bubble { opacity: 1; transform: none; }
-.pop-caption { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%) rotate(-1deg); padding: 3px 10px; background: var(--paper); border: 1px solid var(--line); font: 600 9.5px var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
+.popup.is-open .pop-bubble.her { opacity: 1; transform: none; }
+.pop-bubble.you { left: 26%; right: 24%; transform-origin: 8% 100%; }
+.pop-bubble.you::after { right: auto; left: -12px; border: 1.5px solid var(--ink); border-right: 0; border-top: 0; transform: skewY(-30deg); }
+.popup.is-open .pop-bubble.you { opacity: 0; transform: translateY(8px) scale(.96); transition: opacity .25s ease, transform .3s ease; }
+.popup.is-open.you-turn .pop-bubble.her { opacity: 0; transition: opacity .25s ease; }
+.popup.is-open.you-turn .pop-bubble.you { opacity: 1; transform: none; }
+.pop-caption { position: absolute; z-index: 6; left: 50%; bottom: 0; transform: translateX(-50%) rotate(-1deg); padding: 3px 10px; background: var(--paper); border: 1px solid var(--line); font: 600 9.5px var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; }
 
 /* ---------- contents ---------- */
 .bookmark {
@@ -419,7 +439,8 @@ body[data-screen="reading"] .screen, body[data-screen="chapter"] .screen { paddi
 .pop-cut img { transform-origin: 50% 100%; }
 .popup.is-open .pop-row .pop-cut img { animation: sway 5.5s ease-in-out infinite calc(1.4s + var(--i, 0) * .7s); }
 @keyframes sway { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-1deg); } 70% { transform: rotate(.9deg); } }
-.popup.is-open .pop-guide img { animation: breathe 4.2s ease-in-out infinite 1.6s; }
+.popup.is-open .pop-guide img, .popup.is-open .pop-you img { animation: breathe 4.2s ease-in-out infinite 1.6s; }
+.popup.is-open .pop-you img { animation-delay: 2.4s; }
 @keyframes breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.012) translateY(-.4%); } }
 /* she bobs gently while Japanese is playing */
 body.talking .popup.is-open .pop-guide img { animation: talk-bob .38s ease-in-out infinite alternate; }

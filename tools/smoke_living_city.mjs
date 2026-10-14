@@ -62,7 +62,13 @@ click("#bookmark-open");
 assert.equal(active(), "chapter", "The bookmark opens its chapter page");
 assert.equal($$("#chapter-readings [data-mode]").length, 4, "Four readings per chapter");
 assert.ok($("#chapter-stage .popup .pop-back"), "The chapter opens on a pop-up scene");
+assert.ok($("#chapter-stage .pop-you img") && $("#chapter-stage .pop-guide img"), "Every scene has you and もち子 in it");
+// the layers sit in a fixed back-to-front order so nothing swaps while rising
+const layerOrder = [...$("#chapter-stage .pop-tilt").children].map((el) => el.className.split(" ").find((c) => /^pop-(back|floor|row|you|guide|bubble)$/.test(c)) + (el.classList.contains("pop-world") ? ":world" : el.classList.contains("pop-front") ? ":front" : ""));
+assert.deepEqual(layerOrder.filter((x) => !/floor|bubble/.test(x)), ["pop-back", "pop-row:world", "pop-you", "pop-guide", "pop-row:front"], "Postcard, world, characters, front props — in that order");
 
+// the back row: the lesson's world
+const worldOf = () => $$("#reading-stage .pop-world img").map((im) => im.getAttribute("src")).join("|");
 // ---- reading 1: Recall (first lesson)
 const first = B.order[0];
 click('#chapter-readings [data-mode="recall"]');
@@ -71,6 +77,11 @@ assert.equal($(".prompt").textContent, first.sentences[0].en, "Recall shows the 
 click("#pull-tab");
 assert.equal($("#slip .jp").textContent, first.sentences[0].jp, "The pull-tab reveals the model Japanese");
 for (let i = 0; i < first.sentences.length; i++) {
+  if (!$(".finish")) {
+    const back = worldOf().split("|").filter(Boolean);
+    const frontSrc = $$("#reading-stage .pop-front img").map((im) => im.getAttribute("src"));
+    assert.ok(frontSrc.every((f) => !back.includes(f)), "A prop the page is about steps forward instead of appearing twice");
+  }
   if ($("#pull-tab") && !$("#pull-tab").classList.contains("pulled")) click("#pull-tab");
   click('[data-grade="good"]');
   await tick(5);
@@ -86,7 +97,8 @@ assert.equal(window.localStorage.getItem("hanasou.v4"), null, "The main app's pr
 click("#finish-next");
 assert.equal(active(), "reading");
 const listenItem = B.session().items[0];
-assert.equal($$("#reading-stage .pop-row .pop-cut").length, 0, "Listen hides the picture until you answer");
+assert.equal($$("#reading-stage .pop-front .pop-cut").length, 0, "Listen hides this page's props until you answer");
+assert.ok(!/-(drink|eat|read|study|wake|walk)\.png/.test($("#reading-stage .pop-you img").getAttribute("src")), "Listen hides your action until you answer");
 const correct = $$("[data-choice]").find((b) => b.dataset.choice === listenItem.sentence.en);
 assert.ok(correct && $$("[data-choice]").length === 4, "Listen offers four meanings including the right one");
 correct.click();

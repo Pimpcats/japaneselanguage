@@ -21,11 +21,21 @@ step.
   4. **In the Moment** — the lesson's hand-written scene from `window.SCENES`.
      Her line plays in a speech bubble, you answer out loud, then pick from
      real lines. Level 0 uses the Studio's "First meeting".
-- **The pop-up stage.** The painted backdrop (`assets/story/bg-*.jpg`, chosen
-  by lesson section) stands up from the fold. Then the sentence's cut-outs
-  (`assets/story/*.png`, matched by word gloss in `data.js → art`) and もち子
-  rise in front of it. Page turns sweep a leaf across. Reduced motion turns
-  all of this off.
+- **The pop-up stage tells a little story on every page.** The layers, back
+  to front, are fixed so nothing swaps while rising:
+  1. The painted postcard (`assets/story/bg-*.jpg`, picked by lesson section).
+  2. The lesson's world: its own props in the back row (matched by word gloss
+     in `data.js → art`).
+  3. You and もち子. You are the character you picked in the main app
+     (`hanasou.story.v1`, read only, defaulting to Kai), acting out the
+     sentence's verb (drink, eat, read, study, wake, walk) when the art has
+     it.
+  4. What this page is about, popping up in front. If it's one of the
+     world's props, it steps forward instead of appearing twice.
+
+  In the Moment puts her line in her bubble and your answer in yours. Listen
+  & Notice keeps the front props and your action hidden until you answer.
+  Tapping a prop turns it over and says its word.
 - **Driving mode** (🚗 on the contents). The page plays hands-free and
   Japanese-only: listen → say it back → hear it again slowly. Conversations
   go her line → your reply gap → a model reply. English is never spoken and
