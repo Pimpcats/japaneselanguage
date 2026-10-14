@@ -14,7 +14,7 @@ const manifest = JSON.parse(read("audio/manifest.json"));
 // scripts may carry a ?v= cache-buster (the root service worker caches /living-city/ too)
 const inline = (src, file) => src.replace(new RegExp('<script src="' + file.replace(/^living-city\//, "").replace(/\./g, "\\.") + '(\\?v=[^"]*)?"></script>'), () => "<script>" + read(file.replace(/^\.\.\//, "")) + "</script>");
 let html = read("living-city/index.html").replace(/<link[^>]+>/g, "");
-for (const f of ["../lessons.js", "../studio-preview/content-overrides.js", "living-city/data.js", "living-city/app.js"]) html = inline(html, f);
+for (const f of ["../lessons.js", "../studio-preview/content-overrides.js", "living-city/data.js", "living-city/scenes.js", "living-city/app.js"]) html = inline(html, f);
 assert.ok(!/<script src=/.test(html), "every script should be inlined for the test");
 
 const played = [];
@@ -62,10 +62,11 @@ click("#bookmark-open");
 assert.equal(active(), "chapter", "The bookmark opens its chapter page");
 assert.equal($$("#chapter-readings [data-mode]").length, 4, "Four readings per chapter");
 assert.ok($("#chapter-stage .popup .pop-back"), "The chapter opens on a pop-up scene");
-assert.ok($("#chapter-stage .pop-you img") && $("#chapter-stage .pop-guide img"), "Every scene has you and もち子 in it");
+assert.ok($("#chapter-stage .pop-guide img"), "もち子 is in every scene");
+assert.equal($$("#chapter-stage .pop-you, #chapter-stage img[src*='/people/']").length, 0, "No other characters on the page");
 // the layers sit in a fixed back-to-front order so nothing swaps while rising
-const layerOrder = [...$("#chapter-stage .pop-tilt").children].map((el) => el.className.split(" ").find((c) => /^pop-(back|floor|row|you|guide|bubble)$/.test(c)) + (el.classList.contains("pop-world") ? ":world" : el.classList.contains("pop-front") ? ":front" : ""));
-assert.deepEqual(layerOrder.filter((x) => !/floor|bubble/.test(x)), ["pop-back", "pop-row:world", "pop-you", "pop-guide", "pop-row:front"], "Postcard, world, characters, front props — in that order");
+const layerOrder = [...$("#chapter-stage .pop-tilt").children].map((el) => el.className.split(" ").find((c) => /^pop-(back|floor|row|guide|bubble)$/.test(c)) + (el.classList.contains("pop-world") ? ":world" : el.classList.contains("pop-front") ? ":front" : ""));
+assert.deepEqual(layerOrder.filter((x) => !/floor|bubble/.test(x)), ["pop-back", "pop-row:world", "pop-guide", "pop-row:front"], "Postcard, world, もち子, front props — in that order");
 
 // the back row: the lesson's world
 const worldOf = () => $$("#reading-stage .pop-world img").map((im) => im.getAttribute("src")).join("|");
@@ -98,7 +99,6 @@ click("#finish-next");
 assert.equal(active(), "reading");
 const listenItem = B.session().items[0];
 assert.equal($$("#reading-stage .pop-front .pop-cut").length, 0, "Listen hides this page's props until you answer");
-assert.ok(!/-(drink|eat|read|study|wake|walk)\.png/.test($("#reading-stage .pop-you img").getAttribute("src")), "Listen hides your action until you answer");
 const correct = $$("[data-choice]").find((b) => b.dataset.choice === listenItem.sentence.en);
 assert.ok(correct && $$("[data-choice]").length === 4, "Listen offers four meanings including the right one");
 correct.click();
@@ -156,6 +156,24 @@ click("#show-choices");
 assert.equal($$("#turn-choices [data-pick]").length, 2);
 click("#reading-back");
 assert.equal(active(), "contents");
+
+// ---- pictures match the page: hand-authored scenes, never guessed from words
+click('[data-nav="contents"]');
+click('#toc [data-lesson="l0-a"]');
+assert.equal($$("#chapter-stage img[src*='/sea']").length, 0, "No random wave on the あいうえお page");
+const BS = window.BOOK_SCENES;
+assert.equal(Object.keys(BS).length, window.LESSONS.length, "Every lesson has an authored scene");
+click('#chapter-readings [data-mode="recall"]');
+const l0 = window.LESSONS.find((l) => l.id === "l0-a");
+for (let i = 0; i < l0.sentences.length; i++) {
+  const page = (BS["l0-a"].pages || []).find((p) => p.i === i);
+  const want = (page ? page.props : []).map((p) => p.art).sort().join("|");
+  const got = $$("#reading-stage .pop-front img").map((im) => im.getAttribute("src").split("/").pop().replace(".png", ""));
+  assert.equal([...new Set(got)].sort().join("|"), want, "Page " + i + " shows exactly its authored props");
+  click("#pull-tab"); click('[data-grade="hard"]');
+}
+click("#finish-back");
+click("#chapter-back");
 
 // ---- tapping a cut-out says its word
 click('[data-nav="contents"]');

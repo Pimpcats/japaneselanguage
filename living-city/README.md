@@ -21,21 +21,20 @@ step.
   4. **In the Moment** — the lesson's hand-written scene from `window.SCENES`.
      Her line plays in a speech bubble, you answer out loud, then pick from
      real lines. Level 0 uses the Studio's "First meeting".
-- **The pop-up stage tells a little story on every page.** The layers, back
-  to front, are fixed so nothing swaps while rising:
-  1. The painted postcard (`assets/story/bg-*.jpg`, picked by lesson section).
-  2. The lesson's world: its own props in the back row (matched by word gloss
-     in `data.js → art`).
-  3. You and もち子. You are the character you picked in the main app
-     (`hanasou.story.v1`, read only, defaulting to Kai), acting out the
-     sentence's verb (drink, eat, read, study, wake, walk) when the art has
-     it.
-  4. What this page is about, popping up in front. If it's one of the
-     world's props, it steps forward instead of appearing twice.
+- **Every pop-up matches its page** (`scenes.js`, hand-authored per lesson
+  and per sentence — never guessed from words). Layers, back to front, in a
+  fixed order so nothing swaps while rising:
+  1. The lesson's postcard. If it isn't drawn yet, the section's backdrop
+     stands in.
+  2. The lesson's world: props for its situation.
+  3. もち子, the only character.
+  4. What this sentence literally names, with its attributes: a blue house
+     only when it says blue, a big house bigger, "two coffees" as two cups.
 
-  In the Moment puts her line in her bubble and your answer in yours. Listen
-  & Notice keeps the front props and your action hidden until you answer.
-  Tapping a prop turns it over and says its word.
+  Pictures not drawn yet simply don't appear, never a wrong substitute.
+  `docs/LIVING_CITY_ART_PROMPTS.md` lists each one as a ready-to-paste
+  green-screen prompt. Rebuild both files with
+  `node tools/build_living_city_scenes.mjs <dir of scene JSON>`.
 - **Driving mode** (🚗 on the contents). The page plays hands-free and
   Japanese-only: listen → say it back → hear it again slowly. Conversations
   go her line → your reply gap → a model reply. English is never spoken and

@@ -16,7 +16,6 @@
   const LEVELS = Array.isArray(window.LEVELS) ? window.LEVELS : [];
   const LESSONS = Array.isArray(window.LESSONS) ? window.LESSONS : [];
   const SCENES = Array.isArray(window.SCENES) ? window.SCENES : [];
-  const ART = D.art || {};
   const STORY = "../assets/story/";
   const reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const $ = (id) => document.getElementById(id);
@@ -154,73 +153,48 @@
     return (words || []).map((w, i) => '<button type="button" class="chip pos-' + esc(w.pos || "expr") + (changed && changed.includes(i) ? " changed" : "") + '" data-say="' + esc(w.jp) + '"><b>' + esc(w.jp) + "</b><small>" + esc(w.en) + "</small></button>").join("");
   }
 
-  // ---- art helpers ----------------------------------------------------------
-  function glossKeys(en) {
-    const base = String(en || "").toLowerCase().replace(/\(.*?\)/g, "").replace(/\[.*?\]/g, "");
-    return base.split(/[\/,;]/).map((p) => p.replace(/[^a-z' -]/g, "").replace(/^\s*(the|a|an|to)\s+/, "").trim()).filter(Boolean);
+  // ---- which pop-ups appear: hand-authored per lesson and per sentence -----
+  // (scenes.js). Every picture literally matches its page: a blue house only
+  // when the sentence says blue house. A sentence that names nothing drawable
+  // shows just the lesson's world. Art that isn't drawn yet simply doesn't
+  // appear — nothing is ever swapped in for it.
+  const BOOK_SCENES = window.BOOK_SCENES || {};
+  const sceneOf = (lesson) => (lesson && BOOK_SCENES[lesson.id]) || null;
+  const worldOf = (lesson) => { const sc = sceneOf(lesson); return (sc && sc.world) || []; };
+  function propsOf(lesson, i) {
+    const sc = sceneOf(lesson);
+    const page = sc && sc.pages && sc.pages.find((p) => p.i === i);
+    return page ? page.props || [] : [];
   }
-
-  // ---- art: which cut-outs pop up, and the little story on every page ---------
-  // each cut-out remembers the Japanese word that summoned it (tap it to hear it)
-  function artForWords(words, max) {
-    const out = [], cap = max || 3;
-    for (const w of words || []) {
-      if (w.pos === "prt" || w.pos === "cop") continue;
-      for (const key of glossKeys(w.en)) {
-        const file = ART[key] || ART[key.split(" ")[0]];
-        if (file && !out.some((o) => o.file === file)) { out.push({ file, jp: w.jp }); break; }
-      }
-      if (out.length >= cap) break;
-    }
-    return out;
+  const indexOfId = (id) => { const m = /#(\d+)$/.exec(String(id || "")); return m ? Number(m[1]) : -1; };
+  // a page's story: the lesson's world in the back row, the sentence's own
+  // things in front (a world prop the page is about steps forward)
+  function storyFor(lesson, index, opts) {
+    const front = index >= 0 ? propsOf(lesson, index).slice(0, 3) : [];
+    const world = worldOf(lesson).filter((o) => !front.some((f) => f.art === o.art)).slice(0, 2);
+    return { world, objects: opts && opts.hideFront ? [] : front };
   }
-  // the lesson's world: every picture its words have, vocab first
-  function lessonArt(lesson) {
-    const out = [];
-    const words = (lesson.vocab || []).concat((lesson.sentences || []).flatMap((s) => s.words || []));
-    for (const o of artForWords(words, 8)) if (!out.some((x) => x.file === o.file)) out.push(o);
-    return out;
+  // the chapter opener: the world, plus the lesson's most-used things in front
+  function chapterStory(lesson) {
+    const world = worldOf(lesson).slice(0, 2);
+    const count = {};
+    const first = {};
+    ((sceneOf(lesson) || {}).pages || []).forEach((p) => (p.props || []).forEach((o) => {
+      if (world.some((w) => w.art === o.art)) return;
+      count[o.art] = (count[o.art] || 0) + 1;
+      if (!first[o.art]) first[o.art] = Object.assign({}, o, { count: 1 });
+    }));
+    const front = Object.keys(first).sort((a, b) => count[b] - count[a]).slice(0, 2).map((k) => first[k]);
+    return { world, objects: front };
   }
-  // what you're doing in a sentence, if the character art can show it
-  const ACTIONS = [
-    ["drink", /\b(drink|drank|drinking)\b/], ["eat", /\b(eat|ate|eating|eaten)\b/],
-    ["read", /\b(read|reading)\b/], ["study", /\b(study|studied|studying|learn)/],
-    ["wake", /\b(wake|woke|get up|got up|getting up)\b/],
-    ["walk", /\b(walk|walking|go|goes|going|went|come|came|coming|return|head|leave)\b/],
-  ];
-  function actionFor(sentence) {
-    for (const w of (sentence && sentence.words) || []) {
-      if (w.pos !== "v") continue;
-      const en = String(w.en || "").toLowerCase();
-      if (/\b(not|don't|didn't|won't|can't)\b/.test(en)) return null;
-      for (const [act, re] of ACTIONS) if (re.test(en)) return act;
-    }
-    return null;
+  // the lesson's postcard: its own once drawn, else its section's backdrop
+  function postcardOf(lesson) {
+    const sc = sceneOf(lesson) || {};
+    const section = STORY + ((lesson && D.backdrops && D.backdrops[lesson.section]) || "bg-street.jpg");
+    if (!sc.postcard) return { bg: section };
+    if (!sc.postcardNew) return { bg: STORY + sc.postcard + ".jpg" };
+    return { bg: section, bgTry: STORY + sc.postcard + ".jpg" };
   }
-  // a page's story: the lesson's world stays in the back row on every page,
-  // you act out the sentence, and what the sentence is about pops up in front
-  function storyFor(lesson, sentence, opts) {
-    const front = sentence ? artForWords(sentence.words, 2) : [];
-    const world = lesson ? lessonArt(lesson).filter((o) => !front.some((f) => f.file === o.file)).slice(0, front.length ? 2 : 3) : [];
-    return { world, objects: opts && opts.hideFront ? [] : front, you: { act: opts && opts.hideFront ? null : actionFor(sentence) } };
-  }
-  // you: the character you picked in the main app (read only), else Kai
-  const PEOPLE_IDS = ["aki", "beni", "kai", "yuki"];
-  function avatar() {
-    try {
-      const st = JSON.parse(localStorage.getItem("hanasou.story.v1") || "null");
-      const a = st && st.inventory && st.inventory.avatar;
-      if (a && PEOPLE_IDS.includes(a.id)) return { id: a.id, stage: a.stage || "adult" };
-    } catch (_) {}
-    return { id: "kai", stage: "adult" };
-  }
-  function youImg(act) {
-    const a = avatar();
-    const base = STORY + "people/" + a.id + "-adult.png";
-    const src = STORY + "people/" + a.id + "-" + (act ? "adult-" + act : a.stage) + ".png";
-    return '<img src="' + src + '" alt="" onerror="this.onerror=null;this.src=\'' + base + '\'">';
-  }
-  const backdropFor = (lesson) => STORY + ((lesson && D.backdrops && D.backdrops[lesson.section]) || "bg-street.jpg");
 
   // ---- the pop-up stage --------------------------------------------------------
   // Layers, back to front, in a fixed stacking order so nothing can swap
@@ -236,13 +210,19 @@
     for (let i = 0; i < 7; i++) out += '<i style="--x:' + (8 + i * 13 + (i % 2) * 4) + "%;--d:" + (i * 1.3).toFixed(1) + "s;--t:" + (7 + (i % 3) * 2) + 's"></i>';
     return out + "</div>";
   }
+  // a prop: {art, say?, size?: "big"|"small", count?: 2..5}. If its picture
+  // hasn't been drawn yet the cut-out removes itself.
+  const GONE = ' onerror="var c=this.closest(&quot;.pop-cut&quot;);if(c)c.remove()"';
   function cutHTML(o, i) {
-    const img = '<img src="' + STORY + esc(o.file) + '.png" alt="">';
-    return o.jp
-      ? '<button type="button" class="pop-cut" style="--i:' + i + '" data-say="' + esc(o.jp) + '" aria-label="Hear ' + esc(o.jp) + '">' + img + "</button>"
-      : '<span class="pop-cut" style="--i:' + i + '">' + img + "</span>";
+    const n = Math.max(1, Math.min(5, Number(o.count) || 1));
+    const img = '<img src="' + STORY + esc(o.art) + '.png" alt=""' + GONE + ">";
+    const cls = "pop-cut" + (o.size === "big" || o.size === "small" ? " size-" + o.size : "") + (n > 1 ? " multi" : "");
+    const inner = n > 1 ? new Array(n).fill(img).join("") : img;
+    return o.say
+      ? '<button type="button" class="' + cls + '" style="--i:' + i + ";--n:" + n + '" data-say="' + esc(o.say) + '" aria-label="Hear ' + esc(o.say) + '">' + inner + "</button>"
+      : '<span class="' + cls + '" style="--i:' + i + ";--n:" + n + '">' + inner + "</span>";
   }
-  const norm = (list) => (list || []).map((o) => (typeof o === "string" ? { file: o } : o));
+  const norm = (list) => (list || []).map((o) => (typeof o === "string" ? { art: o } : o));
   let bubbleTimer = null;
   function typeInto(el, text, delay) {
     clearInterval(bubbleTimer);
@@ -260,20 +240,20 @@
     clearInterval(bubbleTimer);
     const world = norm(opts.world).slice(0, 3);
     const front = norm(opts.objects).slice(0, 3);
-    const you = opts.you === false || opts.you == null ? null : opts.you;
+    // opts.you: there's a conversation, so keep a bubble for your replies
+    const you = !!opts.you;
     let i = 0;
     const worldHTML = world.map((o) => cutHTML(o, i++)).join("");
-    const youHTML = you ? '<span class="pop-cut pop-you" style="--i:' + (i++) + '">' + youImg(you.act) + "</span>" : "";
     const guideHTML = opts.guide === false ? "" : '<span class="pop-cut pop-guide" style="--i:' + (i++) + '"><img src="' + STORY + "mochiko-" + (opts.guide || "think") + '.png" alt=""></span>';
     const frontHTML = front.map((o) => cutHTML(o, i++)).join("");
     const bg = opts.bg || STORY + "bg-street.jpg";
     host.innerHTML =
-      '<div class="popup' + (you ? " with-you" : "") + (front.length ? " has-front" : "") + '">' +
+      '<div class="popup' + (front.length ? " has-front" : "") + '">' +
         '<div class="pop-tilt">' +
           '<div class="pop-back"><span class="pop-paint" style="background-image:url(\'' + esc(bg) + '\')"></span>' + airHTML(bg) + "</div>" +
           '<div class="pop-floor"></div>' +
           '<div class="pop-row pop-world n' + world.length + '">' + worldHTML + "</div>" +
-          youHTML + guideHTML +
+          guideHTML +
           '<div class="pop-row pop-front n' + front.length + '">' + frontHTML + "</div>" +
           (opts.bubble ? '<div class="pop-bubble her" aria-live="polite" aria-label="' + esc(plain(opts.bubble)) + '"><b>' + rubyHTML(opts.bubble) + "</b></div>" : "") +
           (you ? '<div class="pop-bubble you" aria-live="polite"><b></b></div>' : "") +
@@ -281,6 +261,12 @@
         (opts.caption ? '<span class="pop-caption">' + esc(opts.caption) + "</span>" : "") +
       "</div>";
     const stage = host.firstChild;
+    // a lesson's own postcard, once it has been drawn
+    if (opts.bgTry && typeof Image === "function") {
+      const im = new Image();
+      im.onload = () => { const paint = stage.querySelector(".pop-paint"); if (paint) paint.style.backgroundImage = "url('" + opts.bgTry + "')"; };
+      im.src = opts.bgTry;
+    }
     if (opts.bubble) typeInto(stage.querySelector(".pop-bubble.her b"), opts.bubble, 780);
     if (reduceMotion) { stage.classList.add("is-open"); return stage; }
     // two frames so the flat state is painted before it rises
@@ -456,8 +442,7 @@
     $("chapter-start").innerHTML = (state.settings.drive ? "🚗 Play " : chapterDone(id) ? "Read again: " : "Begin reading " + startMode.no + ": ") + esc(startMode.name) + " <b>→</b>";
     $("chapter-start").onclick = () => startReading(id, startMode.id);
     show("chapter", opts);
-    const world = lessonArt(lesson);
-    popup($("chapter-stage"), { bg: backdropFor(lesson), world: world.slice(0, 2), objects: world.slice(2, 4), you: {}, caption: lesson.section });
+    popup($("chapter-stage"), Object.assign({ caption: lesson.section }, postcardOf(lesson), chapterStory(lesson)));
   }
 
   // ---- building each reading from real content -----------------------------------
@@ -592,9 +577,9 @@
     $("reading-dots").innerHTML = s.items.map((_, i) => '<i class="' + (i < s.index ? "past" : i === s.index ? "now" : "") + '"></i>').join("");
   }
   function itemStory(item) {
-    if (session.mode.id === "moment") return { world: [], objects: [], you: {} };
-    // Listen & Notice keeps this page's props and action hidden until you answer
-    return storyFor(item.lesson, item.sentence, { hideFront: item.kind === "listen" });
+    if (session.mode.id === "moment") return { world: [], objects: [] };
+    // Listen & Notice keeps this page's props hidden until you answer
+    return storyFor(item.lesson, indexOfId(item.id), { hideFront: item.kind === "listen" });
   }
   function renderItem() {
     const s = session;
@@ -604,7 +589,7 @@
     const item = s.items[s.index];
     const lesson = item.lesson || s.lesson;
     if (s.mode.id === "moment") return renderTurn(item);
-    popup($("reading-stage"), Object.assign({ bg: backdropFor(lesson), guide: "think" }, itemStory(item)));
+    popup($("reading-stage"), Object.assign({ guide: "think" }, postcardOf(lesson), itemStory(item)));
     if (item.kind === "recall") renderRecall(item);
     else if (item.kind === "listen") renderListen(item);
     else if (item.kind === "build") renderBuild(item);
@@ -706,7 +691,7 @@
       if (!ok) b.classList.add("wrong");
       recordAttempt(item.id, ok ? "good" : "again");
       session.said++;
-      popup($("reading-stage"), Object.assign({ bg: backdropFor(item.lesson), guide: ok ? "thumbs" : "think" }, storyFor(item.lesson, s)));
+      popup($("reading-stage"), Object.assign({ guide: ok ? "thumbs" : "think" }, postcardOf(item.lesson), storyFor(item.lesson, indexOfId(item.id))));
       $("feedback").hidden = false;
       $("feedback").className = "feedback " + (ok ? "good" : "again");
       $("feedback").innerHTML = "<strong>" + (ok ? "You caught it." : "Here's what you heard.") + '</strong><div class="jp">' + rubyHTML(s.jp) + "</div>" +
@@ -762,11 +747,11 @@
     const s = session, convo = s.convo;
     let wrongTries = 0;
     const right = turn.choices.find((c) => c.correct);
-    const taught = right && s.lesson && (s.lesson.sentences || []).find((x) => x.jp === right.jp);
+    const taught = right && s.lesson ? (s.lesson.sentences || []).findIndex((x) => x.jp === right.jp) : -1;
     popup($("reading-stage"), {
-      bg: s.lesson ? backdropFor(s.lesson) : STORY + "bg-street.jpg",
-      world: s.lesson ? lessonArt(s.lesson).slice(0, 2) : [],
-      objects: taught ? artForWords(taught.words, 1) : [], you: {}, guide: "think", bubble: turn.them ? turn.them.jp : "",
+      ...(s.lesson ? postcardOf(s.lesson) : { bg: STORY + "bg-street.jpg" }),
+      ...(s.lesson ? storyFor(s.lesson, taught) : {}),
+      you: true, guide: "think", bubble: turn.them ? turn.them.jp : "",
       caption: convo.sceneTitle,
     });
     $("reading-body").innerHTML =
@@ -834,8 +819,7 @@
       save();
       chapterStamped = !had && chapterDone(s.lesson.id);
     }
-    const bg = s.lesson ? backdropFor(s.lesson) : STORY + "bg-street.jpg";
-    popup($("reading-stage"), { bg, world: s.lesson ? lessonArt(s.lesson).slice(0, 3) : [], you: {}, guide: "cheer" });
+    popup($("reading-stage"), Object.assign({ guide: "cheer" }, s.lesson ? postcardOf(s.lesson) : { bg: STORY + "bg-street.jpg" }, s.lesson ? chapterStory(s.lesson) : {}));
     const nextMode = s.lesson && !chapterDone(s.lesson.id) ? nextModeFor(s.lesson.id) : null;
     const after = chapterStamped ? nextLesson() : null;
     $("reading-body").innerHTML =
