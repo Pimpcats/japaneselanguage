@@ -385,3 +385,108 @@ body[data-screen="reading"] .screen, body[data-screen="chapter"] .screen { paddi
   .pop-back, .pop-cut { transform: none; }
   .pop-bubble { opacity: 1; transform: none; }
 }
+
+/* ======================================================================
+   Motion. Same look, quietly alive. Everything here is switched off by the
+   prefers-reduced-motion block above (its rules are !important).
+   ====================================================================== */
+
+/* folding flat is quick; rising keeps its springy, staggered timing */
+.pop-back, .pop-cut { transition: transform .22s ease-in; }
+.popup.is-open .pop-back { transition: transform .75s cubic-bezier(.2, .9, .25, 1.12); }
+.popup.is-open .pop-cut { transition: transform .62s cubic-bezier(.3, 1.55, .5, 1) calc(.28s + var(--i, 0) * .1s); }
+
+/* the painting drifts very slowly inside its frame */
+.pop-back { overflow: hidden; }
+.pop-paint { position: absolute; inset: 0; background: center / cover no-repeat; transform: scale(1.04); }
+.popup.is-open .pop-paint { animation: paint-drift 28s ease-in-out infinite alternate 1.2s; }
+@keyframes paint-drift { from { transform: scale(1.04) translate(-1%, 0); } to { transform: scale(1.09) translate(1.4%, -1.2%); } }
+
+/* a little weather in front of the painting */
+.pop-air { position: absolute; inset: 0; pointer-events: none; overflow: hidden; opacity: 0; transition: opacity 1s ease 1s; }
+.popup.is-open .pop-air { opacity: 1; }
+.pop-air i { position: absolute; left: var(--x); display: block; }
+.air-petals i { top: -8%; width: 7px; height: 5px; background: #f2c4cf; border-radius: 70% 0 70% 0; opacity: .85; animation: petal var(--t) linear infinite var(--d); }
+@keyframes petal { from { transform: translate(0, 0) rotate(0); } to { transform: translate(-46px, 230px) rotate(320deg); } }
+.air-bubbles i { bottom: -6%; width: 7px; height: 7px; border: 1.5px solid rgba(255, 255, 255, .85); border-radius: 50%; animation: bubble var(--t) ease-in infinite var(--d); }
+@keyframes bubble { from { transform: translate(0, 0); opacity: 0; } 15% { opacity: 1; } to { transform: translate(10px, -210px); opacity: 0; } }
+.air-steam i { bottom: 4%; width: 46px; height: 46px; border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, .55), transparent 70%); animation: steam var(--t) ease-out infinite var(--d); }
+@keyframes steam { from { transform: translate(0, 0) scale(.6); opacity: 0; } 30% { opacity: 1; } to { transform: translate(-14px, -150px) scale(1.6); opacity: 0; } }
+.air-motes i { top: 30%; width: 3px; height: 3px; border-radius: 50%; background: rgba(255, 244, 214, .9); box-shadow: 0 0 6px rgba(255, 236, 190, .9); animation: mote var(--t) ease-in-out infinite alternate var(--d); }
+@keyframes mote { from { transform: translate(0, 30px); opacity: .2; } to { transform: translate(18px, -40px); opacity: .9; } }
+
+/* once up, cut-outs sway a touch on their tabs; もち子 breathes */
+.pop-cut img { transform-origin: 50% 100%; }
+.popup.is-open .pop-row .pop-cut img { animation: sway 5.5s ease-in-out infinite calc(1.4s + var(--i, 0) * .7s); }
+@keyframes sway { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-1deg); } 70% { transform: rotate(.9deg); } }
+.popup.is-open .pop-guide img { animation: breathe 4.2s ease-in-out infinite 1.6s; }
+@keyframes breathe { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.012) translateY(-.4%); } }
+/* she bobs gently while Japanese is playing */
+body.talking .popup.is-open .pop-guide img { animation: talk-bob .38s ease-in-out infinite alternate; }
+@keyframes talk-bob { from { transform: translateY(0); } to { transform: translateY(-2.2%) rotate(-.6deg); } }
+/* she turns edge-on like paper to change pose, and lifts a little when you get one */
+body .popup.is-open .pop-guide.turn img { animation: turn-edge .42s ease-in-out; }
+@keyframes turn-edge { 0%, 100% { transform: rotateY(0); } 50% { transform: rotateY(88deg); } }
+body .popup.is-open .pop-guide.lift img { animation: lift .6s cubic-bezier(.3, 1.5, .5, 1); }
+@keyframes lift { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-7%); } }
+
+/* tap a cut-out: it turns over once and says its word */
+.pop-row button.pop-cut { padding: 0; border: 0; background: none; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.pop-row .pop-cut.flip-over img { animation: flip-over .75s ease-in-out; }
+@keyframes flip-over { 0% { transform: rotateY(0); } 50% { transform: rotateY(180deg) scale(1.05); } 100% { transform: rotateY(360deg); } }
+
+/* the speech bubble unfolds from her side */
+.pop-bubble { transform-origin: 92% 100%; }
+
+/* the answer slip settles as it slides out */
+.slip-wrap.open .slip { animation: slip-settle .7s ease .2s; transform-origin: 50% 0; }
+@keyframes slip-settle { 35% { transform: rotate(-.8deg); } 70% { transform: rotate(.5deg); } }
+.grades:not([hidden]) button { animation: ease-up .4s ease both; }
+.grades button:nth-child(2) { animation-delay: .06s; } .grades button:nth-child(3) { animation-delay: .12s; }
+@keyframes ease-up { from { opacity: 0; translate: 0 8px; } }
+
+/* choices: a soft shake for a miss, a small lift for the right one */
+.choice.wrong { animation: soft-shake .38s ease; }
+@keyframes soft-shake { 25% { translate: -4px 0; } 75% { translate: 4px 0; } }
+.choice.right { animation: lift-small .45s ease; }
+@keyframes lift-small { 45% { translate: 0 -3px; } }
+.feedback { animation: ease-up .35s ease both; }
+
+/* the hanko presses down; the card takes the weight */
+.finish.press { animation: thud .45s ease .62s; }
+@keyframes thud { 30% { translate: 0 2px; } 60% { translate: 0 -1px; } }
+
+/* washi scraps — only when a whole chapter page is stamped */
+.washi { position: fixed; z-index: 40; top: 0; left: 50%; width: min(100%, var(--page-max)); height: 100%; translate: -50% 0; pointer-events: none; overflow: hidden; }
+.washi i { position: absolute; top: -22px; width: 10px; height: 15px; opacity: .9; border-radius: 1px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35); animation: washi 2.8s cubic-bezier(.3, .6, .5, 1) forwards; }
+@keyframes washi { to { transform: translate(var(--drift, 0), 105vh) rotate(var(--spin, 300deg)); } }
+
+/* listening: the play button ripples while the line plays */
+.big-play { position: relative; }
+body.talking .big-play::after { content: ""; position: absolute; inset: -4px; border: 2px solid var(--accent); border-radius: 50%; animation: ripple 1.2s ease-out infinite; }
+@keyframes ripple { from { transform: scale(.95); opacity: .7; } to { transform: scale(1.45); opacity: 0; } }
+
+/* driving: five quiet bars that move with the voice */
+.drive-wave { display: flex; justify-content: center; align-items: flex-end; gap: 5px; height: 30px; margin-top: 14px; }
+.drive-wave i { width: 5px; height: 6px; border-radius: 3px; background: rgba(251, 243, 223, .8); }
+body.talking .drive-wave i { animation: wave-bar .5s ease-in-out infinite alternate; }
+.drive-wave i:nth-child(2) { animation-delay: -.2s !important; } .drive-wave i:nth-child(3) { animation-delay: -.35s !important; }
+.drive-wave i:nth-child(4) { animation-delay: -.1s !important; } .drive-wave i:nth-child(5) { animation-delay: -.42s !important; }
+@keyframes wave-bar { from { height: 6px; } to { height: 28px; } }
+
+/* small touches */
+.bookmark .ribbon { transform-origin: 50% 0; animation: ribbon 5.5s ease-in-out infinite; }
+@keyframes ribbon { 0%, 100% { rotate: 0deg; } 50% { rotate: 2.5deg; } }
+.reading-row { animation: ease-up .45s ease both calc(.25s + var(--i, 0) * .07s); }
+.day.on i { animation: press-in .5s cubic-bezier(.3, 1.6, .5, 1) both; }
+@keyframes press-in { from { scale: 1.6; opacity: 0; } }
+.stamp { animation: ease-up .5s ease both; }
+.stamp:nth-child(2) { animation-delay: .06s; } .stamp:nth-child(3) { animation-delay: .12s; } .stamp:nth-child(n+4) { animation-delay: .18s; }
+.page-dots i { transition: transform .3s ease, background .3s ease; }
+.cover-plate { animation: plate-float 8s ease-in-out infinite; }
+@keyframes plate-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pop-air { display: none; }
+  .pop-paint { transform: none; }
+}

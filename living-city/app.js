@@ -99,9 +99,12 @@
     : Promise.resolve(null)).then((m) => { manifest = m; return m; });
   const plain = (s) => String(s || "").replace(/\[[^\]]*\]/g, "");
   function clipFor(jp) { const c = manifest && manifest.clips; return c ? c[jp] || c[plain(jp)] || null : null; }
+  // body.talking is set while a line plays: もち子 bobs, the listen button ripples
+  const setTalking = (on) => document.body.classList.toggle("talking", !!on);
   function stopAudio() {
     if (player) { try { player.pause(); } catch (_) {} player = null; }
     if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch (_) {} }
+    setTalking(false);
   }
   function speakTTS(jp, slow) {
     return new Promise((resolve) => {
@@ -117,13 +120,17 @@
     });
   }
   // Resolves when the line has finished playing (used by driving mode's gaps).
+  let playToken = 0;
   function play(jp, slow) {
     if (!jp) return Promise.resolve();
     stopAudio();
+    const token = ++playToken;
     return manifestReady.then(() => new Promise((resolve) => {
       let finished = false, fellBack = false;
-      const finish = () => { if (!finished) { finished = true; resolve(); } };
+      const finish = () => { if (!finished) { finished = true; if (token === playToken) setTalking(false); resolve(); } };
       const fallback = () => { if (fellBack) return; fellBack = true; speakTTS(jp, slow).then(finish); };
+      if (token !== playToken) { finish(); return; }
+      setTalking(true);
       const clip = clipFor(jp);
       const file = clip && (slow && clip.s ? clip.s : clip.n);
       if (!file || typeof Audio !== "function") { fallback(); return; }
@@ -152,13 +159,14 @@
     const base = String(en || "").toLowerCase().replace(/\(.*?\)/g, "").replace(/\[.*?\]/g, "");
     return base.split(/[\/,;]/).map((p) => p.replace(/[^a-z' -]/g, "").replace(/^\s*(the|a|an|to)\s+/, "").trim()).filter(Boolean);
   }
+  // each cut-out remembers the Japanese word that summoned it (tap it to hear it)
   function artForWords(words) {
     const out = [];
     for (const w of words || []) {
       if (w.pos === "prt" || w.pos === "cop") continue;
       for (const key of glossKeys(w.en)) {
         const file = ART[key] || ART[key.split(" ")[0]];
-        if (file && !out.includes(file)) { out.push(file); break; }
+        if (file && !out.some((o) => o.file === file)) { out.push({ file, jp: w.jp }); break; }
       }
       if (out.length >= 3) break;
     }
@@ -177,19 +185,33 @@
 
   // ---- the pop-up stage --------------------------------------------------------
   // A painted backdrop stands up from the fold like the back page of a pop-up
-  // book, then each cut-out rises after it. With reduced motion it just appears.
+  // book, then each cut-out rises after it and settles into a slow sway. The
+  // painting drifts very slowly and a little weather floats in front of it.
+  // With reduced motion it all just appears, still.
+  const AIR = { "bg-street.jpg": "petals", "bg-aquarium.jpg": "bubbles", "bg-onsen.jpg": "steam", "bg-shop.jpg": "motes", "bg-room.jpg": "motes" };
+  function airHTML(bg) {
+    const kind = AIR[String(bg || "").split("/").pop()] || "motes";
+    let out = '<div class="pop-air air-' + kind + '" aria-hidden="true">';
+    for (let i = 0; i < 7; i++) out += '<i style="--x:' + (8 + i * 13 + (i % 2) * 4) + "%;--d:" + (i * 1.3).toFixed(1) + "s;--t:" + (7 + (i % 3) * 2) + 's"></i>';
+    return out + "</div>";
+  }
+  let bubbleTimer = null;
   function popup(host, opts) {
-    const objects = (opts.objects || []).slice(0, 3);
+    clearInterval(bubbleTimer);
+    const objects = (opts.objects || []).slice(0, 3).map((o) => (typeof o === "string" ? { file: o } : o));
     const guide = opts.guide === false ? "" : '<span class="pop-cut pop-guide" style="--i:' + objects.length + '"><img src="' + STORY + "mochiko-" + (opts.guide || "think") + '.png" alt=""></span>';
+    const bg = opts.bg || STORY + "bg-street.jpg";
     host.innerHTML =
       '<div class="popup' + (objects.length ? "" : " only-guide") + '">' +
         '<div class="pop-tilt">' +
-          '<div class="pop-back" style="background-image:url(\'' + esc(opts.bg || STORY + "bg-street.jpg") + '\')"></div>' +
+          '<div class="pop-back"><span class="pop-paint" style="background-image:url(\'' + esc(bg) + '\')"></span>' + airHTML(bg) + "</div>" +
           '<div class="pop-floor"></div>' +
           '<div class="pop-row n' + objects.length + '">' +
-            objects.map((file, i) => '<span class="pop-cut" style="--i:' + i + '"><img src="' + STORY + esc(file) + '.png" alt=""></span>').join("") +
+            objects.map((o, i) => o.jp
+              ? '<button type="button" class="pop-cut" style="--i:' + i + '" data-say="' + esc(o.jp) + '" aria-label="Hear ' + esc(o.jp) + '"><img src="' + STORY + esc(o.file) + '.png" alt=""></button>'
+              : '<span class="pop-cut" style="--i:' + i + '"><img src="' + STORY + esc(o.file) + '.png" alt=""></span>').join("") +
           "</div>" + guide +
-          (opts.bubble ? '<div class="pop-bubble"><b>' + rubyHTML(opts.bubble) + "</b></div>" : "") +
+          (opts.bubble ? '<div class="pop-bubble" aria-label="' + esc(plain(opts.bubble)) + '"><b>' + rubyHTML(opts.bubble) + "</b></div>" : "") +
         "</div>" +
         (opts.caption ? '<span class="pop-caption">' + esc(opts.caption) + "</span>" : "") +
       "</div>";
@@ -197,11 +219,56 @@
     if (reduceMotion) { stage.classList.add("is-open"); return stage; }
     // two frames so the flat state is painted before it rises
     requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.add("is-open")));
+    // the speech bubble writes itself out once it has unfolded
+    const b = stage.querySelector(".pop-bubble b");
+    if (b && !/\[/.test(opts.bubble)) {
+      const text = plain(opts.bubble);
+      b.textContent = "";
+      let n = 0;
+      setTimeout(() => {
+        clearInterval(bubbleTimer);
+        bubbleTimer = setInterval(() => { n++; b.textContent = text.slice(0, n); if (n >= text.length) clearInterval(bubbleTimer); }, 60);
+      }, 780);
+    }
     return stage;
   }
+  // もち子 turns edge-on like a paper cut-out, changes pose, turns back
   function setGuide(host, pose) {
-    const img = host.querySelector(".pop-guide img");
-    if (img) img.src = STORY + "mochiko-" + pose + ".png";
+    const cut = host.querySelector(".pop-guide");
+    const img = cut && cut.querySelector("img");
+    if (!img) return;
+    const apply = () => { img.src = STORY + "mochiko-" + pose + ".png"; };
+    if (reduceMotion) { apply(); return; }
+    cut.classList.remove("turn", "lift");
+    void cut.offsetWidth;
+    cut.classList.add("turn");
+    setTimeout(apply, 200);
+    if (pose === "thumbs" || pose === "cheer") setTimeout(() => cut.classList.add("lift"), 420);
+    setTimeout(() => cut.classList.remove("turn", "lift"), 1100);
+  }
+  // fold the spread flat before the page turns
+  function foldStage(host) {
+    const stage = host && host.querySelector(".popup");
+    if (stage) stage.classList.remove("is-open");
+  }
+  // washi paper scraps, only for the rare moment a chapter page gets stamped
+  function confetti() {
+    if (reduceMotion) return;
+    const layer = document.createElement("div");
+    layer.className = "washi";
+    layer.setAttribute("aria-hidden", "true");
+    const colors = ["#b94e43", "#d9a8a0", "#397e7e", "#b68a32", "#69518a", "#e8dcc4"];
+    for (let i = 0; i < 22; i++) {
+      const p = document.createElement("i");
+      p.style.left = Math.round(4 + Math.random() * 92) + "%";
+      p.style.background = colors[i % colors.length];
+      p.style.animationDelay = (Math.random() * 0.6).toFixed(2) + "s";
+      p.style.setProperty("--spin", Math.round(Math.random() * 540 - 270) + "deg");
+      p.style.setProperty("--drift", Math.round(Math.random() * 90 - 45) + "px");
+      layer.appendChild(p);
+    }
+    $("book").appendChild(layer);
+    setTimeout(() => layer.remove(), 3200);
   }
   // gentle parallax: the spread leans toward your finger/cursor
   document.addEventListener("pointermove", (e) => {
@@ -315,7 +382,7 @@
     const next = nextModeFor(id);
     $("chapter-readings").innerHTML = MODES.map((m) => {
       const done = readingsOf(id)[m.id];
-      return '<button class="reading-row ' + m.color + (done ? " done" : "") + (m.id === next.id && !chapterDone(id) ? " next" : "") + '" data-mode="' + m.id + '">' +
+      return '<button class="reading-row ' + m.color + (done ? " done" : "") + (m.id === next.id && !chapterDone(id) ? " next" : "") + '" data-mode="' + m.id + '" style="--i:' + m.no + '">' +
         '<span class="r-no">' + m.no + '</span><span class="r-copy"><b>' + esc(m.name) + "</b><small>" + esc(m.verb) + "</small></span>" +
         '<span class="r-state">' + (done ? "✓" : m.id === next.id ? "next" : "") + "</span></button>";
     }).join("");
@@ -477,11 +544,19 @@
     else if (item.kind === "build") renderBuild(item);
     else renderPattern(item);
   }
+  // fold the spread flat, turn the page, let the next one rise
   function nextItem() {
     stopAudio();
-    session.index++;
-    if (!reduceMotion) turnPage(false);
-    renderItem();
+    const mine = session;
+    const go = () => {
+      if (session !== mine) return;
+      session.index++;
+      if (!reduceMotion) turnPage(false);
+      renderItem();
+    };
+    if (reduceMotion) { go(); return; }
+    foldStage($("reading-stage"));
+    setTimeout(go, 240);
   }
 
   // the pull-tab: the answer slides out from behind the illustration
@@ -511,6 +586,7 @@
       recordAttempt(item.id, b.dataset.grade);
       session.said++;
       if (b.dataset.grade === "good") setGuide($("reading-stage"), "thumbs");
+      else if (b.dataset.grade === "again") setGuide($("reading-stage"), "think");
       // advance only the reading this grade belongs to (Back may have closed it)
       const mine = session;
       if (reduceMotion) nextItem();
@@ -691,7 +767,7 @@
     const nextMode = s.lesson && !chapterDone(s.lesson.id) ? nextModeFor(s.lesson.id) : null;
     const after = chapterStamped ? nextLesson() : null;
     $("reading-body").innerHTML =
-      '<div class="finish' + (chapterStamped ? " big" : "") + '">' +
+      '<div class="finish' + (chapterStamped ? " big" : "") + (reduceMotion ? "" : " press") + '">' +
         '<span class="hanko' + (reduceMotion ? "" : " stamping") + '" aria-hidden="true">' + (chapterStamped ? "済" : s.mode.no) + "</span>" +
         "<span class=\"kicker\">" + (s.review ? "Second look done" : s.trip ? "Side trip done" : chapterStamped ? "Chapter page stamped" : "Reading " + s.mode.no + " done") + "</span>" +
         "<h2>" + (chapterStamped ? "よくできました！" : s.mode.id === "moment" ? "You kept it moving." : "Page finished.") + "</h2>" +
@@ -702,6 +778,7 @@
       (nextMode ? '<button class="primary" id="finish-next">Next: ' + nextMode.no + " · " + esc(nextMode.name) + " <b>→</b></button>" : "") +
       (after ? '<button class="primary" id="finish-after">Turn to: ' + esc(after.title) + " <b>→</b></button>" : "") +
       '<button class="quiet" id="finish-back">' + (s.lesson && !s.review && !s.trip ? "Back to the chapter" : "Back to contents") + "</button>";
+    if (chapterStamped) setTimeout(confetti, reduceMotion ? 0 : 500);
     if (nextMode) $("finish-next").onclick = () => startReading(s.lesson.id, nextMode.id);
     if (after) $("finish-after").onclick = () => openChapter(after.id);
     $("finish-back").onclick = closeReading;
@@ -739,6 +816,7 @@
     $("reading-page").textContent = "";
     $("reading-body").innerHTML =
       '<div class="drive-panel"><span class="kicker">🚗 Driving mode · Japanese only</span>' +
+        '<div class="drive-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>' +
         '<p class="drive-cue" id="drive-cue">Starting…</p><div class="drive-jp" id="drive-jp"></div>' +
         '<div class="drive-count" id="drive-count"></div>' +
         '<div class="drive-buttons"><button class="drive-big" id="drive-pause">Pause</button><button class="quiet" id="drive-stop">Stop</button></div>' +
@@ -825,7 +903,13 @@
   document.addEventListener("click", (e) => {
     const b = e.target.closest && e.target.closest("button");
     if (!b) return;
-    if (b.dataset.say) say(b.dataset.say);
+    if (b.dataset.say) {
+      say(b.dataset.say);
+      if (b.classList.contains("pop-cut") && !reduceMotion) {
+        b.classList.remove("flip-over"); void b.offsetWidth; b.classList.add("flip-over");
+        setTimeout(() => b.classList.remove("flip-over"), 800);
+      }
+    }
     else if (b.dataset.saySlow) say(b.dataset.saySlow, true);
     else if (b.id === "chips-toggle") { const c = $("chips"); c.hidden = !c.hidden; b.textContent = c.hidden ? "Words ＋" : "Words −"; }
   });

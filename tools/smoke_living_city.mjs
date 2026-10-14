@@ -145,6 +145,17 @@ assert.equal($$("#turn-choices [data-pick]").length, 2);
 click("#reading-back");
 assert.equal(active(), "contents");
 
+// ---- tapping a cut-out says its word
+click('[data-nav="contents"]');
+click('#toc [data-lesson="cafe"]');
+const cut = $("#chapter-stage .pop-row button.pop-cut[data-say]");
+assert.ok(cut, "Cut-outs that stand for a word are tappable");
+const before = played.length;
+cut.click();
+await tick(20);
+assert.ok(played.length > before, "Tapping a cut-out plays its word");
+click("#chapter-back");
+
 // ---- journal
 click('[data-nav="journal"]');
 assert.equal(active(), "journal");
