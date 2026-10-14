@@ -17,14 +17,12 @@
   const LESSONS = Array.isArray(window.LESSONS) ? window.LESSONS : [];
   const SCENES = Array.isArray(window.SCENES) ? window.SCENES : [];
   const ART = D.art || {};
+  const STORY = "../assets/story/";
   const reduceMotion = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const shuffle = (items) => { const a = items.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const pad = (n) => String(n).padStart(2, "0");
-
-  // a little paper car, used wherever driving mode is offered
-  const CAR_ICON = '<svg class="car-icon" viewBox="0 0 40 24" width="26" height="16" aria-hidden="true"><path d="M3 15 L3 11 Q4 9 8 9 L12 3 L27 3 L32 9 Q37 9 37 13 L37 15 Q37 17 35 17 L5 17 Q3 17 3 15 Z" fill="#e5483b" stroke="#2a2320" stroke-width="2" stroke-linejoin="round"/><path d="M14 5 L19 5 L19 9 L11 9 Z M21 5 L26 5 L29 9 L21 9 Z" fill="#d8f0ff"/><circle cx="11" cy="18" r="3.5" fill="#2a2320"/><circle cx="29" cy="18" r="3.5" fill="#2a2320"/></svg>';
 
   const MODES = [
     { id: "recall", no: 1, name: "Recall", verb: "Say it yourself", color: "red", hint: "Say it out loud first — then pull the tab." },
@@ -42,6 +40,7 @@
   const order = chapters.flatMap((c) => c.lessons);
   const lessonById = (id) => LESSONS.find((l) => l.id === id);
   const chapterOf = (id) => chapters.find((c) => c.lessons.some((l) => l.id === id)) || chapters[0];
+  const coverOf = (lesson) => "../assets/covers/" + lesson.id + ".png";
 
   // ---- state -----------------------------------------------------------------
   const fresh = () => ({ v: 1, cards: {}, readings: {}, days: {}, total: 0, history: [], settings: { romaji: "show", drive: false }, opened: false });
@@ -94,19 +93,15 @@
   }
 
   // ---- audio: VOICEVOX clips first, the device's Japanese voice as fallback ----
-  // While a line plays, body.talking is set: もち子's paper mouth flaps, the
-  // listen button ripples and the driving equaliser moves.
   let manifest = null, player = null;
   const manifestReady = (typeof fetch === "function"
     ? fetch("../audio/manifest.json").then((r) => (r.ok ? r.json() : null)).catch(() => null)
     : Promise.resolve(null)).then((m) => { manifest = m; return m; });
   const plain = (s) => String(s || "").replace(/\[[^\]]*\]/g, "");
   function clipFor(jp) { const c = manifest && manifest.clips; return c ? c[jp] || c[plain(jp)] || null : null; }
-  const setTalking = (on) => document.body.classList.toggle("talking", !!on);
   function stopAudio() {
     if (player) { try { player.pause(); } catch (_) {} player = null; }
     if ("speechSynthesis" in window) { try { window.speechSynthesis.cancel(); } catch (_) {} }
-    setTalking(false);
   }
   function speakTTS(jp, slow) {
     return new Promise((resolve) => {
@@ -122,17 +117,13 @@
     });
   }
   // Resolves when the line has finished playing (used by driving mode's gaps).
-  let playToken = 0;
   function play(jp, slow) {
     if (!jp) return Promise.resolve();
     stopAudio();
-    const token = ++playToken;
     return manifestReady.then(() => new Promise((resolve) => {
       let finished = false, fellBack = false;
-      const finish = () => { if (!finished) { finished = true; if (token === playToken) setTalking(false); resolve(); } };
+      const finish = () => { if (!finished) { finished = true; resolve(); } };
       const fallback = () => { if (fellBack) return; fellBack = true; speakTTS(jp, slow).then(finish); };
-      if (token !== playToken) { finish(); return; }
-      setTalking(true);
       const clip = clipFor(jp);
       const file = clip && (slow && clip.s ? clip.s : clip.n);
       if (!file || typeof Audio !== "function") { fallback(); return; }
@@ -156,10 +147,7 @@
     return (words || []).map((w, i) => '<button type="button" class="chip pos-' + esc(w.pos || "expr") + (changed && changed.includes(i) ? " changed" : "") + '" data-say="' + esc(w.jp) + '"><b>' + esc(w.jp) + "</b><small>" + esc(w.en) + "</small></button>").join("");
   }
 
-  // ---- art: which paper cut-outs pop up for a sentence ------------------------
-  // Each cut-out remembers the Japanese word that summoned it, so tapping it
-  // says the word.
-  const PA = window.PAPER_ART || { objects: {}, scenes: {}, mochiko: "" };
+  // ---- art: which cut-outs pop up for a sentence -----------------------------
   function glossKeys(en) {
     const base = String(en || "").toLowerCase().replace(/\(.*?\)/g, "").replace(/\[.*?\]/g, "");
     return base.split(/[\/,;]/).map((p) => p.replace(/[^a-z' -]/g, "").replace(/^\s*(the|a|an|to)\s+/, "").trim()).filter(Boolean);
@@ -168,9 +156,9 @@
     const out = [];
     for (const w of words || []) {
       if (w.pos === "prt" || w.pos === "cop") continue;
-      for (const g of glossKeys(w.en)) {
-        const key = ART[g] || ART[g.split(" ")[0]];
-        if (key && PA.objects[key] && !out.some((o) => o.key === key)) { out.push({ key, jp: w.jp }); break; }
+      for (const key of glossKeys(w.en)) {
+        const file = ART[key] || ART[key.split(" ")[0]];
+        if (file && !out.includes(file)) { out.push(file); break; }
       }
       if (out.length >= 3) break;
     }
@@ -185,51 +173,23 @@
     const own = artForWords(sentence && sentence.words);
     return own.length ? own : lesson ? artForLesson(lesson) : [];
   }
-  const sceneFor = (lesson) => (lesson && D.backdrops && D.backdrops[lesson.section]) || "street";
-  function objectSVG(key, label) {
-    const art = PA.objects[key];
-    if (!art) return "";
-    const vb = art[0].split(" ");
-    return '<svg viewBox="' + art[0] + '" width="' + vb[2] + '" height="' + vb[3] + '"' + (label ? ' role="img" aria-label="' + esc(label) + '"' : ' aria-hidden="true"') + ">" + art[1] + "</svg>";
-  }
-  const sizeOf = (key) => (PA.objects[key] && PA.objects[key][2]) || "mid";
-  function sceneSVG(name) {
-    const s = PA.scenes[name] || PA.scenes.street;
-    return s ? '<svg class="scene-svg" viewBox="0 0 350 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' + s.body + "</svg>" : "";
-  }
-  const puppetSVG = (pose) => '<svg class="puppet pose-' + (pose || "think") + '" viewBox="0 0 120 220" width="120" height="220" role="img" aria-label="もち子さん">' + PA.mochiko + "</svg>";
-  // a lesson's little picture plate (bookmark, journal): its first cut-out,
-  // else its first Japanese letter (Level 0 is about letters)
-  const PLATE_COLORS = ["#ffd75e", "#7fc4ff", "#ff9fb5", "#9fd67a", "#c3a6ff", "#ffb07a", "#7fe0c8", "#ffe39a"];
-  function plateHTML(lesson) {
-    const art = artForLesson(lesson)[0];
-    const color = PLATE_COLORS[chapterOf(lesson.id).index % PLATE_COLORS.length];
-    const glyph = (String(lesson.title).match(/[぀-ヿ一-鿿]/) || ["話"])[0];
-    return '<span class="plate" style="background:' + color + '" aria-hidden="true">' + (art ? objectSVG(art.key) : '<b>' + esc(glyph) + "</b>") + "</span>";
-  }
+  const backdropFor = (lesson) => STORY + ((lesson && D.backdrops && D.backdrops[lesson.section]) || "bg-street.jpg");
 
   // ---- the pop-up stage --------------------------------------------------------
-  // The scene stands up from the fold like the back page of a pop-up book, then
-  // each paper cut-out rises after it with a springy overshoot and keeps a
-  // gentle paper wobble. With reduced motion it just appears.
-  let bubbleTimer = null;
+  // A painted backdrop stands up from the fold like the back page of a pop-up
+  // book, then each cut-out rises after it. With reduced motion it just appears.
   function popup(host, opts) {
-    clearInterval(bubbleTimer);
-    const objects = (opts.objects || []).slice(0, 3).map((o) => (typeof o === "string" ? { key: o } : o)).filter((o) => PA.objects[o.key]);
-    const scene = PA.scenes[opts.scene] ? opts.scene : "street";
-    const floor = PA.scenes[scene] || {};
-    const guide = opts.guide === false ? "" : '<span class="pop-cut pop-guide" style="--i:' + objects.length + '">' + puppetSVG(opts.guide) + "</span>";
+    const objects = (opts.objects || []).slice(0, 3);
+    const guide = opts.guide === false ? "" : '<span class="pop-cut pop-guide" style="--i:' + objects.length + '"><img src="' + STORY + "mochiko-" + (opts.guide || "think") + '.png" alt=""></span>';
     host.innerHTML =
-      '<div class="popup scene-' + scene + (objects.length ? "" : " only-guide") + '" style="--floor:' + (floor.floor || "#e2a35f") + ";--plank:" + (floor.plank || "#c4843f") + '">' +
+      '<div class="popup' + (objects.length ? "" : " only-guide") + '">' +
         '<div class="pop-tilt">' +
-          '<div class="pop-back">' + sceneSVG(scene) + "</div>" +
+          '<div class="pop-back" style="background-image:url(\'' + esc(opts.bg || STORY + "bg-street.jpg") + '\')"></div>' +
           '<div class="pop-floor"></div>' +
           '<div class="pop-row n' + objects.length + '">' +
-            objects.map((o, i) => o.jp
-              ? '<button type="button" class="pop-cut size-' + sizeOf(o.key) + '" style="--i:' + i + '" data-say="' + esc(o.jp) + '" aria-label="Hear ' + esc(o.jp) + '">' + objectSVG(o.key) + "</button>"
-              : '<span class="pop-cut size-' + sizeOf(o.key) + '" style="--i:' + i + '">' + objectSVG(o.key) + "</span>").join("") +
+            objects.map((file, i) => '<span class="pop-cut" style="--i:' + i + '"><img src="' + STORY + esc(file) + '.png" alt=""></span>').join("") +
           "</div>" + guide +
-          (opts.bubble ? '<div class="pop-bubble" aria-label="' + esc(plain(opts.bubble)) + '"><b>' + rubyHTML(opts.bubble) + "</b></div>" : "") +
+          (opts.bubble ? '<div class="pop-bubble"><b>' + rubyHTML(opts.bubble) + "</b></div>" : "") +
         "</div>" +
         (opts.caption ? '<span class="pop-caption">' + esc(opts.caption) + "</span>" : "") +
       "</div>";
@@ -237,37 +197,11 @@
     if (reduceMotion) { stage.classList.add("is-open"); return stage; }
     // two frames so the flat state is painted before it rises
     requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.add("is-open")));
-    // the speech bubble types itself out once she has popped up
-    const b = stage.querySelector(".pop-bubble b");
-    if (b && !/\[/.test(opts.bubble)) {
-      const text = plain(opts.bubble);
-      b.textContent = "";
-      let n = 0;
-      setTimeout(() => {
-        clearInterval(bubbleTimer);
-        bubbleTimer = setInterval(() => { n++; b.textContent = text.slice(0, n); if (n >= text.length) clearInterval(bubbleTimer); }, 55);
-      }, 720);
-    }
     return stage;
   }
-  // Paper Mario's flip: the paper puppet turns edge-on, swaps pose, turns back.
   function setGuide(host, pose) {
-    const svg = host.querySelector(".pop-guide .puppet");
-    if (!svg) return;
-    const cut = svg.parentNode;
-    const apply = () => { svg.setAttribute("class", "puppet pose-" + pose); };
-    if (reduceMotion) { apply(); return; }
-    cut.classList.remove("flip", "hop");
-    void cut.offsetWidth;
-    cut.classList.add("flip");
-    setTimeout(apply, 160);
-    if (pose === "thumbs" || pose === "cheer") setTimeout(() => cut.classList.add("hop"), 330);
-    setTimeout(() => cut.classList.remove("flip", "hop"), 900);
-  }
-  // fold the current spread flat (before a page turn)
-  function foldStage(host) {
-    const stage = host && host.querySelector(".popup");
-    if (stage) stage.classList.remove("is-open");
+    const img = host.querySelector(".pop-guide img");
+    if (img) img.src = STORY + "mochiko-" + pose + ".png";
   }
   // gentle parallax: the spread leans toward your finger/cursor
   document.addEventListener("pointermove", (e) => {
@@ -278,25 +212,6 @@
     const x = (e.clientX - r.left) / r.width - 0.5;
     stage.style.setProperty("--lean", (x * 6).toFixed(2) + "deg");
   });
-  // paper scraps for the rare, big moment (a chapter page stamped)
-  function confetti() {
-    if (reduceMotion) return;
-    const layer = document.createElement("div");
-    layer.className = "confetti";
-    layer.setAttribute("aria-hidden", "true");
-    const colors = ["#e5483b", "#ffc93c", "#3c8ee6", "#3fae5b", "#c3a6ff", "#ff9fb5"];
-    for (let i = 0; i < 28; i++) {
-      const p = document.createElement("i");
-      p.style.left = Math.round(Math.random() * 100) + "%";
-      p.style.background = colors[i % colors.length];
-      p.style.animationDelay = (Math.random() * 0.5).toFixed(2) + "s";
-      p.style.setProperty("--spin", Math.round(Math.random() * 720 - 360) + "deg");
-      p.style.setProperty("--drift", Math.round(Math.random() * 80 - 40) + "px");
-      layer.appendChild(p);
-    }
-    $("book").appendChild(layer);
-    setTimeout(() => layer.remove(), 2600);
-  }
 
   // ---- screens & page turns ----------------------------------------------------
   const SCREENS = ["cover", "contents", "chapter", "reading", "journal"];
@@ -348,13 +263,13 @@
     const mode = nextModeFor(next.id);
     $("bookmark").innerHTML =
       '<span class="ribbon" aria-hidden="true"></span>' +
-      plateHTML(next) +
+      '<img class="plate" src="' + coverOf(next) + '" alt="">' +
       '<div class="bookmark-copy"><span class="kicker">栞 · Your page</span>' +
         "<small>Chapter " + ch.index + " · " + esc(ch.level.title) + "</small>" +
         "<h2>" + esc(next.title) + "</h2>" +
         "<p>Next: " + mode.no + " · " + esc(mode.name) + "</p>" + dotsHTML(next.id) +
       "</div>" +
-      '<button class="primary" id="bookmark-open">' + (drive ? CAR_ICON + " Play this page" : "Open to this page") + " <b>→</b></button>";
+      '<button class="primary" id="bookmark-open">' + (drive ? "🚗 Play this page" : "Open to this page") + " <b>→</b></button>";
     $("bookmark-open").addEventListener("click", () => (drive ? startReading(next.id, mode.id) : openChapter(next.id)));
 
     const due = dueCards().length;
@@ -400,17 +315,16 @@
     const next = nextModeFor(id);
     $("chapter-readings").innerHTML = MODES.map((m) => {
       const done = readingsOf(id)[m.id];
-      const isNext = m.id === next.id && !chapterDone(id);
-      return '<button class="reading-tab ' + m.color + (done ? " done" : "") + (isNext ? " next" : "") + '" data-mode="' + m.id + '" style="--i:' + m.no + '">' +
-        (isNext ? '<span class="tab-flag">NEXT</span>' : "") + (done ? '<span class="tab-check" aria-label="done">✓</span>' : "") +
-        '<span class="r-no">' + m.no + '</span><b>' + esc(m.name) + "</b><small>" + esc(m.verb) + "</small></button>";
+      return '<button class="reading-row ' + m.color + (done ? " done" : "") + (m.id === next.id && !chapterDone(id) ? " next" : "") + '" data-mode="' + m.id + '">' +
+        '<span class="r-no">' + m.no + '</span><span class="r-copy"><b>' + esc(m.name) + "</b><small>" + esc(m.verb) + "</small></span>" +
+        '<span class="r-state">' + (done ? "✓" : m.id === next.id ? "next" : "") + "</span></button>";
     }).join("");
     $("chapter-readings").querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => startReading(id, b.dataset.mode)));
     const startMode = chapterDone(id) ? MODES[0] : next;
-    $("chapter-start").innerHTML = (state.settings.drive ? CAR_ICON + " Play " : chapterDone(id) ? "Read again: " : "Begin reading " + startMode.no + ": ") + esc(startMode.name) + " <b>→</b>";
+    $("chapter-start").innerHTML = (state.settings.drive ? "🚗 Play " : chapterDone(id) ? "Read again: " : "Begin reading " + startMode.no + ": ") + esc(startMode.name) + " <b>→</b>";
     $("chapter-start").onclick = () => startReading(id, startMode.id);
     show("chapter", opts);
-    popup($("chapter-stage"), { scene: sceneFor(lesson), objects: artForLesson(lesson), guide: "wave", caption: lesson.section });
+    popup($("chapter-stage"), { bg: backdropFor(lesson), objects: artForLesson(lesson), caption: lesson.section });
   }
 
   // ---- building each reading from real content -----------------------------------
@@ -496,15 +410,6 @@
     };
   }
 
-  // side trips pick the scene that fits where they happen
-  function tripScene(trip) {
-    const place = String((trip && (trip.place + " " + trip.title)) || "").toLowerCase();
-    if (/station|train|taxi|getting around|travel/.test(place)) return "station";
-    if (/caf|restaurant|shop|store|order|pharmacy|hotel|reception/.test(place)) return "shop";
-    if (/friend|plans|small talk/.test(place)) return "park";
-    return "street";
-  }
-
   // ---- a reading session ---------------------------------------------------------
   let session = null;
   function startReading(lessonId, modeId) {
@@ -566,25 +471,17 @@
     const item = s.items[s.index];
     const lesson = item.lesson || s.lesson;
     if (s.mode.id === "moment") return renderTurn(item);
-    popup($("reading-stage"), { scene: sceneFor(lesson), objects: itemArt(item), guide: "think" });
+    popup($("reading-stage"), { bg: backdropFor(lesson), objects: itemArt(item), guide: "think" });
     if (item.kind === "recall") renderRecall(item);
     else if (item.kind === "listen") renderListen(item);
     else if (item.kind === "build") renderBuild(item);
     else renderPattern(item);
   }
-  // fold the spread flat, turn the page, pop the next one up
   function nextItem() {
     stopAudio();
-    const mine = session;
-    const go = () => {
-      if (session !== mine) return;
-      session.index++;
-      if (!reduceMotion) turnPage(false);
-      renderItem();
-    };
-    if (reduceMotion) { go(); return; }
-    foldStage($("reading-stage"));
-    setTimeout(go, 230);
+    session.index++;
+    if (!reduceMotion) turnPage(false);
+    renderItem();
   }
 
   // the pull-tab: the answer slides out from behind the illustration
@@ -614,7 +511,6 @@
       recordAttempt(item.id, b.dataset.grade);
       session.said++;
       if (b.dataset.grade === "good") setGuide($("reading-stage"), "thumbs");
-      else if (b.dataset.grade === "again") setGuide($("reading-stage"), "think");
       // advance only the reading this grade belongs to (Back may have closed it)
       const mine = session;
       if (reduceMotion) nextItem();
@@ -668,7 +564,7 @@
       if (!ok) b.classList.add("wrong");
       recordAttempt(item.id, ok ? "good" : "again");
       session.said++;
-      popup($("reading-stage"), { scene: sceneFor(item.lesson), objects: artForSentence(s, item.lesson), guide: ok ? "thumbs" : "think" });
+      popup($("reading-stage"), { bg: backdropFor(item.lesson), objects: artForSentence(s, item.lesson), guide: ok ? "thumbs" : "think" });
       $("feedback").hidden = false;
       $("feedback").className = "feedback " + (ok ? "good" : "again");
       $("feedback").innerHTML = "<strong>" + (ok ? "You caught it." : "Here's what you heard.") + '</strong><div class="jp">' + rubyHTML(s.jp) + "</div>" +
@@ -726,8 +622,8 @@
     const right = turn.choices.find((c) => c.correct);
     const taught = right && s.lesson && (s.lesson.sentences || []).find((x) => x.jp === right.jp);
     popup($("reading-stage"), {
-      scene: s.lesson ? sceneFor(s.lesson) : tripScene(s.trip),
-      objects: taught ? artForWords(taught.words).slice(0, 2) : [], guide: s.index === 0 ? "wave" : "think", bubble: turn.them ? turn.them.jp : "",
+      bg: s.lesson ? backdropFor(s.lesson) : STORY + "bg-street.jpg",
+      objects: taught ? artForWords(taught.words).slice(0, 2) : [], guide: "think", bubble: turn.them ? turn.them.jp : "",
       caption: convo.sceneTitle,
     });
     $("reading-body").innerHTML =
@@ -790,11 +686,12 @@
       save();
       chapterStamped = !had && chapterDone(s.lesson.id);
     }
-    popup($("reading-stage"), { scene: s.lesson ? sceneFor(s.lesson) : tripScene(s.trip), objects: s.lesson ? artForLesson(s.lesson) : [], guide: "cheer" });
+    const bg = s.lesson ? backdropFor(s.lesson) : STORY + "bg-street.jpg";
+    popup($("reading-stage"), { bg, objects: s.lesson ? artForLesson(s.lesson) : [], guide: "cheer" });
     const nextMode = s.lesson && !chapterDone(s.lesson.id) ? nextModeFor(s.lesson.id) : null;
     const after = chapterStamped ? nextLesson() : null;
     $("reading-body").innerHTML =
-      '<div class="finish' + (chapterStamped ? " big" : "") + (reduceMotion ? "" : " slam") + '">' +
+      '<div class="finish' + (chapterStamped ? " big" : "") + '">' +
         '<span class="hanko' + (reduceMotion ? "" : " stamping") + '" aria-hidden="true">' + (chapterStamped ? "済" : s.mode.no) + "</span>" +
         "<span class=\"kicker\">" + (s.review ? "Second look done" : s.trip ? "Side trip done" : chapterStamped ? "Chapter page stamped" : "Reading " + s.mode.no + " done") + "</span>" +
         "<h2>" + (chapterStamped ? "よくできました！" : s.mode.id === "moment" ? "You kept it moving." : "Page finished.") + "</h2>" +
@@ -805,7 +702,6 @@
       (nextMode ? '<button class="primary" id="finish-next">Next: ' + nextMode.no + " · " + esc(nextMode.name) + " <b>→</b></button>" : "") +
       (after ? '<button class="primary" id="finish-after">Turn to: ' + esc(after.title) + " <b>→</b></button>" : "") +
       '<button class="quiet" id="finish-back">' + (s.lesson && !s.review && !s.trip ? "Back to the chapter" : "Back to contents") + "</button>";
-    if (chapterStamped) setTimeout(confetti, reduceMotion ? 0 : 420);
     if (nextMode) $("finish-next").onclick = () => startReading(s.lesson.id, nextMode.id);
     if (after) $("finish-after").onclick = () => openChapter(after.id);
     $("finish-back").onclick = closeReading;
@@ -842,8 +738,7 @@
     $("reading-dots").innerHTML = "";
     $("reading-page").textContent = "";
     $("reading-body").innerHTML =
-      '<div class="drive-panel"><span class="kicker">' + CAR_ICON + ' Driving mode · Japanese only</span>' +
-        '<div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>' +
+      '<div class="drive-panel"><span class="kicker">🚗 Driving mode · Japanese only</span>' +
         '<p class="drive-cue" id="drive-cue">Starting…</p><div class="drive-jp" id="drive-jp"></div>' +
         '<div class="drive-count" id="drive-count"></div>' +
         '<div class="drive-buttons"><button class="drive-big" id="drive-pause">Pause</button><button class="quiet" id="drive-stop">Stop</button></div>' +
@@ -920,7 +815,7 @@
     $("review-due").innerHTML = "Second look: " + due + " page" + (due === 1 ? "" : "s") + " <b>→</b>";
     $("stamp-count").textContent = stamped.length + " of " + order.length;
     $("stamps").innerHTML = stamped.length
-      ? stamped.map((l) => '<button class="stamp" data-lesson="' + esc(l.id) + '">' + plateHTML(l) + '<span class="hanko small">済</span><small>' + esc(l.title) + "</small></button>").join("")
+      ? stamped.map((l) => '<button class="stamp" data-lesson="' + esc(l.id) + '"><img src="' + coverOf(l) + '" alt=""><span class="hanko small">済</span><small>' + esc(l.title) + "</small></button>").join("")
       : '<p class="fine">Finish all four readings of a page and its stamp lands here.</p>';
     $("stamps").querySelectorAll("[data-lesson]").forEach((b) => b.addEventListener("click", () => openChapter(b.dataset.lesson)));
     $("romaji-setting").value = state.settings.romaji;
@@ -930,14 +825,7 @@
   document.addEventListener("click", (e) => {
     const b = e.target.closest && e.target.closest("button");
     if (!b) return;
-    if (b.dataset.say) {
-      say(b.dataset.say);
-      // a tapped cut-out twirls like a sheet of paper
-      if (b.classList.contains("pop-cut") && !reduceMotion) {
-        b.classList.remove("spin"); void b.offsetWidth; b.classList.add("spin");
-        setTimeout(() => b.classList.remove("spin"), 650);
-      }
-    }
+    if (b.dataset.say) say(b.dataset.say);
     else if (b.dataset.saySlow) say(b.dataset.saySlow, true);
     else if (b.id === "chips-toggle") { const c = $("chips"); c.hidden = !c.hidden; b.textContent = c.hidden ? "Words ＋" : "Words −"; }
   });
@@ -959,10 +847,6 @@
     else if (b.dataset.nav === "journal") { renderJournal(); show("journal"); }
     else { const l = nextLesson(); openChapter(l.id); }
   }));
-
-  // the cover's pop-up plate: the shopping street, もち子 waving from it
-  const coverPlate = $("cover-plate");
-  if (coverPlate) popup(coverPlate, { scene: "street", objects: ["train"], guide: "wave" });
 
   // first visit opens on the cover; after that, straight to the contents
   if (state.opened) { renderContents(); show("contents", { instant: true }); }

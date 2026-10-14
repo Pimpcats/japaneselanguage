@@ -14,7 +14,7 @@ const manifest = JSON.parse(read("audio/manifest.json"));
 // scripts may carry a ?v= cache-buster (the root service worker caches /living-city/ too)
 const inline = (src, file) => src.replace(new RegExp('<script src="' + file.replace(/^living-city\//, "").replace(/\./g, "\\.") + '(\\?v=[^"]*)?"></script>'), () => "<script>" + read(file.replace(/^\.\.\//, "")) + "</script>");
 let html = read("living-city/index.html").replace(/<link[^>]+>/g, "");
-for (const f of ["../lessons.js", "../studio-preview/content-overrides.js", "living-city/data.js", "living-city/paper-art.js", "living-city/app.js"]) html = inline(html, f);
+for (const f of ["../lessons.js", "../studio-preview/content-overrides.js", "living-city/data.js", "living-city/app.js"]) html = inline(html, f);
 assert.ok(!/<script src=/.test(html), "every script should be inlined for the test");
 
 const played = [];
@@ -61,13 +61,7 @@ assert.ok(canDo.sentences.some((s) => s.jp === "にほんごが はなせます�
 click("#bookmark-open");
 assert.equal(active(), "chapter", "The bookmark opens its chapter page");
 assert.equal($$("#chapter-readings [data-mode]").length, 4, "Four readings per chapter");
-assert.ok($("#chapter-stage .popup .pop-back .scene-svg"), "The chapter opens on a papercraft pop-up scene");
-assert.ok($("#chapter-stage .pop-guide .puppet"), "もち子 is the paper puppet");
-assert.equal($$("img").length, 0, "Every picture is drawn paper art — no raster images");
-const art = window.PAPER_ART;
-const artTargets = new Set(Object.values(window.BOOK_DATA.art));
-assert.deepEqual([...artTargets].filter((k) => !art.objects[k]), [], "Every art-map target has a paper cut-out");
-assert.ok(Object.values(window.BOOK_DATA.backdrops).every((k) => art.scenes[k]), "Every section's scene exists");
+assert.ok($("#chapter-stage .popup .pop-back"), "The chapter opens on a pop-up scene");
 
 // ---- reading 1: Recall (first lesson)
 const first = B.order[0];
@@ -150,17 +144,6 @@ click("#show-choices");
 assert.equal($$("#turn-choices [data-pick]").length, 2);
 click("#reading-back");
 assert.equal(active(), "contents");
-
-// ---- tapping a cut-out says its word
-click('[data-nav="contents"]');
-click('#toc [data-lesson="cafe"]');
-const cut = $("#chapter-stage .pop-row button.pop-cut[data-say]");
-assert.ok(cut, "Cut-outs that stand for a word are tappable");
-const before = played.length;
-cut.click();
-await tick(20);
-assert.ok(played.length > before, "Tapping a cut-out plays its word");
-click("#chapter-back");
 
 // ---- journal
 click('[data-nav="journal"]');

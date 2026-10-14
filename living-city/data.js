@@ -245,13 +245,27 @@ window.BOOK_DATA = {
     "day off": "park",
     "drinking party": "beer"
   },
-  // lesson section → the papercraft scene (paper-art.js → scenes) behind the pop-ups
+  // lesson section → painted backdrop behind the pop-ups
   backdrops: {
-    "The Sounds": "street", "First Contact": "street", "Getting Things": "shop", "Doing Things": "room",
-    "Daily Life": "room", "The Past": "park", "Wants & Plans": "street", "Describing Things": "park",
-    "The て-form": "room", "Linking Ideas": "street", "Finding Your Way": "street", "Tickets & Trouble": "station",
-    "Talking Casually": "shop", "Reacting & Relating": "park", "If & Necessity": "room",
-    "Plans & Impressions": "station", "Things Happen to You": "street", "Explaining & Nuance": "room",
-    "Keigo & Politeness": "shop", "Native Connectives": "room"
+    "The Sounds": "bg-street.jpg",
+    "First Contact": "bg-street.jpg",
+    "Getting Things": "bg-shop.jpg",
+    "Doing Things": "bg-room.jpg",
+    "Daily Life": "bg-room.jpg",
+    "The Past": "bg-room.jpg",
+    "Wants & Plans": "bg-street.jpg",
+    "Describing Things": "bg-street.jpg",
+    "The て-form": "bg-room.jpg",
+    "Linking Ideas": "bg-street.jpg",
+    "Finding Your Way": "bg-street.jpg",
+    "Tickets & Trouble": "bg-street.jpg",
+    "Talking Casually": "bg-shop.jpg",
+    "Reacting & Relating": "bg-onsen.jpg",
+    "If & Necessity": "bg-room.jpg",
+    "Plans & Impressions": "bg-aquarium.jpg",
+    "Things Happen to You": "bg-street.jpg",
+    "Explaining & Nuance": "bg-room.jpg",
+    "Keigo & Politeness": "bg-shop.jpg",
+    "Native Connectives": "bg-room.jpg"
   }
 };
