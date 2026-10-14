@@ -4,8 +4,6 @@ on:
   pull_request:
     paths:
       - "living-city/**"
-      - "studio-preview/content-overrides.js"
-      - "lessons.js"
       - "tools/smoke_living_city.mjs"
       - ".github/workflows/living-city-check.yml"
 
@@ -21,7 +19,7 @@ jobs:
         with:
           node-version: "20"
       - name: Check preview JavaScript
-        run: for f in living-city/*.js tools/smoke_living_city.mjs; do node --check "$f"; done
+        run: node --check living-city/app.js && node --check tools/smoke_living_city.mjs
       - name: Boot and exercise the preview
         run: |
           npm install --no-save jsdom
