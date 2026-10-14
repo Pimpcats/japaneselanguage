@@ -2011,7 +2011,6 @@ window.BOOK_SCENES = {
  },
  "does-this-go": {
   "postcard": "bg-station",
-  "postcardNew": true,
   "world": [
    {
     "art": "train",
@@ -2157,7 +2156,6 @@ window.BOOK_SCENES = {
  },
  "tickets": {
   "postcard": "bg-station",
-  "postcardNew": true,
   "world": [
    {
     "art": "ticket",
@@ -2652,13 +2650,11 @@ window.BOOK_SCENES = {
  },
  "kenjougo": {
   "postcard": "bg-office",
-  "postcardNew": true,
   "world": [],
   "pages": []
  },
  "business-keigo": {
   "postcard": "bg-office",
-  "postcardNew": true,
   "world": [],
   "pages": []
  },
@@ -2679,7 +2675,6 @@ window.BOOK_SCENES = {
  },
  "ni-oite": {
   "postcard": "bg-office",
-  "postcardNew": true,
   "world": [],
   "pages": []
  },
