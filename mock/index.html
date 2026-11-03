@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <base href="../" />
+    <title>はなそう — theme preview</title>
+    <meta name="description" content="Learn to speak Japanese with spaced-repetition sentence drills." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#faf6ec" />
+    <link rel="icon" href="icon-192.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="はなそう" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=43" />
+    <link rel="stylesheet" href="mock/theme.css?v=4" />
+    <script>
+    // PREVIEW SANDBOX — keeps this themed copy from touching the live app's
+    // saved progress or hijacking its service worker. Real app is untouched.
+    (function () {
+      try {
+        var real = window.localStorage, P = "preview:";
+        var keys = function () { return Object.keys(real).filter(function (k) { return k.indexOf(P) === 0; }); };
+        var store = {
+          getItem: function (k) { return real.getItem(P + k); },
+          setItem: function (k, v) { real.setItem(P + k, v); },
+          removeItem: function (k) { real.removeItem(P + k); },
+          clear: function () { keys().forEach(function (k) { real.removeItem(k); }); },
+          key: function (i) { return keys()[i] || null; },
+          get length() { return keys().length; }
+        };
+        Object.defineProperty(window, "localStorage", { configurable: true, get: function () { return store; } });
+      } catch (e) {}
+      try {
+        Object.defineProperty(navigator, "serviceWorker", {
+          configurable: true,
+          get: function () { return { register: function () { return Promise.reject(new Error("preview")); }, addEventListener: function () {}, controller: null }; }
+        });
+      } catch (e) {}
+    })();
+    </script>
+  </head>
+  <body>
+    <div style="background:#4a3328;color:#fff2e0;font-size:.8rem;text-align:center;padding:.45rem .8rem;font-family:'Zen Maru Gothic',sans-serif">
+      🎨 <b>Theme preview</b> — the full app in the new look. Progress here is sandboxed; your real data is untouched. <a href="index.html" style="color:#f2be45;font-weight:700">live app →</a>
+    </div>
+    <main id="app">
+      <header id="topbar">
+        <button id="back-btn" class="icon-btn" hidden aria-label="Back">←</button>
+        <h1 id="app-title">はなそう</h1>
+        <div id="topbar-right">
+          <button id="daily-ring" class="daily-ring" hidden aria-label="Daily goal">
+            <svg viewBox="0 0 36 36" aria-hidden="true">
+              <defs>
+                <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="var(--accent)" />
+                  <stop offset="100%" stop-color="var(--accent-2)" />
+                </linearGradient>
+              </defs>
+              <circle class="ring-track" cx="18" cy="18" r="15.915"></circle>
+              <circle class="ring-fill" cx="18" cy="18" r="15.915"></circle>
+            </svg>
+            <span class="ring-label"></span>
+          </button>
+          <button id="settings-btn" class="icon-btn" aria-label="Settings">⚙</button>
+        </div>
+      </header>
+
+      <div id="mastery" class="mastery" hidden aria-label="Course mastery">
+        <span class="mastery-tag">mastery</span>
+        <div class="mastery-bar"><i id="mastery-fill"></i></div>
+        <span id="mastery-pct" class="mastery-pct"></span>
+      </div>
+
+      <!-- ============ HOME / LESSON MAP ============ -->
+      <section id="home" class="screen">
+        <details id="howit" class="howit">
+          <summary>How it works <span class="howit-chev">▾</span></summary>
+          <div class="howit-body">
+            <p>Each card shows an English line — say it in Japanese, then tap <b>reveal &amp; hear</b> to check against the model answer and audio.</p>
+            <p>Grade yourself honestly: <b>nope</b>, <b>kind of</b>, or <b>got it</b>. That's how the app decides what to show you next.</p>
+            <p>Anything you mark <b>nope</b> or <b>kind of</b> lands in <b>🎯 weak cards</b> and comes back each day until you finally <b>get it</b>.</p>
+            <p>The <b>mastery</b> bar up top tracks how much of the course you've locked in.</p>
+          </div>
+        </details>
+        <details id="structure" class="howit">
+          <summary>Sentence structure <span class="howit-chev">▾</span></summary>
+          <div class="howit-body">
+            <p>Japanese sentences are built around one rule: <b>the verb goes last</b>. Everything before it just adds detail, and each detail wears a little tag — a <b>particle</b> — that says what role it plays.</p>
+            <div class="str-diagram">
+              <div class="str-row"><span class="str-role">who it's about</span><span class="str-prt">は <small>wa</small></span></div>
+              <div class="str-row"><span class="str-role">the thing acted on</span><span class="str-prt">を <small>o</small></span></div>
+              <div class="str-row"><span class="str-role">destination / time</span><span class="str-prt">に <small>ni</small></span></div>
+              <div class="str-row"><span class="str-role">where it happens / by what</span><span class="str-prt">で <small>de</small></span></div>
+              <div class="str-row"><span class="str-role">starting point</span><span class="str-prt">から <small>kara</small></span></div>
+              <div class="str-row"><span class="str-role">together with</span><span class="str-prt">と <small>to</small></span></div>
+              <div class="str-verb">… then the <b>verb</b> 🎯</div>
+            </div>
+            <p>For example: <span class="str-ex"><span class="ck pos-n">タロウ</span><span class="ck pos-prt">は</span> <span class="ck pos-n">としょかん</span><span class="ck pos-prt">に</span> <span class="ck pos-v">いきました</span></span> — "Tarō went to the library." <b>は</b> marks who it's about, <b>に</b> marks where to, and the verb closes the sentence.</p>
+            <p>Because the particles carry the meaning, the order of the middle parts is flexible — only the verb's spot is fixed. When you drill cards, the colors in the answer match these roles.</p>
+          </div>
+        </details>
+        <div id="stats" class="stats"></div>
+        <div id="immersion" hidden></div>
+        <button id="review-btn" class="primary review-btn" hidden></button>
+        <div id="review-sub" class="review-sub" hidden></div>
+        <div id="mining" hidden></div>
+        <button id="focus-btn" class="primary review-btn" hidden></button>
+        <div id="lesson-map"></div>
+      </section>
+
+      <!-- ============ LESSON INTRO ============ -->
+      <section id="lesson-intro" class="screen" hidden>
+        <div class="label">Lesson</div>
+        <h2 id="lesson-title"></h2>
+        <div id="lesson-grammar" class="lesson-grammar"></div>
+        <p id="lesson-note" class="lesson-note"></p>
+
+        <div class="label">Words in this lesson <span class="tap-hint">tap to hear</span></div>
+        <div id="vocab-list" class="vocab-list"></div>
+
+        <div class="intro-actions">
+          <button id="start-btn" class="primary">Start practice →</button>
+          <button id="build-btn" class="secondary">🧩 Build the sentence</button>
+          <button id="build-hard-btn" class="secondary" title="No English — rebuild from audio, with decoy words mixed in">🔥 Build — hard mode</button>
+        </div>
+      </section>
+
+      <!-- ============ DRILL ============ -->
+      <section id="drill" class="screen" hidden>
+        <div id="progress-bar"><div id="progress-fill"></div></div>
+        <div id="combo" class="combo" hidden></div>
+
+        <div id="card">
+          <div id="prompt-label" class="label">Say this in Japanese</div>
+          <div id="prompt-en">…</div>
+
+          <div id="hint-row" hidden>
+            <button id="show-hint-btn" class="link">show hint</button>
+            <div id="hint" hidden></div>
+          </div>
+
+          <div id="build-area" hidden>
+            <div id="build-answer" class="build-answer"></div>
+            <div id="build-bank" class="build-bank"></div>
+            <button id="build-reset" class="link" hidden>↺ start over</button>
+          </div>
+
+          <div id="reveal-area" hidden>
+            <div id="reveal-label" class="label">Model answer</div>
+            <div id="answer-kana"></div>
+            <div id="answer-romaji"></div>
+            <div id="word-breakdown" class="word-breakdown"></div>
+          </div>
+        </div>
+
+        <div id="controls">
+          <button id="reveal-btn" class="primary">🎌 reveal &amp; hear</button>
+          <button id="replay-btn" class="secondary" hidden>🔁 again</button>
+          <button id="slow-btn" class="secondary" hidden>🐢 slow</button>
+          <button id="mine-this-btn" class="secondary" hidden title="Save to My sentences">★ mine</button>
+          <button id="retire-btn" class="secondary" hidden title="Stop reviewing this — send it back to its lesson as new">↩ lesson</button>
+        </div>
+
+        <div id="grade" hidden>
+          <div class="label">How did that go?</div>
+          <div class="grade-row">
+            <button data-grade="0" class="grade nope">nope<small class="grade-days"></small></button>
+            <button data-grade="1" class="grade kinda">kinda<small class="grade-days"></small></button>
+            <button data-grade="2" class="grade got">got it<small class="grade-days"></small></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SETTINGS ============ -->
+      <section id="settings" class="screen" hidden>
+        <h2 class="settings-h">Settings</h2>
+
+        <div class="setting-group">
+          <div class="label">Display</div>
+          <label class="setting-row" for="romaji-toggle">
+            <span class="setting-name">Show romaji<small>Latin reading under the Japanese</small></span>
+            <input type="checkbox" id="romaji-toggle" class="switch" />
+          </label>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Practice direction</div>
+          <span class="setting-name">What you drill<small>Produce = see English, say Japanese. Recognize = see Japanese, recall the meaning.</small></span>
+          <select id="direction-select" class="select">
+            <option value="produce">Produce (English → Japanese)</option>
+            <option value="recognize">Recognize (Japanese → meaning)</option>
+            <option value="both">Both (alternate each card)</option>
+          </select>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Daily goal</div>
+          <span class="setting-name">Reviews per day<small>Fills your streak ring</small></span>
+          <select id="goal-select" class="select">
+            <option value="5">5 reviews</option>
+            <option value="10">10 reviews</option>
+            <option value="15">15 reviews</option>
+            <option value="20">20 reviews</option>
+            <option value="30">30 reviews</option>
+            <option value="50">50 reviews</option>
+          </select>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Audio</div>
+          <span class="setting-name">Fallback voice<small>Answers use a built-in voice; this device voice fills in if a clip is missing</small></span>
+          <select id="voice-select" class="select"></select>
+          <button id="voice-test-btn" class="secondary small">🔈 Test voice</button>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Sync</div>
+          <p id="sync-status" class="setting-status"></p>
+          <button id="sync-connect-btn" class="secondary small">☁ Set up sync</button>
+          <button id="sync-disconnect-btn" class="secondary small danger" hidden>Disconnect sync on this device</button>
+        </div>
+
+        <div class="setting-group">
+          <div class="label">Data</div>
+          <button id="reset-btn" class="secondary small danger">Reset all progress</button>
+        </div>
+      </section>
+
+      <!-- ============ ADD A MINED SENTENCE ============ -->
+      <section id="mine-form" class="screen" hidden>
+        <div class="label">Mining</div>
+        <h2 class="settings-h">Add a sentence</h2>
+        <p class="lesson-note">Heard or read a line you liked? Add it here and it joins your spaced-repetition reviews — with audio, just like the lessons.</p>
+
+        <div class="setting-group">
+          <label class="mine-field" for="mine-jp">
+            <span class="setting-name">Japanese<small>Kana or kanji — required. For furigana, write kanji[reading], e.g. 漢字[かんじ]</small></span>
+            <textarea id="mine-jp" class="mine-input" rows="2" placeholder="例：もう一度[いちど]お願[ねが]いします。" autocapitalize="off"></textarea>
+          </label>
+          <label class="mine-field" for="mine-en">
+            <span class="setting-name">Meaning<small>Shown as the prompt to translate — required</small></span>
+            <input id="mine-en" class="mine-input" type="text" placeholder="e.g. One more time, please." />
+          </label>
+          <label class="mine-field" for="mine-romaji">
+            <span class="setting-name">Romaji<small>Optional</small></span>
+            <input id="mine-romaji" class="mine-input" type="text" placeholder="mō ichido onegai shimasu" autocapitalize="off" />
+          </label>
+          <label class="mine-field" for="mine-hint">
+            <span class="setting-name">Hint<small>Optional — a nudge you can reveal while drilling</small></span>
+            <input id="mine-hint" class="mine-input" type="text" placeholder="どこで聞いた？文脈など" />
+          </label>
+          <p id="mine-error" class="mine-error" hidden></p>
+        </div>
+
+        <div id="controls">
+          <button id="mine-furi-btn" class="secondary" title="Auto-generate furigana for the Japanese above">✨ furigana</button>
+          <button id="mine-preview-btn" class="secondary">🔈 hear it</button>
+          <button id="mine-cancel-btn" class="secondary">cancel</button>
+          <button id="mine-save-btn" class="primary">save sentence</button>
+        </div>
+      </section>
+
+      <!-- ============ IMPORT ============ -->
+      <section id="import-form" class="screen" hidden>
+        <div class="label">Mining</div>
+        <h2 class="settings-h">Import sentences</h2>
+        <p class="lesson-note">Paste rows exported from Migaku, Anki, or a spreadsheet. One sentence per line, fields separated by a <strong>Tab</strong> (or comma):<br><code>Japanese&nbsp;⇥&nbsp;Meaning&nbsp;⇥&nbsp;Reading</code><br>Only the first two are required. Migaku-style <code>kanji[reading]</code> furigana in the Japanese column is kept.</p>
+
+        <div class="setting-group">
+          <label class="mine-field" for="import-text">
+            <span class="setting-name">Paste here<small>Tab- or comma-separated, one per line</small></span>
+            <textarea id="import-text" class="mine-input" rows="8" placeholder="昨日[きのう]映画[えいが]を見[み]た。	I watched a movie yesterday.	kinō eiga o mita" autocapitalize="off"></textarea>
+          </label>
+          <p id="import-status" class="lesson-note"></p>
+          <p id="import-error" class="mine-error" hidden></p>
+        </div>
+
+        <div id="controls">
+          <button id="import-cancel-btn" class="secondary">cancel</button>
+          <button id="import-do-btn" class="primary" disabled>import</button>
+        </div>
+      </section>
+
+      <!-- ============ READER ============ -->
+      <section id="reader" class="screen" hidden>
+        <div class="label">Immersion</div>
+        <h2 class="settings-h">Reader</h2>
+        <p class="lesson-note">Paste anything in Japanese — an article, subtitles, a chat. Each word is colored by whether you know it; tap a word for its reading, mark it known, or mine its sentence into your reviews.</p>
+
+        <div class="setting-group">
+          <label class="mine-field" for="reader-input">
+            <span class="setting-name">Paste Japanese text<small>Then tap Analyze — the dictionary loads once when online</small></span>
+            <textarea id="reader-input" class="mine-input" rows="5" placeholder="日本語の文章をここに貼り付けてください。" autocapitalize="off"></textarea>
+          </label>
+          <p id="reader-error" class="mine-error" hidden></p>
+        </div>
+
+        <div id="controls">
+          <button id="reader-clear-btn" class="secondary">clear</button>
+          <button id="reader-analyze-btn" class="primary">analyze</button>
+        </div>
+
+        <div id="reader-result" hidden>
+          <div id="reader-coverage" class="reader-coverage"></div>
+          <div id="reader-learn" class="reader-learn"></div>
+          <div id="reader-text" class="reader-text"></div>
+          <p class="reader-legend"><span class="rt-tok unknown">unknown</span> <span class="rt-tok known">known</span> · tap a word to look it up or mark it known</p>
+        </div>
+      </section>
+
+      <div id="reader-pop" class="reader-pop" hidden></div>
+
+      <!-- ============ LESSON COMPLETE ============ -->
+      <section id="lesson-done" class="screen" hidden>
+        <div class="done-emoji">🎉</div>
+        <h2>Lesson complete</h2>
+        <p id="done-summary" class="lesson-note"></p>
+        <div class="done-actions">
+          <button id="done-home-btn" class="secondary">← all lessons</button>
+          <button id="restart-btn" class="primary">practice again</button>
+        </div>
+      </section>
+
+      <footer>
+        <button id="sync-btn" class="link">☁ set up sync</button>
+        <span id="voice-warn" hidden>⚠ no Japanese voice detected — try Chrome or install a Japanese TTS voice</span>
+      </footer>
+    </main>
+
+    <script src="lessons.js?v=43"></script>
+    <script src="app.js?v=43"></script>
+    <script src="mock/theme.js?v=7"></script>
+    <script src="collection.js?v=48"></script>
+  </body>
+</html>

@@ -1,0 +1,143 @@
+/* スタンプ帳 — the station stamp flip book + the stamp-press award moment. */
+
+/* ---- entry card on the Progress hub ---- */
+.sb-entry {
+  display: flex; align-items: center; gap: 0.9rem;
+  width: 100%; margin: 0 0 1rem; padding: 0.85rem 1rem;
+  background: #fff; color: var(--ink, #2a3143);
+  border: 2.5px solid var(--ink, #2a3143); border-radius: 14px;
+  box-shadow: 0 4px 0 rgba(32, 38, 58, 0.16);
+  font: inherit; text-align: left; cursor: pointer;
+}
+.sb-entry:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(32, 38, 58, 0.16); }
+.sb-entry-book {
+  flex: 0 0 auto; width: 2.4rem; height: 3.1rem; position: relative;
+  background: #2b3a67; border-radius: 3px 7px 7px 3px;
+  box-shadow: inset -4px 0 0 rgba(0, 0, 0, 0.18);
+}
+.sb-entry-book i {
+  position: absolute; top: 0.4rem; left: 50%; transform: translateX(-50%);
+  width: 0.9rem; height: 1.7rem; background: #d9a441; border-radius: 2px;
+}
+.sb-entry-text { flex: 1; display: flex; flex-direction: column; gap: 0.15rem; }
+.sb-entry-text b { font-size: 1rem; }
+.sb-entry-text small { color: var(--ink-soft, #667); font-size: 0.8rem; }
+.sb-entry-go { font-size: 1.2rem; font-weight: 700; }
+
+/* ---- the book overlay ---- */
+#stampbook-overlay {
+  position: fixed; inset: 0; z-index: 5000;
+  display: none; align-items: center; justify-content: center; flex-direction: column;
+  background: rgba(30, 34, 48, 0.78);
+  padding: 4vh 0;
+}
+#stampbook-overlay.open { display: flex; }
+.sb-close {
+  position: absolute; top: max(14px, env(safe-area-inset-top)); right: 16px;
+  width: 42px; height: 42px; border-radius: 50%;
+  border: 2.5px solid #fff; background: rgba(255, 255, 255, 0.12); color: #fff;
+  font-size: 1.1rem; font-weight: 700; cursor: pointer;
+}
+.sb-hint { margin-top: 1rem; color: rgba(255, 255, 255, 0.75); font-size: 0.85rem; }
+
+.sb-book {
+  width: min(86vw, 340px); aspect-ratio: 3 / 4.1;
+  perspective: 1600px; position: relative;
+}
+.sb-sheets { position: absolute; inset: 0; transform-style: preserve-3d; }
+.sb-sheet {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform 0.65s cubic-bezier(0.4, 0.1, 0.2, 1);
+  cursor: pointer;
+}
+.sb-sheet.turned { transform: rotateY(-178deg); }
+.sb-face {
+  position: absolute; inset: 0; overflow: hidden;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: 4px 14px 14px 4px;
+  background:
+    repeating-linear-gradient(2deg, rgba(138, 116, 84, 0.05) 0 2px, transparent 2px 7px),
+    linear-gradient(160deg, #f7f2e6, #efe7d4);
+  border: 1px solid rgba(84, 70, 50, 0.35);
+  box-shadow: inset 3px 0 8px rgba(84, 70, 50, 0.14);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.sb-back { transform: rotateY(180deg); border-radius: 14px 4px 4px 14px; box-shadow: inset -3px 0 8px rgba(84, 70, 50, 0.14); }
+
+/* cover: indigo cloth + gold title slip, like a real 御朱印帳 */
+.sb-sheet-cover .sb-front {
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.04) 0 3px, transparent 3px 9px),
+    linear-gradient(155deg, #33406e, #263153);
+  border: none;
+}
+.sb-cover { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; position: relative; width: 100%; height: 100%; justify-content: center; }
+.sb-cover-band {
+  position: absolute; top: 7%; left: 50%; transform: translateX(-50%);
+  width: 34%; height: 52%;
+  background: linear-gradient(170deg, #efe3c0, #e0cc96);
+  border: 2px solid #b89a55; border-radius: 3px;
+}
+.sb-cover b {
+  position: absolute; top: 11%; left: 50%; transform: translateX(-50%);
+  writing-mode: vertical-rl; letter-spacing: 0.35em;
+  color: #4a3a1c; font-size: 1.35rem;
+}
+.sb-cover small { position: absolute; bottom: 9%; color: rgba(255, 255, 255, 0.7); letter-spacing: 0.3em; font-size: 0.7rem; }
+.sb-inside { padding: 1.4rem; color: #5d5340; font-size: 0.92rem; line-height: 1.55; }
+
+/* a page slot */
+.sb-slot { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1rem; width: 100%; }
+.sb-slot-title { font-weight: 700; color: #4c4335; letter-spacing: 0.04em; }
+.sb-stamped { transform: rotate(var(--tilt, -2deg)); animation: sb-settle 0.45s ease; }
+.sb-stamped svg { display: block; mix-blend-mode: multiply; }
+.sb-date { font-family: var(--mono, monospace); font-size: 0.8rem; color: #8a5a4a; letter-spacing: 0.12em; }
+.sb-date-locked { color: #a99f8c; }
+.sb-empty {
+  width: 148px; height: 148px; border-radius: 50%;
+  border: 3px dashed rgba(132, 118, 94, 0.55);
+  display: flex; align-items: center; justify-content: center;
+}
+.sb-empty-num { font-size: 2rem; font-weight: 800; color: rgba(132, 118, 94, 0.5); }
+@keyframes sb-settle { from { transform: rotate(var(--tilt, -2deg)) scale(1.12); } }
+
+/* ---- award: the stamp is pressed ---- */
+#stamp-award {
+  position: fixed; inset: 0; z-index: 5200;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(30, 34, 48, 0);
+  transition: background 0.3s ease;
+}
+#stamp-award.show { background: rgba(30, 34, 48, 0.72); }
+.sa-card {
+  width: min(84vw, 330px);
+  background:
+    repeating-linear-gradient(2deg, rgba(138, 116, 84, 0.05) 0 2px, transparent 2px 7px),
+    linear-gradient(160deg, #f7f2e6, #efe7d4);
+  border-radius: 16px; border: 1px solid rgba(84, 70, 50, 0.4);
+  padding: 1.3rem 1.1rem 1.2rem;
+  display: flex; flex-direction: column; align-items: center; gap: 0.7rem;
+  transform: translateY(12px); opacity: 0; transition: all 0.3s ease;
+}
+#stamp-award.show .sa-card { transform: none; opacity: 1; }
+.sa-kicker { font-weight: 800; color: #4c4335; text-align: center; }
+.sa-pad { position: relative; }
+.sa-stamp { transform: scale(2.4) rotate(14deg); opacity: 0; }
+#stamp-award.show .sa-stamp {
+  animation: sa-press 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.15) 0.35s forwards;
+}
+.sa-stamp svg { display: block; mix-blend-mode: multiply; }
+@keyframes sa-press {
+  60% { transform: scale(0.94) rotate(-4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-3deg); opacity: 1; }
+}
+.sa-line { color: #7a6c54; font-size: 0.9rem; }
+.sa-view {
+  font: inherit; font-weight: 700; cursor: pointer;
+  padding: 0.6rem 1.1rem; border-radius: 12px;
+  border: 2.5px solid var(--ink, #2a3143); background: #fff; color: var(--ink, #2a3143);
+  box-shadow: 0 3px 0 rgba(32, 38, 58, 0.18);
+}
+body.sb-open { overflow: hidden; }

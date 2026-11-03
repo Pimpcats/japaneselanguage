@@ -1,0 +1,11 @@
+# Cloudflare Pages headers.
+# Always revalidate the app shell + service worker so a new deploy surfaces
+# immediately (the SW then manages offline caching of everything else).
+/index.html
+  Cache-Control: no-cache
+/sw.js
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache
+/audio/manifest.json
+  Cache-Control: no-cache

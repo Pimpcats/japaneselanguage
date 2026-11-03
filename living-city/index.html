@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f4a3b">
+<meta name="description" content="Hanasou — a pop-up book of everyday Japanese. Every chapter is read four ways: recall, listen, change, and use it.">
+<title>Hanasou — The Pop-up Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<link rel="stylesheet" href="styles.css?v=book5">
+<link rel="preload" as="image" href="../assets/story/bg-street.jpg">
+<link rel="preload" as="image" href="../assets/story/mochiko-think.png">
+</head>
+<body>
+<div class="book" id="book">
+
+  <!-- COVER -->
+  <section class="screen" id="cover" aria-label="Book cover">
+    <div class="cover-cloth">
+      <div class="cover-band"><span>話そう</span></div>
+      <div class="cover-plate"><img src="../assets/story/bg-street.jpg" alt="A painted Japanese shop street"></div>
+      <h1 class="cover-title">Hanasou</h1>
+      <p class="cover-sub">A pop-up book of everyday Japanese</p>
+      <p class="cover-four">Every page, read four ways<br><span>Recall · Listen · Change · Use</span></p>
+      <button class="cover-open" id="open-book">Open the book <b>→</b></button>
+    </div>
+  </section>
+
+  <!-- CONTENTS -->
+  <section class="screen" id="contents" aria-label="Contents">
+    <header class="page-head">
+      <button class="wordmark" id="to-cover" aria-label="Back to the cover"><span class="seal">話</span>hanasou</button>
+      <button class="drive-toggle" id="drive-toggle" aria-pressed="false"><span>🚗</span><b id="drive-label">Drive</b></button>
+    </header>
+    <p class="drive-note" id="drive-note" hidden>Driving mode is on: pages play as Japanese audio only — listen, say it back, hear it again. Start while parked.</p>
+    <article class="bookmark" id="bookmark"></article>
+    <p class="due-line" id="due-line" hidden></p>
+    <div class="toc-head"><span class="kicker">目次 · Contents</span></div>
+    <div class="toc" id="toc"></div>
+    <div class="toc-head"><span class="kicker">付録 · Side trips</span><small>Real-life conversations, any time</small></div>
+    <div class="toc toc-trips" id="trips"></div>
+    <p class="colophon">はなそう · speak first, the page can wait</p>
+  </section>
+
+  <!-- CHAPTER OPENER -->
+  <section class="screen" id="chapter" aria-label="Chapter">
+    <header class="read-head">
+      <button class="back" id="chapter-back" aria-label="Back to contents">←</button>
+      <span class="read-title" id="chapter-kicker">CHAPTER</span>
+      <span class="read-page" id="chapter-page"></span>
+    </header>
+    <div class="stage" id="chapter-stage"></div>
+    <h1 class="chapter-title" id="chapter-title"></h1>
+    <div class="grammar-card" id="chapter-grammar"></div>
+    <div class="readings" id="chapter-readings"></div>
+    <button class="primary" id="chapter-start"></button>
+  </section>
+
+  <!-- READING (one practice page at a time) -->
+  <section class="screen" id="reading" aria-label="Reading">
+    <header class="read-head">
+      <button class="back" id="reading-back" aria-label="Close this reading">←</button>
+      <span class="read-title" id="reading-title"></span>
+      <span class="read-page" id="reading-page"></span>
+    </header>
+    <div class="page-dots" id="reading-dots"></div>
+    <div class="stage" id="reading-stage"></div>
+    <div class="read-body" id="reading-body"></div>
+  </section>
+
+  <!-- JOURNAL -->
+  <section class="screen" id="journal" aria-label="Journal">
+    <header class="page-head"><span class="kicker">日々 · Your journal</span></header>
+    <h1 class="journal-title">Look how far<br><em>you've read.</em></h1>
+    <div class="week" id="week"></div>
+    <div class="tallies" id="tallies"></div>
+    <button class="primary" id="review-due" hidden></button>
+    <div class="toc-head"><span class="kicker">判子 · Stamped chapters</span><small id="stamp-count"></small></div>
+    <div class="stamps" id="stamps"></div>
+    <div class="toc-head"><span class="kicker">設定 · Settings</span></div>
+    <div class="settings">
+      <label>Romaji under Japanese
+        <select id="romaji-setting"><option value="show">Show</option><option value="hide">Hide</option></select>
+      </label>
+      <button class="quiet" id="reset-book">Reset this book's progress</button>
+      <p class="fine">This preview keeps its own progress. Your main Hanasou app is never touched.</p>
+    </div>
+  </section>
+
+  <div class="leaf" id="leaf" aria-hidden="true"></div>
+</div>
+
+<nav class="ribbons" id="ribbons" aria-label="Main">
+  <button data-nav="contents" class="active"><span>目次</span>Contents</button>
+  <button data-nav="continue"><span>栞</span>Continue</button>
+  <button data-nav="journal"><span>日々</span>Journal</button>
+</nav>
+
+<script src="../lessons.js"></script>
+<script src="../studio-preview/content-overrides.js"></script>
+<script src="data.js?v=book1"></script>
+<script src="scenes.js?v=book5"></script>
+<script src="app.js?v=book5"></script>
+</body>
+</html>

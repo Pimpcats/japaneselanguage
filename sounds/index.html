@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <title>はなそう — produced "got it" sounds</title>
+    <style>
+      :root { --ink:#4a3328; --gold:#f2be45; --sakura:#ef6fa7; --cream:#fff7ea; --cobalt:#2e5bcf; }
+      * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+      body { margin:0; min-height:100vh; padding:1.2rem 1rem 3rem; color:var(--ink);
+        background:var(--cream); font-family:ui-rounded,system-ui,sans-serif; }
+      h1 { font-size:1.3rem; text-align:center; color:var(--sakura); margin:0.2rem 0; }
+      p.sub { text-align:center; margin:0 0 1rem; font-size:.85rem; color:#9a7d63; }
+      .vol { max-width:480px; margin:0 auto 1.1rem; display:flex; align-items:center; gap:.6rem; font-size:.8rem; color:#9a7d63; }
+      .vol input { flex:1; }
+      .grid { max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:0.8rem; }
+      button.sfx { display:flex; align-items:center; gap:0.9rem; text-align:left; width:100%; font:inherit; cursor:pointer; color:var(--ink);
+        background:#fff; border:3px solid var(--ink); border-radius:20px; padding:1rem 1.1rem; box-shadow:0 6px 0 rgba(74,51,40,.16);
+        transition:transform .08s, box-shadow .08s; }
+      button.sfx:active { transform:translateY(5px); box-shadow:0 1px 0 rgba(74,51,40,.16); }
+      button.sfx.playing { background:var(--gold); }
+      .ico { width:3rem; height:3rem; flex:none; border-radius:50%; background:var(--sakura); color:#fff; display:grid; place-items:center;
+        font-size:1.3rem; border:3px solid var(--ink); box-shadow:0 3px 0 var(--ink); }
+      .name { font-weight:900; font-size:1.12rem; }
+      .desc { font-size:.8rem; color:#9a7d63; margin-top:.12rem; }
+      .info { display:flex; flex-direction:column; }
+      .footer { max-width:480px; margin:1.4rem auto 0; font-size:.85rem; color:#7a6a52; line-height:1.5; text-align:center; }
+    </style>
+  </head>
+  <body>
+    <h1>🎬 Produced "got it" sounds</h1>
+    <p class="sub">Tap a card to play it. (Tap once first to enable audio · iPhone: silent switch off.)</p>
+    <div class="vol"><span>🔈 volume</span><input id="vol" type="range" min="0" max="100" value="60" /></div>
+    <div class="grid" id="grid"></div>
+    <div class="footer">Like one? Tell me its name and I'll set it as the reward in the app (with tweaks if you want — brighter / shorter / softer).</div>
+
+    <script>
+    const SOUNDS = [
+      ["shimmer", "Shimmer",  "Magical glockenspiel + fairy sparkle"],
+      ["triumph", "Triumph",  "Brass fanfare + cymbal swell"],
+      ["winding", "Win Ding", "Polished bell-chord success ding"],
+      ["bloom",   "Bloom",    "Dreamy pad swell + soft bell — gentle"],
+      ["rise",    "Rise",     "Ascending riser that lands on a chord"],
+      ["glow",    "Glow",     "Warm electric-piano chord + shimmer"],
+    ];
+
+    let actx = null, masterVol = 0.6;
+    function ctx() { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); return actx; }
+    function reverb(master, wet, dur) {
+      const a = ctx(), pre = a.createDelay(); pre.delayTime.value = 0.025;
+      const conv = a.createConvolver(), len = Math.floor(a.sampleRate * dur), buf = a.createBuffer(2, len, a.sampleRate);
+      for (let ch = 0; ch < 2; ch++) { const d = buf.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.4); }
+      conv.buffer = buf; const w = a.createGain(); w.gain.value = wet; pre.connect(conv).connect(w).connect(master); return pre;
+    }
+    function fmVoice(dest, freq, t, dur, vol, ratio, index, idxEnd) {
+      const a = ctx(), car = a.createOscillator(), cg = a.createGain(), mod = a.createOscillator(), mg = a.createGain();
+      car.type = "sine"; car.frequency.value = freq; mod.type = "sine"; mod.frequency.value = freq * ratio;
+      mg.gain.setValueAtTime(freq * index, t); mg.gain.exponentialRampToValueAtTime(Math.max(1, freq * idxEnd), t + dur * 0.7);
+      mod.connect(mg).connect(car.frequency);
+      cg.gain.setValueAtTime(0.0001, t); cg.gain.exponentialRampToValueAtTime(vol, t + 0.006); cg.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      car.connect(cg).connect(dest); car.start(t); car.stop(t + dur + 0.05); mod.start(t); mod.stop(t + dur + 0.05);
+    }
+    function pad(dest, freqs, t, dur, vol) {
+      const a = ctx(), lp = a.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 1500; lp.Q.value = 0.6; lp.connect(dest);
+      freqs.forEach(f => [-8, 0, 8].forEach(c => { const o = a.createOscillator(), g = a.createGain(); o.type = "sawtooth"; o.frequency.value = f; o.detune.value = c;
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.16); g.gain.setValueAtTime(vol, t + dur - 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g).connect(lp); o.start(t); o.stop(t + dur + 0.05); }));
+    }
+    function noiseSwell(dest, t, dur, vol, freq) {
+      const a = ctx(), len = Math.floor(a.sampleRate * dur), buf = a.createBuffer(1, len, a.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      const s = a.createBufferSource(); s.buffer = buf; const bp = a.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = freq; bp.Q.value = 0.6; const g = a.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + dur * 0.25); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(bp).connect(g).connect(dest); s.start(t); s.stop(t + dur);
+    }
+    function sub(dest, freq, t, dur, vol) { const a = ctx(), o = a.createOscillator(), g = a.createGain(); o.type = "sine"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(dest); o.start(t); o.stop(t + dur + 0.05); }
+
+    const F = { C4:261.63,E4:329.63,G4:392,C5:523.25,D5:587.33,E5:659.25,G5:783.99,A4:440,B4:493.88,C6:1046.5,E6:1318.5,G6:1568 };
+
+    function play(kind) {
+      const a = ctx();
+      const master = a.createGain(); master.gain.value = masterVol;
+      const shaper = a.createWaveShaper(); const curve = new Float32Array(2048);
+      for (let i = 0; i < 2048; i++) { const x = (i / 1024) - 1; curve[i] = Math.tanh(1.7 * x); }
+      shaper.curve = curve; shaper.oversample = "2x"; master.connect(shaper).connect(a.destination);
+      const bus = a.createGain(); bus.gain.value = 0.9; bus.connect(master);
+      const t0 = a.currentTime + 0.03;
+
+      if (kind === "shimmer") {
+        const rev = reverb(master, 0.34, 1.7); bus.connect(rev);
+        sub(bus, F.C4/2, t0, 0.5, 0.22); pad(bus, [F.C4,F.E4,F.G4], t0, 1.7, 0.06);
+        [F.C5,F.E5,F.G5,F.C6].forEach((f,i)=>fmVoice(bus,f,t0+0.02+i*0.085,1.0-i*0.07,0.36,3.51,5,0.4));
+        [F.E6,F.G6,F.C6*2,F.E6*2].forEach((f,i)=>fmVoice(rev,f,t0+0.18+i*0.06,0.5,0.07,2.0,3,0.2));
+      } else if (kind === "triumph") {
+        const rev = reverb(master, 0.3, 1.6); bus.connect(rev);
+        sub(bus, F.C4/2, t0, 0.6, 0.26); noiseSwell(rev, t0, 1.4, 0.05, 7000);
+        const brass = (fs,t,dur,v) => fs.forEach(f=>fmVoice(bus,f,t,dur,v,1.0,2.2,0.6));
+        brass([F.G4,F.B4,F.D5],t0,0.18,0.16); brass([F.C5,F.E5,F.G5,F.C6],t0+0.22,1.0,0.18);
+        fmVoice(bus,F.C6,t0+0.22,1.0,0.18,3.51,4,0.4);
+        [F.E6,F.G6,F.C6*2].forEach((f,i)=>fmVoice(rev,f,t0+0.5+i*0.07,0.45,0.06,2.0,3,0.2));
+      } else if (kind === "winding") {
+        const rev = reverb(master, 0.4, 2.0); bus.connect(rev);
+        sub(bus, F.C4/2, t0, 0.5, 0.24);
+        [F.C5,F.E5,F.G5,F.C6,F.E6].forEach(f=>fmVoice(bus,f,t0,1.4,0.16,3.51,5,0.4));
+        [F.G6,F.C6*2].forEach((f,i)=>fmVoice(rev,f,t0+0.22+i*0.08,0.6,0.06,2.0,3,0.2));
+      } else if (kind === "bloom") {
+        const rev = reverb(master, 0.42, 2.0); bus.connect(rev);
+        pad(bus, [F.C4,F.E4,F.G4], t0, 1.9, 0.075);
+        [F.C5,F.E5,F.G5,F.C6].forEach(f=>fmVoice(bus,f,t0+0.05,1.5,0.16,2.0,3,0.3));
+        [F.E6,F.G6].forEach((f,i)=>fmVoice(rev,f,t0+0.45+i*0.12,0.7,0.05,2,2,0.2));
+      } else if (kind === "rise") {
+        const rev = reverb(master, 0.36, 1.8); bus.connect(rev);
+        // pitch riser
+        const o = a.createOscillator(), g = a.createGain(); o.type = "sawtooth";
+        o.frequency.setValueAtTime(180, t0); o.frequency.exponentialRampToValueAtTime(900, t0 + 0.5);
+        const lp = a.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2200;
+        g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(0.12, t0 + 0.45); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.62);
+        o.connect(g).connect(lp).connect(bus); o.start(t0); o.stop(t0 + 0.65);
+        // ascending bells then landing chord
+        [F.C5,F.E5,F.G5].forEach((f,i)=>fmVoice(bus,f,t0+i*0.09,0.5,0.18,3.51,4,0.35));
+        [F.C6,F.E6,F.G6].forEach(f=>fmVoice(bus,f,t0+0.52,1.1,0.16,3.51,5,0.4));
+        sub(bus, F.C4/2, t0+0.52, 0.5, 0.22);
+      } else if (kind === "glow") {
+        const rev = reverb(master, 0.3, 1.6); bus.connect(rev);
+        [F.C4,F.E4,F.G4,F.C5,F.E5,F.G5].forEach(f=>fmVoice(bus,f,t0,1.5,0.12,1.0,1.3,0.2));
+        [F.E6,F.G6,F.C6*2].forEach((f,i)=>fmVoice(rev,f,t0+0.3+i*0.08,0.5,0.05,2,2,0.2));
+      }
+    }
+
+    const grid = document.getElementById("grid");
+    for (const [kind, name, desc] of SOUNDS) {
+      const b = document.createElement("button");
+      b.className = "sfx";
+      b.innerHTML = '<span class="ico">▶</span><span class="info"><span class="name">' + name + '</span><span class="desc">' + desc + '</span></span>';
+      b.addEventListener("click", () => { play(kind); b.classList.add("playing"); setTimeout(() => b.classList.remove("playing"), 600); });
+      grid.appendChild(b);
+    }
+    document.getElementById("vol").addEventListener("input", (e) => { masterVol = e.target.value / 100; });
+    </script>
+  </body>
+</html>

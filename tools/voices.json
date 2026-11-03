@@ -1,0 +1,5 @@
+{
+  "_comment": "Single source of truth for VOICEVOX voices. 'default' speaks everything — cards, vocab, kana, learner lines. Add an entry under 'roles' to give a character their own voice (e.g. \"mochiko\": 20) — only lines tagged with that role change. Clip filenames hash voice+text, so editing this file and pushing to main regenerates exactly the affected clips in CI and swaps them atomically (one bot commit) — no manual deletion, no downtime. Common ids: 20 もち子さん, 14 冥鳴ひまり, 2 四国めたん, 3 ずんだもん, 8 春日部つむぎ, 10 雨晴はう, 13 青山龍星, 16 九州そら.",
+  "default": 14,
+  "roles": {}
+}
