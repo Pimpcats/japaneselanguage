@@ -31,6 +31,9 @@ const dom = new JSDOM(html, {
     window.matchMedia = (q) => ({ matches: /reduce/.test(q), media: q, addEventListener() {}, removeEventListener() {} });
     window.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve(manifest) });
     window.confirm = () => true;
+    window.__media = {};
+    Object.defineProperty(window.navigator, "mediaSession", { value: { setActionHandler: (a, fn) => { window.__media[a] = fn; }, metadata: null, playbackState: "none" } });
+    window.MediaMetadata = class { constructor(o) { Object.assign(this, o); } };
     window.Audio = class { constructor(src) { this.src = src; played.push(src); } play() { setTimeout(() => this.onended && this.onended(), 5); return Promise.resolve(); } pause() {} };
   },
 });
@@ -197,19 +200,53 @@ assert.ok(!/streak/i.test($("#journal").textContent), "No streak pressure");
 click('[data-nav="contents"]');
 click("#drive-toggle");
 assert.equal($("#drive-toggle").getAttribute("aria-pressed"), "true", "Driving mode turns on");
+B.state.drivePos = B.order[0].id;
 click("#bookmark-open");
-assert.equal(active(), "reading", "In driving mode the bookmark plays the page");
+assert.equal(active(), "reading", "In driving mode the bookmark starts the drive");
 assert.ok($(".drive-panel"), "Driving mode shows the hands-free panel");
-const list = B.drivePlaylist();
-assert.ok(list.length > 0, "Driving mode builds a playlist");
-assert.ok(list.filter((x) => x.jp).every((x) => /[ぁ-んァ-ン一-龯]/.test(x.jp)), "Driving mode only ever speaks Japanese");
+const d = B.drive();
+assert.ok(d && d.run, "The bookmark starts THE DRIVE (continuous), not a single page");
+assert.ok(d.list.length > 0, "The drive builds a playlist");
+assert.ok(d.list.filter((x) => x.jp).every((x) => /[ぁ-んァ-ン一-龯]/.test(x.jp)), "Driving mode only ever speaks Japanese");
 await tick(60);
 assert.ok(played.some((src) => /\.\.\/audio\/.+\.mp3$/.test(src)), "Driving mode plays the recorded VOICEVOX clips");
+for (const a of ["play", "pause", "nexttrack", "previoustrack"]) assert.equal(typeof window.__media[a], "function", "Steering-wheel " + a + " is wired");
+assert.ok(window.navigator.mediaSession.metadata && /[ぁ-ん]/.test(window.navigator.mediaSession.metadata.title), "The car display shows the Japanese line");
+window.__media.pause();
+assert.ok(B.drive().paused, "Steering-wheel pause pauses");
+assert.equal($("#drive-pause").textContent, "Resume");
+window.__media.play();
+assert.ok(!B.drive().paused, "Steering-wheel play resumes");
+// skip through to the end of the first block: the drive keeps going on its own
+const firstBlock = B.drive().block;
+const startPos = B.state.drivePos;
+for (let n = 0; n < 200 && B.drive().block === firstBlock; n++) { window.__media.nexttrack(); await tick(5); }
+await tick(3200);
+assert.notEqual(B.drive().block, firstBlock, "After a block ends the drive moves on without a tap");
+if (firstBlock.lesson) assert.notEqual(B.state.drivePos, startPos, "The car bookmark moves on");
+assert.ok(!B.drive().paused, "…and keeps playing");
+click("#drive-skip"); await tick(10);
+click("#drive-again"); await tick(10);
+assert.ok(B.drive().list[B.drive().i].head, "Again lands on the start of a line");
 click("#drive-stop");
+assert.equal(B.drive(), null, "Stop ends the drive");
+assert.equal(window.__media.play, null, "Stop releases the steering-wheel buttons");
+$("#toc [data-lesson]").click();
+click("#chapter-start");
+assert.ok(B.drive() && !B.drive().run && B.drivePlaylist().length > 0, "A chapter's 🚗 Play still plays just that page");
+click("#drive-stop");
+click('[data-nav="contents"]');
 click("#drive-toggle");
 assert.equal($("#drive-toggle").getAttribute("aria-pressed"), "false", "Driving mode turns off");
 
 await tick(40);
 assert.deepEqual(scriptErrors, [], "No uncaught script errors");
+// /living-city/#drive turns driving mode on and opens at the contents
+const dom2 = new JSDOM(html, { url: "https://hanasou.test/living-city/#drive", runScripts: "dangerously", pretendToBeVisual: true, beforeParse(w) { w.scrollTo = () => {}; w.matchMedia = (q) => ({ matches: /reduce/.test(q), media: q, addEventListener() {}, removeEventListener() {} }); w.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve(manifest) }); } });
+assert.equal(dom2.window.document.querySelector(".screen.active").id, "contents", "#drive skips the cover");
+assert.equal(dom2.window.document.getElementById("drive-toggle").getAttribute("aria-pressed"), "true", "#drive turns driving mode on");
+assert.ok(/Start the drive/.test(dom2.window.document.getElementById("bookmark-open").textContent), "#drive is one tap from driving");
+dom2.window.close();
+
 console.log("Living City pop-up book smoke test passed: cover, contents, all four readings, side trip, journal, driving mode.");
 window.close();

@@ -376,19 +376,19 @@
     $("drive-label").textContent = drive ? "Driving" : "Drive";
     $("drive-note").hidden = !drive;
 
-    const next = nextLesson();
+    const next = drive ? driveLesson() : nextLesson();
     const ch = chapterOf(next.id);
     const mode = nextModeFor(next.id);
     $("bookmark").innerHTML =
       '<span class="ribbon" aria-hidden="true"></span>' +
       '<img class="plate" src="' + coverOf(next) + '" alt="">' +
-      '<div class="bookmark-copy"><span class="kicker">栞 · Your page</span>' +
+      '<div class="bookmark-copy"><span class="kicker">' + (drive ? "🚗 Car bookmark" : "栞 · Your page") + "</span>" +
         "<small>Chapter " + ch.index + " · " + esc(ch.level.title) + "</small>" +
         "<h2>" + esc(next.title) + "</h2>" +
-        "<p>Next: " + mode.no + " · " + esc(mode.name) + "</p>" + dotsHTML(next.id) +
+        (drive ? "<p>The drive picks up here, then keeps going lesson after lesson.</p>" : "<p>Next: " + mode.no + " · " + esc(mode.name) + "</p>" + dotsHTML(next.id)) +
       "</div>" +
-      '<button class="primary" id="bookmark-open">' + (drive ? "🚗 Play this page" : "Open to this page") + " <b>→</b></button>";
-    $("bookmark-open").addEventListener("click", () => (drive ? startReading(next.id, mode.id) : openChapter(next.id)));
+      '<button class="primary" id="bookmark-open">' + (drive ? "🚗 Start the drive" : "Open to this page") + " <b>→</b></button>";
+    $("bookmark-open").addEventListener("click", () => (drive ? startDriveRun() : openChapter(next.id)));
 
     const due = dueCards().length;
     $("due-line").hidden = !due;
@@ -843,49 +843,152 @@
   // ---- driving mode: Japanese audio only, hands-free ------------------------------
   // listen → say it back in the gap → hear it again slowly. English is never
   // spoken aloud (project rule) and nothing is graded while you drive.
+  //
+  // Two shapes: a single page (🚗 Play on a chapter page), and THE DRIVE — one
+  // tap from the bookmark, then it keeps going on its own: pages due for a
+  // second look first, then lesson after lesson from the car bookmark
+  // (state.drivePos), a chime between lessons, until you stop. Steering-wheel /
+  // Bluetooth buttons work through the Media Session API: play/pause,
+  // next = skip this line, previous = hear this line again.
   let drive = null;
-  function drivePlaylist() {
-    const s = session;
-    if (s.mode.id === "moment" && s.convo) {
-      const out = [];
-      s.convo.turns.forEach((t) => {
-        if (t.them) out.push({ jp: t.them.jp, en: t.them.en, cue: "Listen" });
-        const right = t.choices.find((c) => c.correct);
-        if (right) { out.push({ gap: 4200, cue: "Your turn — reply out loud" }); out.push({ jp: right.jp, en: right.en, cue: "One way to say it" }); }
-      });
-      if (s.convo.closing) out.push({ jp: s.convo.closing.jp, en: s.convo.closing.en, cue: "Listen" });
-      return out;
-    }
-    const lines = s.items.map((x) => x.sentence).filter(Boolean);
-    return lines.flatMap((l) => [
-      { jp: l.jp, en: l.en, cue: "Listen" },
+  function sentenceSteps(sentences) {
+    return sentences.filter(Boolean).flatMap((l) => [
+      { jp: l.jp, en: l.en, cue: "Listen", head: true },
       { shadow: true, cue: "Say it back" },
       { jp: l.jp, en: l.en, slow: true, cue: "Once more, slowly" },
       { gap: 1600, cue: "Say it again" },
     ]);
   }
-  function startDrive() {
-    const list = drivePlaylist();
-    drive = { list, i: 0, paused: false, token: {}, lastMs: 2500, lock: null };
+  function convoSteps(convo) {
+    const out = [];
+    convo.turns.forEach((t) => {
+      if (t.them) out.push({ jp: t.them.jp, en: t.them.en, cue: "Listen", head: true });
+      const right = t.choices.find((c) => c.correct);
+      if (right) { out.push({ gap: 4200, cue: "Your turn — reply out loud", head: !t.them }); out.push({ jp: right.jp, en: right.en, cue: "One way to say it" }); }
+    });
+    if (convo.closing) out.push({ jp: convo.closing.jp, en: convo.closing.en, cue: "Listen", head: true });
+    return out;
+  }
+  function drivePlaylist() {
+    const s = session;
+    if (s.mode.id === "moment" && s.convo) return convoSteps(s.convo);
+    return sentenceSteps(s.items.map((x) => x.sentence));
+  }
+  // where the car picks up: the drive's own bookmark, else the reading bookmark
+  function driveLesson() { return lessonById(state.drivePos) || nextLesson(); }
+  // one lesson's worth of driving: its sentences, then its real-life scene
+  function lessonBlock(lesson) {
+    const steps = sentenceSteps(lesson.sentences || []);
+    const scene = SCENES.find((s) => s.lesson === lesson.id);
+    if (scene) { const c = sceneTurns(scene, lesson); if (c && c.turns.length) steps.push({ gap: 900, cue: "Now a conversation" }, ...convoSteps(c)); }
+    return { title: lesson.title, sub: "Chapter " + chapterOf(lesson.id).index + " · " + chapterOf(lesson.id).level.title, lesson, steps };
+  }
+  function nextRunBlock(d) {
+    if (d.reviewFirst) {
+      d.reviewFirst = false;
+      const due = dueCards().slice(0, 10);
+      if (due.length) return { title: "Second look", sub: due.length + " line" + (due.length === 1 ? "" : "s") + " due", steps: sentenceSteps(due.map((x) => x.lesson.sentences[x.index])) };
+    }
+    const lesson = d.lessons ? lessonById(state.drivePos) || order[0] : driveLesson();
+    d.lessons = (d.lessons || 0) + 1;
+    return lessonBlock(lesson);
+  }
+  function driveShell(run) {
     $("reading-stage").innerHTML = "";
     $("reading-dots").innerHTML = "";
     $("reading-page").textContent = "";
     $("reading-body").innerHTML =
       '<div class="drive-panel"><span class="kicker">🚗 Driving mode · Japanese only</span>' +
+        (run ? '<p class="drive-lesson" id="drive-lesson"></p>' : "") +
         '<div class="drive-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>' +
         '<p class="drive-cue" id="drive-cue">Starting…</p><div class="drive-jp" id="drive-jp"></div>' +
         '<div class="drive-count" id="drive-count"></div>' +
-        '<div class="drive-buttons"><button class="drive-big" id="drive-pause">Pause</button><button class="quiet" id="drive-stop">Stop</button></div>' +
-        '<p class="fine">Set this up while parked. Eyes on the road — everything is spoken.</p></div>';
-    $("drive-pause").addEventListener("click", () => {
-      if (!drive) return;
-      drive.paused = !drive.paused;
-      $("drive-pause").textContent = drive.paused ? "Resume" : "Pause";
-      if (drive.paused) { drive.token = {}; stopAudio(); } else runDrive();
-    });
+        '<div class="drive-buttons"><button class="drive-big" id="drive-pause">Pause</button>' +
+          '<div class="drive-row"><button class="drive-mid" id="drive-again">⏮ Again</button><button class="drive-mid" id="drive-skip">Skip ⏭</button></div>' +
+          '<button class="quiet" id="drive-stop">Stop</button></div>' +
+        '<p class="fine">Set this up while parked. Eyes on the road — everything is spoken. Your steering-wheel buttons work too.</p></div>';
+    $("drive-pause").addEventListener("click", () => drivePause());
+    $("drive-again").addEventListener("click", () => driveJump(-1));
+    $("drive-skip").addEventListener("click", () => driveJump(1));
     $("drive-stop").addEventListener("click", closeReading);
-    try { if (navigator.wakeLock && navigator.wakeLock.request) navigator.wakeLock.request("screen").then((l) => { if (drive) drive.lock = l; }).catch(() => {}); } catch (_) {}
+  }
+  function beginDrive(d) {
+    drive = d;
+    driveShell(!!d.run);
+    try { if (navigator.wakeLock && navigator.wakeLock.request) navigator.wakeLock.request("screen").then((l) => { if (drive === d) d.lock = l; else if (l.release) l.release(); }).catch(() => {}); } catch (_) {}
+    mediaControls(true);
     runDrive();
+  }
+  function startDrive() {
+    beginDrive({ list: drivePlaylist(), i: 0, paused: false, token: {}, lastMs: 2500, lock: null });
+  }
+  // THE DRIVE: continuous, from the car bookmark
+  function startDriveRun() {
+    stopDrive(); stopAudio();
+    session = null;
+    $("reading-title").textContent = "🚗 THE DRIVE";
+    document.body.dataset.mode = "teal";
+    show("reading");
+    const d = { run: true, reviewFirst: true, list: [], i: 0, paused: false, token: {}, lastMs: 2500, lock: null };
+    d.block = nextRunBlock(d); d.list = d.block.steps;
+    beginDrive(d);
+  }
+  function drivePause(force) {
+    const d = drive;
+    if (!d) return;
+    d.paused = force === undefined ? !d.paused : force;
+    if (d.paused) { d.token = {}; stopAudio(); } else runDrive();
+    paintDriveButtons();
+  }
+  // -1: back to the start of this line (or the one before, if it only just began); +1: the next line
+  function driveJump(dir) {
+    const d = drive;
+    if (!d || !d.list.length) return;
+    const heads = d.list.map((x, i) => (x.head ? i : -1)).filter((i) => i >= 0);
+    let to;
+    if (dir > 0) to = heads.find((h) => h > d.i);
+    else { const back = heads.filter((h) => h <= d.i); to = back.length ? back[back.length - 1] : 0; if (to === d.i && back.length > 1 && d.started && Date.now() - d.started < 1500) to = back[back.length - 2]; }
+    d.token = {}; stopAudio();
+    if (to === undefined) d.i = d.list.length; else d.i = to;
+    d.paused = false; paintDriveButtons();
+    runDrive();
+  }
+  function paintDriveButtons() {
+    const d = drive;
+    if ($("drive-pause")) $("drive-pause").textContent = d && d.paused ? (d.i >= d.list.length && !d.run ? "Play again" : "Resume") : "Pause";
+    if ("mediaSession" in navigator) { try { navigator.mediaSession.playbackState = d && !d.paused ? "playing" : "paused"; } catch (_) {} }
+  }
+  function mediaControls(on) {
+    if (!("mediaSession" in navigator)) return;
+    const ms = navigator.mediaSession;
+    const set = (a, fn) => { try { ms.setActionHandler(a, on ? fn : null); } catch (_) {} };
+    set("play", () => drivePause(false));
+    set("pause", () => drivePause(true));
+    set("nexttrack", () => driveJump(1));
+    set("previoustrack", () => driveJump(-1));
+    set("stop", closeReading);
+    if (!on) { try { ms.metadata = null; ms.playbackState = "none"; } catch (_) {} }
+  }
+  function nowPlaying(d, jp) {
+    if (!("mediaSession" in navigator) || typeof window.MediaMetadata !== "function") return;
+    try {
+      const lesson = d.block ? d.block.lesson : session && session.lesson;
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: plain(jp), artist: "Hanasou · " + (d.block ? d.block.title : lesson ? lesson.title : "Driving"), album: "Driving mode",
+        artwork: lesson ? [{ src: coverOf(lesson), sizes: "512x512", type: "image/png" }] : [],
+      });
+    } catch (_) {}
+  }
+  function chime() {
+    return new Promise((resolve) => {
+      let a;
+      try { a = new Audio("../assets/sfx-chime.wav"); } catch (_) { resolve(); return; }
+      player = a;
+      const done = () => { clearTimeout(t); resolve(); };
+      const t = setTimeout(done, 2500);
+      a.onended = a.onerror = done;
+      try { const p = a.play(); if (p && p.catch) p.catch(done); } catch (_) { done(); }
+    });
   }
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   async function runDrive() {
@@ -893,36 +996,58 @@
     if (!d) return;
     const token = d.token = {};
     const alive = () => drive === d && d.token === token && !d.paused;
-    while (alive() && d.i < d.list.length) {
-      const step = d.list[d.i];
-      const line = $("drive-cue");
-      if (line) line.textContent = step.cue || "";
-      const lines = d.list.filter((x) => x.jp && !x.slow).length;
-      const at = d.list.slice(0, d.i + 1).filter((x) => x.jp && !x.slow).length;
-      if ($("drive-count")) $("drive-count").textContent = at + " / " + lines;
-      if (step.jp) {
-        $("drive-jp").innerHTML = rubyHTML(step.jp);
-        const t0 = Date.now();
-        await play(step.jp, step.slow);
-        if (!step.slow) d.lastMs = Math.max(900, Date.now() - t0);
-        await wait(350);
-      } else if (step.shadow) {
-        await wait(Math.min(9000, d.lastMs * 1.4 + 1400));
-      } else {
-        await wait(step.gap || 1500);
+    paintDriveButtons();
+    for (;;) {
+      if (d.run && $("drive-lesson")) $("drive-lesson").innerHTML = "<b>" + esc(d.block.title) + "</b><small>" + esc(d.block.sub) + "</small>";
+      while (alive() && d.i < d.list.length) {
+        const step = d.list[d.i];
+        if (step.head) d.started = Date.now();
+        const line = $("drive-cue");
+        if (line) line.textContent = step.cue || "";
+        const lines = d.list.filter((x) => x.head).length;
+        const at = d.list.slice(0, d.i + 1).filter((x) => x.head).length;
+        if ($("drive-count")) $("drive-count").textContent = at + " / " + lines;
+        if (step.jp) {
+          $("drive-jp").innerHTML = rubyHTML(step.jp);
+          nowPlaying(d, step.jp);
+          const t0 = Date.now();
+          await play(step.jp, step.slow);
+          if (!step.slow) d.lastMs = Math.max(900, Date.now() - t0);
+          await wait(350);
+        } else if (step.shadow) {
+          await wait(Math.min(9000, d.lastMs * 1.4 + 1400));
+        } else {
+          await wait(step.gap || 1500);
+        }
+        if (alive()) d.i++;
       }
-      if (alive()) d.i++;
+      if (!alive() || d.i < d.list.length) return;
+      if (!d.run) break;
+      // a lesson played through: move the car bookmark on, chime, keep driving
+      if (d.block.lesson) {
+        const at = order.findIndex((l) => l.id === d.block.lesson.id);
+        state.drivePos = order[(at + 1) % order.length].id;
+        state.driven = state.driven || {};
+        state.driven[d.block.lesson.id] = (state.driven[d.block.lesson.id] || 0) + 1;
+        save();
+      }
+      if ($("drive-cue")) $("drive-cue").textContent = "Next lesson";
+      if ($("drive-jp")) $("drive-jp").innerHTML = "";
+      await chime();
+      await wait(600);
+      if (!alive()) return;
+      d.block = nextRunBlock(d); d.list = d.block.steps; d.i = 0;
     }
-    if (alive() && d.i >= d.list.length) {
-      if ($("drive-cue")) $("drive-cue").textContent = "Page finished — great listening.";
-      $("drive-pause").textContent = "Play again";
-      d.i = 0; d.paused = true;
-    }
+    if ($("drive-cue")) $("drive-cue").textContent = "Page finished — great listening.";
+    d.i = 0; d.paused = true; d.done = true;
+    if ($("drive-pause")) $("drive-pause").textContent = "Play again";
+    if ("mediaSession" in navigator) { try { navigator.mediaSession.playbackState = "paused"; } catch (_) {} }
   }
   function stopDrive() {
     if (!drive) return;
     if (drive.lock && drive.lock.release) { try { drive.lock.release(); } catch (_) {} }
     drive.token = {}; drive = null;
+    mediaControls(false);
     stopAudio();
   }
 
@@ -988,10 +1113,14 @@
     else { const l = nextLesson(); openChapter(l.id); }
   }));
 
+  // /living-city/#drive — a home-screen shortcut for the car: drive mode on,
+  // straight to the contents, one tap on the bookmark starts (audio needs a tap)
+  if (/^#drive/.test(location.hash || "")) { state.settings.drive = true; state.opened = true; save(); }
+
   // first visit opens on the cover; after that, straight to the contents
   if (state.opened) { renderContents(); show("contents", { instant: true }); }
   else show("cover", { instant: true });
 
   // for the smoke test
-  window.HanasouBook = { state, chapters, order, patternPairs, buildPatterns, buildMoment, buildListen, drivePlaylist: () => (session ? drivePlaylist() : []), session: () => session };
+  window.HanasouBook = { state, chapters, order, patternPairs, buildPatterns, buildMoment, buildListen, drivePlaylist: () => (session ? drivePlaylist() : []), session: () => session, drive: () => drive, driveLesson };
 })();
