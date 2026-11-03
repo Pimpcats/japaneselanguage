@@ -35,10 +35,18 @@ step.
   `docs/LIVING_CITY_ART_PROMPTS.md` lists each one as a ready-to-paste
   green-screen prompt. Rebuild both files with
   `node tools/build_living_city_scenes.mjs <dir of scene JSON>`.
-- **Driving mode** (🚗 on the contents). The page plays hands-free and
-  Japanese-only: listen → say it back → hear it again slowly. Conversations
-  go her line → your reply gap → a model reply. English is never spoken and
-  nothing is graded.
+- **Driving mode** (🚗 on the contents). Japanese-only and hands-free:
+  listen → say it back → hear it again slowly. Conversations go her line →
+  your reply gap → a model reply. English is never spoken and nothing is
+  graded. With it on, the bookmark becomes **🚗 Start the drive**: one tap and
+  it keeps going on its own. Lines due for a second look come first, then
+  lesson after lesson (sentences, then the lesson's scene) from the car
+  bookmark (`state.drivePos`), with a chime between lessons. It picks up there
+  next time. Steering-wheel/Bluetooth buttons work through the Media Session
+  API: play/pause, next = skip the line, previous = hear it again. The car
+  display shows the Japanese line. `/living-city/#drive` opens straight into
+  driving mode, so it works as a home-screen shortcut. A chapter page's
+  🚗 Play still plays just that page.
 - **Journal.** A forgiving week of dots (no streak), real tallies, a second
   look at due cards, and a stamp for every page you finish all four readings
   of.

@@ -348,6 +348,11 @@ body[data-screen="reading"] .screen, body[data-screen="chapter"] .screen { paddi
 .drive-buttons { display: grid; gap: 6px; margin-top: 18px; }
 .drive-big { padding: 22px; border: 0; border-radius: 8px; background: #fbf3df; color: var(--green); font: 700 22px var(--sans); }
 .drive-panel .quiet { color: #fbf3df; }
+.drive-lesson { margin: 12px 0 0; display: grid; gap: 2px; }
+.drive-lesson b { font: 600 18px var(--sans); }
+.drive-lesson small { font: 13px var(--sans); opacity: .7; }
+.drive-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.drive-mid { padding: 18px 8px; border: 1px solid rgba(251, 243, 223, .45); border-radius: 8px; background: transparent; color: #fbf3df; font: 700 18px var(--sans); }
 .drive-panel .fine { color: rgba(251, 243, 223, .7); }
 
 /* ---------- journal ---------- */
