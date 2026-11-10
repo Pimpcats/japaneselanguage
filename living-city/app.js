@@ -1,14 +1,16 @@
 // Hanasou — The Pop-up Book.
 //
-// Two ways to use one set of sentences, on one review schedule:
+// One set of sentences, one review schedule, three ways in:
 //
-//   BOOK  (eyes on)  — learn a page: Meet it (picture, sentence, word chips),
-//                      then four different exercises in one continuous flow:
-//                      1 Recall (say it) · 2 Listen (tap what you heard) ·
-//                      3 Pattern Lab (swap a piece) · 4 In the Moment (answer her).
-//   DRIVE (eyes off) — keep what the book taught: a hands-free session built
-//                      from the lines that are due. Cue → you say it → answer →
-//                      say it again; weak lines come back later in the drive.
+//   BOOK       learn a page: Meet it (picture, sentence, word chips), then four
+//              different exercises in one continuous flow —
+//              1 Recall (say it) · 2 Listen (tap what you heard) ·
+//              3 Pattern Lab (swap a piece) · 4 In the Moment (answer her).
+//   ENCOUNTERS someone speaks to you in Japanese; you answer in Japanese, out
+//              loud, then see one way to say it and what she meant.
+//   DRIVE      keep it on the road, hands-free or by touch. It mixes three
+//              directions: say it (meaning → Japanese), understand it
+//              (Japanese → meaning) and answer her (her question → your reply).
 //
 // From the flashcards: every word is a chip with its meaning under it, coloured
 // by its role (the main app's colours), tap to hear, ↗ to look it up on Jisho.
@@ -33,13 +35,37 @@
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const shuffle = (items) => { const a = items.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const plural = (n, word) => n + " " + word + (n === 1 ? "" : "s");
 
-  const MEET = { id: "meet", no: 0, name: "Meet the page", verb: "See it, hear it, tap the words", color: "ink" };
+  // ---- icons: one hand-tuned line set, drawn in the page's ink --------------
+  const line = (d) => '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + "</svg>";
+  const solid = (d) => '<svg class="ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' + d + "</svg>";
+  const ICON = {
+    close: line('<path d="M6 6l12 12M18 6 6 18"/>'),
+    back: line('<path d="M15 5l-7 7 7 7"/>'),
+    next: line('<path d="M5 12h14M13 6l6 6-6 6"/>'),
+    chevron: line('<path d="M9 5l7 7-7 7"/>'),
+    check: line('<path class="draw" d="M5 12.5l4.5 4.5L19 7.5"/>'),
+    sound: line('<path d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>'),
+    play: solid('<path d="M8 5.5v13a1 1 0 0 0 1.52.85l10.4-6.5a1 1 0 0 0 0-1.7L9.52 4.65A1 1 0 0 0 8 5.5z"/>'),
+    pause: solid('<rect x="6.5" y="5" width="4" height="14" rx="1"/><rect x="13.5" y="5" width="4" height="14" rx="1"/>'),
+    prev: solid('<rect x="5" y="5" width="3" height="14" rx="1"/><path d="M20 6.2v11.6a.8.8 0 0 1-1.24.67l-8.7-5.8a.8.8 0 0 1 0-1.34l8.7-5.8A.8.8 0 0 1 20 6.2z"/>'),
+    skip: solid('<rect x="16" y="5" width="3" height="14" rx="1"/><path d="M4 6.2v11.6a.8.8 0 0 0 1.24.67l8.7-5.8a.8.8 0 0 0 0-1.34l-8.7-5.8A.8.8 0 0 0 4 6.2z"/>'),
+    book: line('<path d="M12 6.5C10.5 5 8.3 4.5 4 4.5v14c4.3 0 6.5.5 8 2 1.5-1.5 3.7-2 8-2v-14c-4.3 0-6.5.5-8 2z"/><path d="M12 6.5v14"/>'),
+    car: line('<path d="M5.5 11l1.6-4.4A1.5 1.5 0 0 1 8.5 5.6h7a1.5 1.5 0 0 1 1.4 1L18.5 11"/><rect x="3.5" y="11" width="17" height="6" rx="2"/><path d="M6.5 17v1.8M17.5 17v1.8M7 14h1.5M15.5 14H17"/>'),
+    journal: line('<rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 3.5v17M12.5 8.5h3.5M12.5 12h3.5"/>'),
+    talk: line('<path d="M20 11.5a7.5 7.5 0 0 1-11.2 6.5L4 19.5l1.5-4.3A7.5 7.5 0 1 1 20 11.5z"/><path d="M9 11.5h.01M12.5 11.5h.01M16 11.5h.01"/>'),
+    hand: line('<path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10M12 10V4.5a1.5 1.5 0 0 1 3 0V10M15 10V6.5a1.5 1.5 0 0 1 3 0v7a6 6 0 0 1-6 6h-.5a6 6 0 0 1-4.7-2.3L4.5 14a1.5 1.5 0 0 1 2.3-1.9L9 14"/>'),
+    ear: line('<path d="M7 9.5a5 5 0 1 1 10 0c0 3-2.5 3.5-3 6s-1.5 4-3.5 4A3 3 0 0 1 8 17"/><path d="M10 10a2 2 0 1 1 3.4 1.4c-.9.8-1.4 1.2-1.4 2.4"/>'),
+    jisho: '<svg class="ic ic-s" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 16l8-8M9.5 8H16v6.5"/></svg>',
+  };
+
+  const MEET = { id: "meet", no: 0, name: "Meet the page", verb: "See it, hear it, tap the words" };
   const MODES = [
-    { id: "recall", no: 1, name: "Recall", verb: "Say it yourself", color: "red" },
-    { id: "listen", no: 2, name: "Listen & Notice", verb: "Tap what you heard", color: "teal" },
-    { id: "patterns", no: 3, name: "Pattern Lab", verb: "Swap a piece, say the new sentence", color: "gold" },
-    { id: "moment", no: 4, name: "In the Moment", verb: "Answer her out loud", color: "purple" },
+    { id: "recall", no: 1, name: "Recall", verb: "Say it yourself" },
+    { id: "listen", no: 2, name: "Listen & Notice", verb: "Tap what you heard" },
+    { id: "patterns", no: 3, name: "Pattern Lab", verb: "Swap a piece, say the new sentence" },
+    { id: "moment", no: 4, name: "In the Moment", verb: "She speaks, you answer out loud" },
   ];
   const FLOW = [MEET].concat(MODES);
   const labelOf = (m) => (m.no ? m.no + " · " + m.name : m.name);
@@ -54,9 +80,10 @@
   const lessonById = (id) => LESSONS.find((l) => l.id === id);
   const chapterOf = (id) => chapters.find((c) => c.lessons.some((l) => l.id === id)) || chapters[0];
   const coverOf = (lesson) => "../assets/covers/" + lesson.id + ".png";
+  const folioOf = (lesson) => { const c = chapterOf(lesson.id); return c.index + "–" + (c.lessons.indexOf(lesson) + 1); };
 
   // ---- state -----------------------------------------------------------------
-  const fresh = () => ({ v: 2, cards: {}, readings: {}, met: {}, days: {}, total: 0, history: [], settings: { romaji: "show", cue: "en" }, opened: false });
+  const fresh = () => ({ v: 2, cards: {}, readings: {}, met: {}, days: {}, total: 0, history: [], settings: { romaji: "show", cue: "en", driveMode: "hands" }, opened: false });
   function load() {
     let saved = null;
     try { saved = JSON.parse(localStorage.getItem(STORE) || "null"); } catch (_) { saved = null; }
@@ -98,12 +125,14 @@
   const readingsOf = (id) => state.readings[id] || {};
   const doneCount = (id) => MODES.filter((m) => readingsOf(id)[m.id]).length;
   const chapterDone = (id) => doneCount(id) === MODES.length;
+  const started = (id) => !!(state.met[id] || doneCount(id));
   // where a lesson picks up: Meet first, then the first exercise not done
   function nextStepFor(id) {
     if (!state.met[id]) return MEET;
     return MODES.find((m) => !readingsOf(id)[m.id]) || MODES[0];
   }
   function nextLesson() { return order.find((l) => !chapterDone(l.id)) || order[0]; }
+  const known = (id) => !!(state.cards[id] && state.cards[id].reps > 0);
   // every sentence you've practised in the book: the drive's and the review's pool
   function learnedCards() {
     return Object.keys(state.cards)
@@ -175,7 +204,7 @@
     }));
   }
   const say = (jp, slow) => { play(jp, slow); };
-  // the driving cue: the meaning, spoken by the device's English voice
+  // the hands-free cue: the meaning, spoken by the device's English voice
   function sayEnglish(text) {
     stopAudio();
     return speakTTS(String(text || "").replace(/[()[\]]/g, " ").replace(/\s+/g, " ").trim(), "en-US", 1);
@@ -216,9 +245,15 @@
     const pos = w.pos || "expr";
     return '<span class="wchip pos-' + esc(pos) + (cls ? " " + cls : "") + '">' +
       '<button type="button" class="wc-main" data-say="' + esc(w.jp) + '" title="Hear this word"><b>' + esc(w.jp) + "</b><small>" + esc(w.en) + "</small>" + (POS_NAME[pos] ? "<i>" + POS_NAME[pos] + "</i>" : "") + "</button>" +
-      '<a class="wc-jisho" href="https://jisho.org/search/' + encodeURIComponent(plain(w.jp)) + '" target="_blank" rel="noopener noreferrer" aria-label="Look up ' + esc(w.jp) + ' on Jisho">↗</a></span>';
+      '<a class="wc-jisho" href="https://jisho.org/search/' + encodeURIComponent(plain(w.jp)) + '" target="_blank" rel="noopener noreferrer" aria-label="Look up ' + esc(w.jp) + ' on Jisho">' + ICON.jisho + "</a></span>";
   }
   const chipsHTML = (words, changed) => (words || []).map((w, i) => chipHTML(w, changed && changed.includes(i) ? "changed" : "")).join("");
+  // the sentence with each word's meaning set under it (for a quick glance)
+  function glossLine(s) {
+    const words = (s && s.words) || [];
+    if (!words.length) return '<p class="gloss plain">' + rubyHTML((s && s.jp) || "") + "</p>";
+    return '<p class="gloss">' + words.map((w) => '<span class="gl"><b class="w t-' + esc(w.pos || "expr") + '">' + esc(w.jp) + "</b><small>" + esc(w.en) + "</small></span>").join("") + "</p>";
+  }
   // the answer as the flashcards show it
   function answerHTML(s, opts) {
     const o = opts || {};
@@ -226,7 +261,7 @@
       '<div class="jp">' + colorJP(s) + "</div>" +
       (showRomaji() && s.romaji ? '<div class="romaji">' + esc(s.romaji) + "</div>" : "") +
       (o.en ? '<div class="en">' + esc(s.en) + "</div>" : "") +
-      '<div class="answer-tools"><button class="mini" data-say="' + esc(s.jp) + '">▶ Hear</button><button class="mini" data-say-slow="' + esc(s.jp) + '">Slowly</button></div>' +
+      '<div class="answer-tools"><button class="pill" data-say="' + esc(s.jp) + '">' + ICON.sound + 'Hear</button><button class="pill" data-say-slow="' + esc(s.jp) + '">Slowly</button></div>' +
       ((s.words || []).length ? '<div class="chips">' + chipsHTML(s.words, o.changed) + "</div>" : "") +
       (o.note ? '<p class="note">' + esc(o.note) + "</p>" : "") +
       "</div>";
@@ -364,8 +399,8 @@
     const layer = document.createElement("div");
     layer.className = "washi";
     layer.setAttribute("aria-hidden", "true");
-    const colors = ["#b94e43", "#d9a8a0", "#397e7e", "#b68a32", "#69518a", "#e8dcc4"];
-    for (let i = 0; i < 22; i++) {
+    const colors = ["#d5412b", "#26355d", "#e2a41f", "#8fa3c8", "#f0c9bf", "#3d8b5f"];
+    for (let i = 0; i < 24; i++) {
       const p = document.createElement("i");
       p.style.left = Math.round(4 + Math.random() * 92) + "%";
       p.style.background = colors[i % colors.length];
@@ -390,10 +425,11 @@
   const SCREENS = ["cover", "home", "lesson", "reading", "drive", "journal"];
   let currentScreen = null;
   let drive = null;
+  // screens push in from the right and pop back to the left, like turning to a page
   function show(id, opts) {
-    const turn = !(opts && opts.instant) && !reduceMotion && currentScreen && currentScreen !== id;
-    if (turn) turnPage(opts && opts.back);
-    SCREENS.forEach((s) => $(s).classList.toggle("active", s === id));
+    const from = currentScreen;
+    SCREENS.forEach((s) => { const el = $(s); el.classList.toggle("active", s === id); el.classList.remove("enter", "enter-back"); });
+    if (from && from !== id && !(opts && opts.instant) && !reduceMotion) { void $(id).offsetWidth; $(id).classList.add(opts && opts.back ? "enter-back" : "enter"); }
     currentScreen = id;
     document.body.dataset.screen = id;
     setDock(null);
@@ -401,7 +437,7 @@
     syncChrome();
     window.scrollTo(0, 0);
   }
-  // the bottom nav shows on the three main screens; the action bar replaces it
+  // the tab bar shows on the three main screens; the action bar replaces it
   function syncChrome() {
     const main = currentScreen === "home" || currentScreen === "journal" || (currentScreen === "drive" && !(drive && drive.running));
     $("ribbons").hidden = !main || !$("dock").hidden;
@@ -413,7 +449,7 @@
     leaf.classList.add(back ? "turning-back" : "turning");
   }
   $("leaf").addEventListener("animationend", () => $("leaf").classList.remove("turning", "turning-back"));
-  // buttons: [{label, on, kind?: "primary"|"plain"|"good", id?}]
+  // buttons: [{label, sub?, on, kind?: "primary"|"tint"|"good"|"warn"|"mid", id?, icon?}]
   function setDock(buttons) {
     const dock = $("dock");
     dock.innerHTML = "";
@@ -421,16 +457,16 @@
     (buttons || []).forEach((b) => {
       const el = document.createElement("button");
       el.type = "button";
-      el.className = "dock-btn " + (b.kind || "primary");
+      el.className = "btn btn-" + (b.kind || "primary");
       if (b.id) el.id = b.id;
-      el.innerHTML = b.label;
+      el.innerHTML = '<span class="btn-label">' + esc(b.label) + (b.sub ? "<small>" + esc(b.sub) + "</small>" : "") + "</span>" + (b.icon === false ? "" : b.icon || "");
       el.addEventListener("click", b.on);
       dock.appendChild(el);
     });
     dock.dataset.count = String((buttons || []).length);
     syncChrome();
   }
-  const ARROW = " <b>→</b>";
+  const NEXT = (id, label, on, sub) => ({ id, label, sub, on, icon: ICON.next });
 
   // ---- cover -------------------------------------------------------------------
   function openBook() {
@@ -438,38 +474,41 @@
     renderHome();
     if (reduceMotion) { show("home", { instant: true }); return; }
     $("cover").classList.add("opening");
-    setTimeout(() => { $("cover").classList.remove("opening"); show("home", { instant: true }); }, 720);
+    setTimeout(() => { $("cover").classList.remove("opening"); show("home", { instant: true }); }, 700);
   }
 
   // ---- the book (home) -----------------------------------------------------------
-  function dotsHTML(id) {
-    return '<span class="four">' + MODES.map((m) => '<i class="' + m.color + (readingsOf(id)[m.id] ? " on" : "") + '" title="' + m.name + '"></i>').join("") + "</span>";
+  // five small ticks: Meet + the four exercises
+  function ticksHTML(id) {
+    const done = [!!state.met[id]].concat(MODES.map((m) => !!readingsOf(id)[m.id]));
+    return '<span class="ticks" role="img" aria-label="' + done.filter(Boolean).length + ' of 5 steps done">' + done.map((d) => "<i" + (d ? ' class="on"' : "") + "></i>").join("") + "</span>";
   }
   function renderHome() {
     const next = nextLesson();
     const ch = chapterOf(next.id);
     const step = nextStepFor(next.id);
-    const started = state.met[next.id] || doneCount(next.id);
     $("continue").innerHTML =
-      '<span class="ribbon" aria-hidden="true"></span>' +
-      '<button class="continue-stage stage" id="continue-stage" aria-label="Open ' + esc(next.title) + '"></button>' +
-      '<div class="continue-copy"><span class="kicker">栞 · Your page</span>' +
-        "<small>Chapter " + ch.index + " · " + esc(ch.level.title) + "</small>" +
-        "<h2>" + esc(next.title) + "</h2>" + dotsHTML(next.id) +
-      "</div>" +
-      '<button class="primary" id="continue-btn"><span>' + (started ? "Continue" : "Begin") + ' <span class="primary-sub">' + esc(labelOf(step)) + "</span></span>" + ARROW + "</button>";
+      '<button class="hero-stage stage" id="continue-stage" aria-label="Open ' + esc(next.title) + '"></button>' +
+      '<div class="hero-copy"><p class="eyebrow">Chapter ' + ch.index + " · " + esc(ch.level.title) + '<span class="folio">' + folioOf(next) + "</span></p>" +
+        "<h2>" + esc(next.title) + "</h2>" + ticksHTML(next.id) + "</div>" +
+      '<button class="btn btn-primary" id="continue-btn"><span class="btn-label">' + (started(next.id) ? "Continue" : "Begin") + "<small>" + esc(labelOf(step)) + "</small></span>" + ICON.next + "</button>";
     popup($("continue-stage"), Object.assign({ compact: true, guide: "think" }, postcardOf(next), chapterStory(next)));
     $("continue-stage").addEventListener("click", () => openLesson(next.id));
     $("continue-btn").addEventListener("click", () => startLesson(next.id));
 
     const plan = drivePlan();
-    const due = dueCards().length;
+    const pool = encounterPool();
     $("tiles").innerHTML =
-      '<button class="tile tile-drive" id="tile-drive"><span class="tile-k">車 · Drive</span><b>' + (plan.learned ? plan.lines + " line" + (plan.lines === 1 ? "" : "s") + " ready" : "First listen") + "</b><small>one tap, then it keeps going</small></button>" +
-      '<button class="tile" id="tile-review"' + (due ? "" : " disabled") + '><span class="tile-k">復習 · Second look</span><b>' + (due ? due + " line" + (due === 1 ? "" : "s") + " due" : "All caught up") + "</b><small>" + (due ? "a quick recall round" : "nothing is due") + "</small></button>";
+      '<button class="tile tile-drive" id="tile-drive"><span class="tile-icon">' + ICON.car + "</span><b>Drive</b><small>" + (plan.learned ? plural(plan.lines, "line") + " ready" : "A first listen") + "</small></button>" +
+      '<button class="tile" id="tile-meet"><span class="tile-icon">' + ICON.talk + "</span><b>Encounters</b><small>She asks, you answer</small></button>";
     $("tile-drive").addEventListener("click", () => { renderDrive(); show("drive"); });
-    $("tile-review").addEventListener("click", startReview);
-    $("home-note").textContent = state.total ? state.total + " lines said" : "";
+    $("tile-meet").addEventListener("click", startEncounters);
+    $("tile-meet").disabled = !pool.length;
+
+    const due = dueCards().length;
+    $("due-banner").hidden = !due;
+    $("due-banner").innerHTML = "<span><b>" + plural(due, "line") + "</b> due for a second look</span>" + ICON.chevron;
+    $("home-note").textContent = state.total ? plural(state.total, "line") + " said" : "";
 
     const toc = $("toc");
     toc.innerHTML = "";
@@ -483,14 +522,14 @@
         '<summary><span class="ch-no">' + c.index + '</span><span class="ch-copy"><b>' + esc(c.level.title) + "</b><small>" + esc(c.level.blurb) + '</small></span><span class="ch-count">' + done + "/" + c.lessons.length + "</span></summary>" +
         '<div class="toc-lines">' + c.lessons.map((l, i) =>
           '<button class="toc-line' + (l.id === next.id ? " here" : "") + (chapterDone(l.id) ? " done" : "") + '" data-lesson="' + esc(l.id) + '">' +
-            '<span class="toc-n">' + c.index + "-" + (i + 1) + '</span><span class="toc-t">' + esc(l.title) + '</span><span class="toc-dots"></span>' + dotsHTML(l.id) +
+            '<span class="toc-n">' + (i + 1) + '</span><span class="toc-t">' + esc(l.title) + "</span>" + ticksHTML(l.id) +
           "</button>").join("") + "</div>";
       toc.appendChild(det);
     });
     toc.querySelectorAll("[data-lesson]").forEach((b) => b.addEventListener("click", () => openLesson(b.dataset.lesson)));
 
     $("trips").innerHTML = (D.sideTrips || []).map((t, i) =>
-      '<button class="toc-line" data-trip="' + esc(t.id) + '"><span class="toc-n">' + String.fromCharCode(65 + i) + '</span><span class="toc-t">' + esc(t.title) + '</span><span class="toc-dots"></span><span class="toc-place">' + esc((t.place || "").toLowerCase()) + "</span></button>").join("");
+      '<button class="toc-line" data-trip="' + esc(t.id) + '"><span class="toc-n">' + String.fromCharCode(65 + i) + '</span><span class="toc-t">' + esc(t.title) + '</span><span class="toc-place">' + esc((t.place || "").toLowerCase()) + "</span></button>").join("");
     $("trips").querySelectorAll("[data-trip]").forEach((b) => b.addEventListener("click", () => startSideTrip(b.dataset.trip)));
   }
   function goHome(opts) { renderHome(); show("home", opts); }
@@ -500,23 +539,23 @@
     const lesson = lessonById(id);
     if (!lesson) return;
     const c = chapterOf(id);
-    $("lesson-kicker").textContent = "CHAPTER " + c.index + " · " + c.level.title.toUpperCase();
-    $("lesson-page").textContent = c.index + "-" + (c.lessons.indexOf(lesson) + 1);
+    $("lesson-kicker").textContent = "Chapter " + c.index + " · " + c.level.title;
+    $("lesson-page").textContent = folioOf(lesson);
     $("lesson-title").textContent = lesson.title;
-    $("lesson-grammar").innerHTML = (lesson.grammar ? '<span class="grammar-jp">' + esc(lesson.grammar) + "</span>" : "") + "<p>" + esc(lesson.grammarNote || lesson.section || "") + "</p>";
+    $("lesson-grammar").innerHTML = '<span class="tape" aria-hidden="true"></span>' + (lesson.grammar ? '<b class="note-jp">' + esc(lesson.grammar) + "</b>" : "") + "<p>" + esc(lesson.grammarNote || lesson.section || "") + "</p>";
     const step = nextStepFor(id);
     const allDone = chapterDone(id);
     $("lesson-readings").innerHTML = FLOW.map((m, i) => {
       const done = m === MEET ? !!state.met[id] : !!readingsOf(id)[m.id];
       const isNext = !allDone && m.id === step.id;
-      return '<button class="reading-row ' + m.color + (done ? " done" : "") + (isNext ? " next" : "") + '" data-mode="' + m.id + '" style="--i:' + i + '">' +
-        '<span class="r-no">' + (m.no || "•") + '</span><span class="r-copy"><b>' + esc(m.name) + "</b><small>" + esc(m.verb) + "</small></span>" +
-        '<span class="r-state">' + (done ? "✓" : isNext ? "next" : "") + "</span></button>";
+      return '<li style="--i:' + i + '"><button class="step' + (done ? " done" : "") + (isNext ? " next" : "") + '" data-mode="' + m.id + '">' +
+        '<span class="step-dot">' + (done ? ICON.check : m.no || ICON.book) + '</span><span class="step-copy"><b>' + esc(m.name) + "</b><small>" + esc(m.verb) + "</small></span>" +
+        '<span class="step-go">' + (isNext ? "Next" : "") + ICON.chevron + "</span></button></li>";
     }).join("");
     $("lesson-readings").querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => startLesson(id, b.dataset.mode)));
     show("lesson", opts);
     popup($("lesson-stage"), Object.assign({ caption: lesson.section }, postcardOf(lesson), chapterStory(lesson)));
-    setDock([{ id: "lesson-start", label: "<span>" + (allDone ? "Read again" : state.met[id] || doneCount(id) ? "Continue" : "Begin") + ' <span class="primary-sub">' + esc(labelOf(allDone ? MODES[0] : step)) + "</span></span>" + ARROW, on: () => startLesson(id) }]);
+    setDock([NEXT("lesson-start", allDone ? "Read again" : started(id) ? "Continue" : "Begin", () => startLesson(id), labelOf(allDone ? MODES[0] : step))]);
   }
 
   // ---- building each exercise from real content -----------------------------------
@@ -585,7 +624,7 @@
     });
   }
   // In the Moment: the lesson's hand-written scene as turns of
-  // "her line → you answer out loud → a model reply".
+  // "her line → you answer out loud → a model reply". follow = what she says next.
   function buildMoment(lesson) {
     const scene = TALK.find((s) => s.lesson === lesson.id);
     if (scene) return sceneTurns(scene, lesson);
@@ -596,7 +635,12 @@
     const convo = { title: scene.en || scene.title, sceneTitle: scene.title, lesson, speaker: "もち子さん", turns: [], closing: null };
     let them = null;
     scene.steps.forEach((step) => {
-      if (step.who !== "you") { them = { jp: step.jp, en: step.en, speaker: convo.speaker }; return; }
+      if (step.who !== "you") {
+        them = { jp: step.jp, en: step.en, speaker: convo.speaker };
+        const prev = convo.turns[convo.turns.length - 1];
+        if (prev && !prev.follow) prev.follow = { jp: step.jp, en: step.en };
+        return;
+      }
       const taught = (lesson.sentences || []).find((x) => x.jp === step.jp);
       convo.turns.push({
         kind: "turn", id: "scene:" + scene.id + ":" + convo.turns.length, convo,
@@ -621,6 +665,14 @@
       });
     });
     return convo;
+  }
+  // Encounters: every moment where someone speaks first and you have to answer.
+  // From the pages you've started; before that, from the everyday side trips.
+  function encounterPool(lessons) {
+    const from = lessons || order.filter((l) => started(l.id) || sentenceItems(l).some((x) => known(x.id)));
+    const turns = from.flatMap((l) => { const sc = TALK.find((t) => t.lesson === l.id); return sc ? sceneTurns(sc, l).turns.filter((t) => t.them) : []; });
+    if (turns.length >= 4 || lessons) return turns;
+    return turns.concat((D.sideTrips || []).filter((t) => t.level === "L0" || t.level === "L1").flatMap((t) => tripTurns(t).turns));
   }
   function itemsFor(lesson, modeId) {
     if (modeId === "meet") return sentenceItems(lesson).map((x) => Object.assign({ kind: "meet" }, x));
@@ -655,20 +707,39 @@
   function startReview() {
     const pages = dueCards().slice(0, 10).map((x) => ({ type: "page", mode: MODES[0], item: { kind: "recall", id: x.id, lesson: x.lesson, sentence: x.sentence } }));
     if (!pages.length) return;
-    session = { kind: "review", lesson: null, queue: pages, pos: 0, said: 0, strip: [] };
+    session = { kind: "review", title: "Second look", lesson: null, queue: pages, pos: 0, said: 0, strip: [] };
     beginSession();
   }
   function startSideTrip(id) {
     const trip = (D.sideTrips || []).find((t) => t.id === id);
     if (!trip) return;
-    const convo = tripTurns(trip);
-    session = { kind: "trip", lesson: null, trip, queue: convo.turns.map((item) => ({ type: "page", mode: MODES[3], item })), pos: 0, said: 0, strip: [] };
+    session = { kind: "trip", title: trip.title, lesson: null, queue: tripTurns(trip).turns.map((item) => ({ type: "page", mode: MODES[3], item })), pos: 0, said: 0, strip: [] };
+    beginSession();
+  }
+  function startEncounters() {
+    const turns = shuffle(encounterPool()).slice(0, 6);
+    if (!turns.length) return;
+    session = { kind: "encounter", title: "Encounters", lesson: null, queue: turns.map((item) => ({ type: "page", mode: MODES[3], item })), pos: 0, said: 0, strip: [] };
     beginSession();
   }
   function beginSession() {
     stopDrive();
+    const s = session;
+    // the progress bar: one segment per exercise in this session
+    s.segs = [];
+    s.queue.forEach((q) => { if (q.type === "page" && !s.segs.includes(q.mode)) s.segs.push(q.mode); });
+    $("segbar").innerHTML = s.segs.map(() => "<i><b></b></i>").join("");
     show("reading");
     renderStep();
+  }
+  function paintProgress() {
+    const s = session;
+    const bars = $("segbar").querySelectorAll("b");
+    s.segs.forEach((mode, k) => {
+      const pages = s.queue.map((q, i) => ({ q, i })).filter((x) => x.q.type === "page" && x.q.mode === mode);
+      const done = pages.filter((x) => x.i < s.pos).length;
+      if (bars[k]) bars[k].style.width = (pages.length ? (done / pages.length) * 100 : 0) + "%";
+    });
   }
   function closeReading() {
     stopAudio();
@@ -705,15 +776,14 @@
   function renderStep() {
     const s = session;
     setDock(null);
-    $("reading-progress").style.width = (s.queue.length ? (s.pos / s.queue.length) * 100 : 0) + "%";
+    paintProgress();
     if (s.pos >= s.queue.length) { finishSession(); return; }
     const step = s.queue[s.pos];
     const mode = step.mode;
-    document.body.dataset.mode = mode.color;
-    $("reading-title").textContent = s.kind === "review" ? "SECOND LOOK" : s.kind === "trip" ? "SIDE TRIP · " + s.trip.title.toUpperCase() : labelOf(mode).toUpperCase();
+    $("reading-title").textContent = s.title || mode.name;
     if (step.type === "bridge") { $("reading-page").textContent = ""; renderBridge(step); return; }
     const same = s.queue.filter((q) => q.type === "page" && q.mode === mode);
-    $("reading-page").textContent = (same.indexOf(step) + 1) + " / " + same.length;
+    $("reading-page").textContent = (same.indexOf(step) + 1) + "/" + same.length;
     const item = step.item;
     if (item.kind === "meet") renderMeet(item);
     else if (item.kind === "recall") renderRecall(item);
@@ -728,9 +798,9 @@
   const stageFor = (item, extra) => popup($("reading-stage"), Object.assign({ guide: "think" }, postcardOf(item.lesson || (session && session.lesson)), extra || {}));
   function bringIn(el) { if (el && el.scrollIntoView && !reduceMotion) { try { el.scrollIntoView({ block: "nearest", behavior: "smooth" }); } catch (_) {} } }
   const GRADES = (item, after) => [
-    { label: "Not yet", kind: "plain", id: "grade-again", on: () => grade(item, "again", after) },
-    { label: "Almost", kind: "plain", id: "grade-hard", on: () => grade(item, "hard", after) },
-    { label: "Got it", kind: "good", id: "grade-good", on: () => grade(item, "good", after) },
+    { label: "Not yet", kind: "warn", id: "grade-again", icon: false, on: () => grade(item, "again", after) },
+    { label: "Almost", kind: "mid", id: "grade-hard", icon: false, on: () => grade(item, "hard", after) },
+    { label: "Got it", kind: "good", id: "grade-good", icon: false, on: () => grade(item, "good", after) },
   ];
   function grade(item, result, after) {
     recordAttempt(item.id, result);
@@ -742,24 +812,25 @@
     if (reduceMotion) go();
     else setTimeout(() => { if (session === mine) go(); }, 280);
   }
+  const LABEL = (text) => '<p class="label">' + esc(text) + "</p>";
 
   // Meet: the page itself — picture, sentence, every word explained. No test.
   function renderMeet(item) {
     const s = item.sentence;
     stageFor(item, storyFor(item.lesson, indexOfId(item.id)));
-    body().innerHTML = '<span class="kicker">Meet the page</span><p class="meaning">' + esc(s.en) + "</p>" + answerHTML(s) +
+    body().innerHTML = LABEL("Meet the page") + '<p class="meaning">' + esc(s.en) + "</p>" + answerHTML(s) +
       (s.hint ? '<p class="hint">' + esc(s.hint) + "</p>" : "");
     say(s.jp);
-    setDock([{ id: "meet-next", label: "<span>Next</span>" + ARROW, on: nextItem }]);
+    setDock([NEXT("meet-next", "Next", nextItem)]);
   }
 
   // 1 · Recall: the meaning → you say it → check yourself.
   function renderRecall(item) {
     const s = item.sentence;
     stageFor(item, storyFor(item.lesson, indexOfId(item.id)));
-    body().innerHTML = '<span class="kicker">Say it in Japanese</span><h2 class="prompt">' + esc(s.en) + "</h2>" +
+    body().innerHTML = LABEL("Say it in Japanese") + '<h2 class="prompt">' + esc(s.en) + "</h2>" +
       '<p class="hint">' + esc(s.hint || "Say it out loud first.") + '</p><div id="answer-slot"></div>';
-    setDock([{ id: "reveal", label: "<span>I said it — show me</span>" + ARROW, on: () => {
+    setDock([{ id: "reveal", label: "I said it", sub: "Show the answer", icon: ICON.next, on: () => {
       $("answer-slot").innerHTML = answerHTML(s);
       say(s.jp);
       setDock(GRADES(item));
@@ -772,8 +843,8 @@
     const s = item.sentence;
     const picture = item.kind === "picture";
     stageFor(item, picture ? { objects: item.choices, pick: true } : storyFor(item.lesson, indexOfId(item.id), { hideFront: true }));
-    body().innerHTML = '<span class="kicker">Listen first</span>' +
-      '<div class="listen-row"><button class="big-play" id="listen-play" aria-label="Play again">▶</button><div><h2 class="prompt small">' + (picture ? "Tap what you heard." : "What did you hear?") + '</h2><button class="mini" data-say-slow="' + esc(s.jp) + '">Slowly</button></div></div>' +
+    body().innerHTML = LABEL("Listen first") +
+      '<div class="listen-row"><button class="big-play" id="listen-play" aria-label="Play again">' + ICON.play + '</button><div><h2 class="prompt small">' + (picture ? "Tap what you heard." : "What did you hear?") + '</h2><button class="pill" data-say-slow="' + esc(s.jp) + '">Slowly</button></div></div>' +
       (picture ? "" : '<div class="choices">' + item.choices.map((c) => '<button class="choice" data-choice="' + esc(c) + '">' + esc(c) + "</button>").join("") + "</div>") +
       '<div id="answer-slot"></div>';
     $("listen-play").addEventListener("click", () => say(s.jp));
@@ -785,7 +856,7 @@
       session.said++;
       setGuide($("reading-stage"), misses ? "think" : "thumbs");
       $("answer-slot").innerHTML = '<p class="say-back">' + (misses ? "Here's what you heard." : "You caught it.") + " Now say it once, out loud.</p>" + answerHTML(s, { en: true });
-      setDock([{ id: "listen-next", label: "<span>Next</span>" + ARROW, on: nextItem }]);
+      setDock([NEXT("listen-next", "Next", nextItem)]);
       bringIn($("answer-slot"));
     };
     if (picture) {
@@ -819,14 +890,14 @@
     const src = item.source, s = item.sentence;
     stageFor(item, storyFor(item.lesson, indexOfId(item.id), { hideFront: true }));
     let slot = 0, misses = 0;
-    const line = () => src.words.map((w, k) => {
+    const lineHTML = () => src.words.map((w, k) => {
       const ci = item.changed.indexOf(k);
       if (ci < 0) return chipHTML(w, "still");
       return ci < slot ? chipHTML(s.words[k], "swapped") : chipHTML(w, ci === slot ? "slot" : "slot waiting");
     }).join("");
     const draw = () => {
       const k = item.changed[slot];
-      $("swap-line").innerHTML = line();
+      $("swap-line").innerHTML = lineHTML();
       if (slot >= item.changed.length) {
         $("swap-options").innerHTML = "";
         $("swap-ask").textContent = "Now say the whole sentence.";
@@ -834,12 +905,12 @@
         recordAttempt(item.id, misses ? "hard" : "good");
         session.said++;
         popup($("reading-stage"), Object.assign({ guide: "thumbs" }, postcardOf(item.lesson), storyFor(item.lesson, indexOfId(item.id))));
-        $("answer-slot").innerHTML = '<div class="answer slim">' + (showRomaji() && s.romaji ? '<div class="romaji">' + esc(s.romaji) + "</div>" : "") + '<div class="answer-tools"><button class="mini" data-say="' + esc(s.jp) + '">▶ Hear</button><button class="mini" data-say-slow="' + esc(s.jp) + '">Slowly</button></div></div>';
-        setDock([{ id: "swap-next", label: "<span>Next</span>" + ARROW, on: nextItem }]);
+        $("answer-slot").innerHTML = '<div class="answer slim">' + (showRomaji() && s.romaji ? '<div class="romaji">' + esc(s.romaji) + "</div>" : "") + '<div class="answer-tools"><button class="pill" data-say="' + esc(s.jp) + '">' + ICON.sound + 'Hear</button><button class="pill" data-say-slow="' + esc(s.jp) + '">Slowly</button></div></div>';
+        setDock([NEXT("swap-next", "Next", nextItem)]);
         return;
       }
       const target = s.words[k];
-      $("swap-ask").innerHTML = "Swap <b>" + esc(src.words[k].en) + "</b> — which piece makes it right?";
+      $("swap-ask").innerHTML = "Swap <b>" + esc(src.words[k].en) + "</b>. Which piece makes it right?";
       $("swap-options").innerHTML = swapOptions(item.lesson, target, src.words[k]).map((w) =>
         '<button type="button" class="wchip option pos-' + esc(w.pos || "expr") + '" data-option="' + esc(w.jp) + '"><span class="wc-main"><b>' + esc(w.jp) + "</b><small>" + esc(w.en) + "</small></span></button>").join("");
       $("swap-options").querySelectorAll("[data-option]").forEach((b) => b.addEventListener("click", () => {
@@ -849,8 +920,8 @@
         draw();
       }));
     };
-    body().innerHTML = '<span class="kicker">Change one piece</span>' +
-      '<p class="from">You can say: <em>' + esc(src.en) + '</em></p><div class="swap-line" id="swap-line"></div>' +
+    body().innerHTML = LABEL("Change one piece") +
+      '<p class="from">You can say <em>' + esc(src.en) + '</em></p><div class="swap-line" id="swap-line"></div>' +
       '<h2 class="prompt small">Now say: ' + esc(s.en) + '</h2><p class="hint" id="swap-ask"></p>' +
       '<div class="swap-options" id="swap-options"></div><div id="answer-slot"></div>';
     draw();
@@ -861,7 +932,7 @@
     stageFor(item, storyFor(item.lesson, indexOfId(item.id)));
     const bank = shuffle(s.words.map((w, i) => ({ w, i })));
     let placed = [], tries = 0;
-    body().innerHTML = '<span class="kicker">Put it together</span><h2 class="prompt">' + esc(s.en) + "</h2>" +
+    body().innerHTML = LABEL("Put it together") + '<h2 class="prompt">' + esc(s.en) + "</h2>" +
       '<p class="hint">Say it first, then tap the pieces in order.</p>' +
       '<div class="build-line" id="build-line"></div><div class="swap-options" id="build-bank">' +
       bank.map((b) => '<button type="button" class="wchip option pos-' + esc(b.w.pos || "expr") + '" data-piece="' + b.i + '"><span class="wc-main"><b>' + esc(b.w.jp) + "</b></span></button>").join("") +
@@ -889,7 +960,7 @@
       setGuide($("reading-stage"), "thumbs");
       $("answer-slot").innerHTML = answerHTML(s);
       say(s.jp);
-      setDock([{ id: "build-next", label: "<span>Next</span>" + ARROW, on: nextItem }]);
+      setDock([NEXT("build-next", "Next", nextItem)]);
       bringIn($("answer-slot"));
     }));
   }
@@ -897,10 +968,10 @@
   function renderReveal(item) {
     const src = item.source, s = item.sentence;
     stageFor(item, {});
-    body().innerHTML = '<span class="kicker">Change one piece</span>' +
-      '<div class="source-card"><small>You can say</small><div class="jp">' + rubyHTML(src.jp) + "</div><p>" + esc(src.en) + '</p><button class="mini" data-say="' + esc(src.jp) + '">▶</button></div>' +
+    body().innerHTML = LABEL("Change one piece") +
+      '<div class="source-card"><small>You can say</small><div class="jp">' + rubyHTML(src.jp) + "</div><p>" + esc(src.en) + '</p><button class="pill" data-say="' + esc(src.jp) + '" aria-label="Hear it">' + ICON.sound + "</button></div>" +
       '<h2 class="prompt small">Now say: ' + esc(s.en) + '</h2><div id="answer-slot"></div>';
-    setDock([{ id: "reveal", label: "<span>I said it — show me</span>" + ARROW, on: () => {
+    setDock([{ id: "reveal", label: "I said it", sub: "Show the answer", icon: ICON.next, on: () => {
       $("answer-slot").innerHTML = answerHTML(s, { note: item.note });
       say(s.jp);
       setDock(GRADES(item));
@@ -908,15 +979,17 @@
     } }]);
   }
 
-  // 4 · In the Moment: she speaks, you answer out loud, then see one way to say it.
+  // 4 · In the Moment / Encounters: she speaks, you answer in Japanese out loud,
+  // then you see one way to say it, and what she meant.
   function renderTurn(turn) {
     const s = session, convo = turn.convo, lesson = convo.lesson || null;
+    const running = s.kind === "lesson" || s.kind === "trip";   // one conversation, in order
     popup($("reading-stage"), Object.assign({ guide: "think", you: true, bubble: turn.them ? turn.them.jp : "", caption: convo.sceneTitle },
       lesson ? postcardOf(lesson) : {}, lesson ? storyFor(lesson, turn.pageIndex) : {}));
-    const strip = s.strip.slice(-4).map((l) => '<p class="strip-line ' + l.who + '"><span>' + rubyHTML(l.jp) + "</span></p>").join("");
+    const strip = running ? s.strip.slice(-4).map((l) => '<p class="strip-line ' + l.who + '"><span>' + rubyHTML(l.jp) + "</span></p>").join("") : "";
     body().innerHTML = (strip ? '<div class="strip" aria-label="The conversation so far">' + strip + "</div>" : "") +
-      (turn.them ? '<div class="them"><small>' + esc(turn.them.speaker || "") + '</small><button class="mini" data-say="' + esc(turn.them.jp) + '">▶ Again</button><button class="mini" id="them-en-toggle">English</button><p class="en" id="them-en" hidden>' + esc(turn.them.en) + "</p></div>" : "") +
-      '<span class="kicker">Your turn</span><h2 class="prompt small">' + esc(turn.ctx) + '</h2><p class="hint">Answer her out loud.</p><div id="answer-slot"></div>';
+      (turn.them ? '<div class="them"><span class="who">' + esc(turn.them.speaker || "She") + ' says</span><button class="pill" data-say="' + esc(turn.them.jp) + '">' + ICON.sound + 'Again</button><button class="pill" id="them-en-toggle">What did she say?</button><p class="en" id="them-en" hidden>' + esc(turn.them.en) + "</p></div>" : "") +
+      LABEL("Your turn") + '<h2 class="prompt small">' + esc(turn.ctx) + '</h2><p class="hint">Answer in Japanese, out loud.</p><div id="answer-slot"></div>';
     if (turn.them) say(turn.them.jp);
     const toggle = $("them-en-toggle");
     if (toggle) toggle.addEventListener("click", () => { $("them-en").hidden = !$("them-en").hidden; });
@@ -925,21 +998,23 @@
       s.strip.push({ who: "you", jp: turn.model.jp });
       const nextStep = s.queue[s.pos + 1];
       const last = !nextStep || nextStep.type !== "page" || nextStep.mode !== s.queue[s.pos].mode;
-      const reply = turn.reply || (last ? convo.closing : null);
+      // in a running conversation her next line opens the next page; alone, show it here
+      const reply = turn.reply || (running ? (last ? convo.closing : null) : turn.follow || null);
       if (!reply) { nextItem(); return; }
       bubbleSay($("reading-stage"), "her", reply.jp);
       say(reply.jp);
       s.strip.push({ who: "her", jp: reply.jp });
-      $("answer-slot").innerHTML = '<div class="reply"><small>' + esc((turn.them && turn.them.speaker) || convo.speaker || "She says") + '</small><div class="jp">' + rubyHTML(reply.jp) + "</div><p>" + esc(reply.en || "") + "</p></div>";
-      setDock([{ id: "turn-next", label: "<span>" + (last ? "Finish the scene" : "Keep talking") + "</span>" + ARROW, on: nextItem }]);
+      $("answer-slot").innerHTML = '<div class="reply"><small>' + esc((turn.them && turn.them.speaker) || convo.speaker || "She") + ' answers</small><div class="jp">' + rubyHTML(reply.jp) + "</div><p>" + esc(reply.en || "") + "</p></div>";
+      setDock([NEXT("turn-next", last ? (running ? "Finish the scene" : "Finish") : running ? "Keep talking" : "Next encounter", nextItem)]);
     };
-    setDock([{ id: "reveal", label: "<span>I said it — show a reply</span>" + ARROW, on: () => {
+    setDock([{ id: "reveal", label: "I answered", sub: "Show one way to say it", icon: ICON.next, on: () => {
       bubbleSay($("reading-stage"), "you", turn.model.jp);
-      $("answer-slot").innerHTML = '<p class="say-back">One way to say it:</p>' + answerHTML(turn.model, { en: true });
+      if ($("them-en")) $("them-en").hidden = false;   // and what she meant
+      $("answer-slot").innerHTML = '<p class="say-back">One way to say it</p>' + answerHTML(turn.model, { en: true });
       say(turn.model.jp);
       setDock([
-        { label: "Not quite", kind: "plain", id: "grade-again", on: () => grade(turn, "again", after) },
-        { label: "That's what I said", kind: "good", id: "grade-good", on: () => grade(turn, "good", after) },
+        { label: "Not quite", kind: "warn", id: "grade-again", icon: false, on: () => grade(turn, "again", after) },
+        { label: "That's what I said", kind: "good", id: "grade-good", icon: false, on: () => grade(turn, "good", after) },
       ]);
       bringIn($("answer-slot"));
     } }]);
@@ -949,51 +1024,56 @@
   function renderBridge(step) {
     const s = session;
     popup($("reading-stage"), Object.assign({ guide: "thumbs" }, postcardOf(s.lesson), chapterStory(s.lesson)));
-    body().innerHTML = '<div class="finish' + (reduceMotion ? "" : " press") + '"><span class="hanko' + (reduceMotion ? "" : " stamping") + '" aria-hidden="true">' + (step.prev.no || "✓") + "</span>" +
-      '<span class="kicker">' + esc(step.prev.name) + " done</span><h2>Next: " + esc(step.mode.name) + "</h2><p>" + esc(step.mode.verb) + ".</p></div>" +
-      '<button class="quiet" id="bridge-stop">Stop here for now</button>';
+    body().innerHTML = '<div class="bridge"><span class="tick-seal">' + ICON.check + "</span>" +
+      '<p class="label">' + esc(step.prev.name) + " done</p><h2>Next: " + esc(step.mode.name) + "</h2><p>" + esc(step.mode.verb) + ".</p></div>" +
+      '<button class="text-btn" id="bridge-stop">Stop here for now</button>';
     $("bridge-stop").addEventListener("click", closeReading);
-    setDock([{ id: "bridge-next", label: "<span>Continue</span>" + ARROW, on: nextItem }]);
+    setDock([NEXT("bridge-next", "Continue", nextItem, labelOf(step.mode))]);
   }
 
   function finishSession() {
     const s = session;
     stopAudio();
     $("reading-page").textContent = "";
-    $("reading-progress").style.width = "100%";
     const lesson = s.lesson;
     const stamped = s.kind === "lesson" && chapterDone(lesson.id) && !s.wasDone;
     popup($("reading-stage"), Object.assign({ guide: "cheer" }, lesson ? postcardOf(lesson) : {}, lesson ? chapterStory(lesson) : {}));
     const after = s.kind === "lesson" ? nextLesson() : null;
     const ready = learnedCards().length;
-    body().innerHTML = '<div class="finish' + (stamped ? " big" : "") + (reduceMotion ? "" : " press") + '">' +
-      '<span class="hanko' + (reduceMotion ? "" : " stamping") + '" aria-hidden="true">' + (stamped ? "済" : "✓") + "</span>" +
-      '<span class="kicker">' + (s.kind === "review" ? "Second look done" : s.kind === "trip" ? "Side trip done" : stamped ? "Page stamped" : "Done for now") + "</span>" +
-      "<h2>" + (stamped ? "よくできました！" : "Nicely done.") + "</h2>" +
+    body().innerHTML = '<div class="finish' + (stamped ? " big" : "") + '">' +
+      (stamped ? '<span class="hanko' + (reduceMotion ? "" : " stamping") + '" aria-hidden="true">済</span>' : '<span class="tick-seal">' + ICON.check + "</span>") +
+      '<p class="label">' + (s.kind === "review" ? "Second look done" : s.kind === "trip" ? "Side trip done" : s.kind === "encounter" ? "Encounters done" : stamped ? "Page stamped" : "Done for now") + "</p>" +
+      "<h2>" + (stamped ? "よくできました" : "Nicely done.") + "</h2>" +
       "<p>" + (stamped ? "All four readings of " + esc(lesson.title) + ". " : "") +
-        (s.said ? "You said " + s.said + " line" + (s.said === 1 ? "" : "s") + " out loud. " : "") +
-        (ready ? ready + " line" + (ready === 1 ? " is" : "s are") + " ready for your next drive." : "") + "</p></div>";
+        (s.said ? "You said " + plural(s.said, "line") + " out loud. " : "") +
+        (ready ? plural(ready, "line") + (ready === 1 ? " is" : " are") + " ready for your next drive." : "") + "</p></div>";
     if (stamped) setTimeout(confetti, reduceMotion ? 0 : 500);
     const buttons = [];
-    if (after && after !== lesson) buttons.push({ id: "finish-next", label: '<span>Next page <span class="primary-sub">' + esc(after.title) + "</span></span>" + ARROW, on: () => startLesson(after.id) });
-    buttons.push({ id: "finish-home", label: "Back to the book", kind: buttons.length ? "plain" : "primary", on: () => { session = null; goHome({ back: true }); } });
+    if (after && after !== lesson) buttons.push(NEXT("finish-next", "Next page", () => startLesson(after.id), after.title));
+    if (s.kind === "encounter") buttons.push(NEXT("finish-more", "Six more", startEncounters));
+    buttons.push({ id: "finish-home", label: buttons.length ? "Done" : "Back to the book", kind: buttons.length ? "tint" : "primary", icon: false, on: () => { session = null; goHome({ back: true }); } });
     setDock(buttons);
   }
 
-  // ---- DRIVE: hands-free, eyes off -----------------------------------------------
+  // ---- DRIVE --------------------------------------------------------------------
   // One tap, then it keeps going until you stop:
-  //   1. your lines — what the book taught, due first: cue → a gap to say it →
-  //      the answer → a gap to say it again (weak lines come back later);
+  //   1. your lines — what the book taught, due first, mixed three ways:
+  //        say it        meaning → you say the Japanese
+  //        understand it Japanese → you say what it means
+  //        answer her    her question → you reply in Japanese
   //   2. then lesson after lesson from the car bookmark (state.drivePos): lines
-  //      you know are recalled, new ones are introduced by ear, then the
-  //      lesson's conversation. A chime between lessons.
-  // Steering-wheel / Bluetooth buttons work through the Media Session API:
-  // play/pause, next = knew it (move on), previous = again. The car display
-  // shows the Japanese line. "Knew it" / "Again" are also big pads on screen.
+  //      you know are drilled, new ones are introduced, then the lesson's
+  //      conversation. A chime between lessons.
+  // Two ways to drive it (state.settings.driveMode):
+  //   hands  everything is spoken, with gaps for you to speak. Steering-wheel /
+  //          Bluetooth buttons (Media Session): play/pause, next = knew it,
+  //          previous = again. The car display shows the Japanese line.
+  //   touch  one big card for a mounted phone: tap anywhere to check, then
+  //          Again / Got it (or swipe). The Japanese is read aloud as you go.
   const DRIVE_LINES = 12;
   // where the car picks up: the drive's own bookmark, else the reading bookmark
   const carLesson = () => lessonById(state.drivePos) || nextLesson();
-  const known = (id) => !!(state.cards[id] && state.cards[id].reps > 0);
+  const answerItem = (t) => ({ type: "answer", id: t.id, them: t.them, ctx: t.ctx, sentence: t.model });
   function linesBlock() {
     const learned = learnedCards();
     const now = Date.now();
@@ -1001,27 +1081,32 @@
     const soon = learned.filter((x) => (x.card.due || 0) > now).sort((a, b) => (a.card.due || 0) - (b.card.due || 0));
     const picked = due.concat(soon).slice(0, DRIVE_LINES);
     if (!picked.length) return null;
-    const queue = picked.map((x) => {
+    // someone speaks to you every few lines, from the same pages
+    const asks = shuffle(encounterPool(Array.from(new Set(picked.map((x) => x.lesson)))));
+    const queue = [];
+    picked.forEach((x, n) => {
       const pair = patternPairs(x.lesson).find((p) => p.id === x.id && p.changed.length === 1);
       const weak = (x.card.reps || 0) <= 2 || (x.card.lapses || 0) > 0;
-      return pair && !weak && Math.random() < 0.4
-        ? { type: "swap", id: x.id, sentence: x.sentence, source: pair.source, word: pair.sentence.words[pair.changed[0]], weak }
-        : { type: "recall", id: x.id, sentence: x.sentence, weak };
+      const roll = Math.random();
+      if (pair && !weak && roll < 0.2) queue.push({ type: "swap", id: x.id, sentence: x.sentence, source: pair.source, word: pair.sentence.words[pair.changed[0]], weak });
+      else if (weak || roll < 0.6) queue.push({ type: "recall", id: x.id, sentence: x.sentence, weak });
+      else queue.push({ type: "understand", id: x.id, sentence: x.sentence, weak });
+      if (n % 3 === 2 && asks.length) queue.push(answerItem(asks.shift()));
     });
     // weak lines come back a few lines later (graduated recall)
     for (let i = 0; i < queue.length; i++) {
       const it = queue[i];
-      if (it.weak && !it.rep && !it.again) { it.again = true; queue.splice(Math.min(queue.length, i + 5), 0, Object.assign({}, it, { rep: true })); }
+      if (it.weak && it.type === "recall" && !it.rep && !it.again) { it.again = true; queue.splice(Math.min(queue.length, i + 5), 0, Object.assign({}, it, { rep: true })); }
     }
-    return { title: "Your lines", sub: picked.length + " line" + (picked.length === 1 ? "" : "s") + " from the book · " + due.length + " due", queue, lines: picked.length, due: due.length };
+    return { title: "Your lines", sub: plural(picked.length, "line") + " from the book · " + due.length + " due", queue, lines: picked.length, due: due.length };
   }
   // one lesson's worth of driving: its sentences, then its real-life scene
   function lessonBlock(lesson, skip) {
     const queue = sentenceItems(lesson).filter((x) => !(skip && skip.has(x.id))).map((x) => (known(x.id)
-      ? { type: "recall", id: x.id, sentence: x.sentence }
+      ? { type: Math.random() < 0.6 ? "recall" : "understand", id: x.id, sentence: x.sentence }
       : { type: "learn", id: x.id, sentence: x.sentence, first: true }));
     const scene = TALK.find((t) => t.lesson === lesson.id);
-    if (scene) sceneTurns(scene, lesson).turns.forEach((t) => { if (t.them) queue.push({ type: "convo", them: t.them, sentence: t.model }); });
+    if (scene) sceneTurns(scene, lesson).turns.forEach((t) => { if (t.them) queue.push(answerItem(t)); });
     const c = chapterOf(lesson.id);
     return { title: lesson.title, sub: "Chapter " + c.index + " · " + c.level.title, lesson, queue };
   }
@@ -1032,15 +1117,20 @@
     const block = lines || lessonBlock(car);
     return { block, queue: block.queue, learned: lines ? lines.lines : 0, lines: lines ? lines.lines : 0, due: lines ? lines.due : 0, minutes: blockMinutes(block.queue, state.settings.cue), car };
   }
+  // hands-free: what is spoken, in order, with gaps for you
   function driveSteps(it, cue) {
     const s = it.sentence, mine = sayTime(s.jp) * 1.3 + 900;
-    if (it.type === "convo") return [
-      { jp: it.them.jp, label: "She says…" }, { gap: mine + 400, label: "Answer her" },
+    if (it.type === "answer") return [{ jp: it.them.jp, label: "She says…", show: true }].concat(cue === "en" && it.ctx ? [{ en: it.ctx, label: "Your turn" }] : [], [
+      { gap: mine + 600, label: "Answer her in Japanese" },
       { jp: s.jp, label: "One way to say it", show: true }, { gap: mine, label: "Say it again" },
-    ];
+    ]);
     if (it.type === "swap") return [
       { jp: it.source.jp, label: "Listen", show: true }, { jp: it.word.jp, label: "Now with…", show: true },
       { gap: mine + 400, label: "Say the new sentence" }, { jp: s.jp, label: "The answer", show: true }, { gap: mine, label: "Say it again" },
+    ];
+    if (it.type === "understand" && cue === "en") return [
+      { jp: s.jp, label: "What does it mean?", show: true }, { gap: 1400 + s.en.length * 70, label: "Say it in English" },
+      { en: s.en, label: "It means…" }, { jp: s.jp, label: "Once more", show: true }, { gap: mine * 0.8, label: "Say it back" },
     ];
     // a new line, or Japanese-only: introduce it by ear (with its meaning first, if cued)
     if (it.type === "learn" || cue !== "en") return (it.type === "learn" && cue === "en" ? [{ en: s.en, label: "This means…" }] : []).concat([
@@ -1058,28 +1148,33 @@
     if (drive && drive.running) return;
     const plan = drivePlan();
     const cue = state.settings.cue === "jp" ? "jp" : "en";
+    const touch = state.settings.driveMode === "touch";
     const carC = chapterOf(plan.car.id);
+    const how = touch
+      ? ["A card appears and the Japanese is read aloud", "Say your answer out loud, then tap anywhere", "Again or Got it — tap, or swipe"]
+      : cue === "en" ? ["Hear what to say, or her question", "Answer out loud in the gap", "Hear the answer, say it again"]
+      : ["Hear the Japanese", "Say it back in the gap", "Hear it slowly, say it again"];
     $("drive-body").innerHTML =
-      '<header class="page-head"><span class="kicker">車 · Drive</span></header>' +
-      '<h1 class="journal-title">Keep it<br><em>on the drive.</em></h1>' +
+      '<header class="topbar"><h1 class="page-title">Drive <span lang="ja">車</span></h1></header>' +
       '<p class="lede">One tap, then it keeps going on its own until you stop. Set it up while parked.</p>' +
-      '<div class="drive-card">' +
-        (plan.learned
-          ? "<b>" + plan.lines + " line" + (plan.lines === 1 ? "" : "s") + " first</b><small>from the book · " + plan.due + " due · about " + plan.minutes + " min</small>"
-          : "<b>First listen</b><small>Read a page in the book and its lines open your drives.</small>") +
-        '<p class="drive-then"><span class="kicker">' + (plan.learned ? "Then lesson after lesson" : "Lesson after lesson") + "</span>" +
-          "from the car bookmark: <b>" + esc(plan.car.title) + "</b> · Chapter " + carC.index + "</p>" +
-        '<ol class="drive-how">' + (cue === "en"
-          ? "<li>Hear what to say</li><li>Say it in Japanese</li><li>Hear the answer, say it again</li>"
-          : "<li>Hear the Japanese</li><li>Say it back</li><li>Hear it slowly, say it again</li>") + "</ol>" +
+      '<div class="seg" role="group" aria-label="How you drive it">' +
+        '<button type="button" data-drive-mode="hands" aria-pressed="' + !touch + '">' + ICON.ear + "Hands-free</button>" +
+        '<button type="button" data-drive-mode="touch" aria-pressed="' + touch + '">' + ICON.hand + "Touch</button></div>" +
+      '<div class="drive-card-setup">' +
+        '<div class="drive-row"><span class="drive-n">1</span><div>' + (plan.learned
+          ? "<b>" + plural(plan.lines, "line") + " from the book</b><small>" + plan.due + " due" + (touch ? "" : " · about " + plan.minutes + " min") + " · say it, understand it, answer her</small>"
+          : "<b>A first listen</b><small>Read a page in the book and its lines open your drives.</small>") + "</div></div>" +
+        '<div class="drive-row"><span class="drive-n">' + (plan.learned ? 2 : 1) + "</span><div><b>Then lesson after lesson</b><small>from the car bookmark: " + esc(plan.car.title) + " · Chapter " + carC.index + "</small></div></div>" +
+        '<ol class="drive-how">' + how.map((h) => "<li>" + h + "</li>").join("") + "</ol>" +
       "</div>" +
-      '<div class="seg" role="group" aria-label="How lines are cued">' +
-        '<button type="button" data-cue="en" aria-pressed="' + (cue === "en") + '">English cue</button>' +
-        '<button type="button" data-cue="jp" aria-pressed="' + (cue === "jp") + '">Japanese only</button></div>' +
-      '<p class="fine">' + (cue === "en" ? "You hear the meaning in English, then say the Japanese from memory — the strongest practice for keeping it." : "No English is spoken: you listen and repeat.") + "</p>" +
-      '<p class="fine wheel">On the wheel: <b>⏭</b> knew it · <b>⏮</b> again · <b>⏯</b> pause. No button needed — it keeps going by itself.</p>' +
-      '<button class="primary" id="drive-start"><span>Start the drive</span>' + ARROW + "</button>";
+      (touch ? '<p class="fine">Made for a mounted phone: one big card, whole-screen taps. No small buttons.</p>'
+        : '<div class="seg seg-sub" role="group" aria-label="How lines are cued">' +
+          '<button type="button" data-cue="en" aria-pressed="' + (cue === "en") + '">English cue</button>' +
+          '<button type="button" data-cue="jp" aria-pressed="' + (cue === "jp") + '">Japanese only</button></div>' +
+          '<p class="fine">' + (cue === "en" ? "You hear the meaning in English, then say the Japanese from memory. On the wheel: next = knew it, previous = again, play/pause." : "No English is spoken: you listen, repeat, and answer her questions.") + "</p>") +
+      '<button class="btn btn-primary" id="drive-start"><span class="btn-label">Start the drive</span>' + ICON.next + "</button>";
     $("drive-body").querySelectorAll("[data-cue]").forEach((b) => b.addEventListener("click", () => { state.settings.cue = b.dataset.cue; save(); renderDrive(); }));
+    $("drive-body").querySelectorAll("[data-drive-mode]").forEach((b) => b.addEventListener("click", () => { state.settings.driveMode = b.dataset.driveMode; save(); renderDrive(); }));
     $("drive-start").addEventListener("click", () => startDrive(plan));
   }
   // steering-wheel buttons, and a silent loop that keeps the phone's media
@@ -1136,34 +1231,71 @@
   }
   function startDrive(plan) {
     session = null;
-    drive = { running: true, block: plan.block, queue: plan.block.queue.slice(), blocks: 1, i: 0, s: 0, paused: false, token: {}, grades: {}, done: [], lock: null, cue: state.settings.cue === "jp" ? "jp" : "en" };
-    $("drive-body").innerHTML =
-      '<div class="drive-run">' +
-        '<div class="drive-top"><span class="kicker">Drive · <span id="drive-count"></span></span><button class="drive-end" id="drive-stop">End</button></div>' +
-        '<p class="drive-lesson" id="drive-lesson"></p>' +
-        '<div class="drive-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>' +
-        '<p class="drive-cue" id="drive-cue" aria-live="polite">Starting…</p><div class="drive-line" id="drive-line"></div>' +
-        '<div class="drive-pads"><button id="drive-again"><b>⏮</b><small>Again</small></button><button id="drive-pause"><b>❚❚</b><small>Pause</small></button><button id="drive-got"><b>⏭</b><small>Knew it</small></button></div>' +
-        '<p class="fine">Eyes on the road — everything is spoken. Your steering-wheel buttons work too.</p>' +
-      "</div>";
+    const touch = state.settings.driveMode === "touch";
+    drive = { running: true, touch, block: plan.block, queue: plan.block.queue.slice(), blocks: 1, i: 0, s: 0, paused: false, token: {}, grades: {}, done: [], lock: null, cue: state.settings.cue === "jp" ? "jp" : "en" };
+    const top = '<div class="drive-top"><button class="drive-end" id="drive-stop">End</button><span class="drive-count" id="drive-count"></span>' +
+      (touch ? '<button class="drive-end drive-icon" id="drive-replay" aria-label="Hear it again">' + ICON.sound + "</button>" : '<span class="drive-spacer"></span>') + "</div>" +
+      '<p class="drive-lesson" id="drive-lesson"></p>';
+    $("drive-body").innerHTML = touch
+      ? '<div class="drive-run touch">' + top +
+          '<button class="drive-card" id="drive-card" aria-live="polite"></button>' +
+          '<div class="drive-pads" id="drive-pads"></div></div>'
+      : '<div class="drive-run">' + top +
+          '<div class="drive-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>' +
+          '<p class="drive-cue" id="drive-cue" aria-live="polite">Starting…</p><div class="drive-line" id="drive-line"></div>' +
+          '<div class="drive-pads"><button id="drive-again">' + ICON.prev + '<small>Again</small></button><button id="drive-pause">' + ICON.pause + '<small>Pause</small></button><button id="drive-got">' + ICON.skip + "<small>Knew it</small></button></div>" +
+          '<p class="fine">Eyes on the road. Everything is spoken, and your steering-wheel buttons work too.</p></div>';
     $("drive-stop").addEventListener("click", endDrive);
-    $("drive-again").addEventListener("click", driveAgain);
-    $("drive-got").addEventListener("click", driveGot);
-    $("drive-pause").addEventListener("click", () => drivePause(!drive.paused));
+    if (touch) {
+      $("drive-replay").addEventListener("click", touchReplay);
+      wireTouchCard($("drive-card"));
+    } else {
+      $("drive-again").addEventListener("click", driveAgain);
+      $("drive-got").addEventListener("click", driveGot);
+      $("drive-pause").addEventListener("click", () => drivePause(!drive.paused));
+    }
     document.body.classList.add("driving");
     syncChrome();
     window.scrollTo(0, 0);
     holdMedia(true);
     try { if (navigator.wakeLock && navigator.wakeLock.request) navigator.wakeLock.request("screen").then((l) => { if (drive) drive.lock = l; else l.release(); }).catch(() => {}); } catch (_) {}
-    runDrive();
+    if (touch) touchShow(); else runDrive();
   }
+  const paintBlock = (d) => { $("drive-lesson").innerHTML = "<b>" + esc(d.block.title) + "</b><small>" + esc(d.block.sub) + "</small>"; };
+  // a block played through: move the car bookmark on (once), then load the next lesson
+  function turnBlock(d) {
+    if (!d.turned && d.block.lesson) {
+      const at = order.indexOf(d.block.lesson);
+      state.drivePos = order[(at + 1) % order.length].id;
+      state.driven = state.driven || {};
+      state.driven[d.block.lesson.id] = (state.driven[d.block.lesson.id] || 0) + 1;
+      save();
+    }
+    d.turned = true;
+  }
+  function loadNextBlock(d) {
+    for (let guard = 0; guard < order.length; guard++) {
+      d.block = lessonBlock(carLesson(), new Set(d.done.map((x) => x.id)));
+      d.queue = d.block.queue.slice();
+      d.i = 0; d.s = 0; d.turned = false; d.blocks++;
+      if (d.queue.length) return;
+      turnBlock(d);
+    }
+  }
+  function noteDone(d, it) {
+    if (!it.id) return;
+    const seen = d.done.find((x) => x.id === it.id);
+    if (!seen) d.done.push({ id: it.id, sentence: it.sentence, first: !!it.first });
+  }
+
+  // --- hands-free runner
   async function runDrive() {
     const d = drive;
     if (!d) return;
     const token = d.token = {};
     const alive = () => drive === d && d.token === token && !d.paused;
-    for (let guard = 0; guard < order.length + 2; guard++) {
-      $("drive-lesson").innerHTML = "<b>" + esc(d.block.title) + "</b><small>" + esc(d.block.sub) + "</small>";
+    for (;;) {
+      paintBlock(d);
       while (alive() && d.i < d.queue.length) {
         const it = d.queue[d.i];
         const steps = driveSteps(it, d.cue);
@@ -1190,40 +1322,30 @@
         d.i++; d.s = 0;
       }
       if (!alive()) return;
-      // a block played through: move the car bookmark on, chime, keep driving
-      if (!d.turned) {
-        d.turned = true;
-        if (d.block.lesson) {
-          const at = order.indexOf(d.block.lesson);
-          state.drivePos = order[(at + 1) % order.length].id;
-          state.driven = state.driven || {};
-          state.driven[d.block.lesson.id] = (state.driven[d.block.lesson.id] || 0) + 1;
-          save();
-        }
-      }
+      turnBlock(d);
       $("drive-cue").textContent = "Next lesson";
       $("drive-line").innerHTML = "";
       await chime();
       if (!alive()) return;
       await pauseFor(600);
       if (!alive()) return;
-      d.block = lessonBlock(carLesson(), new Set(d.done.map((x) => x.id)));
-      d.queue = d.block.queue.slice();
-      d.i = 0; d.s = 0; d.turned = false; d.blocks++;
+      loadNextBlock(d);
     }
-    if (alive()) endDrive();
   }
   // a line is recorded once it won't come round again this drive
   function settleDriveItem(d, it) {
-    if (!it.id || it.type === "convo") return;
-    if (!d.done.some((x) => x.id === it.id)) d.done.push({ id: it.id, sentence: it.sentence, first: !!it.first });
-    if (it.first) return;
+    noteDone(d, it);
+    if (!it.id || it.first) return;
     if (d.queue.slice(d.i + 1).some((x) => x.id === it.id)) return;
     recordAttempt(it.id, d.grades[it.id] || "hard");
+  }
+  function requeue(d, it) {
+    if (!d.queue.slice(d.i + 1).some((x) => x.id === it.id)) d.queue.splice(Math.min(d.queue.length, d.i + 4), 0, Object.assign({}, it, { rep: true }));
   }
   function driveGot() {
     const d = drive;
     if (!d || !d.running) return;
+    if (d.touch) { if (d.phase === "ask") touchReveal(); else touchGrade("good"); return; }
     const it = d.queue[d.i];
     if (it && it.id) {
       d.grades[it.id] = "good";
@@ -1236,22 +1358,129 @@
   function driveAgain() {
     const d = drive;
     if (!d || !d.running) return;
+    if (d.touch) { if (d.phase === "ask") touchReplay(); else touchGrade("again"); return; }
     const it = d.queue[d.i];
     if (!it || !it.id) return;
     if (!it.first) d.grades[it.id] = "again";
-    if (!d.queue.slice(d.i + 1).some((x) => x.id === it.id)) d.queue.splice(Math.min(d.queue.length, d.i + 4), 0, Object.assign({}, it, { rep: true }));
+    requeue(d, it);
     const pad = $("drive-again");
     if (pad) { pad.classList.add("flash"); setTimeout(() => pad.classList.remove("flash"), 500); }
   }
   function drivePause(on) {
     const d = drive;
-    if (!d || !d.running || d.paused === on) return;
+    if (!d || !d.running) return;
+    if (d.touch) { touchReplay(); return; }
+    if (d.paused === on) return;
     d.paused = on;
     const pad = $("drive-pause");
-    if (pad) pad.innerHTML = on ? "<b>▶</b><small>Resume</small>" : "<b>❚❚</b><small>Pause</small>";
+    if (pad) pad.innerHTML = (on ? ICON.play + "<small>Resume</small>" : ICON.pause + "<small>Pause</small>");
     if ("mediaSession" in navigator) { try { navigator.mediaSession.playbackState = on ? "paused" : "playing"; } catch (_) {} }
     if (on) { d.token = {}; stopAudio(); $("drive-cue").textContent = "Paused"; } else runDrive();
   }
+
+  // --- touch runner: one big card, tap to check, then Again / Got it
+  const touchLabel = { recall: "Say it in Japanese", swap: "Say it in Japanese", understand: "What does it mean?", answer: "Answer her in Japanese", learn: "A new line" };
+  function touchShow() {
+    const d = drive;
+    if (!d || !d.running) return;
+    if (d.i >= d.queue.length) { touchNextBlock(d); return; }
+    const it = d.queue[d.i];
+    const card = $("drive-card");
+    d.phase = it.type === "learn" ? "shown" : "ask";
+    paintBlock(d);
+    $("drive-count").textContent = (d.i + 1) + " / " + d.queue.length;
+    card.className = "drive-card kind-" + it.type;
+    if (!reduceMotion) { void card.offsetWidth; card.classList.add("enter"); }
+    const face = it.type === "recall" || it.type === "swap" ? '<p class="tc-main tc-en">' + esc(it.sentence.en) + "</p>"
+      : it.type === "answer" ? '<p class="tc-bubble">' + rubyHTML(it.them.jp) + "</p>" + (it.ctx ? '<p class="tc-ctx">' + esc(it.ctx) + "</p>" : "")
+      : '<p class="tc-main tc-jp">' + colorJP(it.sentence) + "</p>";
+    card.innerHTML = '<span class="tc-label">' + touchLabel[it.type] + "</span>" + face + '<div class="tc-answer" id="tc-answer"></div>' +
+      '<span class="tc-tap" id="tc-tap">Tap anywhere to check</span>';
+    if (it.type === "learn") { $("tc-answer").innerHTML = glossLine(it.sentence) + '<p class="tc-en2">' + esc(it.sentence.en) + "</p>"; $("tc-tap").textContent = ""; }
+    paintTouchPads();
+    const heard = it.type === "answer" ? it.them.jp : it.type === "understand" || it.type === "learn" ? it.sentence.jp : null;
+    if (heard) { nowPlaying(d, heard); say(heard); } else stopAudio();
+  }
+  function paintTouchPads() {
+    const d = drive, it = d.queue[d.i];
+    const pads = $("drive-pads");
+    if (d.phase === "ask") { pads.className = "drive-pads one"; pads.innerHTML = '<button id="drive-check">' + ICON.check + "<small>Check</small></button>"; $("drive-check").addEventListener("click", touchReveal); return; }
+    if (it && it.type === "learn") { pads.className = "drive-pads one"; pads.innerHTML = '<button id="drive-next">' + ICON.next + "<small>Next</small></button>"; $("drive-next").addEventListener("click", () => touchGrade("seen")); return; }
+    pads.className = "drive-pads two";
+    pads.innerHTML = '<button id="drive-again">' + ICON.prev + '<small>Again</small></button><button id="drive-got" class="good">' + ICON.check + "<small>Got it</small></button>";
+    $("drive-again").addEventListener("click", () => touchGrade("again"));
+    $("drive-got").addEventListener("click", () => touchGrade("good"));
+  }
+  function touchReveal() {
+    const d = drive;
+    if (!d || !d.running || d.phase !== "ask") return;
+    const it = d.queue[d.i];
+    d.phase = "shown";
+    const s = it.sentence;
+    $("tc-answer").innerHTML = it.type === "understand"
+      ? '<p class="tc-main tc-en">' + esc(s.en) + "</p>" + glossLine(s)
+      : glossLine(s) + (it.type === "answer" ? '<p class="tc-en2">' + esc(s.en) + '</p><p class="tc-meant">She said: ' + esc(it.them.en) + "</p>" : "");
+    $("drive-card").classList.add("shown");
+    $("tc-tap").textContent = "Tap to hear it again";
+    paintTouchPads();
+    nowPlaying(d, s.jp);
+    say(s.jp);
+  }
+  function touchReplay() {
+    const d = drive;
+    if (!d || !d.running || d.i >= d.queue.length) return;
+    const it = d.queue[d.i];
+    say(d.phase === "ask" && it.type === "answer" ? it.them.jp : it.sentence.jp);
+  }
+  function touchGrade(result) {
+    const d = drive;
+    if (!d || !d.running || d.phase !== "shown") return;
+    const it = d.queue[d.i];
+    noteDone(d, it);
+    if (it.id && !it.first && result !== "seen") {
+      d.grades[it.id] = result;
+      recordAttempt(it.id, result === "good" ? "good" : "again");
+      if (result === "again") requeue(d, it);
+    }
+    const card = $("drive-card");
+    const go = () => { if (drive !== d) return; d.i++; touchShow(); };
+    if (reduceMotion) { go(); return; }
+    card.classList.remove("enter");
+    card.classList.add(result === "again" ? "leave-left" : "leave-right");
+    setTimeout(go, 200);
+  }
+  async function touchNextBlock(d) {
+    turnBlock(d);
+    d.phase = "between";
+    $("drive-card").className = "drive-card between";
+    $("drive-card").innerHTML = '<span class="tc-label">Next lesson</span>';
+    $("drive-pads").innerHTML = "";
+    await chime();
+    if (drive !== d || !d.running) return;
+    loadNextBlock(d);
+    touchShow();
+  }
+  // tap the card to check (or hear it again); swipe right = got it, left = again
+  function wireTouchCard(card) {
+    let x0 = null, moved = false;
+    card.addEventListener("pointerdown", (e) => { x0 = e.clientX; moved = false; });
+    card.addEventListener("pointermove", (e) => { if (x0 != null && Math.abs(e.clientX - x0) > 12) moved = true; });
+    card.addEventListener("pointerup", (e) => {
+      const dx = x0 == null ? 0 : e.clientX - x0;
+      x0 = null;
+      const d = drive;
+      if (!d || !d.running || Math.abs(dx) < 60 || d.phase !== "shown") return;
+      const it = d.queue[d.i];
+      touchGrade(it && it.type === "learn" ? "seen" : dx > 0 ? "good" : "again");
+    });
+    card.addEventListener("click", () => {
+      if (moved) { moved = false; return; }
+      const d = drive;
+      if (!d || !d.running) return;
+      if (d.phase === "ask") touchReveal(); else if (d.phase === "shown") touchReplay();
+    });
+  }
+
   function releaseDrive() {
     const d = drive;
     if (!d) return;
@@ -1268,19 +1497,18 @@
     if (!d) return;
     // a line you graded but didn't finish still counts as practised
     const cur = d.queue[d.i];
-    if (cur && cur.id && d.grades[cur.id]) settleDriveItem(d, cur);
+    if (!d.touch && cur && cur.id && d.grades[cur.id]) settleDriveItem(d, cur);
     releaseDrive();
     drive = null;
     const lines = d.done;
     const car = carLesson();
     $("drive-body").innerHTML =
-      '<header class="page-head"><span class="kicker">車 · Drive done</span></header>' +
-      '<h1 class="journal-title">' + (lines.length ? lines.length + " line" + (lines.length === 1 ? "" : "s") + "<br><em>said on the road.</em>" : "Drive<br><em>ended.</em>") + "</h1>" +
-      '<p class="lede">' + (lines.some((x) => !x.first) ? "Parked? Tap any line that felt hard and it comes back sooner. " : "") + "Next drive picks up at <b>" + esc(car.title) + "</b>.</p>" +
+      '<header class="topbar"><h1 class="page-title">' + (lines.length ? plural(lines.length, "line") : "Drive ended") + "</h1></header>" +
+      '<p class="lede">' + (lines.length ? "said on the road. " : "") + (lines.some((x) => !x.first) ? "Tap any line that felt hard and it comes back sooner. " : "") + "Next drive picks up at <b>" + esc(car.title) + "</b>.</p>" +
       '<div class="drive-review">' + lines.map((x, i) =>
         '<button class="review-line' + (d.grades[x.id] === "again" ? " hard" : "") + (x.first ? " new" : "") + '" data-review="' + i + '"' + (x.first ? " disabled" : "") + ">" +
           '<span class="jp">' + colorJP(x.sentence) + '</span><span class="en">' + esc(x.sentence.en) + '</span><span class="flag">' + (x.first ? "new" : d.grades[x.id] === "again" ? "hard" : d.grades[x.id] === "good" ? "knew it" : "") + "</span></button>").join("") + "</div>" +
-      '<button class="primary" id="drive-done"><span>Back to the book</span>' + ARROW + "</button>";
+      '<button class="btn btn-primary" id="drive-done"><span class="btn-label">Back to the book</span>' + ICON.next + "</button>";
     $("drive-body").querySelectorAll("[data-review]").forEach((b) => b.addEventListener("click", () => {
       const x = lines[Number(b.dataset.review)];
       if (b.classList.contains("hard")) return;
@@ -1300,7 +1528,7 @@
     const monday = new Date(today);
     monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
     const names = ["M", "T", "W", "T", "F", "S", "S"];
-    $("week").innerHTML = '<span class="kicker">This week</span><div class="week-dots">' + names.map((n, i) => {
+    $("week").innerHTML = '<p class="label">This week</p><div class="week-dots">' + names.map((n, i) => {
       const d = new Date(monday); d.setDate(monday.getDate() + i);
       return '<span class="day' + (state.days[dayKey(d)] ? " on" : "") + (dayKey(d) === dayKey() ? " today" : "") + '"><i></i><small>' + n + "</small></span>";
     }).join("") + "</div>";
@@ -1311,7 +1539,7 @@
       "<div><b>" + stamped.length + "</b><small>pages stamped</small></div>";
     $("stamp-count").textContent = stamped.length + " of " + order.length;
     $("stamps").innerHTML = stamped.length
-      ? stamped.map((l) => '<button class="stamp" data-lesson="' + esc(l.id) + '"><img src="' + coverOf(l) + '" alt=""><span class="hanko small">済</span><small>' + esc(l.title) + "</small></button>").join("")
+      ? stamped.map((l) => '<button class="stamp" data-lesson="' + esc(l.id) + '"><img src="' + coverOf(l) + '" alt=""><span class="hanko small" aria-hidden="true">済</span><small>' + esc(l.title) + "</small></button>").join("")
       : '<p class="fine">Finish all four readings of a page and its stamp lands here.</p>';
     $("stamps").querySelectorAll("[data-lesson]").forEach((b) => b.addEventListener("click", () => openLesson(b.dataset.lesson)));
     $("legend").innerHTML = ["n", "v", "adj", "adv", "prt", "expr", "aux", "conj"].map((p) => '<span class="wchip pos-' + p + ' still"><span class="wc-main"><b>' + POS_NAME[p] + "</b></span></span>").join("");
@@ -1319,21 +1547,25 @@
   }
 
   // ---- global wiring -------------------------------------------------------------------
+  document.querySelectorAll("[data-icon]").forEach((el) => { el.innerHTML = ICON[el.dataset.icon] || ""; });
+  $("lesson-back").innerHTML = ICON.back;
+  $("reading-back").innerHTML = ICON.close;
   document.addEventListener("click", (e) => {
     const b = e.target.closest && e.target.closest("button");
     if (!b) return;
     if (b.dataset.say) {
       say(b.dataset.say);
-      if (b.classList.contains("pop-cut") && !reduceMotion) {
-        b.classList.remove("flip-over"); void b.offsetWidth; b.classList.add("flip-over");
-        setTimeout(() => b.classList.remove("flip-over"), 800);
-      }
+      if (reduceMotion) return;
+      const pop = b.classList.contains("pop-cut") ? "flip-over" : b.classList.contains("wc-main") ? "tapped" : "";
+      const el = pop === "tapped" ? b.parentNode : b;
+      if (pop) { el.classList.remove(pop); void el.offsetWidth; el.classList.add(pop); setTimeout(() => el.classList.remove(pop), 800); }
     } else if (b.dataset.saySlow) say(b.dataset.saySlow, true);
   });
   $("open-book").addEventListener("click", openBook);
   $("to-cover").addEventListener("click", () => show("cover", { back: true }));
   $("lesson-back").addEventListener("click", () => goHome({ back: true }));
   $("reading-back").addEventListener("click", closeReading);
+  $("due-banner").addEventListener("click", startReview);
   $("romaji-setting").addEventListener("change", (e) => { state.settings.romaji = e.target.value; save(); });
   $("reset-book").addEventListener("click", () => {
     if (!window.confirm("Reset this pop-up book's progress? Your main Hanasou app is not affected.")) return;
@@ -1355,5 +1587,5 @@
   else show("cover", { instant: true });
 
   // for the smoke test
-  window.HanasouBook = { state, chapters, order, patternPairs, buildPatterns, buildMoment, buildListen, drivePlan, driveSteps, colorJP, session: () => session, drive: () => drive };
+  window.HanasouBook = { state, chapters, order, patternPairs, buildPatterns, buildMoment, buildListen, encounterPool, drivePlan, driveSteps, colorJP, session: () => session, drive: () => drive };
 })();

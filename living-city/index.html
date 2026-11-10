@@ -3,69 +3,69 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1f4a3b">
-<meta name="description" content="Hanasou — a pop-up book of everyday Japanese. Learn each page in the book, keep it on the drive.">
+<meta name="theme-color" content="#fbf8f1">
+<meta name="description" content="Hanasou — a pop-up book of everyday Japanese. Learn each page in the book, answer when someone speaks to you, keep it on the drive.">
 <title>Hanasou — The Pop-up Book</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
-<link rel="stylesheet" href="styles.css?v=book7">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,500;0,700;1,500&family=Alegreya+Sans:wght@400;500;700&family=Klee+One:wght@400;600&display=swap">
+<link rel="stylesheet" href="styles.css?v=book8">
 <link rel="preload" as="image" href="../assets/story/bg-street.jpg">
 <link rel="preload" as="image" href="../assets/story/mochiko-think.png">
 </head>
 <body>
 <div class="book" id="book">
 
-  <!-- COVER (first visit only) -->
+  <!-- COVER (first visit only): indigo cloth, a pasted title slip, a tipped-in plate -->
   <section class="screen" id="cover" aria-label="Book cover">
     <div class="cover-cloth">
-      <div class="cover-band"><span>話そう</span></div>
+      <div class="daisen" aria-hidden="true"><span>はなそう</span><i>話</i></div>
       <div class="cover-plate"><img src="../assets/story/bg-street.jpg" alt="A painted Japanese shop street"></div>
       <h1 class="cover-title">Hanasou</h1>
       <p class="cover-sub">A pop-up book of everyday Japanese</p>
-      <p class="cover-four">Learn it in the book<br><span>Keep it on the drive</span></p>
-      <button class="cover-open" id="open-book">Open the book <b>→</b></button>
+      <button class="cover-open" id="open-book">Open the book</button>
     </div>
   </section>
 
   <!-- BOOK (home) -->
   <section class="screen" id="home" aria-label="Book">
-    <header class="page-head">
-      <button class="wordmark" id="to-cover" aria-label="Back to the cover"><span class="seal">話</span>hanasou</button>
+    <header class="topbar">
+      <button class="wordmark" id="to-cover" aria-label="Back to the cover"><span class="seal">話</span>Hanasou</button>
       <span class="head-note" id="home-note"></span>
     </header>
-    <article class="continue" id="continue"></article>
+    <article class="hero" id="continue"></article>
     <div class="tiles" id="tiles"></div>
-    <div class="toc-head"><span class="kicker">目次 · Contents</span></div>
+    <button class="due-banner" id="due-banner" hidden></button>
+    <h2 class="section">Contents <span lang="ja">目次</span></h2>
     <div class="toc" id="toc"></div>
     <details class="trips-wrap">
-      <summary><span class="kicker">付録 · Side trips</span><small>Real-life conversations, any time</small></summary>
+      <summary><h2 class="section">Side trips <span lang="ja">付録</span></h2><span class="trips-note">Real-life conversations, any time</span></summary>
       <div class="toc toc-trips" id="trips"></div>
     </details>
-    <p class="colophon">はなそう · speak first, the page can wait</p>
+    <p class="colophon">はなそう — speak first, the page can wait</p>
   </section>
 
   <!-- LESSON (a page of the book) -->
   <section class="screen" id="lesson" aria-label="Lesson">
     <header class="read-head">
-      <button class="back" id="lesson-back" aria-label="Back to the book">←</button>
-      <span class="read-title" id="lesson-kicker"></span>
-      <span class="read-page" id="lesson-page"></span>
+      <button class="icon-btn" id="lesson-back" aria-label="Back to the book"></button>
+      <span class="running" id="lesson-kicker"></span>
+      <span class="folio" id="lesson-page"></span>
     </header>
     <div class="stage" id="lesson-stage"></div>
     <h1 class="chapter-title" id="lesson-title"></h1>
-    <div class="grammar-card" id="lesson-grammar"></div>
-    <div class="readings" id="lesson-readings"></div>
+    <div class="note-card" id="lesson-grammar"></div>
+    <ol class="steps" id="lesson-readings"></ol>
   </section>
 
   <!-- READING (one page of an exercise at a time) -->
   <section class="screen" id="reading" aria-label="Reading">
     <header class="read-head">
-      <button class="back" id="reading-back" aria-label="Close">×</button>
-      <span class="read-title" id="reading-title"></span>
-      <span class="read-page" id="reading-page"></span>
+      <button class="icon-btn" id="reading-back" aria-label="Close"></button>
+      <div class="segbar" id="segbar" aria-hidden="true"></div>
+      <span class="folio" id="reading-page"></span>
     </header>
-    <div class="progress" aria-hidden="true"><i id="reading-progress"></i></div>
+    <p class="running center" id="reading-title"></p>
     <div class="stage" id="reading-stage"></div>
     <div class="read-body" id="reading-body"></div>
   </section>
@@ -77,20 +77,19 @@
 
   <!-- JOURNAL -->
   <section class="screen" id="journal" aria-label="Journal">
-    <header class="page-head"><span class="kicker">日々 · Your journal</span></header>
-    <h1 class="journal-title">Look how far<br><em>you've read.</em></h1>
+    <header class="topbar"><h1 class="page-title">Journal <span lang="ja">日々</span></h1></header>
     <div class="week" id="week"></div>
     <div class="tallies" id="tallies"></div>
-    <div class="toc-head"><span class="kicker">判子 · Stamped pages</span><small id="stamp-count"></small></div>
+    <h2 class="section">Stamped pages <span lang="ja">判子</span><small id="stamp-count"></small></h2>
     <div class="stamps" id="stamps"></div>
-    <div class="toc-head"><span class="kicker">色 · Word colours</span></div>
+    <h2 class="section">Word colours <span lang="ja">色</span></h2>
     <div class="legend" id="legend"></div>
-    <div class="toc-head"><span class="kicker">設定 · Settings</span></div>
+    <h2 class="section">Settings <span lang="ja">設定</span></h2>
     <div class="settings">
       <label>Romaji under Japanese
         <select id="romaji-setting"><option value="show">Show</option><option value="hide">Hide</option></select>
       </label>
-      <button class="quiet" id="reset-book">Reset this book's progress</button>
+      <button class="text-btn" id="reset-book">Reset this book's progress</button>
       <p class="fine">This preview keeps its own progress. Your main Hanasou app is never touched.</p>
     </div>
   </section>
@@ -101,16 +100,16 @@
 <!-- one action bar, always in the same place -->
 <div class="dock" id="dock" hidden></div>
 
-<nav class="ribbons" id="ribbons" aria-label="Main">
-  <button data-nav="home" class="active"><span>本</span>Book</button>
-  <button data-nav="drive"><span>車</span>Drive</button>
-  <button data-nav="journal"><span>日々</span>Journal</button>
+<nav class="tabbar" id="ribbons" aria-label="Main">
+  <button data-nav="home" class="active"><span class="tab-icon" data-icon="book"></span>Book</button>
+  <button data-nav="drive"><span class="tab-icon" data-icon="car"></span>Drive</button>
+  <button data-nav="journal"><span class="tab-icon" data-icon="journal"></span>Journal</button>
 </nav>
 
 <script src="../lessons.js"></script>
 <script src="../studio-preview/content-overrides.js"></script>
-<script src="data.js?v=book7"></script>
-<script src="scenes.js?v=book7"></script>
-<script src="app.js?v=book7"></script>
+<script src="data.js?v=book8"></script>
+<script src="scenes.js?v=book8"></script>
+<script src="app.js?v=book8"></script>
 </body>
 </html>

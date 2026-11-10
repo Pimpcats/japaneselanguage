@@ -1,6 +1,7 @@
 // Boots the pop-up book (living-city/) in jsdom and uses it the way a learner
 // would: cover → book → a whole page (Meet + the four exercises) → side trip →
-// journal → a drive. Runs with reduced motion and shrunken waits.
+// encounters → journal → a hands-free drive → a touch drive. Runs with reduced
+// motion and shrunken waits.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -192,6 +193,27 @@ assert.ok($("#dock #turn-next"), "A side trip answers back");
 click("#reading-back");
 assert.equal(active(), "home");
 
+// ---- encounters: someone speaks first, you answer in Japanese
+const pool = B.encounterPool();
+assert.ok(pool.length >= 4, "Encounters has turns to ask");
+assert.ok(pool.every((t) => t.them && t.them.jp && t.them.en && t.model.jp), "Every encounter: she speaks first, and there is a real reply to say");
+assert.ok(!$("#tile-meet").disabled, "Encounters opens from the book");
+click("#tile-meet");
+assert.equal(active(), "reading");
+assert.equal(B.session().kind, "encounter");
+assert.ok($("#reading-stage .pop-bubble.her"), "She speaks first, in a bubble");
+assert.ok(played.some((src) => src.endsWith(".mp3")), "Her line is spoken");
+assert.ok($("#them-en").hidden, "What she said stays hidden while you answer");
+assert.equal($$(".answer").length, 0, "No model reply until you've answered out loud");
+assert.equal($$("#reading-body .choice").length, 0, "Encounters has no multiple choice");
+click("#dock #reveal");
+assert.ok($(".answer .jp"), "Then one way to say it");
+assert.ok(!$("#them-en").hidden, "…and what she meant, in English");
+click("#dock #grade-good");
+if ($("#dock #turn-next")) click("#dock #turn-next");
+click("#reading-back");
+assert.equal(active(), "home");
+
 // ---- journal
 click('[data-nav="journal"]');
 assert.equal(active(), "journal");
@@ -206,18 +228,28 @@ assert.equal(active(), "drive");
 B.state.drivePos = B.order[0].id;
 const plan = B.drivePlan();
 assert.ok(plan.learned > 0, "Lines read in the book open the drive");
-assert.ok(plan.queue.filter((x) => x.id).every((x) => B.state.cards[x.id] && B.state.cards[x.id].reps > 0), "The first block only uses lines you've learned");
-const enSteps = B.driveSteps(plan.queue.find((x) => x.type === "recall"), "en");
-assert.ok(enSteps[0].en && enSteps[1].gap && enSteps[2].jp, "English cue: meaning → a gap to say it → the answer");
-const jpSteps = B.driveSteps(plan.queue.find((x) => x.type === "recall"), "jp");
+assert.ok(plan.queue.filter((x) => x.type !== "answer").every((x) => B.state.cards[x.id] && B.state.cards[x.id].reps > 0), "The first block only drills lines you've learned");
+const ask = plan.queue.find((x) => x.type === "answer");
+assert.ok(ask && ask.them.jp && ask.sentence.jp, "Someone speaks to you during the drive");
+const line0 = cafe.sentences[0];
+const enSteps = B.driveSteps({ type: "recall", sentence: line0 }, "en");
+assert.ok(enSteps[0].en && enSteps[1].gap && enSteps[2].jp, "Say it: meaning → a gap to say it → the answer");
+const jpSteps = B.driveSteps({ type: "recall", sentence: line0 }, "jp");
 assert.ok(jpSteps.every((s) => !s.en), "Japanese only: no English is spoken");
+const unSteps = B.driveSteps({ type: "understand", sentence: line0 }, "en");
+assert.ok(unSteps[0].jp && unSteps[1].gap && unSteps[2].en, "Understand it: the Japanese → a gap to say what it means → the meaning");
+const askSteps = B.driveSteps(ask, "en");
+assert.equal(askSteps[0].jp, ask.them.jp, "Answer her: her line comes first");
+assert.ok(askSteps.some((s) => s.gap) && askSteps.some((s) => s.jp === ask.sentence.jp), "…then a gap for your reply, then one way to say it");
+assert.ok(B.driveSteps(ask, "jp").every((s) => !s.en), "Japanese only: her questions carry no English either");
 const newSteps = B.driveSteps({ type: "learn", sentence: B.order[0].sentences[0] }, "en");
 assert.ok(newSteps[0].en && newSteps[1].jp && newSteps[2].gap, "A new line is introduced: its meaning, the Japanese, a gap to say it back");
+assert.equal($('[data-drive-mode="hands"]').getAttribute("aria-pressed"), "true", "Hands-free is the default way to drive");
 assert.equal($('[data-cue="en"]').getAttribute("aria-pressed"), "true", "English cue is the default, and it's a visible choice");
-const repsBefore = Object.fromEntries(plan.queue.filter((x) => x.id).map((x) => [x.id, B.state.cards[x.id].reps]));
 spoken.length = 0; played.length = 0;
 click("#drive-start");
 assert.ok(B.drive() && B.drive().running, "The drive starts");
+const repsBefore = Object.fromEntries(B.drive().queue.filter((x) => x.id).map((x) => [x.id, (B.state.cards[x.id] || { reps: 0 }).reps]));
 assert.ok($("#ribbons").hidden, "No nav to mis-tap while driving");
 assert.equal($$(".drive-pads button").length, 3, "Three big pads: again, pause, knew it");
 for (const a of ["play", "pause", "nexttrack", "previoustrack"]) assert.equal(typeof window.__media[a], "function", "Steering-wheel " + a + " is wired");
@@ -236,7 +268,7 @@ assert.ok(spoken.some((u) => u.lang === "en-US"), "The cue is spoken in English"
 assert.ok(played.some((src) => src.endsWith(".mp3") && src.startsWith("../audio/")), "Answers play the recorded Japanese clips");
 assert.ok(played.some((src) => src.includes("sfx-chime")), "A chime between blocks");
 assert.ok(window.navigator.mediaSession.metadata && /[ぁ-んァ-ン]/.test(window.navigator.mediaSession.metadata.title), "The car display shows the Japanese line");
-assert.ok(Object.keys(repsBefore).every((id) => B.state.cards[id].reps > repsBefore[id]), "Every learned line driven is recorded for review");
+assert.ok(Object.keys(repsBefore).every((id) => B.state.cards[id].reps > repsBefore[id]), "Every line driven is recorded for review");
 assert.ok(B.state.cards[firstId].interval >= 24 * 60 * 60 * 1000, "Knew it on the wheel: the line comes back later");
 // a whole lesson by ear moves the car bookmark on
 const lessonBlock = B.drive().block;
@@ -265,6 +297,65 @@ assert.ok(!spoken.some((u) => u.lang === "en-US"), "Japanese only: no English vo
 click("#drive-stop");
 click("#drive-done");
 
+// ---- touch drive: one big card for a mounted phone
+click('[data-nav="drive"]');
+click('[data-drive-mode="touch"]');
+assert.equal(B.state.settings.driveMode, "touch", "The way you drive is remembered");
+assert.equal(JSON.parse(window.localStorage.getItem("hanasou.book.v1")).settings.driveMode, "touch", "…across visits");
+B.state.drivePos = B.order[2].id;
+spoken.length = 0; played.length = 0;
+click("#drive-start");
+const td = B.drive();
+assert.ok(td && td.running && td.touch, "The touch drive starts");
+assert.ok($("#drive-card"), "One big card");
+assert.ok($("#ribbons").hidden, "No nav to mis-tap while driving");
+const touchBlock = td.block;
+const kinds = new Set();
+let againId = null, swiped = false, wheel = false;
+const swipe = (dx) => {
+  const card = $("#drive-card");
+  card.dispatchEvent(new window.MouseEvent("pointerdown", { bubbles: true, clientX: 150 }));
+  card.dispatchEvent(new window.MouseEvent("pointerup", { bubbles: true, clientX: 150 + dx }));
+};
+for (let guard = 0; guard < 120 && B.drive().block === touchBlock; guard++) {
+  const it = td.queue[td.i];
+  if (!it || td.phase === "between") { await tick(10); continue; }
+  kinds.add(it.type);
+  assert.equal(td.phase, "ask", "A card starts as a question");
+  assert.equal($$("#tc-answer > *").length, 0, "The answer is hidden until you tap");
+  if (it.type === "recall" || it.type === "swap") assert.ok(!/[ぁ-んァ-ン]/.test($("#drive-card .tc-main").textContent), "Say it: only the meaning is showing");
+  if (it.type === "understand") assert.ok(!$("#drive-card").textContent.includes(it.sentence.en), "Understand it: only the Japanese is showing");
+  if (it.type === "answer") assert.ok($("#drive-card .tc-bubble").textContent.length > 0 && !$("#drive-card").textContent.includes(it.them.en), "Answer her: her line in Japanese, no translation yet");
+  if (!wheel) { window.__media.nexttrack(); wheel = true; } else $("#drive-card").click();
+  assert.equal(td.phase, "shown", "A tap anywhere (or the wheel) shows the answer");
+  assert.ok($$("#tc-answer .gl small").length > 0, "The answer shows each word with its meaning under it");
+  if (it.type === "understand") assert.ok($("#tc-answer").textContent.includes(it.sentence.en), "…and what it means");
+  if (it.type === "answer") assert.ok($("#tc-answer").textContent.includes(it.them.en), "…and what she said, in English");
+  const at = td.i, len = td.queue.length;
+  if (!againId && !it.id.startsWith("scene:")) {
+    againId = it.id;
+    click("#drive-again");
+    assert.ok(td.queue.length > len || td.queue.slice(at + 1).some((x) => x.id === againId), "Again brings the card back a few cards later");
+    assert.equal(B.state.cards[againId].interval, 0, "…and the line is due again");
+  } else if (!swiped) { swiped = true; swipe(140); assert.equal(td.i, at + 1, "Swipe right = got it"); }
+  else click("#drive-got");
+}
+assert.ok(kinds.has("answer"), "The touch drive asks you questions too");
+assert.ok(kinds.has("recall") || kinds.has("understand") || kinds.has("swap"), "…between your lines");
+await until(() => B.drive() && B.drive().block !== touchBlock, "the touch drive to move on to the next lesson");
+assert.equal(B.drive().block.lesson, B.order[2], "Then it carries on from the car bookmark");
+assert.ok(played.some((src) => src.includes("sfx-chime")), "A chime between lessons");
+assert.ok(!spoken.some((u) => u.lang === "en-US"), "Touch: nothing is spoken in English");
+assert.equal(td.queue[td.i].type, "learn", "A line you haven't met is shown, not tested");
+assert.ok($$("#tc-answer .gl").length > 0 && $("#drive-next"), "…with its words explained and one Next");
+click("#drive-next");
+assert.equal(td.i, 1, "Next moves on");
+click("#drive-stop");
+assert.equal(B.drive(), null, "End stops the touch drive");
+assert.ok($$(".review-line").length > 0, "After the drive: the lines you practised");
+click("#drive-done");
+assert.equal(active(), "home");
+
 // /living-city/#drive is a home-screen shortcut: one tap from driving
 const dom2 = new JSDOM(html, { url: "https://hanasou.test/living-city/#drive", runScripts: "dangerously", pretendToBeVisual: true, beforeParse(w) { w.HANASOU_BOOK_SPEED = 0.002; w.scrollTo = () => {}; w.matchMedia = (q) => ({ matches: q.includes("reduce"), media: q, addEventListener() {}, removeEventListener() {} }); w.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve(manifest) }); } });
 assert.equal(dom2.window.document.querySelector(".screen.active").id, "drive", "#drive skips the cover and opens the drive");
@@ -273,5 +364,5 @@ dom2.window.close();
 
 await tick(40);
 assert.deepEqual(scriptErrors, [], "No uncaught script errors");
-console.log("Living City pop-up book smoke test passed: book, Meet + four exercises, flashcard chips, side trip, journal, drive.");
+console.log("Living City pop-up book smoke test passed: book, Meet + four exercises, flashcard chips, side trip, encounters, journal, hands-free drive, touch drive.");
 window.close();
