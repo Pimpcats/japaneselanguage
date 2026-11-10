@@ -71,8 +71,10 @@ Two ways to drive it (`state.settings.driveMode`, remembered):
 - **Touch** (for a mounted phone): one big dark card. The Japanese is read
   aloud; say your answer; **tap anywhere** to check (each word appears with
   its meaning under it); then **Again / Got it**, by big pad or by swipe
-  (← again, → got it). New lines are shown with their words explained and a
-  single Next. Nothing is spoken in English. The wheel buttons work here too
+  (← again, → got it). EVERY card is a flip card (owner, 2026-11): a new line
+  also starts on its English meaning and turns over on a tap. New lines are
+  not graded into the SRS; Again just brings them back a few cards later.
+  Nothing is spoken in English. The wheel buttons work here too
   (⏭ = check / got it, ⏮ = hear it / again).
 
 When you end the drive: the lines you practised, tap one to flag it hard.

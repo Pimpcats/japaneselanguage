@@ -547,7 +547,14 @@ body.talking .drive-wave i:nth-child(5) { animation-delay: .2s; }
 .tc-bubble { position: relative; margin: 0 0 10px; padding: 14px 18px; border-radius: 22px; background: #fdfaf2; color: var(--ink); font: 600 clamp(26px, 7.6vw, 36px)/1.4 var(--jp); }
 .tc-bubble::after { content: ""; position: absolute; left: 34px; bottom: -8px; width: 18px; height: 18px; background: #fdfaf2; border-radius: 0 0 5px 0; transform: rotate(45deg); }
 .tc-answer { display: grid; gap: 10px; justify-items: center; width: 100%; }
-.drive-card.shown .tc-answer > *, .drive-card.kind-learn .tc-answer > * { animation: rise .4s var(--ease) both; }
+.drive-card.shown .tc-answer > * { animation: rise .4s var(--ease) .12s both; }
+/* the flip: the card turns over as the answer side comes up; once flipped the
+   prompt steps back so the Japanese is the face you read */
+.drive-run.touch { perspective: 1200px; }
+.drive-card.flip { animation: card-flip .42s var(--ease) both; }
+@keyframes card-flip { from { transform: rotateY(-88deg); background: rgba(255, 255, 255, .13); } }
+.drive-card.shown { background: rgba(255, 255, 255, .1); }
+.drive-card.shown:not(.kind-answer) > .tc-en { font-size: clamp(17px, 4.8vw, 21px); font-weight: 500; font-style: italic; color: rgba(244, 239, 227, .7); }
 .gloss { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 12px; margin: 0; }
 .gl { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .gl b { font: 600 clamp(26px, 7.8vw, 36px)/1.25 var(--jp); }

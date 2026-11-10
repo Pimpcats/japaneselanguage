@@ -1068,8 +1068,12 @@
   //   hands  everything is spoken, with gaps for you to speak. Steering-wheel /
   //          Bluetooth buttons (Media Session): play/pause, next = knew it,
   //          previous = again. The car display shows the Japanese line.
-  //   touch  one big card for a mounted phone: tap anywhere to check, then
-  //          Again / Got it (or swipe). The Japanese is read aloud as you go.
+  //   touch  one big flip card for a mounted phone: the meaning on the front,
+  //          tap anywhere to flip it, then Again / Got it (or swipe). EVERY
+  //          card flips, new lines too (owner, 2026-11: a card that arrives
+  //          already answered isn't a flashcard). The Japanese is read aloud
+  //          on the flip. New lines aren't graded into the SRS; Again just
+  //          brings them back a few cards later.
   const DRIVE_LINES = 12;
   // where the car picks up: the drive's own bookmark, else the reading bookmark
   const carLesson = () => lessonById(state.drivePos) || nextLesson();
@@ -1379,33 +1383,31 @@
   }
 
   // --- touch runner: one big card, tap to check, then Again / Got it
-  const touchLabel = { recall: "Say it in Japanese", swap: "Say it in Japanese", understand: "What does it mean?", answer: "Answer her in Japanese", learn: "A new line" };
+  const touchLabel = { recall: "Say it in Japanese", swap: "Say it in Japanese", understand: "What does it mean?", answer: "Answer her in Japanese", learn: "A new line · how would you say it?" };
   function touchShow() {
     const d = drive;
     if (!d || !d.running) return;
     if (d.i >= d.queue.length) { touchNextBlock(d); return; }
     const it = d.queue[d.i];
     const card = $("drive-card");
-    d.phase = it.type === "learn" ? "shown" : "ask";
+    d.phase = "ask";
     paintBlock(d);
     $("drive-count").textContent = (d.i + 1) + " / " + d.queue.length;
     card.className = "drive-card kind-" + it.type;
     if (!reduceMotion) { void card.offsetWidth; card.classList.add("enter"); }
-    const face = it.type === "recall" || it.type === "swap" ? '<p class="tc-main tc-en">' + esc(it.sentence.en) + "</p>"
+    const face = it.type === "recall" || it.type === "swap" || it.type === "learn" ? '<p class="tc-main tc-en">' + esc(it.sentence.en) + "</p>"
       : it.type === "answer" ? '<p class="tc-bubble">' + rubyHTML(it.them.jp) + "</p>" + (it.ctx ? '<p class="tc-ctx">' + esc(it.ctx) + "</p>" : "")
       : '<p class="tc-main tc-jp">' + colorJP(it.sentence) + "</p>";
     card.innerHTML = '<span class="tc-label">' + touchLabel[it.type] + "</span>" + face + '<div class="tc-answer" id="tc-answer"></div>' +
-      '<span class="tc-tap" id="tc-tap">Tap anywhere to check</span>';
-    if (it.type === "learn") { $("tc-answer").innerHTML = glossLine(it.sentence) + '<p class="tc-en2">' + esc(it.sentence.en) + "</p>"; $("tc-tap").textContent = ""; }
+      '<span class="tc-tap" id="tc-tap">Tap anywhere to flip</span>';
     paintTouchPads();
-    const heard = it.type === "answer" ? it.them.jp : it.type === "understand" || it.type === "learn" ? it.sentence.jp : null;
+    const heard = it.type === "answer" ? it.them.jp : it.type === "understand" ? it.sentence.jp : null;
     if (heard) { nowPlaying(d, heard); say(heard); } else stopAudio();
   }
   function paintTouchPads() {
     const d = drive, it = d.queue[d.i];
     const pads = $("drive-pads");
-    if (d.phase === "ask") { pads.className = "drive-pads one"; pads.innerHTML = '<button id="drive-check">' + ICON.check + "<small>Check</small></button>"; $("drive-check").addEventListener("click", touchReveal); return; }
-    if (it && it.type === "learn") { pads.className = "drive-pads one"; pads.innerHTML = '<button id="drive-next">' + ICON.next + "<small>Next</small></button>"; $("drive-next").addEventListener("click", () => touchGrade("seen")); return; }
+    if (d.phase === "ask") { pads.className = "drive-pads one"; pads.innerHTML = '<button id="drive-check">' + ICON.check + "<small>Flip</small></button>"; $("drive-check").addEventListener("click", touchReveal); return; }
     pads.className = "drive-pads two";
     pads.innerHTML = '<button id="drive-again">' + ICON.prev + '<small>Again</small></button><button id="drive-got" class="good">' + ICON.check + "<small>Got it</small></button>";
     $("drive-again").addEventListener("click", () => touchGrade("again"));
@@ -1420,7 +1422,10 @@
     $("tc-answer").innerHTML = it.type === "understand"
       ? '<p class="tc-main tc-en">' + esc(s.en) + "</p>" + glossLine(s)
       : glossLine(s) + (it.type === "answer" ? '<p class="tc-en2">' + esc(s.en) + '</p><p class="tc-meant">She said: ' + esc(it.them.en) + "</p>" : "");
-    $("drive-card").classList.add("shown");
+    const card = $("drive-card");
+    card.classList.remove("enter");
+    card.classList.add("shown");
+    if (!reduceMotion) { void card.offsetWidth; card.classList.add("flip"); }
     $("tc-tap").textContent = "Tap to hear it again";
     paintTouchPads();
     nowPlaying(d, s.jp);
@@ -1440,12 +1445,12 @@
     if (it.id && !it.first && result !== "seen") {
       d.grades[it.id] = result;
       recordAttempt(it.id, result === "good" ? "good" : "again");
-      if (result === "again") requeue(d, it);
     }
+    if (it.id && result === "again") requeue(d, it);   // new lines too: they come back, ungraded
     const card = $("drive-card");
     const go = () => { if (drive !== d) return; d.i++; touchShow(); };
     if (reduceMotion) { go(); return; }
-    card.classList.remove("enter");
+    card.classList.remove("enter", "flip");
     card.classList.add(result === "again" ? "leave-left" : "leave-right");
     setTimeout(go, 200);
   }
@@ -1471,7 +1476,7 @@
       const d = drive;
       if (!d || !d.running || Math.abs(dx) < 60 || d.phase !== "shown") return;
       const it = d.queue[d.i];
-      touchGrade(it && it.type === "learn" ? "seen" : dx > 0 ? "good" : "again");
+      touchGrade(dx > 0 ? "good" : "again");
     });
     card.addEventListener("click", () => {
       if (moved) { moved = false; return; }

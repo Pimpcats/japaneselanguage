@@ -346,10 +346,22 @@ await until(() => B.drive() && B.drive().block !== touchBlock, "the touch drive 
 assert.equal(B.drive().block.lesson, B.order[2], "Then it carries on from the car bookmark");
 assert.ok(played.some((src) => src.includes("sfx-chime")), "A chime between lessons");
 assert.ok(!spoken.some((u) => u.lang === "en-US"), "Touch: nothing is spoken in English");
-assert.equal(td.queue[td.i].type, "learn", "A line you haven't met is shown, not tested");
-assert.ok($$("#tc-answer .gl").length > 0 && $("#drive-next"), "…with its words explained and one Next");
-click("#drive-next");
-assert.equal(td.i, 1, "Next moves on");
+// a line you haven't met is a flip card too: meaning on the front, tap to turn it over
+const newLine = td.queue[td.i];
+assert.equal(newLine.type, "learn", "The next lesson's lines are new");
+assert.equal(td.phase, "ask", "A new line starts on its meaning, not already answered");
+assert.equal($$("#tc-answer > *").length, 0, "…with the Japanese hidden");
+assert.ok($("#drive-card .tc-main").textContent.includes(newLine.sentence.en) && !/[ぁ-んァ-ン]/.test($("#drive-card .tc-main").textContent), "…only the English is showing");
+assert.ok(!$("#drive-next"), "No bare Next: every card flips");
+$("#drive-card").click();
+assert.equal(td.phase, "shown", "Tap flips it");
+assert.ok($$("#tc-answer .gl").length > 0, "The back shows the Japanese, word by word");
+assert.ok($("#drive-again") && $("#drive-got"), "…then Again / Got it");
+const lenBefore = td.queue.length;
+click("#drive-again");
+assert.equal(td.queue.length, lenBefore + 1, "Again brings a new line back later");
+assert.ok(!B.state.cards[newLine.id] || !B.state.cards[newLine.id].reps, "…without grading it into the SRS");
+assert.equal(td.i, 1, "…and moves on");
 click("#drive-stop");
 assert.equal(B.drive(), null, "End stops the touch drive");
 assert.ok($$(".review-line").length > 0, "After the drive: the lines you practised");
