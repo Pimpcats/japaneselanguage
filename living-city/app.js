@@ -465,7 +465,7 @@
     const plan = drivePlan();
     const due = dueCards().length;
     $("tiles").innerHTML =
-      '<button class="tile tile-drive" id="tile-drive"><span class="tile-k">車 · Drive</span><b>' + (plan.learned ? plan.lines + " line" + (plan.lines === 1 ? "" : "s") + " ready" : "First listen") + "</b><small>" + (plan.learned ? "hands-free · about " + plan.minutes + " min" : "hear your next page") + "</small></button>" +
+      '<button class="tile tile-drive" id="tile-drive"><span class="tile-k">車 · Drive</span><b>' + (plan.learned ? plan.lines + " line" + (plan.lines === 1 ? "" : "s") + " ready" : "First listen") + "</b><small>one tap, then it keeps going</small></button>" +
       '<button class="tile" id="tile-review"' + (due ? "" : " disabled") + '><span class="tile-k">復習 · Second look</span><b>' + (due ? due + " line" + (due === 1 ? "" : "s") + " due" : "All caught up") + "</b><small>" + (due ? "a quick recall round" : "nothing is due") + "</small></button>";
     $("tile-drive").addEventListener("click", () => { renderDrive(); show("drive"); });
     $("tile-review").addEventListener("click", startReview);
@@ -981,41 +981,56 @@
   }
 
   // ---- DRIVE: hands-free, eyes off -----------------------------------------------
-  // Built from the lines you've learned in the book, due ones first. Each line:
-  // cue → a gap for you to say it → the answer → a gap to say it again. Weak
-  // lines come back a few lines later. "Knew it" / "Again" work from the
-  // steering-wheel skip buttons (media keys) or the big pads when parked.
+  // One tap, then it keeps going until you stop:
+  //   1. your lines — what the book taught, due first: cue → a gap to say it →
+  //      the answer → a gap to say it again (weak lines come back later);
+  //   2. then lesson after lesson from the car bookmark (state.drivePos): lines
+  //      you know are recalled, new ones are introduced by ear, then the
+  //      lesson's conversation. A chime between lessons.
+  // Steering-wheel / Bluetooth buttons work through the Media Session API:
+  // play/pause, next = knew it (move on), previous = again. The car display
+  // shows the Japanese line. "Knew it" / "Again" are also big pads on screen.
   const DRIVE_LINES = 12;
-  function drivePlan() {
+  // where the car picks up: the drive's own bookmark, else the reading bookmark
+  const carLesson = () => lessonById(state.drivePos) || nextLesson();
+  const known = (id) => !!(state.cards[id] && state.cards[id].reps > 0);
+  function linesBlock() {
     const learned = learnedCards();
     const now = Date.now();
     const due = learned.filter((x) => (x.card.due || 0) <= now).sort((a, b) => (a.card.due || 0) - (b.card.due || 0));
     const soon = learned.filter((x) => (x.card.due || 0) > now).sort((a, b) => (a.card.due || 0) - (b.card.due || 0));
     const picked = due.concat(soon).slice(0, DRIVE_LINES);
-    let queue;
-    if (picked.length) {
-      queue = picked.map((x) => {
-        const pair = patternPairs(x.lesson).find((p) => p.id === x.id && p.changed.length === 1);
-        const weak = (x.card.reps || 0) <= 2 || (x.card.lapses || 0) > 0;
-        return pair && !weak && Math.random() < 0.4
-          ? { type: "swap", id: x.id, sentence: x.sentence, source: pair.source, word: pair.sentence.words[pair.changed[0]], weak }
-          : { type: "recall", id: x.id, sentence: x.sentence, weak };
-      });
-      // weak lines come back a few lines later (graduated recall)
-      for (let i = 0; i < queue.length; i++) {
-        const it = queue[i];
-        if (it.weak && !it.rep && !it.again) { it.again = true; queue.splice(Math.min(queue.length, i + 5), 0, Object.assign({}, it, { rep: true })); }
-      }
-      // then one short conversation from the newest page you've finished
-      const lessonIds = Array.from(new Set(picked.map((x) => x.lesson.id)));
-      const talkLesson = lessonIds.map(lessonById).reverse().find((l) => readingsOf(l.id).moment && TALK.some((t) => t.lesson === l.id));
-      if (talkLesson) sceneTurns(TALK.find((t) => t.lesson === talkLesson.id), talkLesson).turns.slice(0, 3).forEach((t) => { if (t.them) queue.push({ type: "convo", them: t.them, sentence: t.model }); });
-    } else {
-      // nothing learned yet: a first listen of your next page
-      queue = sentenceItems(nextLesson()).map((x) => ({ type: "listen", id: x.id, sentence: x.sentence, first: true }));
+    if (!picked.length) return null;
+    const queue = picked.map((x) => {
+      const pair = patternPairs(x.lesson).find((p) => p.id === x.id && p.changed.length === 1);
+      const weak = (x.card.reps || 0) <= 2 || (x.card.lapses || 0) > 0;
+      return pair && !weak && Math.random() < 0.4
+        ? { type: "swap", id: x.id, sentence: x.sentence, source: pair.source, word: pair.sentence.words[pair.changed[0]], weak }
+        : { type: "recall", id: x.id, sentence: x.sentence, weak };
+    });
+    // weak lines come back a few lines later (graduated recall)
+    for (let i = 0; i < queue.length; i++) {
+      const it = queue[i];
+      if (it.weak && !it.rep && !it.again) { it.again = true; queue.splice(Math.min(queue.length, i + 5), 0, Object.assign({}, it, { rep: true })); }
     }
-    const ms = queue.reduce((n, it) => n + driveSteps(it, state.settings.cue).reduce((m, st) => m + (st.gap || (st.en ? 700 + st.en.length * 70 : sayTime(st.jp) * (st.slow ? 1.35 : 1))) + 350, 0), 0);
-    return { queue, learned: picked.length, lines: picked.length, due: due.length, minutes: Math.max(1, Math.round(ms / 60000)), firstLesson: picked.length ? null : nextLesson() };
+    return { title: "Your lines", sub: picked.length + " line" + (picked.length === 1 ? "" : "s") + " from the book · " + due.length + " due", queue, lines: picked.length, due: due.length };
+  }
+  // one lesson's worth of driving: its sentences, then its real-life scene
+  function lessonBlock(lesson, skip) {
+    const queue = sentenceItems(lesson).filter((x) => !(skip && skip.has(x.id))).map((x) => (known(x.id)
+      ? { type: "recall", id: x.id, sentence: x.sentence }
+      : { type: "learn", id: x.id, sentence: x.sentence, first: true }));
+    const scene = TALK.find((t) => t.lesson === lesson.id);
+    if (scene) sceneTurns(scene, lesson).turns.forEach((t) => { if (t.them) queue.push({ type: "convo", them: t.them, sentence: t.model }); });
+    const c = chapterOf(lesson.id);
+    return { title: lesson.title, sub: "Chapter " + c.index + " · " + c.level.title, lesson, queue };
+  }
+  const blockMinutes = (queue, cue) => Math.max(1, Math.round(queue.reduce((n, it) => n + driveSteps(it, cue).reduce((m, st) => m + (st.gap || (st.en ? 700 + st.en.length * 70 : sayTime(st.jp) * (st.slow ? 1.35 : 1))) + 350, 0), 0) / 60000));
+  function drivePlan() {
+    const lines = linesBlock();
+    const car = carLesson();
+    const block = lines || lessonBlock(car);
+    return { block, queue: block.queue, learned: lines ? lines.lines : 0, lines: lines ? lines.lines : 0, due: lines ? lines.due : 0, minutes: blockMinutes(block.queue, state.settings.cue), car };
   }
   function driveSteps(it, cue) {
     const s = it.sentence, mine = sayTime(s.jp) * 1.3 + 900;
@@ -1024,13 +1039,14 @@
       { jp: s.jp, label: "One way to say it", show: true }, { gap: mine, label: "Say it again" },
     ];
     if (it.type === "swap") return [
-      { jp: it.source.jp, label: "Listen", show: true }, { jp: it.word.jp, label: "Now with…", show: true, word: true },
+      { jp: it.source.jp, label: "Listen", show: true }, { jp: it.word.jp, label: "Now with…", show: true },
       { gap: mine + 400, label: "Say the new sentence" }, { jp: s.jp, label: "The answer", show: true }, { gap: mine, label: "Say it again" },
     ];
-    if (it.type === "listen" || cue !== "en") return [
+    // a new line, or Japanese-only: introduce it by ear (with its meaning first, if cued)
+    if (it.type === "learn" || cue !== "en") return (it.type === "learn" && cue === "en" ? [{ en: s.en, label: "This means…" }] : []).concat([
       { jp: s.jp, label: "Listen", show: true }, { gap: mine, label: "Say it back" },
       { jp: s.jp, slow: true, label: "Once more, slowly", show: true }, { gap: mine, label: "Say it again" },
-    ];
+    ]);
     const steps = [
       { en: s.en, label: "How do you say…" }, { gap: mine + 600, label: "Say it in Japanese" },
       { jp: s.jp, label: "The answer", show: true }, { gap: mine, label: "Say it again" },
@@ -1042,15 +1058,18 @@
     if (drive && drive.running) return;
     const plan = drivePlan();
     const cue = state.settings.cue === "jp" ? "jp" : "en";
+    const carC = chapterOf(plan.car.id);
     $("drive-body").innerHTML =
       '<header class="page-head"><span class="kicker">車 · Drive</span></header>' +
       '<h1 class="journal-title">Keep it<br><em>on the drive.</em></h1>' +
-      '<p class="lede">A hands-free round of the lines you\'ve read in the book. Set it up while parked.</p>' +
+      '<p class="lede">One tap, then it keeps going on its own until you stop. Set it up while parked.</p>' +
       '<div class="drive-card">' +
         (plan.learned
-          ? "<b>" + plan.lines + " line" + (plan.lines === 1 ? "" : "s") + "</b><small>" + plan.due + " due · about " + plan.minutes + " min</small>"
-          : "<b>First listen</b><small>" + esc(plan.firstLesson.title) + " · about " + plan.minutes + " min. Read a page in the book and it joins your drives.</small>") +
-        '<ol class="drive-how">' + (plan.learned && cue === "en"
+          ? "<b>" + plan.lines + " line" + (plan.lines === 1 ? "" : "s") + " first</b><small>from the book · " + plan.due + " due · about " + plan.minutes + " min</small>"
+          : "<b>First listen</b><small>Read a page in the book and its lines open your drives.</small>") +
+        '<p class="drive-then"><span class="kicker">' + (plan.learned ? "Then lesson after lesson" : "Lesson after lesson") + "</span>" +
+          "from the car bookmark: <b>" + esc(plan.car.title) + "</b> · Chapter " + carC.index + "</p>" +
+        '<ol class="drive-how">' + (cue === "en"
           ? "<li>Hear what to say</li><li>Say it in Japanese</li><li>Hear the answer, say it again</li>"
           : "<li>Hear the Japanese</li><li>Say it back</li><li>Hear it slowly, say it again</li>") + "</ol>" +
       "</div>" +
@@ -1058,20 +1077,29 @@
         '<button type="button" data-cue="en" aria-pressed="' + (cue === "en") + '">English cue</button>' +
         '<button type="button" data-cue="jp" aria-pressed="' + (cue === "jp") + '">Japanese only</button></div>' +
       '<p class="fine">' + (cue === "en" ? "You hear the meaning in English, then say the Japanese from memory — the strongest practice for keeping it." : "No English is spoken: you listen and repeat.") + "</p>" +
-      '<p class="fine wheel">On the wheel: <b>⏭</b> knew it · <b>⏮</b> again. No button needed — it keeps going by itself.</p>' +
+      '<p class="fine wheel">On the wheel: <b>⏭</b> knew it · <b>⏮</b> again · <b>⏯</b> pause. No button needed — it keeps going by itself.</p>' +
       '<button class="primary" id="drive-start"><span>Start the drive</span>' + ARROW + "</button>";
     $("drive-body").querySelectorAll("[data-cue]").forEach((b) => b.addEventListener("click", () => { state.settings.cue = b.dataset.cue; save(); renderDrive(); }));
     $("drive-start").addEventListener("click", () => startDrive(plan));
   }
-  // a silent loop keeps the phone's media controls (and the wheel buttons) ours
+  // steering-wheel buttons, and a silent loop that keeps the phone's media
+  // controls ours between clips
   let keepAlive = null;
   function holdMedia(on) {
+    const ms = "mediaSession" in navigator ? navigator.mediaSession : null;
+    const set = (a, fn) => { if (ms) { try { ms.setActionHandler(a, on ? fn : null); } catch (_) {} } };
+    set("play", () => drivePause(false));
+    set("pause", () => drivePause(true));
+    set("nexttrack", driveGot);
+    set("previoustrack", driveAgain);
+    set("stop", endDrive);
     try {
       if (!on) {
         if (keepAlive) { keepAlive.pause(); keepAlive = null; }
-        if ("mediaSession" in navigator) ["nexttrack", "previoustrack", "play", "pause"].forEach((a) => { try { navigator.mediaSession.setActionHandler(a, null); } catch (_) {} });
+        if (ms) { ms.metadata = null; ms.playbackState = "none"; }
         return;
       }
+      if (ms) ms.playbackState = "playing";
       if (typeof Audio === "function" && typeof btoa === "function" && !window.HANASOU_BOOK_SPEED) {
         const n = 8000, bytes = new Uint8Array(44 + n), view = new DataView(bytes.buffer);
         const put = (at, text) => text.split("").forEach((c, i) => view.setUint8(at + i, c.charCodeAt(0)));
@@ -1084,25 +1112,39 @@
         keepAlive.loop = true;
         const p = keepAlive.play(); if (p && p.catch) p.catch(() => {});
       }
-      if ("mediaSession" in navigator) {
-        if (typeof MediaMetadata === "function") navigator.mediaSession.metadata = new MediaMetadata({ title: "Hanasou — Drive", artist: "はなそう" });
-        navigator.mediaSession.setActionHandler("nexttrack", driveGot);
-        navigator.mediaSession.setActionHandler("previoustrack", driveAgain);
-        navigator.mediaSession.setActionHandler("pause", () => drivePause(true));
-        navigator.mediaSession.setActionHandler("play", () => drivePause(false));
-      }
     } catch (_) {}
+  }
+  // the car display: the Japanese line, the lesson, its cover
+  function nowPlaying(d, jp) {
+    if (!("mediaSession" in navigator) || typeof window.MediaMetadata !== "function") return;
+    try {
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: plain(jp), artist: "Hanasou · " + d.block.title, album: "Drive",
+        artwork: d.block.lesson ? [{ src: coverOf(d.block.lesson), sizes: "512x512", type: "image/png" }] : [],
+      });
+    } catch (_) {}
+  }
+  function chime() {
+    return new Promise((resolve) => {
+      let done = false;
+      const finish = () => { if (!done) { done = true; clearTimeout(t); resolve(); } };
+      const t = setTimeout(finish, T(2500));
+      release = finish;
+      if (typeof Audio !== "function") return;
+      try { const a = new Audio("../assets/sfx-chime.wav"); player = a; a.onended = a.onerror = finish; const p = a.play(); if (p && p.catch) p.catch(finish); } catch (_) { finish(); }
+    });
   }
   function startDrive(plan) {
     session = null;
-    drive = { running: true, queue: plan.queue.slice(), i: 0, s: 0, paused: false, token: {}, grades: {}, done: [], lock: null, cue: state.settings.cue === "jp" ? "jp" : "en" };
+    drive = { running: true, block: plan.block, queue: plan.block.queue.slice(), blocks: 1, i: 0, s: 0, paused: false, token: {}, grades: {}, done: [], lock: null, cue: state.settings.cue === "jp" ? "jp" : "en" };
     $("drive-body").innerHTML =
       '<div class="drive-run">' +
         '<div class="drive-top"><span class="kicker">Drive · <span id="drive-count"></span></span><button class="drive-end" id="drive-stop">End</button></div>' +
+        '<p class="drive-lesson" id="drive-lesson"></p>' +
         '<div class="drive-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>' +
         '<p class="drive-cue" id="drive-cue" aria-live="polite">Starting…</p><div class="drive-line" id="drive-line"></div>' +
         '<div class="drive-pads"><button id="drive-again"><b>⏮</b><small>Again</small></button><button id="drive-pause"><b>❚❚</b><small>Pause</small></button><button id="drive-got"><b>⏭</b><small>Knew it</small></button></div>' +
-        '<p class="fine">Eyes on the road — everything is spoken.</p>' +
+        '<p class="fine">Eyes on the road — everything is spoken. Your steering-wheel buttons work too.</p>' +
       "</div>";
     $("drive-stop").addEventListener("click", endDrive);
     $("drive-again").addEventListener("click", driveAgain);
@@ -1120,29 +1162,54 @@
     if (!d) return;
     const token = d.token = {};
     const alive = () => drive === d && d.token === token && !d.paused;
-    while (alive() && d.i < d.queue.length) {
-      const it = d.queue[d.i];
-      const steps = driveSteps(it, d.cue);
-      $("drive-count").textContent = (d.i + 1) + " / " + d.queue.length;
-      let s = d.s;
-      d.skip = false;
-      while (s < steps.length && !d.skip) {
-        const st = steps[s];
-        d.s = s;
-        $("drive-cue").textContent = st.label;
-        $("drive-line").innerHTML = st.en ? '<span class="en">' + esc(st.en) + "</span>"
-          : st.show ? (st.jp === it.sentence.jp ? colorJP(it.sentence) : rubyHTML(st.jp))
-          : '<span class="dots"><i></i><i></i><i></i></span>';
-        if (st.en) await sayEnglish(st.en);
-        else if (st.jp) await play(st.jp, st.slow);
-        else await pauseFor(st.gap);
-        if (!alive()) return;
-        if (!d.skip) await pauseFor(350);
-        if (!alive()) return;
-        s++;
+    for (let guard = 0; guard < order.length + 2; guard++) {
+      $("drive-lesson").innerHTML = "<b>" + esc(d.block.title) + "</b><small>" + esc(d.block.sub) + "</small>";
+      while (alive() && d.i < d.queue.length) {
+        const it = d.queue[d.i];
+        const steps = driveSteps(it, d.cue);
+        $("drive-count").textContent = (d.i + 1) + " / " + d.queue.length;
+        let s = d.s;
+        d.skip = false;
+        while (s < steps.length && !d.skip) {
+          const st = steps[s];
+          d.s = s;
+          $("drive-cue").textContent = st.label;
+          $("drive-line").innerHTML = st.en ? '<span class="en">' + esc(st.en) + "</span>"
+            : st.show ? (st.jp === it.sentence.jp ? colorJP(it.sentence) : rubyHTML(st.jp))
+            : '<span class="dots"><i></i><i></i><i></i></span>';
+          if (st.jp) nowPlaying(d, st.jp);
+          if (st.en) await sayEnglish(st.en);
+          else if (st.jp) await play(st.jp, st.slow);
+          else await pauseFor(st.gap);
+          if (!alive()) return;
+          if (!d.skip) await pauseFor(350);
+          if (!alive()) return;
+          s++;
+        }
+        settleDriveItem(d, it);
+        d.i++; d.s = 0;
       }
-      settleDriveItem(d, it);
-      d.i++; d.s = 0;
+      if (!alive()) return;
+      // a block played through: move the car bookmark on, chime, keep driving
+      if (!d.turned) {
+        d.turned = true;
+        if (d.block.lesson) {
+          const at = order.indexOf(d.block.lesson);
+          state.drivePos = order[(at + 1) % order.length].id;
+          state.driven = state.driven || {};
+          state.driven[d.block.lesson.id] = (state.driven[d.block.lesson.id] || 0) + 1;
+          save();
+        }
+      }
+      $("drive-cue").textContent = "Next lesson";
+      $("drive-line").innerHTML = "";
+      await chime();
+      if (!alive()) return;
+      await pauseFor(600);
+      if (!alive()) return;
+      d.block = lessonBlock(carLesson(), new Set(d.done.map((x) => x.id)));
+      d.queue = d.block.queue.slice();
+      d.i = 0; d.s = 0; d.turned = false; d.blocks++;
     }
     if (alive()) endDrive();
   }
@@ -1164,14 +1231,14 @@
       for (let k = d.queue.length - 1; k > d.i; k--) if (d.queue[k].id === it.id) d.queue.splice(k, 1);
     }
     d.skip = true;
-    stopAudio();
+    if (d.paused) drivePause(false); else stopAudio();
   }
   function driveAgain() {
     const d = drive;
     if (!d || !d.running) return;
     const it = d.queue[d.i];
     if (!it || !it.id) return;
-    d.grades[it.id] = "again";
+    if (!it.first) d.grades[it.id] = "again";
     if (!d.queue.slice(d.i + 1).some((x) => x.id === it.id)) d.queue.splice(Math.min(d.queue.length, d.i + 4), 0, Object.assign({}, it, { rep: true }));
     const pad = $("drive-again");
     if (pad) { pad.classList.add("flash"); setTimeout(() => pad.classList.remove("flash"), 500); }
@@ -1182,6 +1249,7 @@
     d.paused = on;
     const pad = $("drive-pause");
     if (pad) pad.innerHTML = on ? "<b>▶</b><small>Resume</small>" : "<b>❚❚</b><small>Pause</small>";
+    if ("mediaSession" in navigator) { try { navigator.mediaSession.playbackState = on ? "paused" : "playing"; } catch (_) {} }
     if (on) { d.token = {}; stopAudio(); $("drive-cue").textContent = "Paused"; } else runDrive();
   }
   function releaseDrive() {
@@ -1204,13 +1272,14 @@
     releaseDrive();
     drive = null;
     const lines = d.done;
+    const car = carLesson();
     $("drive-body").innerHTML =
       '<header class="page-head"><span class="kicker">車 · Drive done</span></header>' +
       '<h1 class="journal-title">' + (lines.length ? lines.length + " line" + (lines.length === 1 ? "" : "s") + "<br><em>said on the road.</em>" : "Drive<br><em>ended.</em>") + "</h1>" +
-      (lines.some((x) => !x.first) ? '<p class="lede">Parked? Tap any line that felt hard and it comes back sooner.</p>' : "") +
+      '<p class="lede">' + (lines.some((x) => !x.first) ? "Parked? Tap any line that felt hard and it comes back sooner. " : "") + "Next drive picks up at <b>" + esc(car.title) + "</b>.</p>" +
       '<div class="drive-review">' + lines.map((x, i) =>
-        '<button class="review-line' + (d.grades[x.id] === "again" ? " hard" : "") + '" data-review="' + i + '"' + (x.first ? " disabled" : "") + ">" +
-          '<span class="jp">' + colorJP(x.sentence) + '</span><span class="en">' + esc(x.sentence.en) + '</span><span class="flag">' + (d.grades[x.id] === "again" ? "hard" : d.grades[x.id] === "good" ? "knew it" : "") + "</span></button>").join("") + "</div>" +
+        '<button class="review-line' + (d.grades[x.id] === "again" ? " hard" : "") + (x.first ? " new" : "") + '" data-review="' + i + '"' + (x.first ? " disabled" : "") + ">" +
+          '<span class="jp">' + colorJP(x.sentence) + '</span><span class="en">' + esc(x.sentence.en) + '</span><span class="flag">' + (x.first ? "new" : d.grades[x.id] === "again" ? "hard" : d.grades[x.id] === "good" ? "knew it" : "") + "</span></button>").join("") + "</div>" +
       '<button class="primary" id="drive-done"><span>Back to the book</span>' + ARROW + "</button>";
     $("drive-body").querySelectorAll("[data-review]").forEach((b) => b.addEventListener("click", () => {
       const x = lines[Number(b.dataset.review)];
@@ -1279,8 +1348,10 @@
     else { renderDrive(); show("drive"); }
   }));
 
-  // first visit opens on the cover; after that, straight to the book
-  if (state.opened) goHome({ instant: true });
+  // /living-city/#drive is a home-screen shortcut: straight to the drive, one
+  // tap from driving. Otherwise the first visit opens on the cover.
+  if (/^#drive\b/.test(window.location.hash || "")) { state.opened = true; save(); renderDrive(); show("drive", { instant: true }); }
+  else if (state.opened) goHome({ instant: true });
   else show("cover", { instant: true });
 
   // for the smoke test

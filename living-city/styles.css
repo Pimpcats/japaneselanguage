@@ -393,6 +393,13 @@ body.talking .big-play::after { content: ""; position: absolute; inset: -4px; bo
 .drive-how { margin: 14px 0 0; padding: 12px 0 0; border-top: 1px dashed var(--line); list-style: none; counter-reset: how; display: grid; gap: 8px; }
 .drive-how li { counter-increment: how; display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 10px; font: 15px var(--sans); }
 .drive-how li::before { content: counter(how); display: grid; place-items: center; width: 26px; height: 26px; border: 1.5px solid var(--green); border-radius: 50%; color: var(--green); font: 600 13px var(--sans); }
+.drive-then { margin: 12px 0 0; padding-top: 12px; border-top: 1px dashed var(--line); font: 14px/1.45 var(--sans); color: var(--ink-soft); }
+.drive-then .kicker { margin-bottom: 2px; }
+.drive-then b { color: var(--ink); font-weight: 600; }
+.drive-lesson { margin: 14px 0 0; display: grid; gap: 2px; }
+.drive-lesson b { font: 600 17px var(--sans); }
+.drive-lesson small { font: 13px var(--sans); opacity: .7; }
+.review-line.new { opacity: .7; }
 .seg { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin-top: 14px; padding: 4px; background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px; }
 .seg button { min-height: 44px; border: 0; border-radius: 7px; background: none; font: 600 14px var(--sans); color: var(--ink-soft); transition: background .2s ease, color .2s ease; }
 .seg button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(60, 40, 20, .18); }

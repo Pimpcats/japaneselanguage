@@ -27,20 +27,33 @@ stamp card bridges the steps, and you can stop at any of them.
 - Tap a chip to hear the word; **↗ opens it on Jisho**.
 
 ## Drive (eyes off)
-Built only from lines you've practised in the book, due ones first (12 a
-drive). Nothing learned yet: it plays a first listen of your next page.
+One tap, then it keeps going on its own until you stop.
 
-- **English cue** (default): hear the meaning → a gap to say the Japanese →
-  hear the answer → say it again. Weak lines get a slow replay and come back a
-  few lines later.
+1. **Your lines first:** up to 12 lines you've practised in the book, due
+   ones first.
+2. **Then lesson after lesson** from the car bookmark (`state.drivePos`),
+   with a chime between lessons. Lines you know are recalled, new ones are
+   introduced by ear, then the lesson's conversation. It picks up there next
+   time.
+
+How a line plays:
+- **English cue** (default, a visible choice on the Drive screen): hear the
+  meaning → a gap to say the Japanese → the answer → say it again. Weak lines
+  get a slow replay and come back a few lines later. A new line is introduced
+  as meaning → Japanese → say it back → slowly.
 - **Japanese only**: listen → say it back → slowly → again.
-- Some lines become a swap drill (sentence, then the new word, you say the new
-  sentence). A drive ends with a short conversation from a finished page.
-- **Grading without touching the phone:** media keys. ⏭ = knew it (it won't
-  repeat), ⏮ = again (it comes back). No input counts as "almost". A silent
-  loop holds the media session so wheel buttons reach the page. Not yet tested
-  on a real phone or car.
-- When you park: the lines you practised, tap one to flag it hard.
+- Some known lines become a swap drill (sentence, then the new word, you say
+  the new sentence).
+
+Hands-free controls (Media Session API, so steering-wheel and Bluetooth
+buttons work): play/pause, ⏭ = knew it (moves on, won't repeat), ⏮ = again
+(comes back). No input counts as "almost". The car display shows the Japanese
+line. A silent loop holds the media session between clips. The same three
+controls are big pads on screen. Not yet tested on a real phone or car.
+
+When you end the drive: the lines you practised, tap one to flag it hard.
+`/living-city/#drive` opens straight on the Drive screen, one tap from
+driving, so it works as a home-screen shortcut.
 
 The English cue uses the device's English voice and is the one place English
 is spoken. The main app's rule (English is never spoken) is unchanged.
