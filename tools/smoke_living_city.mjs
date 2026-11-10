@@ -1,6 +1,6 @@
-// Boots the pop-up book (living-city/) in jsdom and reads through it: cover →
-// contents → a chapter → all four readings → a side trip → journal → driving
-// mode. Runs with reduced motion so page turns are instant.
+// Boots the pop-up book (living-city/) in jsdom and uses it the way a learner
+// would: cover → book → a whole page (Meet + the four exercises) → side trip →
+// journal → a drive. Runs with reduced motion and shrunken waits.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -17,21 +17,23 @@ let html = read("living-city/index.html").replace(/<link[^>]+>/g, "");
 for (const f of ["../lessons.js", "../studio-preview/content-overrides.js", "living-city/data.js", "living-city/scenes.js", "living-city/app.js"]) html = inline(html, f);
 assert.ok(!/<script src=/.test(html), "every script should be inlined for the test");
 
-const played = [];
-const scriptErrors = [];
+const played = [], spoken = [], scriptErrors = [];
 const virtualConsole = new VirtualConsole();
 virtualConsole.on("jsdomError", (e) => { if (!/Not implemented/.test(e.message)) scriptErrors.push(e.message); });
 const dom = new JSDOM(html, {
-  virtualConsole,
   url: "https://hanasou.test/living-city/",
   runScripts: "dangerously",
   pretendToBeVisual: true,
+  virtualConsole,
   beforeParse(window) {
+    window.HANASOU_BOOK_SPEED = 0.002;
     window.scrollTo = () => {};
     window.matchMedia = (q) => ({ matches: /reduce/.test(q), media: q, addEventListener() {}, removeEventListener() {} });
     window.fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve(manifest) });
     window.confirm = () => true;
-    window.Audio = class { constructor(src) { this.src = src; played.push(src); } play() { setTimeout(() => this.onended && this.onended(), 5); return Promise.resolve(); } pause() {} };
+    window.Audio = class { constructor(src) { this.src = src; played.push(src); } play() { setTimeout(() => this.onended && this.onended(), 2); return Promise.resolve(); } pause() {} };
+    window.SpeechSynthesisUtterance = class { constructor(text) { this.text = text; } };
+    window.speechSynthesis = { getVoices: () => [], cancel() {}, speak(u) { spoken.push({ text: u.text, lang: u.lang }); setTimeout(() => u.onend && u.onend(), 2); } };
   },
 });
 const { window } = dom;
@@ -40,151 +42,152 @@ const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 const active = () => $(".screen.active").id;
 const click = (selector) => { const el = $(selector); assert.ok(el, "Expected element " + selector); el.click(); };
-const tick = (ms = 20) => new Promise((r) => setTimeout(r, ms));
+const tick = (ms = 15) => new Promise((r) => setTimeout(r, ms));
+const until = async (test, what) => { for (let i = 0; i < 400; i++) { if (test()) return; await tick(10); } assert.fail("Timed out waiting for " + what); };
 const B = window.HanasouBook;
 assert.ok(B, "app.js should expose window.HanasouBook");
+const step = () => { const s = B.session(); return s ? s.queue[s.pos] : null; };
 
-// ---- cover → contents
+// ---- cover → the book
 assert.equal(active(), "cover", "First visit opens on the cover");
 click("#open-book");
-assert.equal(active(), "contents", "Opening the book shows the contents");
+assert.equal(active(), "home", "Opening the book shows the book");
 assert.equal($$(".chapter-toc").length, 8, "Eight chapters (Levels 0–7)");
 assert.equal($$("#toc [data-lesson]").length, 84, "Every lesson is in the contents");
 assert.equal($$("#trips [data-trip]").length, 15, "All Speaking Studio conversations are side trips");
 assert.ok($$("#toc [data-lesson]").every((b) => !b.disabled), "Nothing is locked");
-
-// ---- content overrides from the Speaking Studio are applied
+assert.ok($("#continue-stage .popup .pop-guide img"), "The Continue card shows the page's pop-up with もち子");
+assert.equal($$("img[src*='/people/']").length, 0, "もち子 is the only character");
+assert.ok(!$("#ribbons").hidden, "The bottom nav shows on the book");
+assert.equal(Object.keys(window.BOOK_SCENES).length, window.LESSONS.length, "Every lesson has an authored scene");
 const canDo = window.LESSONS.find((l) => l.id === "can-do");
 assert.ok(canDo.sentences.some((s) => s.jp === "にほんごが はなせます。"), "Studio language corrections load before the book");
 
-// ---- bookmark → chapter opener
-click("#bookmark-open");
-assert.equal(active(), "chapter", "The bookmark opens its chapter page");
-assert.equal($$("#chapter-readings [data-mode]").length, 4, "Four readings per chapter");
-assert.ok($("#chapter-stage .popup .pop-back"), "The chapter opens on a pop-up scene");
-assert.ok($("#chapter-stage .pop-guide img"), "もち子 is in every scene");
-assert.equal($$("#chapter-stage .pop-you, #chapter-stage img[src*='/people/']").length, 0, "No other characters on the page");
-// the layers sit in a fixed back-to-front order so nothing swaps while rising
-const layerOrder = [...$("#chapter-stage .pop-tilt").children].map((el) => el.className.split(" ").find((c) => /^pop-(back|floor|row|guide|bubble)$/.test(c)) + (el.classList.contains("pop-world") ? ":world" : el.classList.contains("pop-front") ? ":front" : ""));
-assert.deepEqual(layerOrder.filter((x) => !/floor|bubble/.test(x)), ["pop-back", "pop-row:world", "pop-guide", "pop-row:front"], "Postcard, world, もち子, front props — in that order");
-
-// the back row: the lesson's world
-const worldOf = () => $$("#reading-stage .pop-world img").map((im) => im.getAttribute("src")).join("|");
-// ---- reading 1: Recall (first lesson)
-const first = B.order[0];
-click('#chapter-readings [data-mode="recall"]');
-assert.equal(active(), "reading");
-assert.equal($(".prompt").textContent, first.sentences[0].en, "Recall shows the English prompt");
-click("#pull-tab");
-assert.equal($("#slip .jp").textContent, first.sentences[0].jp, "The pull-tab reveals the model Japanese");
-for (let i = 0; i < first.sentences.length; i++) {
-  if (!$(".finish")) {
-    const back = worldOf().split("|").filter(Boolean);
-    const frontSrc = $$("#reading-stage .pop-front img").map((im) => im.getAttribute("src"));
-    assert.ok(frontSrc.every((f) => !back.includes(f)), "A prop the page is about steps forward instead of appearing twice");
-  }
-  if ($("#pull-tab") && !$("#pull-tab").classList.contains("pulled")) click("#pull-tab");
-  click('[data-grade="good"]');
-  await tick(5);
-}
-assert.ok($(".finish"), "Finishing every page ends the reading");
-assert.ok(B.state.readings[first.id].recall, "Recall is recorded for the lesson");
-assert.equal(B.state.cards[first.id + "#0"].reps, 1, "Grades feed the SRS");
-const saved = JSON.parse(window.localStorage.getItem("hanasou.book.v1"));
-assert.ok(saved.readings[first.id].recall, "Progress is saved in the book's own key");
-assert.equal(window.localStorage.getItem("hanasou.v4"), null, "The main app's progress is never touched");
-
-// ---- reading 2: Listen & Notice
-click("#finish-next");
-assert.equal(active(), "reading");
-const listenItem = B.session().items[0];
-assert.equal($$("#reading-stage .pop-front .pop-cut").length, 0, "Listen hides this page's props until you answer");
-const correct = $$("[data-choice]").find((b) => b.dataset.choice === listenItem.sentence.en);
-assert.ok(correct && $$("[data-choice]").length === 4, "Listen offers four meanings including the right one");
-correct.click();
-assert.ok($("#feedback").classList.contains("good"), "Picking what you heard is marked right");
-click("#reading-back");
-assert.equal(active(), "chapter");
-
-// ---- reading 3: Pattern Lab pairs only real sentences
-const cafe = window.LESSONS.find((l) => l.id === "cafe");
-const pairs = B.patternPairs(cafe);
-assert.ok(pairs.length > 0, "Café has swappable sentence pairs");
-const real = new Set(window.LESSONS.flatMap((l) => l.sentences.map((s) => s.jp)));
-for (const l of B.order) for (const item of B.buildPatterns(l)) {
-  if (item.kind === "pair") assert.ok(real.has(item.source.jp) && real.has(item.sentence.jp), "Pattern pairs never invent Japanese (" + l.id + ")");
-}
-assert.ok(B.order.every((l) => B.buildPatterns(l).length > 0), "Every lesson has Pattern Lab pages");
+// ---- a lesson page
 $$("details").forEach((d) => (d.open = true));
-click("#chapter-back");
 click('#toc [data-lesson="cafe"]');
-click('#chapter-readings [data-mode="patterns"]');
-assert.ok($(".source-card .jp"), "Pattern Lab starts from a sentence you already know");
-click("#pull-tab");
-assert.ok($("#slip .jp").textContent.length > 0, "Pattern Lab reveals the changed sentence");
-click('[data-grade="hard"]');
-click("#reading-back");
+assert.equal(active(), "lesson");
+assert.equal($$("#lesson-readings [data-mode]").length, 5, "Meet + four exercises");
+const layers = [...$("#lesson-stage .pop-tilt").children].map((el) => (el.classList.contains("pop-world") ? "world" : el.classList.contains("pop-front") ? "front" : el.classList.contains("pop-guide") ? "guide" : el.classList.contains("pop-back") ? "back" : "")).filter(Boolean);
+assert.deepEqual(layers, ["back", "world", "guide", "front"], "Postcard, world, もち子, front props — in that order");
+assert.ok($("#dock #lesson-start"), "One action bar with the next step");
+assert.ok($("#ribbons").hidden, "The action bar replaces the nav");
 
-// ---- reading 4: In the Moment uses the lesson's hand-written scene
-assert.ok(B.order.every((l) => B.buildMoment(l)), "Every lesson has an In the Moment conversation");
-click('#chapter-readings [data-mode="moment"]');
-const convo = B.session().convo;
-assert.ok(!convo.trip && convo.turns.length > 0, "Café's moment is its hand-written scene");
-for (let t = 0; t < convo.turns.length; t++) {
-  click("#show-choices");
-  const turn = B.session().items[B.session().index];
-  const wrongIndex = turn.choices.findIndex((c) => !c.correct);
-  if (wrongIndex >= 0) {
-    click('[data-pick="' + wrongIndex + '"]');
-    assert.ok($("#feedback").classList.contains("again"), "A reply that doesn't fit asks you to try again");
-    assert.ok($("#turn-next") === null, "A wrong reply does not advance");
-  }
-  click('[data-pick="' + turn.choices.findIndex((c) => c.correct) + '"]');
-  assert.ok($("#feedback").classList.contains("good"));
-  click("#turn-next");
-}
-assert.ok($(".finish"), "Finishing the scene ends the reading");
-assert.ok(B.state.readings.cafe.moment, "The moment is recorded");
-click("#finish-back");
-assert.equal(active(), "chapter");
-
-// ---- side trip (Speaking Studio conversation with authored replies)
-click("#chapter-back");
-click('#trips [data-trip="taxi"]');
-assert.ok(B.session().convo.trip, "Side trips run the Studio's branching conversations");
-click("#show-choices");
-assert.equal($$("#turn-choices [data-pick]").length, 2);
-click("#reading-back");
-assert.equal(active(), "contents");
-
-// ---- pictures match the page: hand-authored scenes, never guessed from words
-click('[data-nav="contents"]');
-click('#toc [data-lesson="l0-a"]');
-assert.equal($$("#chapter-stage img[src*='/sea']").length, 0, "No random wave on the あいうえお page");
-const BS = window.BOOK_SCENES;
-assert.equal(Object.keys(BS).length, window.LESSONS.length, "Every lesson has an authored scene");
-click('#chapter-readings [data-mode="recall"]');
-const l0 = window.LESSONS.find((l) => l.id === "l0-a");
-for (let i = 0; i < l0.sentences.length; i++) {
-  const page = (BS["l0-a"].pages || []).find((p) => p.i === i);
-  const want = (page ? page.props : []).map((p) => p.art).sort().join("|");
-  const got = $$("#reading-stage .pop-front img").map((im) => im.getAttribute("src").split("/").pop().replace(".png", ""));
-  assert.equal([...new Set(got)].sort().join("|"), want, "Page " + i + " shows exactly its authored props");
-  click("#pull-tab"); click('[data-grade="hard"]');
-}
-click("#finish-back");
-click("#chapter-back");
-
-// ---- tapping a cut-out says its word
-click('[data-nav="contents"]');
-click('#toc [data-lesson="cafe"]');
-const cut = $("#chapter-stage .pop-row button.pop-cut[data-say]");
-assert.ok(cut, "Cut-outs that stand for a word are tappable");
+// ---- Meet: the flashcard values
+click("#dock #lesson-start");
+assert.equal(active(), "reading");
+assert.equal(step().mode.id, "meet", "A new page starts with Meet");
+const cafe = window.LESSONS.find((l) => l.id === "cafe");
+assert.ok($$(".chips .wchip").length === cafe.sentences[0].words.length, "Every word is a chip");
+const chip = $(".chips .wchip");
+assert.ok(chip.querySelector("small").textContent.length > 0, "Each chip shows its meaning under the word");
+assert.match(chip.className, /pos-(n|v|adj|adv|prt|cop|expr|aux|conj)/, "Chips are colour-coded by word role");
+assert.match(chip.querySelector("a.wc-jisho").href, /^https:\/\/jisho\.org\/search\//, "Each chip links to Jisho");
+assert.ok($$(".answer .jp .w").length > 0, "The sentence itself is colour-coded");
 const before = played.length;
-cut.click();
-await tick(20);
-assert.ok(played.length > before, "Tapping a cut-out plays its word");
-click("#chapter-back");
+chip.querySelector(".wc-main").click();
+await tick();
+assert.ok(played.length > before, "Tapping a chip plays its word");
+let coloured = 0, total = 0;
+for (const l of window.LESSONS) for (const s of l.sentences) { total++; if (/class="w t-/.test(B.colorJP(s))) coloured++; }
+assert.ok(coloured / total > 0.98, "Nearly every sentence is colour-coded (" + coloured + "/" + total + ")");
+
+// ---- play the whole page: one continuous flow through all four exercises
+const seen = new Set();
+async function playPage() {
+  for (let guard = 0; guard < 200; guard++) {
+    if ($("#dock #finish-home")) return;
+    const st = step();
+    assert.ok(st, "A step is showing");
+    if (st.type === "bridge") { click("#dock #bridge-next"); continue; }
+    seen.add(st.mode.id);
+    const item = st.item;
+    if (item.kind === "meet") { click("#dock #meet-next"); continue; }
+    if (item.kind === "recall" || item.kind === "reveal") {
+      assert.equal($$(".answer").length, 0, "The answer is hidden until you've said it");
+      click("#dock #reveal");
+      assert.ok($(".answer .jp"), "Reveal shows the answer");
+      click("#dock #grade-good");
+      continue;
+    }
+    if (item.kind === "picture") {
+      assert.equal($$("#reading-body .choice").length, 0, "Picture listening has no text choices");
+      const picks = $$("#reading-stage [data-pick]");
+      assert.equal(picks.length, 3, "Three pictures to choose from");
+      const wrong = picks.find((b) => b.dataset.pick !== item.target);
+      wrong.click();
+      assert.ok(!$("#dock #listen-next"), "A wrong picture does not advance");
+      picks.find((b) => b.dataset.pick === item.target).click();
+      click("#dock #listen-next");
+      continue;
+    }
+    if (item.kind === "meaning") {
+      $$("[data-choice]").find((b) => b.dataset.choice === item.sentence.en).click();
+      click("#dock #listen-next");
+      continue;
+    }
+    if (item.kind === "pair") {
+      for (const k of item.changed) {
+        const opts = $$("[data-option]");
+        assert.ok(opts.length >= 2, "A swap offers real alternatives");
+        opts.find((o) => o.dataset.option === item.sentence.words[k].jp).click();
+      }
+      assert.ok($$("#swap-line .wchip.swapped").length === item.changed.length, "The swapped piece lands in the sentence");
+      click("#dock #swap-next");
+      continue;
+    }
+    if (item.kind === "build") {
+      const want = item.sentence.words.map((w) => w.jp);
+      for (const jp of want) $$("[data-piece]").find((b) => !b.disabled && item.sentence.words[Number(b.dataset.piece)].jp === jp).click();
+      click("#dock #build-next");
+      continue;
+    }
+    // a conversation turn
+    assert.equal($$("#reading-body .choice").length, 0, "In the Moment has no multiple choice");
+    click("#dock #reveal");
+    assert.ok($(".answer .jp"), "A model reply appears after you've spoken");
+    click("#dock #grade-good");
+    if ($("#dock #turn-next")) click("#dock #turn-next");
+  }
+  assert.fail("The page never finished");
+}
+await playPage();
+assert.deepEqual([...seen].sort(), ["listen", "meet", "moment", "patterns", "recall"], "One flow covers Meet and all four exercises");
+assert.ok(["recall", "listen", "patterns", "moment"].every((m) => B.state.readings.cafe[m]), "All four exercises are recorded");
+assert.ok(B.state.met.cafe, "Meet is recorded");
+assert.ok($(".finish.big"), "Finishing the fourth exercise stamps the page");
+assert.ok(B.state.cards["cafe#0"].reps >= 1, "Grades feed the review schedule");
+const saved = JSON.parse(window.localStorage.getItem("hanasou.book.v1"));
+assert.ok(saved.readings.cafe.recall, "Progress is saved in the book's own key");
+assert.equal(window.localStorage.getItem("hanasou.v4"), null, "The main app's progress is never touched");
+click("#dock #finish-home");
+assert.equal(active(), "home");
+
+// ---- content rules
+const real = new Set(window.LESSONS.flatMap((l) => l.sentences.map((s) => s.jp)));
+for (const l of B.order) {
+  const pats = B.buildPatterns(l);
+  assert.ok(pats.length > 0, "Every lesson has Pattern Lab pages (" + l.id + ")");
+  for (const item of pats) if (item.kind === "pair") assert.ok(real.has(item.source.jp) && real.has(item.sentence.jp), "Pattern pairs never invent Japanese (" + l.id + ")");
+  assert.ok(B.buildMoment(l), "Every lesson has a conversation (" + l.id + ")");
+  for (const item of B.buildListen(l)) {
+    if (item.kind === "picture") assert.ok(item.choices.some((c) => c.art === item.target) && item.choices.every((c) => !window.BOOK_ART_MISSING.includes(c.art)), "Picture choices are drawn art and include the answer");
+    else assert.ok(item.choices.includes(item.sentence.en), "Meaning choices include the answer");
+  }
+}
+click('#toc [data-lesson="l0-a"]');
+assert.equal($$("#lesson-stage img[src*='/sea']").length, 0, "No random wave on the あいうえお page");
+click("#lesson-back");
+
+// ---- side trip
+$("details.trips-wrap").open = true;
+click('#trips [data-trip="taxi"]');
+assert.equal(active(), "reading");
+click("#dock #reveal");
+click("#dock #grade-good");
+assert.ok($("#dock #turn-next"), "A side trip answers back");
+click("#reading-back");
+assert.equal(active(), "home");
 
 // ---- journal
 click('[data-nav="journal"]');
@@ -192,24 +195,50 @@ assert.equal(active(), "journal");
 assert.ok(Number($(".tallies b").textContent) > 0, "Journal counts real lines said");
 assert.equal($$(".week .day").length, 7, "A forgiving week of dots, not a streak");
 assert.ok(!/streak/i.test($("#journal").textContent), "No streak pressure");
+assert.equal($$("#legend .wchip").length, 8, "The colour key is in the journal");
 
-// ---- driving mode: Japanese audio only
-click('[data-nav="contents"]');
-click("#drive-toggle");
-assert.equal($("#drive-toggle").getAttribute("aria-pressed"), "true", "Driving mode turns on");
-click("#bookmark-open");
-assert.equal(active(), "reading", "In driving mode the bookmark plays the page");
-assert.ok($(".drive-panel"), "Driving mode shows the hands-free panel");
-const list = B.drivePlaylist();
-assert.ok(list.length > 0, "Driving mode builds a playlist");
-assert.ok(list.filter((x) => x.jp).every((x) => /[ぁ-んァ-ン一-龯]/.test(x.jp)), "Driving mode only ever speaks Japanese");
-await tick(60);
-assert.ok(played.some((src) => /\.\.\/audio\/.+\.mp3$/.test(src)), "Driving mode plays the recorded VOICEVOX clips");
-click("#drive-stop");
-click("#drive-toggle");
-assert.equal($("#drive-toggle").getAttribute("aria-pressed"), "false", "Driving mode turns off");
+// ---- drive: built from what the book taught
+click('[data-nav="drive"]');
+assert.equal(active(), "drive");
+const plan = B.drivePlan();
+assert.ok(plan.learned > 0, "Lines read in the book are ready for the drive");
+assert.ok(plan.queue.filter((x) => x.id).every((x) => B.state.cards[x.id] && B.state.cards[x.id].reps > 0), "The drive only uses lines you've learned");
+const enSteps = B.driveSteps(plan.queue.find((x) => x.type === "recall"), "en");
+assert.ok(enSteps[0].en && enSteps[1].gap && enSteps[2].jp, "English cue: meaning → a gap to say it → the answer");
+const jpSteps = B.driveSteps(plan.queue.find((x) => x.type === "recall"), "jp");
+assert.ok(jpSteps.every((s) => !s.en), "Japanese only: no English is spoken");
+assert.equal($('[data-cue="en"]').getAttribute("aria-pressed"), "true", "English cue is the default, and it's a visible choice");
+const repsBefore = Object.fromEntries(plan.queue.filter((x) => x.id).map((x) => [x.id, B.state.cards[x.id].reps]));
+spoken.length = 0; played.length = 0;
+click("#drive-start");
+assert.ok(B.drive() && B.drive().running, "The drive starts");
+assert.ok($("#ribbons").hidden, "No nav to mis-tap while driving");
+assert.equal($$(".drive-pads button").length, 3, "Three big pads: again, pause, knew it");
+const firstId = B.drive().queue[0].id;
+click("#drive-got");
+await until(() => $("#drive-done"), "the drive to finish");
+assert.ok(spoken.some((u) => u.lang === "en-US"), "The cue is spoken in English");
+assert.ok(played.some((src) => /\.\.\/audio\/.+\.mp3$/.test(src)), "Answers play the recorded Japanese clips");
+assert.ok(Object.keys(repsBefore).every((id) => B.state.cards[id].reps > repsBefore[id]), "Every line driven is recorded for review");
+assert.ok($$(".review-line").length > 0, "After the drive: the lines you practised");
+assert.match($(".review-line .flag").textContent, /knew it/, "“Knew it” is remembered");
+assert.ok(B.state.cards[firstId].interval >= 24 * 60 * 60 * 1000, "A known line comes back later");
+const hard = $$(".review-line").find((b) => !b.classList.contains("hard"));
+hard.click();
+assert.ok(hard.classList.contains("hard"), "Tap a line after the drive to flag it hard");
+click("#drive-done");
+assert.equal(active(), "home");
+
+// Japanese-only drive speaks no English
+click('[data-nav="drive"]');
+click('[data-cue="jp"]');
+spoken.length = 0;
+click("#drive-start");
+await until(() => $("#drive-done"), "the Japanese-only drive to finish");
+assert.ok(!spoken.some((u) => u.lang === "en-US"), "Japanese only: no English voice");
+click("#drive-done");
 
 await tick(40);
 assert.deepEqual(scriptErrors, [], "No uncaught script errors");
-console.log("Living City pop-up book smoke test passed: cover, contents, all four readings, side trip, journal, driving mode.");
+console.log("Living City pop-up book smoke test passed: book, Meet + four exercises, flashcard chips, side trip, journal, drive.");
 window.close();

@@ -97,7 +97,9 @@ const header = "// The pop-up pictures for every page of the Living City book, c
   "// world (props behind, for the lesson's situation) and pages[i].props (what\n" +
   "// sentence i shows). A prop is {art, say?, size?, count?}; art not drawn yet\n" +
   "// simply doesn't appear. See docs/LIVING_CITY_ART_PROMPTS.md.\n";
-writeFileSync(path.join(root, "living-city", "scenes.js"), header + "window.BOOK_SCENES = " + JSON.stringify(out, null, 1) + ";\n");
+writeFileSync(path.join(root, "living-city", "scenes.js"), header + "window.BOOK_SCENES = " + JSON.stringify(out, null, 1) + ";\n" +
+  "// art referenced above that isn't drawn yet (the book skips it)\n" +
+  "window.BOOK_ART_MISSING = " + JSON.stringify([...newArt.keys()].sort()) + ";\n");
 
 // ---- the prompts doc -------------------------------------------------------------
 const OBJ = "Clean bold hand-inked outlines, refined cel + gouache shading, muted natural palette. A single object on flat chroma-key green (#00b140), no shadows: ";

@@ -1,0 +1,896 @@
+{
+ "intro": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "set greeting phrase, nothing drawable"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "names only the speaker's name"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "usflag",
+      "say": "アメリカじん"
+     }
+    ],
+    "why": "American shown by the US flag"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "student is a person; no people allowed"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "abstract question about a name"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "friend and student are people; nothing drawable"
+   }
+  ]
+ },
+ "greetings": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "set greeting phrase, names no object"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "set greeting phrase, names no object"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "set greeting phrase, names no object"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "thanks phrase, names no object"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "apology phrase, names no object"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "yes / agreement, abstract"
+   },
+   {
+    "i": 6,
+    "props": [],
+    "why": "no / disagreement, abstract"
+   },
+   {
+    "i": 7,
+    "props": [],
+    "why": "farewell phrase, names no object"
+   }
+  ]
+ },
+ "this-that": {
+  "postcard": "bg-room",
+  "world": [
+   {
+    "art": "book-circle",
+    "say": "ほん"
+   },
+   {
+    "art": "bag",
+    "say": "かばん"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "mystery",
+      "say": "これ"
+     }
+    ],
+    "why": "unknown object being asked about"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "book-circle",
+      "say": "ほん"
+     }
+    ],
+    "why": "this is a book"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "bag",
+      "say": "かばん"
+     }
+    ],
+    "why": "that is a bag"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "bag",
+      "say": "かばん"
+     }
+    ],
+    "why": "my bag over there"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "book-circle",
+      "say": "ほん"
+     }
+    ],
+    "why": "my book"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "book-circle",
+      "say": "ほん"
+     },
+     {
+      "art": "book-stripes",
+      "say": "ほん"
+     },
+     {
+      "art": "book-window",
+      "say": "ほん"
+     }
+    ],
+    "why": "several books to choose which one"
+   },
+   {
+    "i": 6,
+    "props": [
+     {
+      "art": "book-circle",
+      "say": "ほん"
+     }
+    ],
+    "why": "is that a book"
+   }
+  ]
+ },
+ "numbers": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "counting numbers alone, nothing drawable"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "counting numbers alone, nothing drawable"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "counting numbers alone, nothing drawable"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "counting numbers alone, nothing drawable"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "a number alone, nothing drawable"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "counting numbers alone, nothing drawable"
+   }
+  ]
+ },
+ "age": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "abstract question about age"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "an age, nothing drawable"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "friend is a person; age abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "friend is a person; age abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "an age, nothing drawable"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "child is a person; age abstract"
+   }
+  ]
+ },
+ "shop": {
+  "postcard": "bg-shop",
+  "world": [
+   {
+    "art": "water",
+    "say": "みず"
+   },
+   {
+    "art": "coffee",
+    "say": "コーヒー"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "unspecified 'this'; only a price question"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "water",
+      "say": "みず"
+     }
+    ],
+    "why": "asking for water"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "asking for coffee"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "one coffee"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "unspecified 'this one'"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "water",
+      "say": "みず"
+     }
+    ],
+    "why": "price of the water"
+   }
+  ]
+ },
+ "money": {
+  "postcard": "bg-shop",
+  "world": [
+   {
+    "art": "coin100",
+    "say": "ひゃく"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "unspecified 'this'; only a price question"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "coin100",
+      "say": "ひゃく"
+     }
+    ],
+    "why": "100 yen shown as one coin"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "coin500",
+      "say": "ごひゃく",
+      "new": "a single Japanese 500-yen coin, gold-coloured with a paulownia flower design, standing upright on its edge, front view"
+     }
+    ],
+    "why": "500 yen shown as a 500-yen coin"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     },
+     {
+      "art": "coin100",
+      "say": "さんびゃく",
+      "count": 3
+     }
+    ],
+    "why": "coffee costing three 100-yen coins"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "expensive? names no object"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "cheap, names no object"
+   },
+   {
+    "i": 6,
+    "props": [
+     {
+      "art": "water",
+      "say": "みず"
+     },
+     {
+      "art": "coin100",
+      "say": "ひゃく"
+     }
+    ],
+    "why": "water costing one 100-yen coin"
+   },
+   {
+    "i": 7,
+    "props": [
+     {
+      "art": "yen-1000-bill",
+      "say": "せん",
+      "new": "a single Japanese 1000-yen banknote, pale blue-green paper with ornate border, standing slightly tilted, front view, no hand"
+     }
+    ],
+    "why": "1000 yen shown as a banknote"
+   }
+  ]
+ },
+ "counters": {
+  "postcard": "bg-shop",
+  "world": [
+   {
+    "art": "coffee",
+    "say": "コーヒー"
+   },
+   {
+    "art": "water",
+    "say": "みず"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "one of an unnamed thing"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー",
+      "count": 2
+     }
+    ],
+    "why": "two coffees"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "water",
+      "say": "みず",
+      "count": 3
+     }
+    ],
+    "why": "three waters"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "how many, names no object"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "five of an unnamed thing"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "all of an unnamed thing"
+   },
+   {
+    "i": 6,
+    "props": [],
+    "why": "four of an unnamed thing"
+   }
+  ]
+ },
+ "where": {
+  "postcard": "bg-street",
+  "world": [
+   {
+    "art": "station",
+    "say": "えき"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "wc",
+      "say": "トイレ"
+     }
+    ],
+    "why": "asking where the restroom is"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "over there, names no object"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "station",
+      "say": "えき"
+     }
+    ],
+    "why": "the station is here"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "water",
+      "say": "みず"
+     }
+    ],
+    "why": "is there water"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "it is here, names no object"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "friend is a person; no people"
+   },
+   {
+    "i": 6,
+    "props": [
+     {
+      "art": "station",
+      "say": "えき"
+     }
+    ],
+    "why": "asking where the station is"
+   }
+  ]
+ },
+ "cafe": {
+  "postcard": "bg-shop",
+  "world": [
+   {
+    "art": "menu",
+    "say": "メニュー"
+   },
+   {
+    "art": "coffee",
+    "say": "コーヒー"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "menu",
+      "say": "メニュー"
+     }
+    ],
+    "why": "asking for the menu"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     },
+     {
+      "art": "greentea",
+      "say": "おちゃ"
+     }
+    ],
+    "why": "a coffee and a tea"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "cake",
+      "say": "ケーキ"
+     }
+    ],
+    "why": "price of the cake"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "greentea",
+      "say": "おちゃ",
+      "count": 2
+     }
+    ],
+    "why": "two teas"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "water",
+      "say": "みず"
+     }
+    ],
+    "why": "asking for water"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "thanks phrase, names no object"
+   }
+  ]
+ },
+ "verbs": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "bare verb eat, no object named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "bare verb drink, no object named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "bare verb watch, no object named"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "bare verb go, no destination named"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "bare verb do, nothing named"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "understand is abstract"
+   }
+  ]
+ },
+ "object": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "gohan",
+      "say": "ごはん"
+     }
+    ],
+    "why": "eating a meal of rice"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "water",
+      "say": "みず"
+     }
+    ],
+    "why": "drinking water"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "cinema",
+      "say": "えいが"
+     }
+    ],
+    "why": "watching a movie on screen"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "book-circle",
+      "say": "ほん"
+     }
+    ],
+    "why": "reading a book"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "japanese-writing",
+      "say": "にほんご",
+      "new": "a sheet of paper propped upright, covered in neat vertical lines of handwritten Japanese hiragana (correct Japanese such as にほんご), front view"
+     }
+    ],
+    "why": "reading Japanese writing"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "drinking coffee"
+   }
+  ]
+ },
+ "negative": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "sake",
+      "say": "おさけ"
+     }
+    ],
+    "why": "asking if you drink sake"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "don't drink, no object named"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "meat",
+      "say": "にく"
+     }
+    ],
+    "why": "meat that I don't eat"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "go every day, no destination named"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "yes I go, nothing named"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "not understanding is abstract"
+   }
+  ]
+ },
+ "coming-going": {
+  "postcard": "bg-street",
+  "world": [
+   {
+    "art": "school",
+    "say": "がっこう"
+   },
+   {
+    "art": "house",
+    "say": "うち"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "school",
+      "say": "がっこう"
+     }
+    ],
+    "why": "going to school"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "house",
+      "say": "うち"
+     }
+    ],
+    "why": "going home"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "tomorrow is a time; nothing drawable"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "yes I'll come, nothing named"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "japanmap",
+      "say": "にほん"
+     }
+    ],
+    "why": "going to Japan"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "house",
+      "say": "うち"
+     }
+    ],
+    "why": "going home tomorrow"
+   }
+  ]
+ },
+ "routine": {
+  "postcard": "bg-room",
+  "world": [
+   {
+    "art": "coffee",
+    "say": "コーヒー"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "clockface-seven",
+      "say": "しちじ",
+      "new": "a round wall clock with a plain face, hour hand pointing exactly at 7 and minute hand at 12 (7:00), front view"
+     }
+    ],
+    "why": "clock showing seven o'clock"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "morning coffee"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "train",
+      "say": "でんしゃ"
+     }
+    ],
+    "why": "going by train"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "clockface-seven",
+      "say": "しちじ",
+      "new": "a round wall clock with a plain face, hour hand pointing exactly at 7 and minute hand at 12 (7:00), front view"
+     }
+    ],
+    "why": "clock showing seven o'clock"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "train",
+      "say": "でんしゃ"
+     }
+    ],
+    "why": "going by train"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "drinking coffee"
+   }
+  ]
+ }
+}

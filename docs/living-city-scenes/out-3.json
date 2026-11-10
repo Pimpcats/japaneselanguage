@@ -1,0 +1,1041 @@
+{
+ "te-form": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "command only, nothing named to draw"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "command only, nothing named to draw"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "listen request, no concrete object"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "come here, no concrete object"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "stop it, no concrete object"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "encouragement, nothing drawable named"
+   },
+   {
+    "i": 6,
+    "props": [],
+    "why": "'this' is unspecified, no object named"
+   }
+  ]
+ },
+ "te-please": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "polite request, nothing named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "say it again, abstract"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "speak slowly, abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "tell me, abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "help request, nothing named"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "say it slowly, abstract"
+   },
+   {
+    "i": 6,
+    "props": [],
+    "why": "tell me again, abstract"
+   }
+  ]
+ },
+ "te-iru": {
+  "postcard": "bg-room",
+  "world": [
+   {
+    "art": "tv",
+    "say": "テレビ"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "question about activity, nothing named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "eating, but no food named"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "tv",
+      "say": "テレビ"
+     }
+    ],
+    "why": "watching TV: the TV"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "tokyo-tower",
+      "say": "とうきょう",
+      "new": "Tokyo Tower, the red-and-white lattice steel broadcast tower, standing upright, seen from the front at a slight three-quarter angle from ground level"
+     }
+    ],
+    "why": "lives in Tokyo: Tokyo's landmark tower"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "bank",
+      "say": "ぎんこう",
+      "new": "a small modern bank building with stone columns, glass doors and a plain sign reading ぎんこう above the entrance, seen from the front at a slight three-quarter angle"
+     }
+    ],
+    "why": "works at a bank: the bank"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "book-circle",
+      "say": "ほん"
+     }
+    ],
+    "why": "reading a book: the book"
+   },
+   {
+    "i": 6,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "drinking coffee: the coffee"
+   }
+  ]
+ },
+ "because": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "tired so going home, abstract"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "'it' unspecified, nothing named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "busy today, abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "cold weather, no object named"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "'it' unspecified, nothing named"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "tasty but no food named"
+   },
+   {
+    "i": 6,
+    "props": [
+     {
+      "art": "raincloud",
+      "say": "あめ"
+     }
+    ],
+    "why": "rain is named: a rain cloud"
+   }
+  ]
+ },
+ "but-kedo": {
+  "postcard": "bg-shop",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "'it' unspecified, nothing named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "pricey but tasty, no item named"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "wallet-empty",
+      "say": "おかね",
+      "new": "an open brown leather wallet standing upright, its bill pocket visibly empty with no money or coins inside, seen from the front at a slight three-quarter angle"
+     }
+    ],
+    "why": "no money: an empty wallet"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "Japanese language is abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "apology, nothing drawable"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "cheap but tasty, no item named"
+   },
+   {
+    "i": 6,
+    "props": [],
+    "why": "no time, abstract"
+   }
+  ]
+ },
+ "permission": {
+  "postcard": "bg-shop",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "camera",
+      "say": "しゃしん"
+     }
+    ],
+    "why": "asking to take a photo: camera"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "chair",
+      "say": "ここ"
+     }
+    ],
+    "why": "may I sit here: the empty seat"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "go ahead, nothing named"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "sign-no-photos",
+      "say": "しゃしん",
+      "new": "a standing sign showing a camera icon inside a red circle with a red diagonal slash, with the text 撮影禁止 beneath, on a short post, front view"
+     }
+    ],
+    "why": "no photos here: no-photography sign"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "don't touch, no object named"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "may I come in, nothing named"
+   },
+   {
+    "i": 6,
+    "props": [
+     {
+      "art": "sign-no-smoking",
+      "say": "たばこ",
+      "new": "a standing sign showing a cigarette icon inside a red circle with a red diagonal slash, with the text 禁煙 beneath, on a short post, front view"
+     }
+    ],
+    "why": "no smoking here: no-smoking sign"
+   }
+  ]
+ },
+ "sequence-te": {
+  "postcard": "bg-room",
+  "world": [
+   {
+    "art": "coffee",
+    "say": "コーヒー"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "sequence of verbs, nothing named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "go home and rest, abstract"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "gohan",
+      "say": "ごはん"
+     }
+    ],
+    "why": "eat a meal: bowl of rice"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "book-circle",
+      "say": "ほん"
+     },
+     {
+      "art": "cinema",
+      "say": "えいが"
+     }
+    ],
+    "why": "read books and watch movies"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "morning coffee is named"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "bathtub",
+      "say": "おふろ"
+     },
+     {
+      "art": "bed",
+      "say": "ねます"
+     }
+    ],
+    "why": "take a bath, then go to bed"
+   },
+   {
+    "i": 6,
+    "props": [],
+    "why": "hang out and rest, abstract"
+   }
+  ]
+ },
+ "timing": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "toothbrush",
+      "say": "は"
+     }
+    ],
+    "why": "brush teeth before bed: toothbrush"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "emptyplate",
+      "say": "しょくじ"
+     }
+    ],
+    "why": "after the meal: an empty plate"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "cinema",
+      "say": "えいが"
+     }
+    ],
+    "why": "watch movies: a movie screen"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "hand",
+      "say": "て"
+     }
+    ],
+    "why": "wash your hands: the hands"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "telephone",
+      "say": "でんわ"
+     }
+    ],
+    "why": "call later: a telephone"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "telephone",
+      "say": "でんわして"
+     }
+    ],
+    "why": "call before heading out: telephone"
+   },
+   {
+    "i": 6,
+    "props": [],
+    "why": "free time, hang out, abstract"
+   }
+  ]
+ },
+ "directions": {
+  "postcard": "bg-street",
+  "world": [
+   {
+    "art": "signal",
+    "say": "しんごう"
+   },
+   {
+    "art": "station",
+    "say": "えき"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "go straight, no object named"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "signal",
+      "say": "しんごう"
+     }
+    ],
+    "why": "turn at the next traffic light"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "turn left here, nothing named"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "on the right, nothing named"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "station",
+      "say": "えき"
+     }
+    ],
+    "why": "the station is straight ahead"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "intersection",
+      "say": "こうさてん",
+      "new": "a city crossroads where two streets meet at right angles, zebra crossings on each side and curbs at the corners, seen from a low front three-quarter angle, not top-down"
+     }
+    ],
+    "why": "turn at the next intersection"
+   },
+   {
+    "i": 6,
+    "props": [],
+    "why": "on the left, nothing named"
+   },
+   {
+    "i": 7,
+    "props": [
+     {
+      "art": "station",
+      "say": "えき"
+     }
+    ],
+    "why": "beyond the station: the station"
+   }
+  ]
+ },
+ "transport": {
+  "postcard": "bg-street",
+  "world": [
+   {
+    "art": "train",
+    "say": "でんしゃ"
+   },
+   {
+    "art": "bus",
+    "say": "バス"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "train",
+      "say": "でんしゃ"
+     }
+    ],
+    "why": "go by train: the train"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "taxi",
+      "say": "タクシー"
+     }
+    ],
+    "why": "take a taxi: the taxi"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "walking, no object named"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "tokyo-tower",
+      "say": "とうきょう",
+      "new": "Tokyo Tower, the red-and-white lattice steel broadcast tower, standing upright, seen from the front at a slight three-quarter angle from ground level"
+     },
+     {
+      "art": "osaka-castle",
+      "say": "おおさか",
+      "new": "Osaka Castle keep, a tall white Japanese castle with green-tiled tiered roofs and gold trim on a stone base, seen from the front at a slight three-quarter angle"
+     }
+    ],
+    "why": "Tokyo to Osaka: each city's landmark"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "where to transfer, nothing drawable"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "bus",
+      "say": "バス"
+     },
+     {
+      "art": "airport",
+      "say": "くうこう"
+     }
+    ],
+    "why": "bus to the airport"
+   },
+   {
+    "i": 6,
+    "props": [
+     {
+      "art": "subway",
+      "say": "ちかてつ"
+     }
+    ],
+    "why": "take the subway"
+   },
+   {
+    "i": 7,
+    "props": [
+     {
+      "art": "bicycle",
+      "say": "じてんしゃ"
+     },
+     {
+      "art": "station",
+      "say": "えき"
+     }
+    ],
+    "why": "bicycle to the station"
+   }
+  ]
+ },
+ "does-this-go": {
+  "postcard": {
+   "new_key": "bg-station",
+   "new": "an empty Japanese train station platform: tiled floor with yellow tactile strip, platform edge and tracks, overhead roof with hanging signs, timetable board, benches, no people"
+  },
+  "world": [
+   {
+    "art": "train",
+    "say": "でんしゃ"
+   },
+   {
+    "art": "platform",
+    "say": "ホーム"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "bus",
+      "say": "バス"
+     },
+     {
+      "art": "station",
+      "say": "えき"
+     }
+    ],
+    "why": "bus going to the station"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "train",
+      "say": "でんしゃ"
+     },
+     {
+      "art": "airport",
+      "say": "くうこう"
+     }
+    ],
+    "why": "train going to the airport"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "sign-exit",
+      "say": "でぐち",
+      "new": "a yellow Japanese station exit sign with black text 出口, hanging from the ceiling on two short rods, seen from the front"
+     }
+    ],
+    "why": "where's the exit: exit sign"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "platform",
+      "say": "なんばんせん"
+     }
+    ],
+    "why": "which track: platform number sign"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "sign-shibuya",
+      "say": "しぶや",
+      "new": "a Japanese station name board on two posts: white panel with large black しぶや, green stripe across it, seen from the front at a slight three-quarter angle"
+     },
+     {
+      "art": "platform",
+      "say": "ホーム"
+     }
+    ],
+    "why": "Shibuya on this platform"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "train",
+      "say": "でんしゃ"
+     },
+     {
+      "art": "sign-shibuya",
+      "say": "しぶや",
+      "new": "a Japanese station name board on two posts: white panel with large black しぶや, green stripe across it, seen from the front at a slight three-quarter angle"
+     }
+    ],
+    "why": "train going to Shibuya"
+   },
+   {
+    "i": 6,
+    "props": [
+     {
+      "art": "bus",
+      "say": "バス"
+     },
+     {
+      "art": "airport",
+      "say": "くうこう"
+     }
+    ],
+    "why": "bus going to the airport"
+   },
+   {
+    "i": 7,
+    "props": [
+     {
+      "art": "sign-exit-right",
+      "say": "でぐち",
+      "new": "a yellow Japanese station exit sign with black text 出口 and a bold black arrow pointing right, hanging from the ceiling on two short rods, seen from the front"
+     }
+    ],
+    "why": "exit to the right: arrow sign"
+   }
+  ]
+ },
+ "how-far": {
+  "postcard": "bg-street",
+  "world": [
+   {
+    "art": "station",
+    "say": "えき"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "station",
+      "say": "えき"
+     }
+    ],
+    "why": "how long to the station"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "duration only, nothing drawable"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "is it far, nothing named"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "it's close, nothing named"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "five minutes on foot, abstract"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "airport",
+      "say": "くうこう"
+     }
+    ],
+    "why": "how long to the airport"
+   },
+   {
+    "i": 6,
+    "props": [],
+    "why": "duration only, nothing drawable"
+   },
+   {
+    "i": 7,
+    "props": [
+     {
+      "art": "bus",
+      "say": "バス"
+     }
+    ],
+    "why": "twenty minutes by bus: the bus"
+   }
+  ]
+ },
+ "tickets": {
+  "postcard": "bg-station",
+  "world": [
+   {
+    "art": "ticket",
+    "say": "きっぷ"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "ticket",
+      "say": "いちまい"
+     }
+    ],
+    "why": "one ticket to Shinjuku"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "ticket",
+      "say": "にまい",
+      "count": 2
+     }
+    ],
+    "why": "two tickets to Kyoto"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "ticket",
+      "say": "いちまい"
+     }
+    ],
+    "why": "one adult ticket"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "round trip is abstract, no ticket named"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "one-way is fine, abstract"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "ticket",
+      "say": "きっぷ"
+     }
+    ],
+    "why": "where to buy tickets: a ticket"
+   },
+   {
+    "i": 6,
+    "props": [
+     {
+      "art": "ticket",
+      "say": "まい",
+      "count": 2
+     }
+    ],
+    "why": "two children's tickets"
+   },
+   {
+    "i": 7,
+    "props": [],
+    "why": "price of round trip, abstract"
+   }
+  ]
+ },
+ "travel-trouble": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "got lost, nothing drawable named"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "train",
+      "say": "でんしゃ"
+     }
+    ],
+    "why": "missed the train: the train"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "wallet",
+      "say": "さいふ"
+     }
+    ],
+    "why": "lost my wallet: the wallet"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "help request, nothing named"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "station",
+      "say": "えき"
+     }
+    ],
+    "why": "where's the station: the station"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "smartphone",
+      "say": "けいたい"
+     }
+    ],
+    "why": "lost my phone: the phone"
+   },
+   {
+    "i": 6,
+    "props": [
+     {
+      "art": "ticket",
+      "say": "きっぷ"
+     }
+    ],
+    "why": "forgot my ticket: the ticket"
+   },
+   {
+    "i": 7,
+    "props": [
+     {
+      "art": "bus",
+      "say": "バス"
+     }
+    ],
+    "why": "missed the bus: the bus"
+   }
+  ]
+ },
+ "had-better": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "go soon, abstract advice"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "taxi",
+      "say": "タクシー"
+     }
+    ],
+    "why": "better take a taxi"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "umbrella",
+      "say": "かさ"
+     }
+    ],
+    "why": "better take an umbrella"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "better not go, abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "take care, nothing named"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "better rest, abstract"
+   },
+   {
+    "i": 6,
+    "props": [
+     {
+      "art": "station",
+      "say": "えき"
+     }
+    ],
+    "why": "ask at the station"
+   },
+   {
+    "i": 7,
+    "props": [
+     {
+      "art": "taxi",
+      "say": "タクシー"
+     }
+    ],
+    "why": "better go by taxi"
+   }
+  ]
+ }
+}

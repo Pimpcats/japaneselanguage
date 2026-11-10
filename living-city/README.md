@@ -1,64 +1,70 @@
 # Hanasou — The Pop-up Book (`/living-city/`)
 
-The Living City preview, rebuilt as an illustrated pop-up book on top of the
-Speaking Studio's engine. Open it at `/living-city/` on GitHub Pages. No build
-step.
+Learn each page in the book, keep it on the drive. One set of sentences, one
+review schedule, two ways in. No build step.
 
-## The book
-- **Cover → Contents.** The cover shows on the first visit only. After that the
-  book opens at the contents: a bookmark ribbon on your next page, then the
-  table of contents (Levels 0–7 = chapters, lessons = pages). There's also an
-  appendix, **Side trips**, with the 15 Speaking Studio conversations.
-- **Every page is read four ways** (in order, but nothing is locked):
-  1. **Recall** — English prompt → say it → pull the tab → hear it → grade.
-  2. **Listen & Notice** — audio first. Pick the meaning. The picture only
-     pops up after you answer, so it can't give the answer away.
-  3. **Pattern Lab** — start from a sentence you know and swap a piece. It only
-     pairs two sentences that already exist in the same lesson (differing in
-     1–2 content words of the same part of speech), so it never invents
-     Japanese. The Studio's two lesson-tagged transforms are included. Lessons
-     with no such pair fall back to assembling the sentence from its chips.
-  4. **In the Moment** — the lesson's hand-written scene from `window.SCENES`.
-     Her line plays in a speech bubble, you answer out loud, then pick from
-     real lines. Level 0 uses the Studio's "First meeting".
-- **Every pop-up matches its page** (`scenes.js`, hand-authored per lesson
-  and per sentence — never guessed from words). Layers, back to front, in a
-  fixed order so nothing swaps while rising:
-  1. The lesson's postcard. If it isn't drawn yet, the section's backdrop
-     stands in.
-  2. The lesson's world: props for its situation.
-  3. もち子, the only character.
-  4. What this sentence literally names, with its attributes: a blue house
-     only when it says blue, a big house bigger, "two coffees" as two cups.
+## Book (eyes on)
+Home is one **Continue** button on your next page, a Drive tile, a Second look
+tile (due lines), and the contents (Levels 0–7 = chapters, lessons = pages,
+nothing locked). Side trips (the 15 Speaking Studio conversations) are folded
+under the contents.
 
-  Pictures not drawn yet simply don't appear, never a wrong substitute.
-  `docs/LIVING_CITY_ART_PROMPTS.md` lists each one as a ready-to-paste
-  green-screen prompt. Rebuild both files with
-  `node tools/build_living_city_scenes.mjs <dir of scene JSON>`.
-- **Driving mode** (🚗 on the contents). The page plays hands-free and
-  Japanese-only: listen → say it back → hear it again slowly. Conversations
-  go her line → your reply gap → a model reply. English is never spoken and
-  nothing is graded.
-- **Journal.** A forgiving week of dots (no streak), real tallies, a second
-  look at due cards, and a stamp for every page you finish all four readings
-  of.
+A page is **one continuous flow** with one action bar at the bottom. A short
+stamp card bridges the steps, and you can stop at any of them.
+
+| Step | What you do |
+|---|---|
+| Meet the page | See the picture, hear the sentence, tap the words. No test. |
+| 1 · Recall | Read the meaning, say it, reveal, grade yourself. |
+| 2 · Listen & Notice | No text: hear it, tap the picture it's about. A wrong picture says its own word. Sentences with no picture offer three meanings. |
+| 3 · Pattern Lab | A sentence you know as chips with one slot lit: pick the piece that makes the new sentence, then say it. Only pairs of real sentences from the same lesson. Lessons with no pair assemble a sentence from its chips. |
+| 4 · In the Moment | The lesson's hand-written scene: she speaks, you answer out loud, then a model reply appears in your bubble. No multiple choice. |
+
+## From the flashcards
+- Every word is a chip with **its meaning under it** and its role named.
+- Chips and the sentence itself are **colour-coded by word role**, with the
+  main app's exact colours (blue = noun everywhere). The key is in the Journal.
+- Tap a chip to hear the word; **↗ opens it on Jisho**.
+
+## Drive (eyes off)
+Built only from lines you've practised in the book, due ones first (12 a
+drive). Nothing learned yet: it plays a first listen of your next page.
+
+- **English cue** (default): hear the meaning → a gap to say the Japanese →
+  hear the answer → say it again. Weak lines get a slow replay and come back a
+  few lines later.
+- **Japanese only**: listen → say it back → slowly → again.
+- Some lines become a swap drill (sentence, then the new word, you say the new
+  sentence). A drive ends with a short conversation from a finished page.
+- **Grading without touching the phone:** media keys. ⏭ = knew it (it won't
+  repeat), ⏮ = again (it comes back). No input counts as "almost". A silent
+  loop holds the media session so wheel buttons reach the page. Not yet tested
+  on a real phone or car.
+- When you park: the lines you practised, tap one to flag it hard.
+
+The English cue uses the device's English voice and is the one place English
+is spoken. The main app's rule (English is never spoken) is unchanged.
+
+## Pictures
+`scenes.js` is hand-authored per lesson and per sentence, so every pop-up
+matches its page. Layers are flat and in a fixed order (postcard, the
+lesson's world, もち子, the page's props, bubbles), so nothing swaps while
+rising. Art not drawn yet is skipped. `docs/LIVING_CITY_ART_PROMPTS.md` lists
+it as ready-to-paste prompts. Rebuild both with
+`node tools/build_living_city_scenes.mjs docs/living-city-scenes`.
 
 ## Engine
-- Content: `../lessons.js` + `../studio-preview/content-overrides.js` (the
-  Studio's language QA fixes) + `data.js` (Studio transforms + conversations,
-  the art map, the backdrop map).
-- Audio: the recorded VOICEVOX clips via `../audio/manifest.json`, falling back
-  to the device's Japanese voice.
-- Progress: the Studio's SRS, stored in `localStorage` under
-  `hanasou.book.v1`. Your Studio review history is copied in once on the first
-  visit. The main app's `hanasou.v4` is never read or written.
+- Content: `../lessons.js`, `../studio-preview/content-overrides.js`,
+  `data.js` (Studio transforms + conversations, section backdrops).
+- Audio: recorded VOICEVOX clips via `../audio/manifest.json`, falling back to
+  the device's Japanese voice.
+- Progress: the Studio's SRS in `localStorage` under `hanasou.book.v1`. The
+  main app's `hanasou.v4` is never read or written.
 
-## Tests
-`node tools/smoke_living_city.mjs` (jsdom) reads through the whole book. It is
-part of the deploy gate in `.github/workflows/deploy.yml`.
+## Tests and deploys
+`node tools/smoke_living_city.mjs` plays a whole page, a side trip and two
+drives in jsdom. It is part of the deploy gate.
 
-## Deploying changes
-The root app's service worker also caches `/living-city/` files, and it serves
-them from the cache first. When you change `app.js`, `data.js` or
-`styles.css`, bump their `?v=` stamp in `index.html`. Otherwise the first load
-after a deploy can pair the new page with the old script.
+The root service worker also caches `/living-city/` files and serves them
+cache-first. When you change `app.js`, `data.js`, `scenes.js` or `styles.css`,
+bump their `?v=` stamp in `index.html`.

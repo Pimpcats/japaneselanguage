@@ -2699,3 +2699,5 @@ window.BOOK_SCENES = {
   "pages": []
  }
 };
+// art referenced above that isn't drawn yet (the book skips it)
+window.BOOK_ART_MISSING = ["japanese-writing","sign-exit-right","town-quiet"];

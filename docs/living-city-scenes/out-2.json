@@ -1,0 +1,818 @@
+{
+ "telling-time": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "asks the time; no object named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "a time alone, nothing drawable named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "a time alone, nothing drawable named"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "bedtime hour; no object named"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "wake-up hour; no object named"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "work time; work is abstract"
+   },
+   {
+    "i": 6,
+    "props": [],
+    "why": "bedtime hour; no object named"
+   }
+  ]
+ },
+ "frequency": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "tv",
+      "say": "テレビ"
+     }
+    ],
+    "why": "names the TV being watched"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "names the coffee being drunk"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "frequency only, nothing named"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "frequency only, nothing named"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "going often, no place named"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "studying every day, no object named"
+   }
+  ]
+ },
+ "activities": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "office",
+      "say": "かいしゃ"
+     }
+    ],
+    "why": "names the company where I work"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "house",
+      "say": "うち"
+     }
+    ],
+    "why": "names home as the study place"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "gohan",
+      "say": "ごはん"
+     }
+    ],
+    "why": "names the meal eaten"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "tv",
+      "say": "テレビ"
+     }
+    ],
+    "why": "names the TV watched at night"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "house",
+      "say": "うち"
+     }
+    ],
+    "why": "names home as where I sleep"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "office",
+      "say": "かいしゃ"
+     }
+    ],
+    "why": "names the company/office"
+   }
+  ]
+ },
+ "past-1": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "cinema",
+      "say": "えいが"
+     }
+    ],
+    "why": "names the movie watched"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "meeting a friend; no people allowed"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "gohan",
+      "say": "ごはん"
+     }
+    ],
+    "why": "names the meal eaten"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "cinema",
+      "say": "えいが"
+     }
+    ],
+    "why": "names the movie watched"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "gohan",
+      "say": "ごはん"
+     }
+    ],
+    "why": "names the meal eaten"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "question word only, nothing named"
+   },
+   {
+    "i": 6,
+    "props": [],
+    "why": "asks who; no people allowed"
+   },
+   {
+    "i": 7,
+    "props": [
+     {
+      "art": "cinema",
+      "say": "えいが"
+     }
+    ],
+    "why": "names the movie watched"
+   }
+  ]
+ },
+ "past-negative": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "going, no place named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "didn't go, nothing named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "ate nothing, no food named"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "question about last week, nothing named"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "book-circle",
+      "say": "ほん"
+     }
+    ],
+    "why": "names the book bought"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "did nothing, nothing named"
+   }
+  ]
+ },
+ "was-were": {
+  "postcard": "bg-shop",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "a day off is abstract"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "sushi",
+      "say": "おすし"
+     }
+    ],
+    "why": "names the sushi"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "coin500",
+      "say": "ごひゃく",
+      "new": "a single Japanese 500-yen coin, gold-coloured with a paulownia leaf design, standing on edge at a slight three-quarter angle"
+     }
+    ],
+    "why": "names a 500-yen price"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "water",
+      "say": "みず"
+     }
+    ],
+    "why": "names water (what it wasn't)"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "names the coffee asked about"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "a teacher is a person; none allowed"
+   }
+  ]
+ },
+ "sequence": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "wake-up time only, nothing named"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "breakfast",
+      "say": "あさごはん"
+     }
+    ],
+    "why": "names the breakfast eaten"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "park",
+      "say": "こうえん"
+     }
+    ],
+    "why": "names the park I went to"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "house",
+      "say": "うち"
+     }
+    ],
+    "why": "names home I returned to"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "dinner",
+      "say": "ばんごはん",
+      "new": "a Japanese home dinner on a wooden tray: bowl of rice, miso soup, a plate of hamburger steak with salad, chopsticks, slight three-quarter view"
+     }
+    ],
+    "why": "names the dinner eaten"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "went to bed, nothing named"
+   }
+  ]
+ },
+ "wants": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "japanmap",
+      "say": "にほん"
+     }
+    ],
+    "why": "names Japan as the destination"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "sushi",
+      "say": "おすし"
+     }
+    ],
+    "why": "names the sushi I want"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "wanting to rest, nothing named"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "car",
+      "say": "くるま"
+     }
+    ],
+    "why": "names the car I want"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "japanmap",
+      "say": "にほん"
+     },
+     {
+      "art": "sushi",
+      "say": "おすし"
+     }
+    ],
+    "why": "names Japan and sushi"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "car",
+      "say": "くるま"
+     }
+    ],
+    "why": "names the car as transport"
+   }
+  ]
+ },
+ "lets": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "let's go, no place named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "eat together, no food named"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "names the coffee offered"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "cinema",
+      "say": "えいが"
+     }
+    ],
+    "why": "names the movie invited to"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "let's do it, nothing named"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "japanmap",
+      "say": "にほん"
+     }
+    ],
+    "why": "names Japan as the destination"
+   }
+  ]
+ },
+ "likes": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "sushi",
+      "say": "おすし"
+     }
+    ],
+    "why": "names the sushi I like"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "cat",
+      "say": "ねこ"
+     }
+    ],
+    "why": "names cats I love"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "vegetables",
+      "say": "やさい"
+     }
+    ],
+    "why": "names the vegetables I dislike"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "names the coffee asked about"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "music-notes",
+      "say": "おんがく",
+      "new": "a small cluster of black musical notes (eighth and quarter notes) floating together, drawn in ink, front view"
+     }
+    ],
+    "why": "names music as the liked thing"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "japanmap",
+      "say": "にほん"
+     }
+    ],
+    "why": "names Japan as loved"
+   }
+  ]
+ },
+ "can-do": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "a language skill is abstract"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "a language skill is abstract"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "cooking-pan",
+      "say": "りょうり",
+      "new": "a frying pan with sizzling vegetables and a little steam on a single gas burner, slight three-quarter view"
+     }
+    ],
+    "why": "names cooking as the skill"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "steering-wheel",
+      "say": "うんてん",
+      "new": "a car steering wheel, round with three spokes, standing upright, seen from the front at a slight three-quarter angle"
+     }
+    ],
+    "why": "names driving as the skill"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "praise for Japanese, abstract"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "can do it, nothing named"
+   }
+  ]
+ },
+ "adjectives": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "delicious, but no food named"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "cinema",
+      "say": "えいが"
+     }
+    ],
+    "why": "names the movie that is fun"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "a trip is not a drawable object"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "cinema-expensive",
+      "say": "えいが",
+      "new": "a cinema screen with red curtains and two seats, with a small blank price tag hanging from it, slight three-quarter view"
+     }
+    ],
+    "why": "names the movie that was expensive"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "was delicious, but no food named"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "a trip is not a drawable object"
+   }
+  ]
+ },
+ "adj-noun": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "house",
+      "say": "いえ",
+      "size": "big"
+     }
+    ],
+    "why": "names a big house"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "car",
+      "say": "くるま",
+      "size": "small"
+     }
+    ],
+    "why": "names a small car"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "house-new",
+      "say": "いえ",
+      "new": "a brand-new small Japanese house, clean bright walls, crisp unweathered roof tiles, shiny windows and door, seen from the front at a slight three-quarter angle"
+     }
+    ],
+    "why": "names a new house"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "book-old",
+      "say": "ほん",
+      "new": "an old worn hardback book, faded cover, frayed corners, yellowed page edges, standing upright at a slight three-quarter angle"
+     }
+    ],
+    "why": "names an old book"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "car",
+      "say": "くるま"
+     }
+    ],
+    "why": "asks what kind of car"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "town",
+      "say": "まち",
+      "size": "big"
+     }
+    ],
+    "why": "names a big town"
+   }
+  ]
+ },
+ "na-adj": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "pretty, but no thing named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "asks about wellbeing, abstract"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "town-quiet",
+      "say": "まち",
+      "new": "a quiet little town: a few low houses along an empty lane, closed shutters, no traffic, calm evening light, slight three-quarter view"
+     }
+    ],
+    "why": "names a quiet town"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "famous, but no thing named"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "flower",
+      "say": "はな"
+     }
+    ],
+    "why": "names a pretty flower"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "sushi",
+      "say": "おすし"
+     }
+    ],
+    "why": "names sushi as famous"
+   }
+  ]
+ },
+ "adj-negative": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "not expensive, no thing named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "not tasty, no thing named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "hot, no thing named"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "not cold, no thing named"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "not good, no thing named"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "not quiet, no thing named"
+   }
+  ]
+ }
+}

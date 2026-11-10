@@ -1,0 +1,544 @@
+{
+ "plain-form": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "Asking about today's plans; nothing concrete named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "Asking where; no place or thing named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "Going home is an action, no object"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "Asking what to eat; no food named"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "Asking if okay; abstract"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "Saying I'm fine; abstract"
+   }
+  ]
+ },
+ "making-plans": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "gohan",
+      "say": "ごはん"
+     }
+    ],
+    "why": "Sentence names ごはん, a meal of rice"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "Going for a drink; no drink named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "Let's go; pure invitation"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "Weekend free time is abstract"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "station",
+      "say": "えき"
+     }
+    ],
+    "why": "Meeting place is the station"
+   }
+  ]
+ },
+ "i-think": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "raincloud",
+      "say": "あめ"
+     }
+    ],
+    "why": "Sentence predicts rain"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "Opinion that something is good; abstract"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "Thinking someone will come; no thing"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "Disagreeing; abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "Probably impossible; abstract judgement"
+   }
+  ]
+ },
+ "quoting": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "Reported speech about not coming"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "Asking what was said"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "Unspecified これ; meaning is abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "Reporting I said fine"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "Not knowing a name; abstract"
+   }
+  ]
+ },
+ "favors": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "Lent item unspecified; friend is a person"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "Being taught by a friend; no object"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "Offering help; abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "Thanks for coming; abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "Asking to be told; abstract"
+   }
+  ]
+ },
+ "comparing": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "train",
+      "say": "でんしゃ"
+     },
+     {
+      "art": "bus",
+      "say": "バス"
+     }
+    ],
+    "why": "Compares the train and the bus"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "Which one; options not named"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "coffee",
+      "say": "コーヒー"
+     }
+    ],
+    "why": "Coffee is the preferred one"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "Summer is a season, not drawable object"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "Unspecified これ is cheapest"
+   }
+  ]
+ },
+ "reactions": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "Reaction word only"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "Reaction word only"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "Reaction word only"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "Reaction word only"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "Reaction words only"
+   }
+  ]
+ },
+ "conditionals": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "Item to buy is unspecified"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "smartphone",
+      "say": "でんわして"
+     }
+    ],
+    "why": "Asks for a phone call on arrival"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "raincloud",
+      "say": "あめ"
+     }
+    ],
+    "why": "Condition is rain"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "Being free is abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "Hypothetical about me; abstract"
+   }
+  ]
+ },
+ "have-to": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "Getting up early; no object named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "Studying is an activity, nothing named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "Hurrying; abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "No need to come; abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "No need to pay; no object named"
+   }
+  ]
+ },
+ "potential": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "Speaking a language is abstract"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "natto",
+      "say": "なっとう"
+     }
+    ],
+    "why": "Asks about eating natto"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "Can't go tomorrow; abstract"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "kanji-card",
+      "say": "かんじ",
+      "new": "a cream paper card standing upright with one large kanji 字 brushed in black ink, front view"
+     }
+    ],
+    "why": "Asks about reading kanji"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "Ability to swim; no object"
+   }
+  ]
+ },
+ "intend": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "Plan to go home; abstract"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "Asking about plans; abstract"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "Study abroad plan; abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "Not quitting; abstract"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "japanmap",
+      "say": "にほん"
+     }
+    ],
+    "why": "Destination named is Japan"
+   }
+  ]
+ },
+ "seems": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "What looks tasty is not named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "Looks fun; abstract impression"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "raincloud",
+      "say": "あめ"
+     }
+    ],
+    "why": "Rain looks about to fall"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "sign-closed",
+      "say": "やすみ",
+      "new": "a small wooden shop sign hanging by a cord on a sliding door, reading やすみ in black brush letters, front view"
+     }
+    ],
+    "why": "The place is closed today"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "Compares a person to a kid; no people"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "Looking busy; describes a person"
+   }
+  ]
+ },
+ "try-doing": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "Food to try is unspecified"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "Giving it a try; abstract"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "Try going; no place named"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "Forgetting; abstract"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "emptyplate",
+      "say": "ぜんぶ"
+     }
+    ],
+    "why": "Ate everything up: the plate is empty"
+   }
+  ]
+ },
+ "experience": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "sushi",
+      "say": "すし"
+     }
+    ],
+    "why": "Asks about eating sushi"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "japanmap",
+      "say": "にほん"
+     }
+    ],
+    "why": "Has been to Japan"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "mt-fuji",
+      "say": "ふじさん",
+      "new": "Mount Fuji: a single broad symmetrical volcano cone, sketchy ink hatching on its slopes, white snow cap with jagged edge, seen from the side"
+     }
+    ],
+    "why": "Names Mt. Fuji, never climbed"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "cinema",
+      "say": "えいが"
+     }
+    ],
+    "why": "Asks about seeing this movie"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "snow",
+      "say": "ゆき",
+      "new": "a small soft mound of fresh white snow on the ground with a few big snowflakes falling above it, side view"
+     }
+    ],
+    "why": "Sentence is about snow"
+   }
+  ]
+ }
+}

@@ -1,0 +1,491 @@
+{
+ "passive": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "boss is a person; nothing to draw"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "wallet",
+      "say": "さいふ"
+     }
+    ],
+    "why": "the stolen wallet is named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "teacher is a person; nothing to draw"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "friend is a person; favor is abstract"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "raincloud",
+      "say": "あめ"
+     }
+    ],
+    "why": "rain on the way home"
+   }
+  ]
+ },
+ "causative": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "abstract request, no object named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "apology for waiting, nothing concrete"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "thinking is abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "only people named; writing has no object"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "today and paying; no object named"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "kids are people; resting is abstract"
+   }
+  ]
+ },
+ "causative-passive": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "a duration only, nothing drawable"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "drinking party is an event, no drink named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "work is abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "childhood and studying are abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "moving house is an event, not an object"
+   }
+  ]
+ },
+ "should-supposed": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "apologizing is abstract"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "he is a person; knowing is abstract"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "train",
+      "say": "でんしゃ"
+     }
+    ],
+    "why": "the arriving train is named"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "pure disbelief, nothing concrete"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "leaving earlier is abstract"
+   }
+  ]
+ },
+ "even-though": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "studying and failing are abstract"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "expensive and not tasty, but no thing named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "sleep and sleepiness, no object named"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "raincloud",
+      "say": "あめ"
+     }
+    ],
+    "why": "going even in the rain"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "effort and futility are abstract"
+   }
+  ]
+ },
+ "you-ni": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "a language skill, nothing drawable"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "walking habit, no object named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "understanding kanji is an abstract skill"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "sweets",
+      "say": "あまいもの",
+      "new": "a small plate holding an assortment of sweets: a slice of strawberry shortcake, two chocolates and a wrapped candy, seen from the front at a slight three-quarter angle"
+     }
+    ],
+    "why": "sweets the speaker avoids are named"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "life here is abstract"
+   }
+  ]
+ },
+ "wake": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "expensive, but no thing named"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "dislike is a feeling"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "understanding is abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "opposition is an opinion"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "someone being busy is abstract"
+   }
+  ]
+ },
+ "sonkeigo": {
+  "postcard": "bg-shop",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "asking a name, nothing concrete"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "asking where someone goes, no place named"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "eat is invited but no food named"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "this is unspecified, nothing to draw"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "asking intentions is abstract"
+   }
+  ]
+ },
+ "kenjougo": {
+  "postcard": {
+   "new_key": "bg-office",
+   "new": "an empty modern Japanese office interior: rows of desks with computer monitors and office chairs, filing shelves, large windows with a city view, seen from the doorway, no people"
+  },
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "Tanaka is a person"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "taking care of it is abstract"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "looking at something unspecified"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "tomorrow's visit is abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "accepting an unspecified gift"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "coming right away, nothing concrete"
+   }
+  ]
+ },
+ "business-keigo": {
+  "postcard": {
+   "new_key": "bg-office",
+   "new": "an empty modern Japanese office interior: rows of desks with computer monitors and office chairs, filing shelves, large windows with a city view, seen from the doorway, no people"
+  },
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "waiting a moment is abstract"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "polite request, nothing concrete"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "set phrase of acknowledgment"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "a reply is not a concrete object"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "waiting a moment is abstract"
+   }
+  ]
+ },
+ "zaru-o-enai": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "giving up is abstract"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "he is a person; admitting is abstract"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "laughing is an action, no object"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "worry is a feeling"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "raincloud",
+      "say": "あめ"
+     }
+    ],
+    "why": "rain forced the cancellation"
+   }
+  ]
+ },
+ "ni-oite": {
+  "postcard": {
+   "new_key": "bg-office",
+   "new": "an empty modern Japanese office interior: rows of desks with computer monitors and office chairs, filing shelves, large windows with a city view, seen from the doorway, no people"
+  },
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "meeting and opinions are abstract"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "society and English are abstract"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "starting work and greeting are abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "departure and caution are abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "education is abstract"
+   }
+  ]
+ },
+ "monono": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "a broken promise is abstract"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "winter",
+      "say": "ふゆ"
+     }
+    ],
+    "why": "winter is named as the season"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "convenience and habit are abstract"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "agreement is abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "young person and reliability; no object"
+   }
+  ]
+ },
+ "kagiri": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [],
+    "why": "knowledge and truth are abstract"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "being alive and trying are abstract"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "a bad habit, nothing named"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "success and effort are abstract"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "no problem, nothing concrete"
+   }
+  ]
+ }
+}

@@ -1,0 +1,618 @@
+{
+ "l0-a": {
+  "postcard": "bg-street",
+  "world": [
+   {
+    "art": "house",
+    "say": "いえ"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "house",
+      "say": "いえ"
+     }
+    ],
+    "why": "names a nice house"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "just 'no' — nothing to draw"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "house-blue",
+      "say": "いえ",
+      "new": "a small traditional Japanese house with walls painted a soft blue, dark tiled roof, wooden sliding door, seen from the front at a slight three-quarter angle"
+     }
+    ],
+    "why": "house must visibly be blue"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "'up' is a direction, not an object"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "just 'yeah' — nothing to draw"
+   }
+  ]
+ },
+ "l0-ka": {
+  "postcard": "bg-street",
+  "world": [
+   {
+    "art": "station",
+    "say": "えき"
+   }
+  ],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "bigface",
+      "say": "かお",
+      "size": "big"
+     }
+    ],
+    "why": "sentence is about a big face"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "redface",
+      "say": "かお"
+     }
+    ],
+    "why": "red face asset shows the red"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "a voice cannot be drawn"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "station",
+      "say": "えき",
+      "size": "big"
+     }
+    ],
+    "why": "a big station"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "air is invisible, nothing literal to draw"
+   },
+   {
+    "i": 5,
+    "props": [
+     {
+      "art": "pond",
+      "say": "いけ",
+      "size": "big",
+      "new": "a Japanese garden pond of still blue-green water ringed by rounded grey stones, a few reeds at one edge, seen at ground level from a slight three-quarter angle"
+     }
+    ],
+    "why": "a big pond"
+   }
+  ]
+ },
+ "l0-sa": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "sushi",
+      "say": "すし"
+     }
+    ],
+    "why": "names sushi"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "cow",
+      "say": "うし",
+      "size": "big"
+     }
+    ],
+    "why": "a big cow"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "globe",
+      "say": "せかい",
+      "size": "big",
+      "new": "a desk globe of the Earth on a wooden stand with a curved brass arm, blue oceans and green-brown continents, slight three-quarter view"
+     }
+    ],
+    "why": "globe literally depicts the world"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "'no way' exclamation, nothing to draw"
+   },
+   {
+    "i": 4,
+    "props": [],
+    "why": "morning is a time, not an object"
+   }
+  ]
+ },
+ "l0-ta": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "clock-expensive",
+      "say": "とけい",
+      "new": "an ornate antique mantel clock with gilded gold trim, carved dark-wood case and a fancy enamel dial, with a small blank price tag hanging from it, slight three-quarter view"
+     }
+    ],
+    "why": "clock must read as expensive"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "octopus",
+      "say": "たこ",
+      "size": "small"
+     }
+    ],
+    "why": "a small octopus"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "'when?' is a question word"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "hand",
+      "say": "て",
+      "size": "small"
+     }
+    ],
+    "why": "a small hand"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "octopus-dish",
+      "say": "たこ",
+      "new": "a small white plate of sliced boiled octopus tentacle, red-purple skin and white flesh with suckers visible, slight three-quarter view"
+     }
+    ],
+    "why": "octopus as food, since it's tasty"
+   }
+  ]
+ },
+ "l0-na": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "cat-paw",
+      "say": "あし",
+      "new": "a sitting cat lifting one front paw toward the viewer, pink paw pads clearly visible, the raised paw the focus of the drawing, front three-quarter view"
+     }
+    ],
+    "why": "the cat's foot must be the focus"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "dogface",
+      "say": "かお"
+     }
+    ],
+    "why": "the dog's face"
+   },
+   {
+    "i": 2,
+    "props": [],
+    "why": "'what?' is a question word"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "cat-paw",
+      "say": "て"
+     }
+    ],
+    "why": "the cat's paw, same raised-paw art"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "doghouse",
+      "say": "いえ",
+      "new": "a small wooden doghouse with a pointed red-brown roof and an arched doorway, standing on the ground, front three-quarter view"
+     }
+    ],
+    "why": "the dog's house is a doghouse"
+   }
+  ]
+ },
+ "l0-ha": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "redflower",
+      "say": "はな"
+     }
+    ],
+    "why": "a red flower"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "boat",
+      "say": "ふね",
+      "size": "big"
+     }
+    ],
+    "why": "a big boat"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "star",
+      "say": "ほし",
+      "size": "small",
+      "count": 3
+     }
+    ],
+    "why": "stars drawn small to read as far"
+   },
+   {
+    "i": 3,
+    "props": [],
+    "why": "just 'yes' — nothing to draw"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "chopsticks",
+      "say": "はし",
+      "size": "small",
+      "new": "a pair of plain wooden Japanese chopsticks resting on a small round ceramic chopstick rest, slight three-quarter view"
+     }
+    ],
+    "why": "tiny chopsticks"
+   },
+   {
+    "i": 5,
+    "props": [],
+    "why": "a person — no people allowed"
+   }
+  ]
+ },
+ "l0-ma": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "sea",
+      "say": "うみ"
+     }
+    ],
+    "why": "the sea must visibly be blue"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "town",
+      "say": "まち",
+      "size": "small"
+     }
+    ],
+    "why": "a small town"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "peach",
+      "say": "もも"
+     }
+    ],
+    "why": "names a peach"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "shop",
+      "say": "みせ",
+      "size": "small",
+      "new": "a small Japanese corner shop front with a plain cloth noren curtain over the doorway, wooden frame and tiled awning, front three-quarter view, no lettering"
+     }
+    ],
+    "why": "a small shop"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "eyes",
+      "say": "め",
+      "size": "big",
+      "new": "a pair of big round expressive eyes with lashes and shiny highlights, drawn on their own without a face, front view"
+     }
+    ],
+    "why": "sentence is about big eyes"
+   }
+  ]
+ },
+ "l0-ya": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "mountain",
+      "say": "やま",
+      "size": "big"
+     }
+    ],
+    "why": "a tall mountain"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "winter",
+      "say": "ふゆ"
+     }
+    ],
+    "why": "existing winter art stands for winter"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "vegetables",
+      "say": "やさい"
+     }
+    ],
+    "why": "names vegetables"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "snow",
+      "say": "ゆき",
+      "new": "a small mound of fresh white snow on the ground with a few snowflakes falling around it, crisp and cold-looking, slight three-quarter view"
+     }
+    ],
+    "why": "cold snow"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "cow-strong",
+      "say": "うし",
+      "new": "a stocky, muscular black-and-white cow standing firmly with head lowered and broad chest out, thick sturdy legs, side three-quarter view"
+     }
+    ],
+    "why": "cow must look strong"
+   }
+  ]
+ },
+ "l0-ra": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "bird",
+      "say": "とり"
+     }
+    ],
+    "why": "this is a bird"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "car",
+      "say": "くるま"
+     }
+    ],
+    "why": "that is a car"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "sakura-white",
+      "say": "さくら",
+      "new": "a cherry-blossom branch heavy with pure white five-petalled blossoms on dark twigs, slight three-quarter view"
+     }
+    ],
+    "why": "blossoms must visibly be white"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "mountain",
+      "say": "やま"
+     }
+    ],
+    "why": "that over there is a mountain"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "sakura",
+      "say": "さくら"
+     }
+    ],
+    "why": "this is a cherry blossom"
+   }
+  ]
+ },
+ "l0-wa": {
+  "postcard": "bg-street",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "book-circle",
+      "say": "ほん"
+     }
+    ],
+    "why": "my book"
+   },
+   {
+    "i": 1,
+    "props": [
+     {
+      "art": "whitecat",
+      "say": "ねこ"
+     }
+    ],
+    "why": "a white cat"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "japanmap",
+      "say": "にほん"
+     }
+    ],
+    "why": "map of Japan stands for Japan"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "hand",
+      "say": "て"
+     }
+    ],
+    "why": "my hand"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "house",
+      "say": "いえ",
+      "size": "small"
+     }
+    ],
+    "why": "a small house"
+   }
+  ]
+ },
+ "l0-dakuten": {
+  "postcard": "bg-room",
+  "world": [],
+  "pages": [
+   {
+    "i": 0,
+    "props": [
+     {
+      "art": "book-stripes",
+      "say": "ほん"
+     }
+    ],
+    "why": "this is a book"
+   },
+   {
+    "i": 1,
+    "props": [],
+    "why": "a movie being fun can't be drawn literally"
+   },
+   {
+    "i": 2,
+    "props": [
+     {
+      "art": "telephone",
+      "say": "でんわ"
+     }
+    ],
+    "why": "names a telephone"
+   },
+   {
+    "i": 3,
+    "props": [
+     {
+      "art": "window",
+      "say": "まど",
+      "size": "big"
+     }
+    ],
+    "why": "a big window"
+   },
+   {
+    "i": 4,
+    "props": [
+     {
+      "art": "bread",
+      "say": "ぱん"
+     }
+    ],
+    "why": "this is bread"
+   }
+  ]
+ }
+}
