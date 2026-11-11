@@ -20,6 +20,8 @@
   --yamabuki: #e2a41f;
   --green: #2f7d57;
   --night: #0f1424;
+  --eggshell: #f2ebd9;
+  --shell-card: #fffcf4;
   --serif: "Alegreya", "Iowan Old Style", Georgia, serif;
   --sans: "Alegreya Sans", -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif;
   --jp: "Klee One", "Hiragino Maru Gothic ProN", "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
@@ -480,36 +482,35 @@ body.talking .big-play::after { animation: ripple 1.1s ease-out infinite; }
 #drive-start, #drive-done { margin-top: 18px; }
 
 /* ---------- drive: on the road. Dark, calm, big. ---------- */
-body.driving { background: var(--night); }
-body.driving .book { background: var(--night); }
+body.driving { background: var(--eggshell); }
+body.driving .book { background: var(--eggshell); }
 body.driving #drive { padding: 0; }
 .drive-run {
   display: flex; flex-direction: column; min-height: 100dvh; padding: calc(var(--safe-t) + 14px) 18px calc(var(--safe-b) + 18px);
-  color: #f4efe3; animation: rise .5s var(--ease) both;
+  color: var(--ink); animation: rise .5s var(--ease) both;
 }
-.drive-run .t-n, .drive-run .t-v, .drive-run .t-adj, .drive-run .t-adv, .drive-run .t-prt, .drive-run .t-cop, .drive-run .t-expr, .drive-run .t-aux, .drive-run .t-conj { color: var(--pl); background: none; }
-.drive-run .t-adj { color: #c9bcff; }
+.drive-run .t-n, .drive-run .t-v, .drive-run .t-adj, .drive-run .t-adv, .drive-run .t-prt, .drive-run .t-cop, .drive-run .t-expr, .drive-run .t-aux, .drive-run .t-conj { color: var(--pi); background: none; }
 .drive-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
-.drive-end { justify-self: start; height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, .1); color: #f4efe3; font: 700 15px var(--sans); transition: scale .25s var(--spring); }
+.drive-end { justify-self: start; height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: rgba(29, 29, 31, .07); color: var(--ink); font: 700 15px var(--sans); transition: scale .25s var(--spring); }
 .drive-end:active { scale: .93; }
 .drive-icon { justify-self: end; width: 40px; padding: 0; display: grid; place-items: center; }
-.drive-count { font: 500 15px var(--sans); color: rgba(244, 239, 227, .6); font-variant-numeric: lining-nums tabular-nums; }
+.drive-count { font: 500 15px var(--sans); color: rgba(29, 29, 31, .6); font-variant-numeric: lining-nums tabular-nums; }
 .drive-lesson { margin-top: 14px; text-align: center; }
 .drive-lesson b { display: block; font: 700 19px/1.2 var(--serif); }
-.drive-lesson small { font-size: 14px; color: rgba(244, 239, 227, .55); }
+.drive-lesson small { font-size: 14px; color: rgba(29, 29, 31, .55); }
 .drive-wave { display: flex; align-items: center; justify-content: center; gap: 5px; height: 44px; margin-top: 8vh; }
-.drive-wave i { width: 5px; height: 8px; border-radius: 3px; background: rgba(244, 239, 227, .35); transition: height .3s ease; }
+.drive-wave i { width: 5px; height: 8px; border-radius: 3px; background: rgba(29, 29, 31, .35); transition: height .3s ease; }
 body.talking .drive-wave i { background: var(--yamabuki); animation: wave .7s ease-in-out infinite alternate; }
 body.talking .drive-wave i:nth-child(2) { animation-delay: .12s; }
 body.talking .drive-wave i:nth-child(3) { animation-delay: .24s; }
 body.talking .drive-wave i:nth-child(4) { animation-delay: .08s; }
 body.talking .drive-wave i:nth-child(5) { animation-delay: .2s; }
 @keyframes wave { from { height: 8px; } to { height: 38px; } }
-.drive-cue { margin-top: 14px; text-align: center; font: 700 18px var(--sans); color: var(--yamabuki); }
+.drive-cue { margin-top: 14px; text-align: center; font: 700 18px var(--sans); color: #a86f06; }
 .drive-line { flex: 1; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; align-content: center; padding: 10px 4px; text-align: center; font: 600 clamp(30px, 9vw, 44px)/1.4 var(--jp); }
 .drive-line .en { font: 700 clamp(26px, 7.4vw, 36px)/1.2 var(--serif); }
 .dots { display: inline-flex; gap: 10px; }
-.dots i { width: 11px; height: 11px; border-radius: 50%; background: rgba(244, 239, 227, .5); animation: dot 1.2s ease-in-out infinite; }
+.dots i { width: 11px; height: 11px; border-radius: 50%; background: rgba(29, 29, 31, .5); animation: dot 1.2s ease-in-out infinite; }
 .dots i:nth-child(2) { animation-delay: .2s; }
 .dots i:nth-child(3) { animation-delay: .4s; }
 @keyframes dot { 0%, 100% { opacity: .25; scale: .8; } 40% { opacity: 1; scale: 1.15; } }
@@ -518,21 +519,24 @@ body.talking .drive-wave i:nth-child(5) { animation-delay: .2s; }
 .drive-pads.two { grid-template-columns: 1fr 1fr; }
 .drive-pads button {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 98px; border: 0; border-radius: 24px;
-  background: rgba(255, 255, 255, .09); color: #f4efe3; transition: scale .25s var(--spring), background .2s;
+  background: var(--shell-card); color: var(--ink); box-shadow: var(--shadow); transition: scale .25s var(--spring), background .2s;
 }
-.drive-pads button:active { scale: .95; background: rgba(255, 255, 255, .18); }
+.drive-pads button:active { scale: .95; background: #efe7d2; }
 .drive-pads button .ic { width: 32px; height: 32px; }
-.drive-pads button small { font: 700 15px var(--sans); color: rgba(244, 239, 227, .75); }
-.drive-pads button.good { background: rgba(86, 196, 140, .22); }
+.drive-pads button small { font: 700 15px var(--sans); color: rgba(29, 29, 31, .75); }
+.drive-pads button.good { background: #dcefe3; color: #1f5c3f; }
+.drive-pads button.good small { color: #1f5c3f; }
 .drive-pads button.flash { background: rgba(226, 164, 31, .4); }
-.drive-pads.one button { background: rgba(255, 255, 255, .13); }
-.drive-run .fine { text-align: center; color: rgba(244, 239, 227, .45); }
+.drive-pads.one button { background: var(--indigo); color: #fbf8f1; }
+.drive-pads.one button small { color: rgba(251, 248, 241, .85); }
+.drive-pads.one button:active { background: var(--indigo-2); }
+.drive-run .fine { text-align: center; color: rgba(29, 29, 31, .45); }
 
 /* touch drive: one big card for a mounted phone */
 .drive-card {
   position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; width: 100%;
-  margin: 14px 0; padding: 26px 16px 44px; border: 0; border-radius: 30px; background: rgba(255, 255, 255, .06);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); color: #f4efe3; text-align: center; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+  margin: 14px 0; padding: 26px 16px 44px; border: 0; border-radius: 30px; background: var(--shell-card);
+  box-shadow: var(--shadow-up), inset 0 0 0 1px rgba(29, 29, 31, .05); color: var(--ink); text-align: center; touch-action: pan-y; user-select: none; -webkit-user-select: none;
 }
 .drive-card.enter { animation: card-in .36s var(--spring) both; }
 .drive-card.leave-right { animation: card-right .22s ease-in forwards; }
@@ -540,30 +544,30 @@ body.talking .drive-wave i:nth-child(5) { animation-delay: .2s; }
 @keyframes card-in { from { opacity: 0; transform: scale(.94) translateY(10px); } }
 @keyframes card-right { to { opacity: 0; transform: translateX(46%) rotate(7deg); } }
 @keyframes card-left { to { opacity: 0; transform: translateX(-46%) rotate(-7deg); } }
-.tc-label { font: 700 17px var(--sans); color: var(--yamabuki); }
+.tc-label { font: 700 17px var(--sans); color: #a86f06; }
 .tc-main { margin: 0; }
 .tc-en { font: 700 clamp(28px, 8.2vw, 40px)/1.15 var(--serif); letter-spacing: -.01em; }
 .tc-jp { font: 600 clamp(31px, 9.4vw, 46px)/1.4 var(--jp); }
-.tc-bubble { position: relative; margin: 0 0 10px; padding: 14px 18px; border-radius: 22px; background: #fdfaf2; color: var(--ink); font: 600 clamp(26px, 7.6vw, 36px)/1.4 var(--jp); }
-.tc-bubble::after { content: ""; position: absolute; left: 34px; bottom: -8px; width: 18px; height: 18px; background: #fdfaf2; border-radius: 0 0 5px 0; transform: rotate(45deg); }
+.tc-bubble { position: relative; margin: 0 0 10px; padding: 14px 18px; border-radius: 22px; background: var(--indigo); color: #fbf8f1; font: 600 clamp(26px, 7.6vw, 36px)/1.4 var(--jp); }
+.tc-bubble::after { content: ""; position: absolute; left: 34px; bottom: -8px; width: 18px; height: 18px; background: var(--indigo); border-radius: 0 0 5px 0; transform: rotate(45deg); }
 .tc-answer { display: grid; gap: 10px; justify-items: center; width: 100%; }
 .drive-card.shown .tc-answer > * { animation: rise .4s var(--ease) .12s both; }
 /* the flip: the card turns over as the answer side comes up; once flipped the
    prompt steps back so the Japanese is the face you read */
 .drive-run.touch { perspective: 1200px; }
 .drive-card.flip { animation: card-flip .42s var(--ease) both; }
-@keyframes card-flip { from { transform: rotateY(-88deg); background: rgba(255, 255, 255, .13); } }
-.drive-card.shown { background: rgba(255, 255, 255, .1); }
-.drive-card.shown:not(.kind-answer) > .tc-en { font-size: clamp(17px, 4.8vw, 21px); font-weight: 500; font-style: italic; color: rgba(244, 239, 227, .7); }
+@keyframes card-flip { from { transform: rotateY(-88deg); } }
+.drive-card.shown { background: #fffefb; }
+.drive-card.shown:not(.kind-answer) > .tc-en { font-size: clamp(17px, 4.8vw, 21px); font-weight: 500; font-style: italic; color: rgba(29, 29, 31, .7); }
 .gloss { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 12px; margin: 0; }
 .gl { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .gl b { font: 600 clamp(26px, 7.8vw, 36px)/1.25 var(--jp); }
-.gl small { font: 500 14.5px/1.1 var(--sans); color: rgba(244, 239, 227, .68); }
+.gl small { font: 500 14.5px/1.1 var(--sans); color: rgba(29, 29, 31, .68); }
 .gloss.plain { font: 600 30px/1.4 var(--jp); }
-.tc-en2 { font: italic 500 20px/1.25 var(--serif); color: rgba(244, 239, 227, .86); }
-.tc-meant { font-size: 15px; color: rgba(244, 239, 227, .55); }
-.tc-ctx { margin: 0; font: italic 500 20px/1.25 var(--serif); color: rgba(244, 239, 227, .8); }
-.tc-tap { position: absolute; left: 0; right: 0; bottom: 16px; font: 500 14.5px var(--sans); color: rgba(244, 239, 227, .42); }
+.tc-en2 { font: italic 500 20px/1.25 var(--serif); color: rgba(29, 29, 31, .86); }
+.tc-meant { font-size: 15px; color: rgba(29, 29, 31, .55); }
+.tc-ctx { margin: 0; font: italic 500 20px/1.25 var(--serif); color: rgba(29, 29, 31, .8); }
+.tc-tap { position: absolute; left: 0; right: 0; bottom: 16px; font: 500 14.5px var(--sans); color: rgba(29, 29, 31, .42); }
 .drive-card.between { justify-content: center; }
 /* understand it: once checked, the meaning and the word-by-word gloss replace the bare sentence */
 .drive-card.shown.kind-understand > .tc-jp { display: none; }

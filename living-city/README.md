@@ -68,7 +68,7 @@ Two ways to drive it (`state.settings.driveMode`, remembered):
   Session API): play/pause, ⏭ = knew it, ⏮ = again. No input counts as
   "almost". The car display shows the Japanese line. A silent loop holds the
   media session between clips.
-- **Touch** (for a mounted phone): one big dark card. The Japanese is read
+- **Touch** (for a mounted phone): one big paper card on eggshell (owner, 2026-11: no dark mode; both drives are light). The Japanese is read
   aloud; say your answer; **tap anywhere** to check (each word appears with
   its meaning under it); then **Again / Got it**, by big pad or by swipe
   (← again, → got it). EVERY card is a flip card (owner, 2026-11): a new line
